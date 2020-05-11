@@ -1,0 +1,16 @@
+{
+  "Global": {
+    "MaxNumber": 5000,
+    "Strategies": [ "TokenBucket" ]
+  },
+  "Configuration": {
+    "Action1µÄDisplayName": {
+      "MaxNumber": 5000,
+      "Strategies": [ "TokenBucket" ]
+    },
+    "Action2µÄDisplayName": {
+      "MaxNumber": 5000,
+      "Strategies": [ "TokenBucket" ]
+    }
+  }
+}

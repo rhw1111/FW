@@ -1,0 +1,36 @@
+﻿{
+  "Handler1": {
+    "ID": "CF23611B-CE75-4BF9-899B-EF7B5188DBB0",
+    "Name": "Handler1",
+    "Type": "HandlerType1",
+    "Configuration": "",
+    "Provider": {
+      "ID": "AF2E7F3E-9AF3-4FCF-A24E-BD3C75C8C928",
+      "Name": "Provider1",
+      "Type": "CommonXlsx",
+      "Configuration": "{\"FilePath\":\"DataFiles\\aa.xlsx\"，\"HasTitle\":true}",
+      "TypeMapping": [ "string", "string" ],
+      "CreateTime": "2019-07-27",
+      "ModifyTime": "2019-07-27"
+    },
+    "CreateTime": "2019-07-27",
+    "ModifyTime": "2019-07-27"
+  },
+  "Handler2": {
+    "ID": "354157B7-1843-4ACB-A827-9D682F7C73A2",
+    "Name": "Handler2",
+    "Type": "HandlerType2",
+    "Configuration": "",
+    "Provider": {
+      "ID": "2F55B8A6-477B-4286-9606-1953E2307DF5",
+      "Name": "Provider2",
+      "Type": "CommonXlsx",
+      "Configuration": "{\"FilePath\":\"DataFiles\\aa.xlsx\"，\"HasTitle\":true}",
+      "TypeMapping": [ "string", "string" ],
+      "CreateTime": "2019-07-27",
+      "ModifyTime": "2019-07-27"
+    },
+    "CreateTime": "2019-07-27",
+    "ModifyTime": "2019-07-27"
+  }
+}

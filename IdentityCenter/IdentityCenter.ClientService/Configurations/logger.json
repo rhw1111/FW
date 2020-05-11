@@ -1,0 +1,45 @@
+﻿{
+  "GlobalLogLevels": {
+    "DCEM.ConfigurationService": "4",
+    "HttpRequest": "4",
+    "DIWrapper": "2",
+    "SystemAuthentication": "4"
+  },
+  "RemainAllProvider": false,
+  "GlobalLogDefaultMinLevel": "4",
+  "Providers": {
+    /*"CommonLog": {
+      "Configuration": null,
+      "LogLevels": {
+        "DCEM.ConfigurationService": "4",
+        "HttpRequest": "4",
+        "DIWrapper": "4",
+        "SystemAuthentication": "4"
+      },
+      "DefaultMinLevel": "4"
+    }*/
+    /*"Console": {
+      "Configuration": null,
+      "LogLevels": {
+        "DCEM.Web": "0",
+        "DIWrapper": "0",
+        "HttpRequest": "0",
+        "SystemAuthentication": "0"
+      },
+      "DefaultMinLevel": "0"
+    },*/
+    "ExceptionLess": {
+      "Configuration": {
+        "Key": "0LptKO8PVfvW1paVEchZibOMsFLbQD2DbLF401Jz",
+        "ServiceUri": "http://crm9:50000"
+      },
+      "LogLevels": {
+        "DCEM.Web": "2",
+        "DIWrapper": "2",
+        "HttpRequest": "2",
+        "SystemAuthentication": "2"
+      },
+      "DefaultMinLevel": "2"
+    }
+  }
+}

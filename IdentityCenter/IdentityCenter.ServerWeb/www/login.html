@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script type="text/javascript" src="js/jquery-3.5.0.min.js"></script>
+    <script type="text/javascript">
+        QueryString = {
+            data: {},
+            Initial: function () {
+                var aPairs, aTmp;
+                var queryString = new String(window.location.search);
+                queryString = queryString.substr(1, queryString.length); //remove   "?"    
+                aPairs = queryString.split("&");
+                for (var i = 0; i < aPairs.length; i++) {
+                    aTmp = aPairs[i].split("=");
+                    this.data[aTmp[0]] = aTmp[1];
+                }
+            },
+            GetValue: function (key) {
+                return this.data[key];
+            }
+        } 
+
+        QueryString.Initial();
+
+        var returnUrl=QueryString.GetValue("ReturnUrl");
+
+        function Submit() {
+            $("#mainForm").attr("action", "http://localhost:5000/api/account/login?returnUrl=" + returnUrl);
+            $("#mainForm").submit();
+
+            /*var name = $("#name").val();
+            var pass = $("#pass").val();
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:5000/api/account/login?returnUrl=' + returnUrl,
+                data: JSON.stringify({
+                    "Name": name,
+                    "Password": pass
+                }),
+                dataType: "json",
+                contentType: 'application/json',
+                xhrFields: {
+                    withCredentials: true
+                },
+                success: function (data) {
+                    var d = data;
+                },
+                error: function (request,errorMessage,ex) {
+                    var dd = 1;
+                }
+            });*/
+        }
+    </script>
+</head>
+<body>
+    <form id="mainForm"  method="post">
+        <input type="text" id="name" name="name" /><br />
+        <input type="text" id="pass" name="pass" /><br />
+        <input type="button" value="submit" onclick="Submit()" />
+    </form>
+
+</body>
+</html>

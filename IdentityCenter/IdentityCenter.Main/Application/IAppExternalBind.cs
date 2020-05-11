@@ -1,0 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using IdentityCenter.Main.DTOModel;
+
+namespace IdentityCenter.Main.Application
+{
+    public interface IAppExternalBind
+    {
+        Task<ExternalBindResult> Do(ExternalBindUser bindUser, AuthenticateResult authenticateResult, CancellationToken cancellationToken = default);
+    }
+}
