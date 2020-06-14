@@ -9,6 +9,7 @@ namespace MSLibrary.SRR
     /// </summary>
     public class SRRRequest
     {
+        private object _lockObj = new object();
         /// <summary>
         /// 类型
         /// </summary>
@@ -35,7 +36,7 @@ namespace MSLibrary.SRR
         {
             if (Parameters == null)
             {
-                lock (this)
+                lock (_lockObj)
                 {
                     if (Parameters == null)
                     {

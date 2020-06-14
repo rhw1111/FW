@@ -10,6 +10,7 @@ namespace MSLibrary.Collections
     /// </summary>
     public class NLinkedList<T> : LinkedList<T>
     {
+        private object _lockObj = new object();
         private int _maxLength = 1;
         public NLinkedList() : base()
         {
@@ -45,7 +46,7 @@ namespace MSLibrary.Collections
         public new LinkedListNode<T> AddAfter(LinkedListNode<T> node, T value)
         {
             LinkedListNode<T> result = null;
-            lock (this)
+            lock (_lockObj)
             {
                 if (CurrentLength < MaxLength)
                 {
@@ -77,7 +78,7 @@ namespace MSLibrary.Collections
 
         public new void AddAfter(LinkedListNode<T> node, LinkedListNode<T> newNode)
         {
-            lock (this)
+            lock (_lockObj)
             {
                 if (CurrentLength < MaxLength)
                 {
@@ -110,7 +111,7 @@ namespace MSLibrary.Collections
         public new LinkedListNode<T> AddBefore(LinkedListNode<T> node, T value)
         {
             LinkedListNode<T> result = null;
-            lock (this)
+            lock (_lockObj)
             {
                 if (CurrentLength < MaxLength)
                 {
@@ -142,7 +143,7 @@ namespace MSLibrary.Collections
 
         public new void AddBefore(LinkedListNode<T> node, LinkedListNode<T> newNode)
         {
-            lock (this)
+            lock (_lockObj)
             {
                 if (CurrentLength < MaxLength)
                 {
@@ -175,7 +176,7 @@ namespace MSLibrary.Collections
         public new LinkedListNode<T> AddFirst(T value)
         {
             LinkedListNode<T> result = null;
-            lock (this)
+            lock (_lockObj)
             {
                 if (CurrentLength < MaxLength)
                 {
@@ -195,7 +196,7 @@ namespace MSLibrary.Collections
 
         public new void AddFirst(LinkedListNode<T> node)
         {
-            lock (this)
+            lock (_lockObj)
             {
                 if (CurrentLength <= MaxLength)
                 {
@@ -230,7 +231,7 @@ namespace MSLibrary.Collections
         public new LinkedListNode<T> AddLast(T value)
         {
             LinkedListNode<T> result = null;
-            lock (this)
+            lock (_lockObj)
             {
                 if (CurrentLength < MaxLength)
                 {
@@ -251,7 +252,7 @@ namespace MSLibrary.Collections
 
         public new void AddLast(LinkedListNode<T> node)
         {
-            lock (this)
+            lock (_lockObj)
             {
                 if (CurrentLength <= MaxLength)
                 {
@@ -287,7 +288,7 @@ namespace MSLibrary.Collections
         public new bool Remove(T value)
         {
             bool result = false;
-            lock (this)
+            lock (_lockObj)
             {
                 result = base.Remove(value);
                 if (result)
@@ -305,7 +306,7 @@ namespace MSLibrary.Collections
 
         public new void Remove(LinkedListNode<T> node)
         {
-            lock (this)
+            lock (_lockObj)
             {
                 try
                 {
@@ -324,7 +325,7 @@ namespace MSLibrary.Collections
         {
             T value = default(T);
             bool isRemove = false;
-            lock (this)
+            lock (_lockObj)
             {
                 if (First != null)
                 {
@@ -344,7 +345,7 @@ namespace MSLibrary.Collections
         {
             T value = default(T);
             bool isRemove = false;
-            lock (this)
+            lock (_lockObj)
             {
                 if (Last != null)
                 {

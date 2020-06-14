@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MSLibrary.Thread
 {
-    public class LocalSemaphore
+    public class LocalSemaphore:IDisposable
     {
         private SemaphoreSlim _lock;
 
@@ -16,6 +16,11 @@ namespace MSLibrary.Thread
         {
 
             _lock = new SemaphoreSlim(initCount, maxCount);
+        }
+
+        public void Dispose()
+        {
+            _lock.Dispose();
         }
 
         public async Task SyncOperator(Func<Task> action)

@@ -16,7 +16,7 @@ namespace MSLibrary
         /// 获取具体实现工厂
         /// </summary>
         /// <returns></returns>
-        public abstract IFactory<T> GetIMPFactory();
+        public abstract IFactory<T>? GetIMPFactory();
 
 
         private static IFactory<IIMPGenerateService> _impGenerateServiceFactory;
@@ -28,6 +28,8 @@ namespace MSLibrary
                 _impGenerateServiceFactory = value;
             }
         }
+
+        private object _lockObj = new object();
 
         public EntityBase()
         {
@@ -76,7 +78,7 @@ namespace MSLibrary
         {
             if (Extensions == null)
             {
-                lock (this)
+                lock (_lockObj)
                 {
                     if (Extensions == null)
                     {

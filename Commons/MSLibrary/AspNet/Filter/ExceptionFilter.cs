@@ -21,7 +21,7 @@ namespace MSLibrary.AspNet.Filter
     [Injection(InterfaceType = typeof(ExceptionFilter), Scope = InjectionScope.Transient)]
     public class ExceptionFilter : ExceptionFilterAttribute
     {
-
+        private const string _httpContextItemName = "ExtensionContextInits";
         /// <summary>
         /// 异常转换
         /// </summary>
@@ -44,26 +44,17 @@ namespace MSLibrary.AspNet.Filter
             {
                 if (context.HttpContext.Items.TryGetValue("AuthorizeResult", out object objResult))
                 {
-                    try
-                    {
-                        ((IAppUserAuthorizeResult)objResult).Execute();
-                    }
-                    catch
-                    {
-
-                    }
+                    ((IAppUserAuthorizeResult)objResult).Execute();
                 }
 
-                //从Http上下文中获取国际化上下文初始化对象
-                if (context.HttpContext.Items.TryGetValue("InternationalizationContextInit", out object objInit))
-                {
-                    try
-                    {
-                        ((IInternationalizationContextInit)objInit).Execute();
-                    }
-                    catch
-                    {
 
+                //从Http上下文中获取http请求上下文初始化对象列表
+                if (context.HttpContext.Items.TryGetValue(_httpContextItemName, out object objInit))
+                {
+                    var inits = (Dictionary<string, IHttpExtensionContextInit>)objInit;
+                    foreach (var item in inits)
+                    {
+                        item.Value.Execute();
                     }
                 }
 

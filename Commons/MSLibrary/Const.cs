@@ -29,6 +29,10 @@ namespace MSLibrary
         /// DI服务提供方
         /// </summary>
         public const string ServiceProvider = "ServiceProvider";
+        /// <summary>
+        /// 当前使用的DI
+        /// </summary>
+        public const string DI = "DI";
     }
 
     /// <summary>
@@ -441,6 +445,12 @@ namespace MSLibrary
         /// {2}为该标签实际的个数
         /// </summary>
         public const string LabelParameterCountRequireMin = "LabelParameterCountRequireMin";
+        /// <summary>
+        /// 在模板上下文中找不到指定名称的参数
+        /// 格式为“在模板上下文中找不到名称为{0}的参数”
+        /// {0}：参数名称
+        /// </summary>
+        public const string NotFoundParameterInTemplateContextByName = "NotFoundParameterInTemplateContextByName";
         /// <summary>
         /// 找不到指定名称的系统模板
         /// 格式为“找不到指定名称的系统模板，参数名称:{0}”
@@ -2415,6 +2425,13 @@ namespace MSLibrary
         /// {1}：发生的位置
         /// </summary>
         public const string NotFountInternationalizationHandleServiceFactoryByName = "NotFountInternationalizationHandleServiceFactoryByName";
+        /// <summary>
+        /// 找不到指定名称的Http请求扩展上下文处理服务工厂
+        /// 格式为“找不到名称为{0}的Http请求扩展上下文处理服务工厂，发生位置为{1}”
+        /// {0}：名称
+        /// {1}：发生的位置
+        /// </summary>
+        public const string NotFountHttpExtensionContextHandleServiceFactoryByName = "NotFountHttpExtensionContextHandleServiceFactoryByName";
         /// <summary>
         /// 找不到指定类型的机密数据服务
         /// 格式为“找不到类型为{0}的机密数据服务，发生位置为{1}”

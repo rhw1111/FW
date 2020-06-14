@@ -27,6 +27,9 @@ namespace MSLibrary.Logger
 
         public string Key { get; set; }
         public string ServiceUri { get; set; }
+
+        public string CategoryName { get; set; }
+
         public IDisposable BeginScope<TState>(TState state)
         {
             return (new LoggerExternalScopeProvider()).Push(state);
@@ -68,7 +71,7 @@ namespace MSLibrary.Logger
             else if (state is IExceptionLessLoggerContentExtension)
             {
                 var content = state as IExceptionLessLoggerContentExtension;
-                var source = content.GetSource();
+                //var source = content.GetSource();
                 var tags = content.GetTags();
 
                 //尝试序列化state
@@ -82,13 +85,13 @@ namespace MSLibrary.Logger
 
                 }
 
-                ExceptionlessClient.Default.CreateLog(source, strState, level).AddTags(tags).Submit();
+                ExceptionlessClient.Default.CreateLog(CategoryName, strState, level).AddTags(tags).Submit();
             }
             else
             {
                 if (formatter != null)
                 {
-                    ExceptionlessClient.Default.SubmitLog("", formatter(state, exception), level);
+                    ExceptionlessClient.Default.SubmitLog(CategoryName, formatter(state, exception), level);
                 }
             }
         }
@@ -131,11 +134,6 @@ namespace MSLibrary.Logger
     /// </summary>
     public interface IExceptionLessLoggerContentExtension
     {
-        /// <summary>
-        /// 获取源信息
-        /// </summary>
-        /// <returns></returns>
-        string GetSource();
         /// <summary>
         /// 获取标签集
         /// </summary>

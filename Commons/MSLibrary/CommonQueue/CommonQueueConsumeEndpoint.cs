@@ -135,7 +135,7 @@ namespace MSLibrary.CommonQueue
             await _imp.Delete(this);
         }
 
-        public async Task<ICommonQueueEndpointConsumeController> Consume(Func<CommonMessage, Task> messageHandle)
+        public async Task<ICommonQueueEndpointConsumeController> Consume(Func<CommonMessage, Task<MessageHandleResult>> messageHandle)
         {
             return await _imp.Consume(this, messageHandle);
         }
@@ -147,7 +147,7 @@ namespace MSLibrary.CommonQueue
         Task Add(CommonQueueConsumeEndpoint endpoint);
         Task Update(CommonQueueConsumeEndpoint endpoint);
         Task Delete(CommonQueueConsumeEndpoint endpoint);
-        Task<ICommonQueueEndpointConsumeController> Consume(CommonQueueConsumeEndpoint endpoint,Func<CommonMessage,Task> messageHandle);
+        Task<ICommonQueueEndpointConsumeController> Consume(CommonQueueConsumeEndpoint endpoint, Func<CommonMessage, Task<MessageHandleResult>> messageHandle);
     }
 
 
@@ -178,7 +178,7 @@ namespace MSLibrary.CommonQueue
             await _commonQueueConsumeEndpointStore.Add(endpoint);
         }
 
-        public async Task<ICommonQueueEndpointConsumeController> Consume(CommonQueueConsumeEndpoint endpoint, Func<CommonMessage, Task> messageHandle)
+        public async Task<ICommonQueueEndpointConsumeController> Consume(CommonQueueConsumeEndpoint endpoint, Func<CommonMessage, Task<MessageHandleResult>> messageHandle)
         {
             CommonQueueEndpointConsumeControllerWrapper wrapper=null;
             if (!_start.Value)

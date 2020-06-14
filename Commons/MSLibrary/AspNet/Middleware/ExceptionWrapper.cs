@@ -18,7 +18,7 @@ namespace MSLibrary.AspNet.Middleware
     /// </summary>
     public class ExceptionWrapper
     {
-
+        private const string _httpContextItemName = "ExtensionContextInits";
         /// <summary>
         /// 异常转换
         /// </summary>
@@ -103,28 +103,24 @@ namespace MSLibrary.AspNet.Middleware
                 //从Http上下文中获取上下文生成结果
                 if (context.Items.TryGetValue("AuthorizeResult", out object objResult))
                 {
-                    try
-                    {
-                        ((IAppUserAuthorizeResult)objResult).Execute();
-                    }
-                    catch
-                    {
 
-                    }
+                    ((IAppUserAuthorizeResult)objResult).Execute();
                 }
 
-                //从Http上下文中获取国际化上下文初始化对象
-                if (context.Items.TryGetValue("InternationalizationContextInit", out object objInit))
+                //从Http上下文中获取Http请求扩展上下文初始化对象
+                if (context.Items.TryGetValue(_httpContextItemName, out object objInit))
                 {
-                    try
-                    {
-                        ((IInternationalizationContextInit)objInit).Execute();
-                    }
-                    catch
-                    {
 
+                    var inits = (Dictionary<string, IHttpExtensionContextInit>)objInit;
+                    foreach (var item in inits)
+                    {
+                        item.Value.Execute();
                     }
                 }
+
+
+
+
 
                 //将异常存储在上下文的Item中
                 context.Items.Add("ExecuteException", ex);

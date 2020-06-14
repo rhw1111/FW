@@ -148,7 +148,7 @@ namespace MSLibrary.SystemToken.DAL
             await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, false, false, _dbConnectionFactory.CreateAllForSystemToken(), async (conn, transaction) =>
             {
                 SqlTransaction sqlTran = null;
-                if (sqlTran != null)
+                if (transaction != null)
                 {
                     sqlTran = (SqlTransaction)transaction;
                 }

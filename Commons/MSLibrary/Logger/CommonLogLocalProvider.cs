@@ -14,6 +14,8 @@ namespace MSLibrary.Logger
     {
         private ICommonLogLocalProviderFactory _commonLogLocalProviderFactory;
 
+        private Dictionary<string, CommonLogLocalLogger> _localLoggers = new Dictionary<string, CommonLogLocalLogger>();
+
         public CommonLogLocalProvider(ICommonLogLocalProviderFactory commonLogLocalProviderFactory)
         {
             _commonLogLocalProviderFactory = commonLogLocalProviderFactory; ;
@@ -21,7 +23,19 @@ namespace MSLibrary.Logger
 
         public ILogger CreateLogger(string categoryName)
         {
-            return _commonLogLocalProviderFactory.Create();
+            if (!_localLoggers.TryGetValue(categoryName,out CommonLogLocalLogger logger))
+            {
+                lock(_localLoggers)
+                {
+                    if (!_localLoggers.TryGetValue(categoryName, out logger))
+                    {
+                        logger = _commonLogLocalProviderFactory.Create();
+                        logger.CategoryName = categoryName;
+                        _localLoggers[categoryName] = logger;
+                    }
+                }
+            }
+            return logger;
         }
 
         public void Dispose()
@@ -39,15 +53,21 @@ namespace MSLibrary.Logger
     [Injection(InterfaceType = typeof(ICommonLogLocalProviderFactory), Scope = InjectionScope.Singleton)]
     public class CommonLogLocalProviderFactory : ICommonLogLocalProviderFactory
     {
-        public CommonLogLocalLogger _commonLogLocalLogger;
 
-        public CommonLogLocalProviderFactory(CommonLogLocalLogger commonLogLocalLogger)
-        {
-            _commonLogLocalLogger = commonLogLocalLogger;
-        }
         public CommonLogLocalLogger Create()
         {
-            return _commonLogLocalLogger;
+            CommonLogLocalLogger logger;
+            var di = ContextContainer.GetValue<IDIContainer>("DI");
+            if (di == null)
+            {
+                logger = DIContainerContainer.Get<CommonLogLocalLogger>();
+            }
+            else
+            {
+                logger = di.Get<CommonLogLocalLogger>();
+            }
+
+            return logger;
         }
     }
 

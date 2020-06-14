@@ -286,7 +286,7 @@ namespace MSLibrary.Xrm.Token
         {
             public InnerKey(string baseUri, string crmUrl,string applicationId,string applicationKey,string aadId)
             {
-                baseUri = baseUri;
+                BaseUrl = baseUri;
                 CrmUrl = crmUrl;
                 ApplicationId = applicationId;
                 ApplicationKey = applicationKey;

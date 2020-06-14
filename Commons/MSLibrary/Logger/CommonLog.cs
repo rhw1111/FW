@@ -124,6 +124,20 @@ namespace MSLibrary.Logger
             }
         }
 
+        /// <summary>
+        /// 目录
+        /// </summary>
+        public string CategoryName
+        {
+            get
+            {
+                return GetAttribute<string>("CategoryName");
+            }
+            set
+            {
+                SetAttribute<string>("CategoryName", value);
+            }
+        }
 
         /// <summary>
         /// 动作名称
@@ -251,6 +265,19 @@ namespace MSLibrary.Logger
             set
             {
                 SetAttribute<int>("Level", value);
+            }
+        }
+
+        public long Duration
+        {
+            get
+            {
+
+                return GetAttribute<long>("Duration");
+            }
+            set
+            {
+                SetAttribute<long>("Duration", value);
             }
         }
 

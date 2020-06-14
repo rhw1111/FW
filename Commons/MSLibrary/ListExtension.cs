@@ -23,7 +23,7 @@ namespace MSLibrary
             List<T> currentList=null;
             while(true)
             {
-                if (currentIndex%size==0)
+                if (currentIndex%size==0 || currentIndex==0)
                 {
                     currentList = new List<T>();
                     result.Add(currentList);

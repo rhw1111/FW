@@ -68,65 +68,77 @@ namespace MSLibrary.Template
 
                 Dictionary<string, SemaphoreSlim> lockObjs = new Dictionary<string, SemaphoreSlim>();
 
-                //生成锁定对象集
-                foreach (var item in matchList)
-                {
-                    lockObjs[item.Value]=new SemaphoreSlim(1, 1);
-                }
 
-                //设定并行计算
-
-                await ParallelHelper.ForEach<Match>(matchList, _labelParameterExecuteParallelism, async (match) =>
+                try
                 {
-                    var label = await GetLabel(match.Value);
-                    if (label != null)
+                    //生成锁定对象集
+                    foreach (var item in matchList)
                     {
-                        //检查标签是否时独立标签
-                        if (await label.IsIndividual())
+                        lockObjs[item.Value] = new SemaphoreSlim(1, 1);
+                    }
+
+                    //设定并行计算
+
+                    await ParallelHelper.ForEach<Match>(matchList, _labelParameterExecuteParallelism, async (match) =>
+                    {
+                        var label = await GetLabel(match.Value);
+                        if (label != null)
                         {
-                            //独立标签直接计算结果
-                            dictResult.Add(match.Index, await label.Execute(context, label.GetExtension<string[]>(LabelExecuteParameters)));
+                            //检查标签是否时独立标签
+                            if (await label.IsIndividual())
+                            {
+                                //独立标签直接计算结果
+                                dictResult.Add(match.Index, await label.Execute(context, label.GetExtension<string[]>(LabelExecuteParameters)));
+                            }
+                            else
+                            {
+                                string matchResult;
+                                //非独立标签需要复用计算结果
+                                if (!dictLabelResult.TryGetValue(match.Value, out matchResult))
+                                {
+
+                                    try
+                                    {
+                                        await lockObjs[match.Value].WaitAsync();
+                                        if (!dictLabelResult.TryGetValue(match.Value, out matchResult))
+                                        {
+                                            matchResult = await label.Execute(context, label.GetExtension<string[]>(LabelExecuteParameters));
+                                            dictLabelResult[match.Value] = matchResult;
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        lockObjs[match.Value].Release();
+                                    }
+                                }
+                                dictResult.Add(match.Index, matchResult);
+
+                            }
+                        }
+                    });
+
+                    //为每个匹配项做替换
+                    content = reg.Replace(content, (match) =>
+                    {
+
+                        if (dictResult.TryGetValue(match.Index, out string matchResult))
+                        {
+                            return matchResult;
                         }
                         else
                         {
-                            string matchResult;
-                            //非独立标签需要复用计算结果
-                            if (!dictLabelResult.TryGetValue(match.Value, out matchResult))
-                            {
-
-                                try
-                                {
-                                    await lockObjs[match.Value].WaitAsync();
-                                    if (!dictLabelResult.TryGetValue(match.Value, out matchResult))
-                                    {
-                                        matchResult = await label.Execute(context, label.GetExtension<string[]>(LabelExecuteParameters));
-                                        dictLabelResult[match.Value] = matchResult;
-                                    }
-                                }
-                                finally
-                                {
-                                    lockObjs[match.Value].Release();
-                                }
-                            }
-                            dictResult.Add(match.Index, matchResult);
-
+                            return match.Value;
                         }
-                    }
-                });
-
-                //为每个匹配项做替换
-                content = reg.Replace(content, (match) =>
+                    });
+                }
+                finally
                 {
+                    foreach(var item in lockObjs)
+                    {
+                        item.Value.Dispose();
+                    }
+                }
 
-                    if (dictResult.TryGetValue(match.Index, out string matchResult))
-                    {
-                        return matchResult;
-                    }
-                    else
-                    {
-                        return match.Value;
-                    }
-                });
             }
 
             content = content.Replace(@"\}", "}").Replace(@"\$", "$").Replace(@"\,", ",").Replace(@"\\", @"\");

@@ -44,7 +44,7 @@ namespace MSLibrary.Xrm.MessageHandle
 
             var url = $"{realRequest.OrganizationURI}/api/data/v{realRequest.ApiVersion}/{realRequest.FunctionName}";
  
-            if (realRequest.Parameters == null && realRequest.Parameters.Count == 0)
+            if (realRequest.Parameters == null || realRequest.Parameters.Count == 0)
             {
                 url = $"{url}()";
             }

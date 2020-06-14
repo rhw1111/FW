@@ -57,7 +57,7 @@ namespace MSLibrary.EntityMetadata.EntityAttributeValueKeyConvertServices
         {
             if (value == null)
             {
-                await Task.FromResult(string.Empty);
+                return await Task.FromResult(string.Empty);
             }
             if (!(value is long))
             {

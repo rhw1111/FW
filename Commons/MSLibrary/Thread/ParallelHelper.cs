@@ -400,92 +400,82 @@ namespace MSLibrary.Thread
 
         public static async Task ForEach<T>(IEnumerable<T> source, int maxDegree, Func<T, Task> body)
         {
-            SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
-
-            var sourceEnumerator = source.GetEnumerator();
-
-            List<Task> tasks = new List<Task>();
-
-            for (var index = 0; index <= maxDegree - 1; index++)
+            using (SemaphoreSlim _lock = new SemaphoreSlim(1, 1))
             {
-                tasks.Add(
-                    Task.Run(async () =>
-                    {
-                        while (true)
-                        {
-                            T data = default(T);
-                            await _lock.WaitAsync();
-                            try
-                            {
-                                if (sourceEnumerator.MoveNext())
-                                {
-                                    data = sourceEnumerator.Current;
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                            finally
-                            {
-                                _lock.Release();
-                            }
+                var sourceEnumerator = source.GetEnumerator();
 
-                            await body(data);
-                        }
-                    })
-                    );
+                List<Task> tasks = new List<Task>();
 
-            }
-
-
-
-            //等待最终所有任务完成
-            foreach (var item in tasks)
-            {
-                await item;
-            }
-
-
-
-
-
-
-
-
-
-            while (true)
-            {
-                bool isBreak = false;
-                List<Task> sourcePart = new List<Task>();
                 for (var index = 0; index <= maxDegree - 1; index++)
                 {
-                    if (sourceEnumerator.MoveNext())
-                    {
-                        sourcePart.Add(body(sourceEnumerator.Current));
-                    }
-                    else
-                    {
-                        
-                        isBreak = true;
-                        break;
-                    }
+                    tasks.Add(
+                        Task.Run(async () =>
+                        {
+                            while (true)
+                            {
+                                T data = default(T);
+                                await _lock.WaitAsync();
+                                try
+                                {
+                                    if (sourceEnumerator.MoveNext())
+                                    {
+                                        data = sourceEnumerator.Current;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                                finally
+                                {
+                                    _lock.Release();
+                                }
+
+                                await body(data);
+                            }
+                        })
+                        );
+
                 }
 
-                foreach (var item in sourcePart)
+
+                //等待最终所有任务完成
+                foreach (var item in tasks)
                 {
                     await item;
                 }
 
-                if (isBreak)
+
+                while (true)
                 {
-                    break;
+                    bool isBreak = false;
+                    List<Task> sourcePart = new List<Task>();
+                    for (var index = 0; index <= maxDegree - 1; index++)
+                    {
+                        if (sourceEnumerator.MoveNext())
+                        {
+                            sourcePart.Add(body(sourceEnumerator.Current));
+                        }
+                        else
+                        {
+
+                            isBreak = true;
+                            break;
+                        }
+                    }
+
+                    foreach (var item in sourcePart)
+                    {
+                        await item;
+                    }
+
+                    if (isBreak)
+                    {
+                        break;
+                    }
+
                 }
-
             }
-
-
-
         }
 
         /// <summary>
@@ -500,49 +490,51 @@ namespace MSLibrary.Thread
         {
             var sourceEnumerator = source.GetAsyncEnumerator();
 
-            SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
-
-            List<Task> tasks = new List<Task>();
-
-            for (var index = 0; index <= maxDegree - 1; index++)
+            using (SemaphoreSlim _lock = new SemaphoreSlim(1, 1))
             {
-                tasks.Add(
-                    Task.Run(async () =>
-                    {
-                        while (true)
+                List<Task> tasks = new List<Task>();
+
+                for (var index = 0; index <= maxDegree - 1; index++)
+                {
+                    tasks.Add(
+                        Task.Run(async () =>
                         {
-                            T data = default(T);
-                            await _lock.WaitAsync();
-                            try
+                            while (true)
                             {
-                                if (await sourceEnumerator.MoveNextAsync())
+                                T data = default(T);
+                                await _lock.WaitAsync();
+                                try
                                 {
-                                    data = sourceEnumerator.Current;
+                                    if (await sourceEnumerator.MoveNextAsync())
+                                    {
+                                        data = sourceEnumerator.Current;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
                                 }
-                                else
+                                finally
                                 {
-                                    break;
+                                    _lock.Release();
                                 }
-                            }
-                            finally
-                            {
-                                _lock.Release();
-                            }
 
-                            await body(data);
-                        }
-                    })
-                    );
+                                await body(data);
+                            }
+                        })
+                        );
 
+                }
+
+
+                //等待最终所有任务完成
+                foreach (var item in tasks)
+                {
+                    await item;
+                }
             }
 
 
-
-            //等待最终所有任务完成
-            foreach (var item in tasks)
-            {
-                await item;
-            }
 
         }
 

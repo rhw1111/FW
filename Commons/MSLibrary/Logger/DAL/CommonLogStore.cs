@@ -84,8 +84,8 @@ namespace MSLibrary.Logger.DAL
              
                     if (log.ID == Guid.Empty)
                     {
-                        command.CommandText = string.Format(@"insert into {0} ([id],[parentid],[prelevelid],[currentlevelid],[contextinfo],[actionname],[parentactionname],[requestbody],[responsebody],[requesturi],[message],[root],[level],[createtime],[modifytime])
-                                                values (default,@parentid,@prelevelid,@currentlevelid,@contextinfo,@actionname,@parentactionname,@requestbody,@responsebody,@requesturi,@message,@root,@level,GETUTCDATE(),GETUTCDATE()); 
+                        command.CommandText = string.Format(@"insert into {0} ([id],[parentid],[prelevelid],[currentlevelid],[contextinfo],[categoryname],[actionname],[parentactionname],[requestbody],[responsebody],[requesturi],[message],[root],[level],[duration],[createtime],[modifytime])
+                                                values (default,@parentid,@prelevelid,@currentlevelid,@contextinfo,@categoryname,@actionname,@parentactionname,@requestbody,@responsebody,@requesturi,@message,@root,@level,@duration,GETUTCDATE(),GETUTCDATE()); 
                                                 SELECT @newid=[id] FROM {0} WHERE [sequence]=SCOPE_IDENTITY()", tableNameCommonlog);
 
                         parameter = new SqlParameter("@newid", SqlDbType.UniqueIdentifier)
@@ -96,8 +96,8 @@ namespace MSLibrary.Logger.DAL
                     }
                     else
                     {
-                        command.CommandText = string.Format(@"insert into {0} ([id],[parentid],[prelevelid],[currentlevelid],[contextinfo],[actionname],[parentactionname],[requestbody],[responsebody],[requesturi],[message],[root],[level],[createtime],[modifytime])
-                                                VALUES (@id,@parentid,@prelevelid,@currentlevelid,@contextinfo,@actionname,@parentactionname,@requestbody,@responsebody,@requesturi,@message,@root,@level,GETUTCDATE(),GETUTCDATE())", tableNameCommonlog);
+                        command.CommandText = string.Format(@"insert into {0} ([id],[parentid],[prelevelid],[currentlevelid],[contextinfo],[actionname],[parentactionname],[requestbody],[responsebody],[requesturi],[message],[root],[level],[duration],[createtime],[modifytime])
+                                                VALUES (@id,@parentid,@prelevelid,@currentlevelid,@contextinfo,@actionname,@parentactionname,@requestbody,@responsebody,@requesturi,@message,@root,@level,@duration,GETUTCDATE(),GETUTCDATE())", tableNameCommonlog);
 
                         parameter = new SqlParameter("@id", SqlDbType.UniqueIdentifier)
                         {
@@ -137,6 +137,12 @@ namespace MSLibrary.Logger.DAL
                     parameter = new SqlParameter("@contextinfo", SqlDbType.NVarChar, length)
                     {
                         Value = log.ContextInfo
+                    };
+                    command.Parameters.Add(parameter);
+
+                    parameter = new SqlParameter("@categoryname", SqlDbType.NVarChar, 300)
+                    {
+                        Value = log.CategoryName
                     };
                     command.Parameters.Add(parameter);
 
@@ -222,6 +228,12 @@ namespace MSLibrary.Logger.DAL
                     parameter = new SqlParameter("@level", SqlDbType.Int)
                     {
                         Value = log.Level
+                    };
+                    command.Parameters.Add(parameter);
+
+                    parameter = new SqlParameter("@duration", SqlDbType.BigInt)
+                    {
+                        Value = log.Duration
                     };
                     command.Parameters.Add(parameter);
 
@@ -341,8 +353,8 @@ namespace MSLibrary.Logger.DAL
 
                     if (log.ID == Guid.Empty)
                     {
-                        command.CommandText = string.Format(@"insert into CommonLog_Local ([id],[parentid],[prelevelid],[currentlevelid],[contextinfo],[actionname],[parentactionname],[requestbody],[responsebody],[requesturi],[message],[root],[level],[createtime],[modifytime])
-                                                values (default,@parentid,@prelevelid,@currentlevelid,@contextinfo,@actionname,@parentactionname,@requestbody,@responsebody,@requesturi,@message,@root,@level,GETUTCDATE(),GETUTCDATE()); 
+                        command.CommandText = string.Format(@"insert into CommonLog_Local ([id],[parentid],[prelevelid],[currentlevelid],[contextinfo],[categoryname],[actionname],[parentactionname],[requestbody],[responsebody],[requesturi],[message],[root],[level],[duration],[createtime],[modifytime])
+                                                values (default,@parentid,@prelevelid,@currentlevelid,@contextinfo,@categoryname,@actionname,@parentactionname,@requestbody,@responsebody,@requesturi,@message,@root,@level,@duration,GETUTCDATE(),GETUTCDATE()); 
                                                 SELECT @newid=[id] FROM [dbo].[CommonLog_Local] WHERE [sequence]=SCOPE_IDENTITY()");
 
                         parameter = new SqlParameter("@newid", SqlDbType.UniqueIdentifier)
@@ -353,8 +365,8 @@ namespace MSLibrary.Logger.DAL
                     }
                     else
                     {
-                        command.CommandText = string.Format(@"insert into CommonLog_Local ([id],[parentid],[prelevelid],[currentlevelid],[contextinfo],[actionname],[parentactionname],[requestbody],[responsebody],[requesturi],[message],[root],[level],[createtime],[modifytime])
-                                                VALUES (@id,@parentid,@prelevelid,@currentlevelid,@contextinfo,@actionname,@parentactionname,@requestbody,@responsebody,@requesturi,@message,@root,@level,GETUTCDATE(),GETUTCDATE())");
+                        command.CommandText = string.Format(@"insert into CommonLog_Local ([id],[parentid],[prelevelid],[currentlevelid],[contextinfo],[categoryname],[actionname],[parentactionname],[requestbody],[responsebody],[requesturi],[message],[root],[level],[duration],[createtime],[modifytime])
+                                                VALUES (@id,@parentid,@prelevelid,@currentlevelid,@contextinfo,@categoryname,@actionname,@parentactionname,@requestbody,@responsebody,@requesturi,@message,@root,@level,@duration,GETUTCDATE(),GETUTCDATE())");
 
                         parameter = new SqlParameter("@id", SqlDbType.UniqueIdentifier)
                         {
@@ -395,6 +407,12 @@ namespace MSLibrary.Logger.DAL
                     parameter = new SqlParameter("@contextinfo", SqlDbType.NVarChar, length)
                     {
                         Value = log.ContextInfo
+                    };
+                    command.Parameters.Add(parameter);
+
+                    parameter = new SqlParameter("@categoryname", SqlDbType.NVarChar, 300)
+                    {
+                        Value = log.CategoryName
                     };
                     command.Parameters.Add(parameter);
 
@@ -484,6 +502,12 @@ namespace MSLibrary.Logger.DAL
                     parameter = new SqlParameter("@level", SqlDbType.Int)
                     {
                         Value = log.Level
+                    };
+                    command.Parameters.Add(parameter);
+
+                    parameter = new SqlParameter("@duration", SqlDbType.BigInt)
+                    {
+                        Value = log.Duration
                     };
                     command.Parameters.Add(parameter);
 

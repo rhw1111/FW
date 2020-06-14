@@ -1,0 +1,70 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace FW.TestPlatform.Main
+{
+    public enum TestPlatformErrorCodes
+    {
+        /// <summary>
+        /// 找不到指定测试引擎的测试案例处理服务
+        /// </summary>
+        NotFoundTestCaseHandleServiceByEngine = 325710000,
+        /// <summary>
+        /// 找不到指定Id的测试主机
+        /// </summary>
+        NotFoundTestHostByID= 325710001,
+        /// <summary>
+        /// 在指定的测试案例中找不到指定的从测试主机
+        /// </summary>
+        NotFoundSlaveHostInCase= 325710002,
+        /// <summary>
+        /// 只能在指定状态下修改测试案例
+        /// </summary>
+        StatusErrorOnTestCaseUpdate = 325710003,
+        /// <summary>
+        /// 只能在指定状态下删除测试案例
+        /// </summary>
+        StatusErrorOnTestCaseDelete = 325710004,
+        /// <summary>
+        /// 只能在指定状态下运行测试案例
+        /// </summary>
+        StatusErrorOnTestCaseRun= 325710005,
+        /// <summary>
+        /// 只能在指定状态下停止测试案例
+        /// </summary>
+        StatusErrorOnTestCaseStop= 325710006,
+        /// <summary>
+        /// 指定的测试主机已经被执行
+        /// </summary>
+        TestHostHasRunning= 325710007,
+        /// <summary>
+        /// 找不到指定类型的Locust测试代码生成服务
+        /// </summary>
+        NotFoundLocustPyCodeGenerateServiceByType= 325710008,
+        /// <summary>
+        /// 找不到指定类型的测试数据源脚本方法生成服务
+        /// </summary>
+        NotFoundTestDataSourceScriptFuncGenerateServiceByType= 325710010,
+        /// <summary>
+        /// 找不到指定名称的脚本模板
+        /// </summary>
+        NotFoundScriptTemplateByName= 325710020,
+        /// <summary>
+        /// 找不到指定名称的数据源函数生成服务
+        /// </summary>
+        NotFoundGenerateDataSourceFuncServiceByName= 325710030,
+        /// <summary>
+        /// 找不到指定名称的获取分隔符服务
+        /// </summary>
+        NotFoundGetSeparatorServiceByName = 325710035,
+        /// <summary>
+        /// 在上下文参数DataSourceFuncs中找不到指定函数名称的记录
+        /// </summary>
+        NotFoundFuncNameInDataSourceFuncsFormContext = 325710040,
+        /// <summary>
+        /// 找不到指定键值的数据源函数调用脚本生成服务
+        /// </summary>
+        NotFoundDataSourceInvokeScriptGenerateServiceByKey = 325710041,
+    }
+}

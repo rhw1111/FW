@@ -18,9 +18,10 @@ namespace MSLibrary.Logger
     /// 基于通用日志本地记录的日志
     /// 供日志服务使用
     /// </summary>
-    [Injection(InterfaceType = typeof(CommonLogLocalLogger), Scope = InjectionScope.Singleton)]
+    [Injection(InterfaceType = typeof(CommonLogLocalLogger), Scope = InjectionScope.Transient)]
     public class CommonLogLocalLogger : ILogger
     {
+        public string CategoryName { get; set; }
 
         private ICommonLogLocalEnvInfoGeneratorService _commonLogLocalEnvInfoGeneratorService;
 
@@ -69,6 +70,7 @@ namespace MSLibrary.Logger
                         ParentActionName = string.Empty,
                         PreLevelID = Guid.Empty,
                         CurrentLevelID = Guid.Empty,
+                         CategoryName=CategoryName,
                         ActionName = string.Empty,
                         RequestBody = string.Empty,
                         ResponseBody = string.Empty,
@@ -76,6 +78,7 @@ namespace MSLibrary.Logger
                         ContextInfo = strUserInfo,
                         ParentContextInfo=strParentUserInfo,
                         Root = true,
+                     
                         Message = state as string
                     };
                 }
@@ -94,10 +97,10 @@ namespace MSLibrary.Logger
 
 
             }
-            else if (state is CommonLogLocalContent)
+            else if (state is ICommonLogLocalContent)
             {
 
-                var logContent = state as CommonLogLocalContent;
+                var logContent = state as ICommonLogLocalContent;
 
                 CommonLog log = null;
                 try
@@ -110,6 +113,7 @@ namespace MSLibrary.Logger
                         ParentActionName = string.Empty,
                         PreLevelID = Guid.Empty,
                         CurrentLevelID=Guid.Empty,
+                        CategoryName = CategoryName,
                         ActionName = logContent.ActionName,
                         RequestBody = logContent.RequestBody,
                         ResponseBody=logContent.ResponseBody,
@@ -117,6 +121,7 @@ namespace MSLibrary.Logger
                         ContextInfo = strUserInfo,
                         ParentContextInfo=strParentUserInfo,
                         Root = true,
+                         Duration= logContent.Duration,
                         Message = logContent.Message
                     };
                 }
@@ -152,11 +157,13 @@ namespace MSLibrary.Logger
                             ParentActionName = string.Empty,
                             PreLevelID = Guid.Empty,
                             CurrentLevelID=Guid.Empty,
+                            CategoryName =CategoryName,
                             ActionName = string.Empty,
                             RequestBody = string.Empty,
                             RequestUri = string.Empty,
                             ContextInfo = strUserInfo,
                             ParentContextInfo = strParentUserInfo,
+                            
                             Root = true,
                             Message = formatter(state, exception)
                         };
@@ -202,56 +209,60 @@ namespace MSLibrary.Logger
     }
 
 
+
+
     /// <summary>
-    /// 本地通用日志内容
+    /// 本地通用日志内容接口
     /// </summary>
-    [DataContract]
-    public class CommonLogLocalContent
+    public interface ICommonLogLocalContent
     {
         /// <summary>
         /// 动作名称
         /// </summary>
-        [DataMember]
-        public string ActionName { get; set; }
+        public string ActionName 
+        { 
+            get;
+        }
 
         /// <summary>
         /// 请求内容
         /// </summary>
-        [DataMember]
         public string RequestBody
         {
-            get; set;
+            get;
         }
 
         /// <summary>
         /// 响应内容
         /// </summary>
-        [DataMember]
         public string ResponseBody
         {
-            get;set;
+            get;
         }
 
         /// <summary>
         /// 请求路径
         /// </summary>
-        [DataMember]
         public string RequestUri
         {
-            get; set;
+            get;
         }
 
 
         /// <summary>
         /// 内容
         /// </summary>
-        [DataMember]
         public string Message
         {
-            get; set;
+            get;
         }
 
+        /// <summary>
+        /// 持续时间
+        /// </summary>
+        public long Duration
+        {
+            get; 
+        }
     }
-
-
 }

@@ -30,6 +30,7 @@ namespace MSLibrary.Collections.Hash
             }
             set
             {
+                _cacheSize = value;
                 _groupsByID.Length = value;
                 _groupsByName.Length = value;
             }

@@ -169,6 +169,11 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
                     }
                     );
             }
+
+            ~CacheContainer()
+            {
+                _lock.Dispose();
+            }
         }
         /// <summary>
         /// 配置信息

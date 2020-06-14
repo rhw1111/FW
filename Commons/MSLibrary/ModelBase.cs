@@ -14,6 +14,7 @@ namespace MSLibrary
     public class ModelBase
     {
         public Dictionary<string, object> Attributes = new Dictionary<string, object>();
+        private object _lockObj = new object();
 
         protected T GetAttribute<T>(string attributeName)
         {
@@ -32,7 +33,7 @@ namespace MSLibrary
         {
             if (Attributes == null)
             {
-                lock (this)
+                lock (_lockObj)
                 {
                     if (Attributes == null)
                     {

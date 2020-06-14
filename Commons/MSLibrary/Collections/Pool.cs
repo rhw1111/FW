@@ -8,7 +8,7 @@ using MSLibrary.LanguageTranslate;
 
 namespace MSLibrary.Collections
 {
-    public class Pool<T> where T : class
+    public class Pool<T>:IDisposable where T : class
     {
         private object _lockObj = new object();
         private object _readLockObj = new object();
@@ -575,6 +575,10 @@ namespace MSLibrary.Collections
 
         }
 
+        public void Dispose()
+        {
+            _semaphore.Dispose();
+        }
 
         class InnerGetValue<V>
         {

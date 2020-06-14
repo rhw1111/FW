@@ -161,7 +161,7 @@ namespace MSLibrary.Security
                     encStream.FlushFinalBlock();
                     stream.Position = 0;
                     byteEncryptionContent = new byte[stream.Length];
-                    stream.Read(byteEncryptionContent, 0, (int)stream.Length);
+                    var byteCount=stream.Read(byteEncryptionContent, 0, (int)stream.Length);
 
 
 
@@ -197,7 +197,7 @@ namespace MSLibrary.Security
                     encStream.FlushFinalBlock();
                     stream.Position = 0;
                     byteEncryptionContent = new byte[stream.Length];
-                    stream.Read(byteEncryptionContent, 0, (int)stream.Length);
+                    var byteCount=stream.Read(byteEncryptionContent, 0, (int)stream.Length);
 
 
                 }

@@ -60,7 +60,7 @@ namespace MSLibrary.EntityMetadata.EntityAttributeValueKeyConvertServices
             TextFragment fragment;
             if (value == null)
             {
-                await Task.FromResult(string.Empty);
+                return await Task.FromResult(string.Empty);
             }
             if (!(value is decimal))
             {

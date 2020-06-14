@@ -279,17 +279,17 @@ namespace MSLibrary
 
             if (word.Length >= 3 && word.ToLower().Substring(word.Length - 3) == "ies")
             {
-                word.Remove(word.Length - 3, 3);
+                word=word.Remove(word.Length - 3, 3);
                 word = $"{word}y";
             }
             else if (word.Length >= 2 && word.ToLower().Substring(word.Length - 2) == "es")
             {
-                word.Remove(word.Length - 2, 2);
+                word=word.Remove(word.Length - 2, 2);
                 word = $"{word}s";
             }
             else if (word.Length >= 1 && word.ToLower().Substring(word.Length - 1) == "s")
             {
-                word.Remove(word.Length - 1, 1);
+                word=word.Remove(word.Length - 1, 1);
             }
 
 

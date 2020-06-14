@@ -13,7 +13,7 @@ namespace MSLibrary.Collections
         private int _getIndex = 0;
         private IList<T> _datas;
         private T _current;
-        private SemaphoreSlim _slim = new SemaphoreSlim(1, 1);
+        //private SemaphoreSlim _slim = new SemaphoreSlim(1, 1);
 
         public AsyncInteration(Func<int, Task<IList<T>>> getDataFun)
         {
@@ -40,9 +40,9 @@ namespace MSLibrary.Collections
 
         public async ValueTask<bool> MoveNextAsync()
         {
-            await _slim.WaitAsync();
-            try
-            {
+            //await _slim.WaitAsync();
+            //try
+            //{
                 if (_datas == null || _index > _datas.Count - 1)
                 {
                     _datas = await _getDataFun(_getIndex);
@@ -59,11 +59,11 @@ namespace MSLibrary.Collections
                 _current = _datas[_index];
                 _index++;
                 return true;
-            }
-            finally
-            {
-                _slim.Release();
-            }
+           // }
+            //finally
+            //{
+            //    _slim.Release();
+            //}
         }
     }
 }

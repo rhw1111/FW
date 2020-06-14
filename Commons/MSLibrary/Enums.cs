@@ -195,6 +195,7 @@ namespace MSLibrary
         /// </summary>
         SystemConfigurationConvertTypeFail= 314711251,
 
+
         /// <summary>
         /// 不是AccessToken
         /// </summary>
@@ -364,7 +365,10 @@ namespace MSLibrary
         /// 指定标签参数的个数要求最小数量
         /// </summary>
         LabelParameterCountRequireMin = 314720152,
-
+        /// <summary>
+        /// 在模板上下文中找不到指定名称的参数
+        /// </summary>
+        NotFoundParameterInTemplateContextByName= 314720169,
         /// <summary>
         /// 找不到指定名称的系统模板
         /// </summary>
@@ -1175,10 +1179,16 @@ namespace MSLibrary
         /// 找不到指定名称的国际化处理服务工厂
         /// </summary>
         NotFountInternationalizationHandleServiceFactoryByName = 314727351,
+
+        /// <summary>
+        /// 找不到指定名称的Http请求扩展上下文处理服务工厂
+        /// </summary>
+        NotFountHttpExtensionContextHandleServiceFactoryByName = 314727352,
+
         /// <summary>
         /// 不支持指定的AzureVault验证方式
         /// </summary>
-        NotSupportAzureVaultAuthType= 314727401,
+        NotSupportAzureVaultAuthType = 314727401,
         /// <summary>
         /// 找不到指定类型的Azure令牌凭据生成服务
         /// </summary>

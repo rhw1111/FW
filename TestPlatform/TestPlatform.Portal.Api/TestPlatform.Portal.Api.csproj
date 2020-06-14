@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>FW.TestPlatform.Portal.Api</RootNamespace>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Commons\MSLibrary.CommandLine\MSLibrary.CommandLine.csproj" />
+    <ProjectReference Include="..\..\Commons\MSLibrary.MySqlStore\MSLibrary.MySqlStore.csproj" />
+    <ProjectReference Include="..\..\Commons\MSLibrary\MSLibrary.csproj" />
+    <ProjectReference Include="..\TestPlatform.Main\TestPlatform.Main.csproj" />
+  </ItemGroup>
+
+
+</Project>

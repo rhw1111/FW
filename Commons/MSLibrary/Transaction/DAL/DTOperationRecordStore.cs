@@ -411,7 +411,7 @@ namespace MSLibrary.Transaction.DAL
                     })
                     {
 
-                       commond.CommandText = string.Format(@"select {0} from {1} order by [sequence] OFFSET @skip ROWS FETCH NEXT @take ROWS ONLY", StoreHelper.GetDTOperationRecordSelectFields(string.Empty));
+                       commond.CommandText = string.Format(@"select {0} from {1} order by [sequence] OFFSET @skip ROWS FETCH NEXT @take ROWS ONLY", StoreHelper.GetDTOperationRecordSelectFields(string.Empty), tableName);
 
 
                         var parameter = new SqlParameter("@skip", SqlDbType.Int)

@@ -139,7 +139,7 @@ namespace MSLibrary.Azure
     [Injection(InterfaceType = typeof(ITokenCredentialGeneratorIMP), Scope = InjectionScope.Transient)]
     public class TokenCredentialGeneratorIMP : ITokenCredentialGeneratorIMP
     {
-        public static IDictionary<string, IFactory<ITokenCredentialGeneratorService>> TokenCredentialGeneratorServiceFactories = new Dictionary<string, IFactory<ITokenCredentialGeneratorService>>();
+       public static IDictionary<string, IFactory<ITokenCredentialGeneratorService>> TokenCredentialGeneratorServiceFactories { get; } = new Dictionary<string, IFactory<ITokenCredentialGeneratorService>>();
 
         public async Task<TokenCredential> Generate(TokenCredentialGenerator generator)
         {

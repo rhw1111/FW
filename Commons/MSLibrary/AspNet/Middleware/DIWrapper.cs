@@ -23,6 +23,8 @@ namespace MSLibrary.AspNet.Middleware
     /// </summary>
     public class DIWrapper
     {
+        private const string _httpContextItemName = "ExtensionContextInits";
+
         private RequestDelegate _nextMiddleware;
         private string _name;
         private string _categoryName;
@@ -166,8 +168,8 @@ namespace MSLibrary.AspNet.Middleware
                     {
                     }
 
-                    //从Http上下文中获取国际化上下文初始化对象
-                    if (context.Items.TryGetValue("InternationalizationContextInit", out object objInit))
+                    //从Http上下文中获取http请求上下文初始化对象列表
+                    if (context.Items.TryGetValue(_httpContextItemName, out object objInit))
                     {
                     }
 
@@ -175,25 +177,15 @@ namespace MSLibrary.AspNet.Middleware
                     {
                         if (objResult != null)
                         {
-                            try
-                            {
-                                ((IAppUserAuthorizeResult)objResult).Execute();
-                            }
-                            catch
-                            {
-
-                            }
+                            ((IAppUserAuthorizeResult)objResult).Execute();
                         }
 
                         if (objInit != null)
                         {
-                            try
+                            var inits = (Dictionary<string, IHttpExtensionContextInit>)objInit;
+                            foreach(var item in inits)
                             {
-                                ((IInternationalizationContextInit)objInit).Execute();
-                            }
-                            catch
-                            {
-
+                                item.Value.Execute();
                             }
                         }
 

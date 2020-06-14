@@ -44,25 +44,19 @@ namespace MSLibrary.AspNet.Filter
                     foreach (var errorItem in parameterItem.Value.Errors)
                     {
                         Exception ex = errorItem.Exception;
-                        while (ex != null && ex.InnerException != null)
-                        {
-                            ex = ex.InnerException;
-                        }
 
                         if (ex != null)
                         {
-                            strErrorMessage.Append($"    {ex.Message}");
-                            strErrorMessage.Append("\r\n");
-                            strDetailErrorMessage.Append($"    {ex.Message},{ex.StackTrace}");
-                            strDetailErrorMessage.Append("\r\n");
+                            strErrorMessage.Append(ex.ToStackTraceString());
                         }
+              
                     }
                 }
 
                 var logObj = await _appExceptionMessageLogConvert.Do(context, strDetailErrorMessage.ToString());
 
 
-                LoggerHelper.LogError(_categoryName, logObj);
+                //LoggerHelper.LogError(_categoryName, logObj);
                 var fragment = new TextFragment()
                 {
                     Code = TextCodes.ApiModelValidateError,
@@ -71,7 +65,7 @@ namespace MSLibrary.AspNet.Filter
                 };
 
 
-                throw new UtilityException((int)Errors.ApiModelValidateError,fragment);
+                throw new UtilityException((int)Errors.ApiModelValidateError,fragment,-1,0);
             }
             else
             {

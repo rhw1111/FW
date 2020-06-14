@@ -217,6 +217,11 @@ namespace MSLibrary.SocketManagement
         {
             await _imp.Send(this, dataExecute);
         }
+
+        public async Task Dispose()
+        {
+             await _imp.Dispose(this);
+        }
     }
 
 
@@ -227,6 +232,7 @@ namespace MSLibrary.SocketManagement
         Task Stop(TcpDuplexListener listener);
 
         Task Send(TcpDuplexListener listener,Func<List<TcpDuplexListenerConnection>, Task<TcpDuplexDataExecuteResult>> dataExecute);
+        Task Dispose(TcpDuplexListener listener);
     }
 
     [Injection(InterfaceType = typeof(ITcpDuplexListenerIMP), Scope = InjectionScope.Transient)]
@@ -443,6 +449,15 @@ namespace MSLibrary.SocketManagement
                 await StartAccept(_listenSocket);
             }
         }
+
+
+        public async Task Dispose(TcpDuplexListener listener)
+        {
+            _acceptSemaphore.Dispose();
+            _tcpDuplexAcceptContextPool.Dispose();
+            await Task.CompletedTask;
+        }
+      
 
         private async void IO_Completed(object sender, SocketAsyncEventArgs e)
         {
@@ -1141,6 +1156,8 @@ namespace MSLibrary.SocketManagement
 
             await Task.FromResult(0);
         }
+
+
 
         class InnerDoProcessReceiveResult
         {

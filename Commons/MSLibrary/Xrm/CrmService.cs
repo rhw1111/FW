@@ -875,7 +875,7 @@ namespace MSLibrary.Xrm
                     //这个后面没用到，还容易报错，暂时注释
                     //var error = JsonSerializerHelper.Deserialize<CrmWebApiError>(strContent);
                     UtilityException ex = null;
-                    bool canContinue = false;
+           
                     TextFragment fragment;
                     switch ((int)response.StatusCode)
                     {
@@ -903,8 +903,7 @@ namespace MSLibrary.Xrm
                             else
                             {
                                 await Task.Delay(response.Headers.RetryAfter.Delta.Value);
-                                //System.Threading.Thread.Sleep(response.Headers.RetryAfter.Delta.Value);
-                                canContinue = true;
+                                //System.Threading.Thread.Sleep(response.Headers.RetryAfter.Delta.Value);                             
                             }
                             break;
                         default:
@@ -924,10 +923,6 @@ namespace MSLibrary.Xrm
                         throw ex;
                     }
 
-                    if (!canContinue)
-                    {
-                        break;
-                    }
                 }
                 else
                 {

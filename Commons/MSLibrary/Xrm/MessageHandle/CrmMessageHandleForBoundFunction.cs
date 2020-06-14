@@ -71,7 +71,7 @@ namespace MSLibrary.Xrm.MessageHandle
 
             url = $"{url}/Microsoft.Dynamics.CRM.{ realRequest.FunctionName}";
 
-            if (realRequest.Parameters==null && realRequest.Parameters.Count==0)
+            if (realRequest.Parameters==null || realRequest.Parameters.Count==0)
             {
                 url = $"{url}()";
             }

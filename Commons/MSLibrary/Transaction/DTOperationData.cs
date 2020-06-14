@@ -224,7 +224,7 @@ namespace MSLibrary.Transaction
     [Injection(InterfaceType = typeof(IDTOperationDataIMP), Scope = InjectionScope.Transient)]
     public class DTOperationDataIMP : IDTOperationDataIMP
     {
-        public static IDictionary<string, IFactory<IDTOperationDataService>> DTOperationDataServiceFactories = new Dictionary<string, IFactory<IDTOperationDataService>>();
+        public static IDictionary<string, IFactory<IDTOperationDataService>> DTOperationDataServiceFactories { get; } = new Dictionary<string, IFactory<IDTOperationDataService>>();
 
         private IApplicationLockService _applicationLockService;
         private IDTOperationDataStore _dtOperationDataStore;

@@ -9,6 +9,8 @@ namespace MSLibrary.CommonQueue
     public class CommonMessage
     {
         [DataMember]
+        public Guid ID { get; set; }
+        [DataMember]
         public string Key { get; set; }
 
         [DataMember]

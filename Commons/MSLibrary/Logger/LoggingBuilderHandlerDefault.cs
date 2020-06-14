@@ -55,9 +55,9 @@ namespace MSLibrary.Logger
             //处理每一个提供方
             foreach(var providerItem in configuration.Providers)
             {
-                providerItem.Value.ConfigurationObj = JsonSerializerHelper.Deserialize<JObject>(JsonSerializerHelper.Serializer(providerItem.Value.Configuration));
-                var providerHandler = getProviderHandler(providerItem.Key);
-                await providerHandler.Execute(builder, providerItem.Value);
+                providerItem.ConfigurationObj = JsonSerializerHelper.Deserialize<JObject>(JsonSerializerHelper.Serializer(providerItem.Configuration));
+                var providerHandler = getProviderHandler(providerItem.Type);
+                await providerHandler.Execute(builder, providerItem);
             }
         }
 

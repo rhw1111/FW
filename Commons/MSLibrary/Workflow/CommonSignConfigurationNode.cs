@@ -297,7 +297,7 @@ namespace MSLibrary.Workflow
     {
 
 
-        public static Dictionary<string, IFactory<ICommonSignConfigurationNodeSignExtensionService>> _commonSignConfigurationNodeSignExtensionServiceFactories = new Dictionary<string, IFactory<ICommonSignConfigurationNodeSignExtensionService>>();
+        private static Dictionary<string, IFactory<ICommonSignConfigurationNodeSignExtensionService>> _commonSignConfigurationNodeSignExtensionServiceFactories = new Dictionary<string, IFactory<ICommonSignConfigurationNodeSignExtensionService>>();
 
         /// <summary>
         /// 通用审批配置节点审批后处理服务工厂键值对

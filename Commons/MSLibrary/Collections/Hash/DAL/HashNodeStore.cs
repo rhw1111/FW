@@ -724,12 +724,12 @@ namespace MSLibrary.Collections.Hash.DAL
                    Connection = (SqlConnection)conn,
                    CommandType = CommandType.Text,
                    Transaction = sqlTran,
-                   CommandText = string.Format(@"select top 1 {0},{1},{2},{3},{4} from HashNode as n join HashGroup as g
+                   CommandText = string.Format(@"select top 1 {0},{1},{2},{3} from HashNode as n join HashGroup as g
                                                   on n.groupid=g.id
                                                   join HashGroupStrategy as s 
                                                   on g.strategyid=s.id    
                                                   join HashRealNode r on (r.id = n.realnodeid)                                            
-                                                  where n.[groupid]=@groupid {5}
+                                                  where n.[groupid]=@groupid {4}
 		                                          order by n.code",
                                                   StoreHelper.GetHashNodeSelectFields("n"),
                                                   StoreHelper.GetHashGroupSelectFields("g"),

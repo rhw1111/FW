@@ -45,10 +45,10 @@ namespace MSLibrary.Logger
         /// 日志提供方列表
         /// </summary>
         [DataMember]
-        public Dictionary<string, LoggerItemConfiguration> Providers
+        public List<LoggerItemConfiguration> Providers
         {
             get; set;
-        } = new Dictionary<string, LoggerItemConfiguration>();
+        } = new List<LoggerItemConfiguration>();
 
     }
 

@@ -23,7 +23,7 @@ namespace MSLibrary.Distribute
 
         public ApplicationLimitRepositoryCacheProxy(IApplicationLimitRepository applicationLimitRepository)
         {
-            _applicationLimitRepository = _applicationLimitRepository;
+            _applicationLimitRepository = applicationLimitRepository;
             _kvcacheVisitor = CacheInnerHelper.CreateKVCacheVisitor(KVCacheVisitorSetting);
         }
 

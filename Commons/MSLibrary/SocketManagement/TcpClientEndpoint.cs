@@ -347,6 +347,7 @@ namespace MSLibrary.SocketManagement
                     await item.Value.Dispose();
                 }
             }
+            _tcpClientContextPool.Dispose();
         }
 
         /// <summary>
@@ -481,6 +482,8 @@ namespace MSLibrary.SocketManagement
 
             await Task.FromResult(0);
         }
+
+
     }
 
     /// <summary>
@@ -508,6 +511,8 @@ namespace MSLibrary.SocketManagement
         private SemaphoreSlim _receiveSemaphore;
 
         private List<byte> _receiveBytes;
+
+        private object _lockObje = new object();
 
 
         public TcpClientContext(TcpClientEndpoint endpoint, ILoggerFactory loggerFactory, string logCategoryName)
@@ -924,7 +929,7 @@ namespace MSLibrary.SocketManagement
         {
             if (!ConnectionIsClose)
             {
-                lock (this)
+                lock (_lockObje)
                 {
                     if (!ConnectionIsClose)
                     {
@@ -937,11 +942,8 @@ namespace MSLibrary.SocketManagement
                         {
 
                         }
-                        lock (this)
-                        {
-                            ConnectionIsClose = true;
-                        }
 
+                        ConnectionIsClose = true;
                         MainException = ex;
                     }
                 }

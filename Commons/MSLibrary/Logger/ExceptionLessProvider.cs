@@ -16,18 +16,36 @@ namespace MSLibrary.Logger
         public string Key { get; set; }
         public string ServiceUri { get; set; }
 
-        private ExceptionLessLogger _exceptionLessLogger;
 
-        public ExceptionLessProvider(ExceptionLessLogger exceptionLessLogger)
+        private Dictionary<string, ExceptionLessLogger> _loggers=new Dictionary<string, ExceptionLessLogger>();
+
+       
+
+        public ExceptionLessProvider()
         {
-            _exceptionLessLogger = exceptionLessLogger;
+            
         }
 
         public ILogger CreateLogger(string categoryName)
         {
-            _exceptionLessLogger.Key = Key;
-            _exceptionLessLogger.ServiceUri = ServiceUri;
-            return _exceptionLessLogger;
+            if (!_loggers.TryGetValue(categoryName,out ExceptionLessLogger logger))
+            {
+                lock(_loggers)
+                {
+                    if (!_loggers.TryGetValue(categoryName, out logger))
+                    {
+                        logger= new ExceptionLessLogger()
+                        {
+                            CategoryName = categoryName,
+                            Key = Key,
+                            ServiceUri = ServiceUri
+                        };
+                        _loggers[categoryName] = logger;
+                    }
+                }
+            }
+
+            return logger;
         }
 
         public void Dispose()

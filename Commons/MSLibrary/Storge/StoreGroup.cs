@@ -131,7 +131,7 @@ namespace MSLibrary.Storge
             //需要在HashGroup中存在名称为StoreFroup-{group.Name}的哈希组
             string hashGroupName = $"StoreFroup-{group.Name}";
             var hashGroup = await _hashGroupRepositoryCacheProxy.QueryByName(hashGroupName);
-            if (group == null)
+            if (hashGroup == null)
             {
                 var fragment = new TextFragment()
                 {

@@ -1296,13 +1296,13 @@ namespace MSLibrary.Collections.Hash.HashDataMigrateServices
         /// 保存所有参与Hash计算的字段
         /// tableName,keyField
         /// </summary>
-        public static Dictionary<string, Dictionary<string, string>> _keyFields = new Dictionary<string, Dictionary<string, string>>();
+        private static Dictionary<string, Dictionary<string, string>> _keyFields = new Dictionary<string, Dictionary<string, string>>();
 
 
         /// <summary>
         /// 所有不需要迁移的字段
         /// </summary>
-        public static Dictionary<string, Dictionary<string, string>> _unMigrateFields = new Dictionary<string, Dictionary<string, string>>();
+        private static Dictionary<string, Dictionary<string, string>> _unMigrateFields = new Dictionary<string, Dictionary<string, string>>();
 
 
         /// <summary>

@@ -80,92 +80,92 @@ namespace MSLibrary.Thread
         /// <returns></returns>
         public static async Task<IAsyncPollingResult> Polling<T>(Func<Task<IAsyncEnumerable<T>>> sourceGereratorFun, int maxDegree, int interval, Func<T, Task> body,Func<Task> perCompleteAction,Func<Exception,Task> exceptionHandler)
         {
-            SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+            using (SemaphoreSlim _lock = new SemaphoreSlim(1, 1))
+            {
+                var sourceEnumerator = (await sourceGereratorFun()).GetAsyncEnumerator();
 
-            var sourceEnumerator = (await sourceGereratorFun()).GetAsyncEnumerator();
+                List<Task> tasks = new List<Task>();
 
-            List<Task> tasks = new List<Task>();
-
-            AsyncPollingResultDefault result = new AsyncPollingResultDefault(
-                async () =>
-                {
+                AsyncPollingResultDefault result = new AsyncPollingResultDefault(
+                    async () =>
+                    {
                     //等待最终所有任务完成
                     foreach (var item in tasks)
-                    {
-                        await item;
-                    }
-                }
-                );
-
-
-            for (var index = 0; index <= maxDegree - 1; index++)
-            {
-                tasks.Add(
-                    Task.Run(async () =>
-                    {
-                        while (true)
                         {
-                            if (result.IsStop)
-                            {
-                                break;
-                            }
-                            var tempSourceEnumerator = sourceEnumerator;
+                            await item;
+                        }
+                    }
+                    );
 
 
-                            await _lock.WaitAsync();
-                            T data = default(T);
-                            bool isError = false;
-                            try
+                for (var index = 0; index <= maxDegree - 1; index++)
+                {
+                    tasks.Add(
+                        Task.Run(async () =>
+                        {
+                            while (true)
                             {
-                                if (await sourceEnumerator.MoveNextAsync())
+                                if (result.IsStop)
                                 {
-                                    data = sourceEnumerator.Current;
+                                    break;
                                 }
-                                else
-                                {
-                                    if (perCompleteAction!=null)
-                                    {
-                                        await perCompleteAction();
-                                    }
-                                    await Task.Delay(interval);
+                                var tempSourceEnumerator = sourceEnumerator;
 
-                                    if (tempSourceEnumerator != sourceEnumerator)
-                                    {
-                                        continue;
-                                    }
-                                    sourceEnumerator = (await sourceGereratorFun()).GetAsyncEnumerator();
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                isError = true;
-                                await exceptionHandler(ex);
-                            }
-                            finally
-                            {
-                                _lock.Release();
-                            }
 
-                            if (!isError)
-                            {
+                                await _lock.WaitAsync();
+                                T data = default(T);
+                                bool isError = false;
                                 try
                                 {
-                                    await body(data);
+                                    if (await sourceEnumerator.MoveNextAsync())
+                                    {
+                                        data = sourceEnumerator.Current;
+                                    }
+                                    else
+                                    {
+                                        if (perCompleteAction != null)
+                                        {
+                                            await perCompleteAction();
+                                        }
+                                        await Task.Delay(interval);
+
+                                        if (tempSourceEnumerator != sourceEnumerator)
+                                        {
+                                            continue;
+                                        }
+                                        sourceEnumerator = (await sourceGereratorFun()).GetAsyncEnumerator();
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
+                                    isError = true;
                                     await exceptionHandler(ex);
                                 }
+                                finally
+                                {
+                                    _lock.Release();
+                                }
+
+                                if (!isError)
+                                {
+                                    try
+                                    {
+                                        await body(data);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        await exceptionHandler(ex);
+                                    }
+                                }
+
                             }
+                        })
+                        );
 
-                        }
-                    })
-                    );
+                }
 
+                return result;
             }
-
-            return result;
-
         }
 
 
@@ -193,6 +193,7 @@ namespace MSLibrary.Thread
         {
             _stop = true;
             _semaphere.Wait();
+            _semaphere.Dispose();
         }
 
         internal bool IsStop
