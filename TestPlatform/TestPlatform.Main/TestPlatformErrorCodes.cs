@@ -66,5 +66,9 @@ namespace FW.TestPlatform.Main
         /// 找不到指定键值的数据源函数调用脚本生成服务
         /// </summary>
         NotFoundDataSourceInvokeScriptGenerateServiceByKey = 325710041,
+        /// <summary>
+        /// 已经存在指定名称的测试数据源
+        /// </summary>
+        ExistTestDataSourceByName= 325710101
     }
 }

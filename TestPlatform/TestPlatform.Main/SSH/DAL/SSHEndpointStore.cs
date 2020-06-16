@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
+using MSLibrary;
 using MSLibrary.CommandLine.SSH;
 using MSLibrary.CommandLine.SSH.DAL;
 using MSLibrary.DI;
@@ -16,9 +18,39 @@ namespace FW.TestPlatform.Main.SSH.DAL
     [Injection(InterfaceType = typeof(ISSHEndpointStore), Scope = InjectionScope.Singleton)]
     public class SSHEndpointStore : ISSHEndpointStore
     {
-        public Task<SSHEndpoint?> QueryByName(string name, CancellationToken cancellationToken = default)
+
+        private readonly ICommandLineConnectionFactory _commandLineConnectionFactory;
+        private readonly IMainDBContextFactory _mainDBContextFactory;
+
+        public SSHEndpointStore(ICommandLineConnectionFactory commandLineConnectionFactory, IMainDBContextFactory mainDBContextFactory)
         {
-            throw new NotImplementedException();
+            _commandLineConnectionFactory = commandLineConnectionFactory;
+            _mainDBContextFactory = mainDBContextFactory;
+        }
+
+
+        public async Task<SSHEndpoint?> QueryByName(string name, CancellationToken cancellationToken = default)
+        {
+            SSHEndpoint? endpoint = null;
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _commandLineConnectionFactory.CreateReadForCommandLine(), async (conn, transaction) =>
+            {
+
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+
+
+                    endpoint = await (from item in dbContext.SSHEndpoints
+                                      where item.Name == name
+                                      select item).FirstOrDefaultAsync(cancellationToken);
+                }
+            });
+
+            return endpoint;
         }
     }
 }

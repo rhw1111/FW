@@ -13,7 +13,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Commons\MSLibrary.CommandLine\MSLibrary.CommandLine.csproj" />
+    <ProjectReference Include="..\..\Commons\MSLibrary.MySqlStore\MSLibrary.MySqlStore.csproj" />
     <ProjectReference Include="..\..\Commons\MSLibrary\MSLibrary.csproj" />
+    <ProjectReference Include="..\TestPlatform.Main\TestPlatform.Main.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Configurations\app.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Configurations\Langs\language.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Configurations\logger.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

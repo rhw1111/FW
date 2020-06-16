@@ -14,7 +14,7 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
         {
             builder.ToTable("user").HasKey((entity) => entity.ID);
             builder.Property((entity) => entity.Name).IsRequired().HasColumnType("varchar(150)");
-            builder.Property((entity) => entity.CreateTime).HasColumnType("datetime");
+            builder.Property((entity) => entity.CreateTime).HasColumnType("datetime").Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             builder.Property((entity) => entity.ModifyTime).HasColumnType("datetime");
         }
     }

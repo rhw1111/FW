@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Commons\MSLibrary.CommandLine\MSLibrary.CommandLine.csproj" />
+    <ProjectReference Include="..\..\Commons\MSLibrary.MySqlStore\MSLibrary.MySqlStore.csproj" />
     <ProjectReference Include="..\..\Commons\MSLibrary\MSLibrary.csproj" />
   </ItemGroup>
 

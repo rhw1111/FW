@@ -15,6 +15,6 @@ namespace MSLibrary.Context
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        Task<EnvironmentClaimGenerator> QueryByName(string name);
+        Task<EnvironmentClaimGenerator?> QueryByName(string name);
     }
 }

@@ -16,7 +16,7 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
             builder.Property((entity) => entity.Address).IsRequired().HasColumnType("varchar(100)");
             builder.Property((entity) => entity.SSHEndpointID).IsRequired().HasColumnType("char(36)");
             builder.HasOne((entity) => entity.SSHEndpoint).WithMany().HasForeignKey(entity => entity.SSHEndpointID);
-            builder.Property((entity) => entity.CreateTime).HasColumnType("datetime");
+            builder.Property((entity) => entity.CreateTime).HasColumnType("datetime").Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             builder.Property((entity) => entity.ModifyTime).HasColumnType("datetime");
         }
     }

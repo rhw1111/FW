@@ -125,6 +125,10 @@ namespace MSLibrary.MySqlStore.Logger.DAL
                     }
                     else
                     {
+                        if (log.RequestBody.Length>6000)
+                        {
+                            log.RequestBody = log.RequestBody.Substring(0, 6000);
+                        }
                         length = log.RequestBody.Length;
                     }
 
@@ -145,6 +149,10 @@ namespace MSLibrary.MySqlStore.Logger.DAL
                     }
                     else
                     {
+                        if (log.ResponseBody.Length>6000)
+                        {
+                            log.ResponseBody = log.ResponseBody.Substring(0, 6000);
+                        }
                         length = log.ResponseBody.Length;
                     }
 
@@ -162,14 +170,21 @@ namespace MSLibrary.MySqlStore.Logger.DAL
                     command.Parameters.Add(parameter);
 
 
+                   
                     if (log.Message.Length == 0)
                     {
                         length = 10;
                     }
                     else
                     {
+                        if (log.Message.Length>6000)
+                        {
+                            log.Message = log.Message.Substring(0, 6000);
+                        }
                         length = log.Message.Length;
                     }
+
+                 
 
                     parameter = new MySqlParameter("@message", MySqlDbType.VarChar, length)
                     {

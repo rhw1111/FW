@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using MSLibrary.Configuration.DAL;
 using MSLibrary.Logger.DAL;
+using MSLibrary.Context.DAL;
 
 namespace FW.TestPlatform.Main.DAL
 {
     /// <summary>
     /// 主连接字符串工厂
     /// </summary>
-    public interface IMainDBConnectionFactory:ISystemConfigurationConnectionFactory,ICommonLogConnectionFactory
+    public interface IMainDBConnectionFactory:ISystemConfigurationConnectionFactory,ICommonLogConnectionFactory, IContextConnectionFactory
     {
         /// <summary>
         /// 创建主读写连接字符串

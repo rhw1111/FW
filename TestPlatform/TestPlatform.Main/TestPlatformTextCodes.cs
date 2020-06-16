@@ -113,6 +113,11 @@ namespace FW.TestPlatform.Main
         /// {2}：发生位置
         /// </summary>
         public const string NotFoundDataSourceInvokeScriptGenerateServiceByKey = "NotFoundDataSourceInvokeScriptGenerateServiceByKey";
-
+        /// <summary>
+        /// 已经存在指定名称的测试数据源
+        /// 格式为“已经存在名称为{0}的测试数据源”
+        /// {0}：名称
+        /// </summary>
+        public const string ExistTestDataSourceByName = "ExistTestDataSourceByName";
     }
 }

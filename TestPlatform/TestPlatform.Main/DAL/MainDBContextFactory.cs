@@ -8,6 +8,7 @@ using MSLibrary.DI;
 
 namespace FW.TestPlatform.Main.DAL
 {
+    [Injection(InterfaceType = typeof(IMainDBContextFactory), Scope = InjectionScope.Singleton)]
     public class MainDBContextFactory : IMainDBContextFactory
     {
         public MainDBContext CreateMainDBContext(DbConnection conn)

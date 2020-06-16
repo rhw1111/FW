@@ -13,5 +13,11 @@
     <ProjectReference Include="..\TestPlatform.Main\TestPlatform.Main.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 
 </Project>

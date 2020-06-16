@@ -5,12 +5,14 @@ using MSLibrary.DI;
 using MSLibrary.Configuration.DAL;
 using MSLibrary.Logger.DAL;
 using MSLibrary.Transaction;
+using MSLibrary.Context.DAL;
 using FW.TestPlatform.Main.Configuration;
 
 namespace FW.TestPlatform.Main.DAL
 { 
     [Injection(InterfaceType = typeof(ICommonLogConnectionFactory), Scope = InjectionScope.Singleton)]
     [Injection(InterfaceType = typeof(ISystemConfigurationConnectionFactory), Scope = InjectionScope.Singleton)]
+    [Injection(InterfaceType = typeof(IContextConnectionFactory), Scope = InjectionScope.Singleton)]
     [Injection(InterfaceType = typeof(IMainDBConnectionFactory), Scope = InjectionScope.Singleton)]
     public class MainDBConnectionFactory : IMainDBConnectionFactory
     {
@@ -20,6 +22,12 @@ namespace FW.TestPlatform.Main.DAL
         {
             _systemConfigurationService = systemConfigurationService;
         }
+
+        public string CreateAllForContext()
+        {
+            return CreateAllForLocalCommonLog();
+        }
+
         public string CreateAllForLocalCommonLog()
         {
             return _systemConfigurationService.GetConnectionString("configurationall");
@@ -33,6 +41,11 @@ namespace FW.TestPlatform.Main.DAL
         public string CreateAllForSystemConfiguration()
         {
             return CreateAllForLocalCommonLog();
+        }
+
+        public string CreateReadForContext()
+        {
+            return CreateReadForLocalCommonLog();
         }
 
         public string CreateReadForLocalCommonLog()
