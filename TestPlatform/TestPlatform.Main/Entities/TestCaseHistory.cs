@@ -1,20 +1,15 @@
-﻿using System;
+﻿using MSLibrary;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MSLibrary;
-using MSLibrary.DI;
-using MSLibrary.CommandLine.SSH;
 
 namespace FW.TestPlatform.Main.Entities
 {
-    /// <summary>
-    /// 测试主机
-    /// </summary>
-    public class TestHost : EntityBase<ITestHostIMP>
+    public class TestCaseHistory : EntityBase<ITestCaseHistoryIMP>
     {
-        public override IFactory<ITestHostIMP> GetIMPFactory()
+        public override IFactory<ITestCaseHistoryIMP>? GetIMPFactory()
         {
             throw new NotImplementedException();
         }
@@ -34,54 +29,54 @@ namespace FW.TestPlatform.Main.Entities
                 SetAttribute<Guid>(nameof(ID), value);
             }
         }
-
         /// <summary>
-        /// 地址
+        /// 所属Case的ID
         /// </summary>
-        public string Address
+        public Guid CaseID
         {
             get
             {
 
-                return GetAttribute<string>(nameof(Address));
+                return GetAttribute<Guid>(nameof(CaseID));
             }
             set
             {
-                SetAttribute<string>(nameof(Address), value);
+                SetAttribute<Guid>(nameof(CaseID), value);
             }
         }
 
         /// <summary>
-        /// SSH终结点ID
+        /// 所属Case
         /// </summary>
-        public Guid SSHEndpointID
+        public TestCase Case
         {
             get
             {
 
-                return GetAttribute<Guid>(nameof(SSHEndpointID));
+                return GetAttribute<TestCase>(nameof(Case));
             }
             set
             {
-                SetAttribute<Guid>(nameof(SSHEndpointID), value);
+                SetAttribute<TestCase>(nameof(Case), value);
             }
         }
+
 
         /// <summary>
-        /// SSH终结点
+        /// 报告总结
         /// </summary>
-        public SSHEndpoint SSHEndpoint
+        public string Summary
         {
             get
             {
-
-                return GetAttribute<SSHEndpoint>(nameof(SSHEndpoint));
+                return GetAttribute<string>(nameof(Summary));
             }
             set
             {
-                SetAttribute<SSHEndpoint>(nameof(SSHEndpoint), value);
+                SetAttribute<string>(nameof(Summary), value);
             }
         }
+
 
         /// <summary>
         /// 创建时间
@@ -97,6 +92,7 @@ namespace FW.TestPlatform.Main.Entities
                 SetAttribute<DateTime>(nameof(CreateTime), value);
             }
         }
+
 
 
         /// <summary>
@@ -115,10 +111,9 @@ namespace FW.TestPlatform.Main.Entities
         }
     }
 
-    public interface ITestHostIMP
+    public interface ITestCaseHistoryIMP
     {
-        Task Add(TestHost host, CancellationToken cancellationToken = default);
-        Task Update(TestHost host, CancellationToken cancellationToken = default);
-        Task Delete(TestHost host, CancellationToken cancellationToken = default);
+        Task Add(TestCaseHistory history, CancellationToken cancellationToken = default);
+        Task Delete(TestCaseHistory history, CancellationToken cancellationToken = default);
     }
 }

@@ -110,6 +110,10 @@ namespace FW.TestPlatform.Main
     public static class LoggerCategoryNames
     {
         public const string TestPlatform_Portal_Api = "TestPlatform.Portal.Api";
+        public const string DIWrapper = "DIWrapper";
+        public const string HttpRequest = "HttpRequest";
+        public const string ContextExtension = "ContextExtension";
+
     }
 
     /// <summary>

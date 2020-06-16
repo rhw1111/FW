@@ -44,5 +44,21 @@ namespace MSLibrary.Context.Middleware
             });
         }
 
+        /// <summary>
+        /// 注册Http扩展上下文中间件
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="startPath"></param>
+        /// <param name="name"></param>
+        /// <param name="errorCatalogName"></param>
+        /// <returns></returns>
+        public static IApplicationBuilder UserHttpExtensionContext(this IApplicationBuilder app, string startPath, string name, string errorCatalogName)
+        {
+            return app.UseWhen(context => context.Request.Path.StartsWithSegments(startPath), appBuilder =>
+            {
+                appBuilder.UseMiddleware<HttpExtensionContext>(name, errorCatalogName);
+            });
+        }
+
     }
 }

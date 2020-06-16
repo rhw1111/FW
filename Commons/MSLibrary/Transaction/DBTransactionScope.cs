@@ -129,13 +129,13 @@ namespace MSLibrary.Transaction
     public class DBTransactionScope : IDisposable,IAsyncDisposable
     {
 
-        private static AsyncLocal<bool> _inTransaction = new AsyncLocal<bool>();
+        private static AsyncLocal<WrapperObject<bool>> _inTransaction = new AsyncLocal<WrapperObject<bool>>();
 
-        private static AsyncLocal<Dictionary<string, DBConnectionContainer>> _connections = new AsyncLocal<Dictionary<string, DBConnectionContainer>>();
+        private static AsyncLocal<WrapperObject<Dictionary<string, DBConnectionContainer>>> _connections = new AsyncLocal<WrapperObject<Dictionary<string, DBConnectionContainer>>>();
 
-        private static AsyncLocal<TransactionInfo> _transactionInfo = new AsyncLocal<TransactionInfo>();
+        private static AsyncLocal<WrapperObject<TransactionInfo>> _transactionInfo = new AsyncLocal<WrapperObject<TransactionInfo>>();
 
-        private static AsyncLocal<DBTransactionScope> _transactionScope = new AsyncLocal<DBTransactionScope>();
+        private static AsyncLocal<WrapperObject<DBTransactionScope>> _transactionScope = new AsyncLocal<WrapperObject<DBTransactionScope>>();
 
         private bool _needCreateNewTransaction;
 
@@ -159,19 +159,44 @@ namespace MSLibrary.Transaction
 
         public DBTransactionScope(TransactionScopeOption scopeOption, TransactionOptions transactionOptions, Action rollbackAction = null)
         {
+            if (_transactionScope.Value != null)
+            {
+                _preTransactionScope = _transactionScope.Value.Value;
+            }
 
-            _preTransactionScope = _transactionScope.Value;
-            _transactionScope.Value = this;
+            if (_transactionScope.Value != null)
+            {
+                _transactionScope.Value.Value = this;
+            }
+            else
+            {
+                _transactionScope.Value = new WrapperObject<DBTransactionScope>(this);
+            }
 
             _rollbackAction = rollbackAction;
 
-            _preConnections = _connections.Value;
-            _preTransactionInfo = _transactionInfo.Value;
+            if (_connections.Value != null)
+            {
+                _preConnections = _connections.Value.Value;
+            }
 
-            _transactionInfo.Value = new TransactionInfo() { ID = Guid.NewGuid(), ScopeOption = scopeOption, TransactionOptions = transactionOptions };
-            _id = _transactionInfo.Value.ID;
-            _scopeOption = _transactionInfo.Value.ScopeOption;
-            _transactionOptions = _transactionInfo.Value.TransactionOptions;
+            if (_transactionInfo.Value != null)
+            {
+                _preTransactionInfo = _transactionInfo.Value.Value;
+            }
+
+            if (_transactionInfo.Value != null)
+            {
+                _transactionInfo.Value.Value = new TransactionInfo() { ID = Guid.NewGuid(), ScopeOption = scopeOption, TransactionOptions = transactionOptions };
+            }
+            else
+            {
+                _transactionInfo.Value = new WrapperObject<TransactionInfo>(new TransactionInfo() { ID = Guid.NewGuid(), ScopeOption = scopeOption, TransactionOptions = transactionOptions });
+            }
+
+            _id = _transactionInfo.Value.Value.ID;
+            _scopeOption = _transactionInfo.Value.Value.ScopeOption;
+            _transactionOptions = _transactionInfo.Value.Value.TransactionOptions;
 
 
 
@@ -191,35 +216,42 @@ namespace MSLibrary.Transaction
                 }
             }
 
-            if (!_inTransaction.Value)
+            if (_inTransaction.Value==null || !_inTransaction.Value.Value)
             {
                 _needClearTransactionScope = true;
             }
 
-            _inTransaction.Value = true;
+            if (_inTransaction.Value != null)
+            {
+                _inTransaction.Value.Value = true;
+            }
+            else
+            {
+                _inTransaction.Value = new WrapperObject<bool>(true);
+            }
 
             //如果是范围是新事务或者忽略，则_needClose=true
             if (scopeOption == TransactionScopeOption.RequiresNew || scopeOption == TransactionScopeOption.Suppress)
             {
                 _needClose = true;
-                _connections.Value = new Dictionary<string, DBConnectionContainer>();
+                _connections.Value =new WrapperObject<Dictionary<string, DBConnectionContainer>>(new Dictionary<string, DBConnectionContainer>());
                 if (scopeOption == TransactionScopeOption.Suppress)
                 {
-                    _inTransaction.Value = false;
+                    _inTransaction.Value.Value =false;
                 }
 
             }
             else if (scopeOption == TransactionScopeOption.Required && _preConnections == null)
             {
                 //如果是Required，并且_preConnections为空，则_needClose=true
-                _connections.Value = new Dictionary<string, DBConnectionContainer>();
+                _connections.Value =new WrapperObject<Dictionary<string, DBConnectionContainer>>(new Dictionary<string, DBConnectionContainer>());
                 _needClose = true;
             }
             else
             {
                 if (_connections.Value == null)
                 {
-                    _connections.Value = new Dictionary<string, DBConnectionContainer>();
+                    _connections.Value =new WrapperObject<Dictionary<string, DBConnectionContainer>>(new Dictionary<string, DBConnectionContainer>());
                 }
                 _needClose = false;
 
@@ -231,7 +263,7 @@ namespace MSLibrary.Transaction
         /// </summary>
         public static Dictionary<string, DBConnectionContainer> CurrentConnections
         {
-            get { return _connections.Value; }
+            get { return _connections.Value.Value; }
         }
 
 
@@ -240,7 +272,7 @@ namespace MSLibrary.Transaction
         /// </summary>
         public static TransactionInfo CurrentTransactionInfo
         {
-            get { return _transactionInfo.Value; }
+            get { return _transactionInfo.Value.Value; }
         }
 
 
@@ -249,7 +281,7 @@ namespace MSLibrary.Transaction
         /// </summary>
         public static DBTransactionScope CurrentScope
         {
-            get { return _transactionScope.Value; }
+            get { return _transactionScope.Value.Value; }
         }
 
         /// <summary>
@@ -257,7 +289,7 @@ namespace MSLibrary.Transaction
         /// </summary>
         public static void ClearTransactionScope()
         {
-            _inTransaction.Value = false;
+            _inTransaction.Value = null;
         }
 
         /// <summary>
@@ -266,7 +298,7 @@ namespace MSLibrary.Transaction
         /// <returns></returns>
         public static bool InScope()
         {
-            return _inTransaction.Value;
+            return _inTransaction.Value!=null && _inTransaction.Value.Value;
         }
 
 
@@ -326,7 +358,7 @@ namespace MSLibrary.Transaction
         {
             if (_connections.Value != null)
             {
-                foreach (var item in _connections.Value)
+                foreach (var item in _connections.Value.Value)
                 {
                     item.Value.Error = false;
                 }
@@ -341,11 +373,11 @@ namespace MSLibrary.Transaction
                 try
                 {
                     //提交或回滚属于该事务范围的事务
-                    if (_connections.Value != null)
+                    if (_connections.Value != null && _connections.Value.Value != null)
                     {
-                        foreach (var item in _connections.Value)
+                        foreach (var item in _connections.Value.Value)
                         {
-                            if (item.Value.Transactions.TryGetValue(_transactionInfo.Value.ID, out DbTransaction transaction))
+                            if (item.Value.Transactions.TryGetValue(_transactionInfo.Value.Value.ID, out DbTransaction transaction))
                             {
                                 if (item.Value.Error)
                                 {
@@ -381,9 +413,9 @@ namespace MSLibrary.Transaction
                     //关闭连接
                     if (_needClose)
                     {
-                        if (_connections.Value != null)
+                        if (_connections.Value != null && _connections.Value.Value != null)
                         {
-                            foreach (var item in _connections.Value)
+                            foreach (var item in _connections.Value.Value)
                             {
                                 try
                                 {
@@ -403,19 +435,19 @@ namespace MSLibrary.Transaction
 
                         }
 
-                        _connections.Value = null;
+                        _connections.Value.Value = null;
                     }
                 }
 
                 if (_needClearTransactionScope)
                 {
-                    _inTransaction.Value = false;
+                    _inTransaction.Value.Value= false;
                 }
 
 
-                if (_connections.Value != null)
+                if (_connections.Value != null && _connections.Value.Value != null)
                 {
-                    foreach (var item in _connections.Value)
+                    foreach (var item in _connections.Value.Value)
                     {
 
                         item.Value.Error = true;
@@ -424,9 +456,9 @@ namespace MSLibrary.Transaction
             }
             finally
             {
-                _connections.Value = _preConnections;
-                _transactionInfo.Value = _preTransactionInfo;
-                _transactionScope.Value = _preTransactionScope;
+                _connections.Value.Value = _preConnections;
+                _transactionInfo.Value.Value = _preTransactionInfo;
+                _transactionScope.Value.Value = _preTransactionScope;
             }
         }
 
@@ -438,11 +470,11 @@ namespace MSLibrary.Transaction
                 try
                 {
                     //提交或回滚属于该事务范围的事务
-                    if (_connections.Value != null)
+                    if (_connections.Value != null && _connections.Value.Value != null)
                     {
-                        foreach (var item in _connections.Value)
+                        foreach (var item in _connections.Value.Value)
                         {
-                            if (item.Value.Transactions.TryGetValue(_transactionInfo.Value.ID, out DbTransaction transaction))
+                            if (item.Value.Transactions.TryGetValue(_transactionInfo.Value.Value.ID, out DbTransaction transaction))
                             {
                                 if (item.Value.Error)
                                 {
@@ -478,9 +510,9 @@ namespace MSLibrary.Transaction
                     //关闭连接
                     if (_needClose)
                     {
-                        if (_connections.Value != null)
+                        if (_connections.Value != null && _connections.Value.Value != null)
                         {
-                            foreach (var item in _connections.Value)
+                            foreach (var item in _connections.Value.Value)
                             {
                                 try
                                 {
@@ -500,19 +532,19 @@ namespace MSLibrary.Transaction
 
                         }
 
-                        _connections.Value = null;
+                        _connections.Value.Value = null;
                     }
                 }
 
                 if (_needClearTransactionScope)
                 {
-                    _inTransaction.Value = false;
+                    _inTransaction.Value.Value = false;
                 }
 
 
-                if (_connections.Value != null)
+                if (_connections.Value != null && _connections.Value.Value != null)
                 {
-                    foreach (var item in _connections.Value)
+                    foreach (var item in _connections.Value.Value)
                     {
 
                         item.Value.Error = true;
@@ -521,9 +553,9 @@ namespace MSLibrary.Transaction
             }
             finally
             {
-                _connections.Value = _preConnections;
-                _transactionInfo.Value = _preTransactionInfo;
-                _transactionScope.Value = _preTransactionScope;
+                _connections.Value.Value = _preConnections;
+                _transactionInfo.Value.Value = _preTransactionInfo;
+                _transactionScope.Value.Value = _preTransactionScope;
             }
         }
 

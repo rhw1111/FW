@@ -221,6 +221,11 @@ namespace FW.TestPlatform.Main.Entities
         Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default);
         IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default);
         Task<TestCaseSlaveHost?> GetSlaveHost(TestCase tCase,Guid slaveHostID, CancellationToken cancellationToken = default);
+        Task AddHistory(TestCase tCase,TestCaseHistory history, CancellationToken cancellationToken = default);
+        Task UpdateHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default);
+        Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default);
+        Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default);
+        Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default);
         Task Run(TestCase tCase, CancellationToken cancellationToken = default);
         Task Stop(TestCase tCase, CancellationToken cancellationToken = default);
         Task<bool> IsEngineRun(TestCase tCase, CancellationToken cancellationToken = default);
@@ -264,6 +269,11 @@ namespace FW.TestPlatform.Main.Entities
             await _testCaseStore.Add(tCase, cancellationToken);
         }
 
+        public Task AddHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task AddSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
             var host = await _testHostRepository.QueryByID(slaveHost.HostID, cancellationToken);
@@ -285,6 +295,11 @@ namespace FW.TestPlatform.Main.Entities
         public async Task Delete(TestCase tCase, CancellationToken cancellationToken = default)
         {
             await _testCaseStore.Delete(tCase.ID, cancellationToken);
+        }
+
+        public Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task DeleteSlaveHost(TestCase tCase, Guid slaveHostID, CancellationToken cancellationToken = default)
@@ -322,6 +337,16 @@ namespace FW.TestPlatform.Main.Entities
         public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default)
         {
             return _testCaseSlaveHostStore.QueryByCase(tCase.ID, cancellationToken);
+        }
+
+        public Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<string> GetMasterLog(TestCase tCase, CancellationToken cancellationToken = default)
@@ -473,6 +498,11 @@ namespace FW.TestPlatform.Main.Entities
             }
 
             await _testCaseStore.Update(tCase, cancellationToken);
+        }
+
+        public Task UpdateHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
