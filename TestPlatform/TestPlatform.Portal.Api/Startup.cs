@@ -43,7 +43,7 @@ namespace FW.TestPlatform.Portal.Api
             services.AddControllers((opts) =>
             {
                 opts.Filters.AddService<UserAuthorizeActionGolbalFilter>();
-                opts.Filters.AddService<InternationalizationActionGlobalFilter>();
+                opts.Filters.AddService<HttpExtensionContextActionGolbalFilter>();
                 opts.Filters.Add(DIContainerContainer.Get<UserAuthorizeFilter>(new object?[] { true, null, ClaimContextGeneratorNames.Default, ClaimContextGeneratorNames.Default, null }, new Type[] { typeof(bool), typeof(string), typeof(string), typeof(string), typeof(string) }));
                 opts.Filters.Add(DIContainerContainer.Get<ExceptionFilter>(LoggerCategoryNames.TestPlatform_Portal_Api, coreConfiguration.Debug));
 
@@ -71,6 +71,8 @@ namespace FW.TestPlatform.Portal.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            var applicationConfiguration = ConfigurationContainer.Get<ApplicationConfiguration>(ConfigurationNames.Application);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -78,11 +80,17 @@ namespace FW.TestPlatform.Portal.Api
 
             app.UseRouting();
 
+            app.UseDIWrapper(ContextTypes.DI, LoggerCategoryNames.DIWrapper);
+            app.UseExceptionWrapper(LoggerCategoryNames.HttpRequest, applicationConfiguration.Debug);
+            app.UserHttpExtensionContext(string.Empty, HttpExtensionContextHandleServiceNames.Internationalization, LoggerCategoryNames.ContextExtension);
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
             });
         }
     }
