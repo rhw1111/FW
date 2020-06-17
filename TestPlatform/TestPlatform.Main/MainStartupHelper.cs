@@ -18,6 +18,7 @@ using MSLibrary.Context;
 using MSLibrary.Context.Filter;
 using MSLibrary.Context.HttpClaimGeneratorServices;
 using MSLibrary.Context.ClaimContextGeneratorServices;
+using MSLibrary.Transaction;
 using MSLibrary.Template;
 using MSLibrary.Xrm;
 using MSLibrary.Xrm.Token;
@@ -100,6 +101,7 @@ using MSLibrary.MessageQueue.DAL.SMessageStores;
 using MSLibrary.MessageQueue;
 using MSLibrary.ExceptionHandle;
 using MSLibrary.AspNet;
+using MSLibrary.MySqlStore.Transaction;
 using FW.TestPlatform.Main.Context.HttpExtensionContextHandleServices;
 using FW.TestPlatform.Main.Context.ClaimContextGeneratorServices;
 using FW.TestPlatform.Main.Context.EnvironmentClaimGeneratorServices;
@@ -226,7 +228,7 @@ namespace FW.TestPlatform.Main
             AdfsHelper.HttpClientFactoryGenerator = () => DIContainerContainer.Get<IHttpClientFactory>();
 
             //为日志构建器处理的提供方处理工厂赋值
-            LoggingBuilderHandlerDefault.ProviderHandlerFactories[LoggerProviderHandlerNames.Local] = DIContainerContainer.Get<LoggingBuilderProviderHandlerForCommonLogFactory>();
+            LoggingBuilderHandlerDefault.ProviderHandlerFactories[LoggerProviderHandlerNames.Local] = DIContainerContainer.Get<LoggingBuilderProviderHandlerForCommonLogLocalFactory>();
             //LoggingBuilderHandlerDefault.ProviderHandlerFactories[LoggerProviderHandlerNames.Console] = DIContainerContainer.Get<LoggingBuilderProviderHandlerForConsoleFactory>();
             //LoggingBuilderHandlerDefault.ProviderHandlerFactories[LoggerProviderHandlerNames.ExceptionLess] = DIContainerContainer.Get<LoggingBuilderProviderHandlerForExceptionLessFactory>();
 
@@ -255,6 +257,8 @@ namespace FW.TestPlatform.Main
             UserAuthorizeFilter.ErrorCatalogName = applicationConfiguration.ApplicationName;
 
 
+
+            DBTransactionHelper.DBConnGenerates[DBTypes.MySql] = new DBConnGenerateForMySql();
         }
 
   

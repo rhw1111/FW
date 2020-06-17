@@ -15,6 +15,6 @@ namespace MSLibrary.Context
         /// </summary>
         /// <param name="name">名称</param>
         /// <returns></returns>
-        Task<ClaimContextGenerator> QueryByName(string name);
+        Task<ClaimContextGenerator?> QueryByName(string name);
     }
 }

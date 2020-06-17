@@ -13,18 +13,19 @@ namespace FW.TestPlatform.Main.Configuration
     [Injection(InterfaceType = typeof(ISystemConfigurationService), Scope = InjectionScope.Singleton)]
     public class SystemConfigurationService : ISystemConfigurationService
     {
-        private readonly ISystemConfigurationRepositoryCacheProxy _systemConfigurationRepositoryCacheProxy;
+        //private readonly ISystemConfigurationRepositoryCacheProxy _systemConfigurationRepositoryCacheProxy;
 
-        public SystemConfigurationService(ISystemConfigurationRepositoryCacheProxy systemConfigurationRepositoryCacheProxy)
+        public SystemConfigurationService()
         {
-            _systemConfigurationRepositoryCacheProxy = systemConfigurationRepositoryCacheProxy;
+            //_systemConfigurationRepositoryCacheProxy = systemConfigurationRepositoryCacheProxy;
         }
 
         public string[] GetApplicationCrosOrigin(CancellationToken cancellationToken = default)
         {
+            var systemConfigurationRepositoryCacheProxy = DIContainerContainer.Get<ISystemConfigurationRepositoryCacheProxy>();
             var appConfiguration = ConfigurationContainer.Get<ApplicationConfiguration>(ConfigurationNames.Application);
             var configurationName = string.Format(SystemConfigurationItemNames.ApplicationCrosOrigin, appConfiguration.ApplicationName);
-            var appCrosOrigin = _systemConfigurationRepositoryCacheProxy.QueryByName(configurationName);
+            var appCrosOrigin = systemConfigurationRepositoryCacheProxy.QueryByName(configurationName);
             if (appConfiguration == null)
             {
                 var fragment = new TextFragment()
@@ -59,8 +60,9 @@ namespace FW.TestPlatform.Main.Configuration
 
         public Guid GetDefaultUserID(CancellationToken cancellationToken = default)
         {
-       
-            var appConfiguration=_systemConfigurationRepositoryCacheProxy.QueryByName(SystemConfigurationItemNames.DefaultUserID);
+
+            var systemConfigurationRepositoryCacheProxy = DIContainerContainer.Get<ISystemConfigurationRepositoryCacheProxy>();
+            var appConfiguration=systemConfigurationRepositoryCacheProxy.QueryByName(SystemConfigurationItemNames.DefaultUserID);
             if (appConfiguration==null)
             {
                 var fragment = new TextFragment()

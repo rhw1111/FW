@@ -83,13 +83,19 @@ namespace FW.TestPlatform.Main
     }
 
     /// <summary>
-    /// 声明上下文生成器类型
+    /// 声明上下文生成器类型集合
     /// </summary>
     public static class ClaimContextGeneratorTypes
     {
         public const string Default = "Default";
     }
-
+    /// <summary>
+    /// 环境声明生成器类型集合
+    /// </summary>
+    public static class EnvironmentClaimGeneratorTypes
+    {
+        public const string Default = "Default";
+    }
     /// <summary>
     /// 身份声明类型集合
     /// </summary>
@@ -110,12 +116,24 @@ namespace FW.TestPlatform.Main
     public static class LoggerCategoryNames
     {
         public const string TestPlatform_Portal_Api = "TestPlatform.Portal.Api";
+        public const string DIWrapper = "DIWrapper";
+        public const string HttpRequest = "HttpRequest";
+        public const string ContextExtension = "ContextExtension";
+
     }
 
     /// <summary>
     /// 声明上下文生成器名称集合
     /// </summary>
     public static class ClaimContextGeneratorNames
+    {
+        public const string Default = "Default";
+    }
+
+    /// <summary>
+    /// 环境声明生成器名称集合
+    /// </summary>
+    public static class EnvironmentClaimGeneratorNames
     {
         public const string Default = "Default";
     }

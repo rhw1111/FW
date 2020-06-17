@@ -1,0 +1,19 @@
+{
+  "Connections": {
+    "mainall": "Server=localhost;Port=33060;Database=tpmain;Uid=root;Pwd=123456;",
+    "mainread": "Server=localhost;Port=33060;Database=tpmain;Uid=root;Pwd=123456;",
+    "configurationall": "Server=localhost;Port=33060;Database=tpconfig;Uid=root;Pwd=123456;",
+    "confifurationread": "Server=localhost;Port=33060;Database=tpconfig;Uid=root;Pwd=123456;"
+  },
+  "ApplicationName": "TestPlatform.Portal.Api",
+  "DISetting": {
+    "SearchAssemblyNames": [ "MSLibrary", "MSLibrary.CommandLine", "MSLibrary.MySqlStore", "TestPlatform.Main" ]
+  },
+  "Debug": true,
+  "ThreadPoolSetting": {
+    "MaxWorkThread": 100,
+    "MinWorkThread": 50,
+    "MaxIOThread": 100,
+    "MinIOThread": 50
+  }
+}

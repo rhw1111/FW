@@ -14,6 +14,9 @@ namespace FW.TestPlatform.Main.Entities.DAL
         Task Delete(Guid id, CancellationToken cancellationToken = default);
         Task<TestDataSource?> QueryByID(Guid id, CancellationToken cancellationToken = default);
         Task<TestDataSource?> QueryByName(string name, CancellationToken cancellationToken = default);
+
+        Task<Guid?> QueryByNameNoLock(string name, CancellationToken cancellationToken = default);
+
         Task<IList<TestDataSource>> QueryByNames(IList<string> names, CancellationToken cancellationToken = default);
         Task<QueryResult<TestDataSource>> QueryByPage(string matchName, int page, int pageSize, CancellationToken cancellationToken = default);
     }

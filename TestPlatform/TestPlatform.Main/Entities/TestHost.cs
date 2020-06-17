@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using MSLibrary;
 using MSLibrary.DI;
 using MSLibrary.CommandLine.SSH;
@@ -115,6 +117,8 @@ namespace FW.TestPlatform.Main.Entities
 
     public interface ITestHostIMP
     {
-
+        Task Add(TestHost host, CancellationToken cancellationToken = default);
+        Task Update(TestHost host, CancellationToken cancellationToken = default);
+        Task Delete(TestHost host, CancellationToken cancellationToken = default);
     }
 }

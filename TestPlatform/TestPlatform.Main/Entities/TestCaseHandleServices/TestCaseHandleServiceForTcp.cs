@@ -127,7 +127,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
             //生成数据源函数,加入到模板上下文中
             var dataSources =await _testDataSourceRepository.QueryByNames(configuration.DataSourceNames, cancellationToken);
-
+                      
             Dictionary<string,DataSourceFuncConfigurationItem> funcItems = new Dictionary<string, DataSourceFuncConfigurationItem>();
             foreach (var item in dataSources)
             {
