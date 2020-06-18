@@ -209,6 +209,16 @@ namespace FW.TestPlatform.Main.Entities
         {
             return _imp.GetAllSlaveHosts(this, cancellationToken);
         }
+
+        public async Task Add(CancellationToken cancellationToken = default)
+        {
+            await _imp.Add(this,cancellationToken);
+        }
+
+        public async Task Add()
+        {
+            await _imp.Add(this);
+        }
     }
 
     public interface ITestCaseIMP
