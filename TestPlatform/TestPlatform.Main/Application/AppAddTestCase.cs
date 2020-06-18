@@ -47,5 +47,39 @@ namespace FW.TestPlatform.Main.Application
 
             return result;
         }
+
+        public async Task<TestCaseViewData> Update(TestCaseAddModel model, CancellationToken cancellationToken = default)
+        {
+            TestCaseViewData result;
+            try
+            {
+                TestCase source = new TestCase()
+                {
+                    ID = model.ID,
+                    Name = model.Name,
+                    OwnerID = model.OwnerID,
+                    EngineType = model.EngineType,
+                    MasterHostID = model.MasterHostID,
+                    Configuration = model.Configuration,
+                    Status = model.Status
+                };
+                await source.Update(cancellationToken);
+
+                result = new TestCaseViewData()
+                {
+                    EngineType = source.EngineType,
+                    Configuration = source.Configuration,
+                    Name = source.Name,
+                    ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+
+            return result;
+        }
     }
 }

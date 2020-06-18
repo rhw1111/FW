@@ -10,5 +10,6 @@ namespace FW.TestPlatform.Main.Application
     public interface IAppAddTestCase
     {
         Task<TestCaseViewData> Do(TestCaseAddModel model, CancellationToken cancellationToken = default);
+        Task<TestCaseViewData> Update(TestCaseAddModel model, CancellationToken cancellationToken = default);
     }
 }

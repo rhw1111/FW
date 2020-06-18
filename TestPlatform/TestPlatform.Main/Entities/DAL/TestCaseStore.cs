@@ -222,12 +222,14 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     }
 
                     source.ModifyTime = DateTime.UtcNow;
+                    //source.CreateTime = DateTime.UtcNow;
                     dbContext.TestCases.Attach(source);
 
                     var entry = dbContext.Entry(source);
                     foreach (var item in entry.Properties)
                     {
-                        entry.Property(item.Metadata.Name).IsModified = true;
+                        if(item.Metadata.Name != "ID")
+                            entry.Property(item.Metadata.Name).IsModified = true;
                     }
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }

@@ -13,6 +13,22 @@ namespace FW.TestPlatform.Main.DTOModel
     public class TestCaseAddModel:ModelBase
     {
         /// <summary>
+        /// Id
+        /// </summary>
+        [DataMember]
+        public Guid ID
+        {
+            get
+            {
+
+                return GetAttribute<Guid>(nameof(ID));
+            }
+            set
+            {
+                SetAttribute<Guid>(nameof(ID), value);
+            }
+        }
+        /// <summary>
         /// 名称
         /// </summary>
         [DataMember]

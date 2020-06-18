@@ -36,5 +36,11 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         {
             return await _appAddTestCase.Do(model);
         }
+
+        [HttpPut("update")]
+        public async Task<TestCaseViewData> Update(TestCaseAddModel model)
+        {
+            return await _appAddTestCase.Update(model);
+        }
     }
 }

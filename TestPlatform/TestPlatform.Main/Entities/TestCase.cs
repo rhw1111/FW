@@ -219,6 +219,11 @@ namespace FW.TestPlatform.Main.Entities
         {
             await _imp.Add(this);
         }
+
+        public async Task Update(CancellationToken cancellationToken = default)
+        {
+            await _imp.Update(this, cancellationToken);
+        }
     }
 
     public interface ITestCaseIMP
