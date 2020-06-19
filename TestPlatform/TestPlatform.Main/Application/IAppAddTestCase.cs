@@ -11,5 +11,6 @@ namespace FW.TestPlatform.Main.Application
     {
         Task<TestCaseViewData> Do(TestCaseAddModel model, CancellationToken cancellationToken = default);
         Task<TestCaseViewData> Update(TestCaseAddModel model, CancellationToken cancellationToken = default);
+        Task<TestCaseViewData> Delete(TestCaseAddModel model, CancellationToken cancellationToken = default);
     }
 }

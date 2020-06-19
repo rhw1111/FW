@@ -49,5 +49,25 @@ namespace FW.TestPlatform.Main.Application
 
             return result;
         }
+
+        public async Task<TestCaseViewData?> GetCase(Guid id, CancellationToken cancellationToken = default)
+        {
+            TestCaseViewData? result = null;
+            var queryResult = await _testCaseRepository.QueryByID(id, cancellationToken);
+            if(queryResult != null)
+            {
+                result = new TestCaseViewData
+                {
+                    ID = queryResult.ID,
+                    Name = queryResult.Name,
+                    Configuration = queryResult.Configuration,
+                    Owner = queryResult.Owner,
+                    MasterHost = queryResult.MasterHost,
+                    Status = queryResult.Status,
+                    EngineType = queryResult.EngineType
+                };
+            }
+            return result;
+        }
     }
 }

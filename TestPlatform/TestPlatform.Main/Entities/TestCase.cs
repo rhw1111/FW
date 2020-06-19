@@ -224,6 +224,11 @@ namespace FW.TestPlatform.Main.Entities
         {
             await _imp.Update(this, cancellationToken);
         }
+
+        public async Task Delete(CancellationToken cancellationToken = default)
+        {
+            await _imp.Delete(this, cancellationToken);
+        }
     }
 
     public interface ITestCaseIMP
@@ -353,6 +358,10 @@ namespace FW.TestPlatform.Main.Entities
         {
             return _testCaseSlaveHostStore.QueryByCase(tCase.ID, cancellationToken);
         }
+        //public Task<List<TestCaseSlaveHost>> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default)
+        //{
+        //    return _testCaseSlaveHostStore.QueryByCase(tCase.ID, cancellationToken);
+        //}
 
         public Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default)
         {

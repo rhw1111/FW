@@ -81,5 +81,19 @@ namespace FW.TestPlatform.Main.Application
 
             return result;
         }
+
+        public async Task<TestCaseViewData> Delete(TestCaseAddModel model, CancellationToken cancellationToken = default)
+        {
+            TestCase source = new TestCase()
+            {
+                ID = model.ID
+            };
+            await source.Delete(cancellationToken);
+            TestCaseViewData viewData = new TestCaseViewData
+            {
+                ID = model.ID
+            };
+            return viewData;
+        }
     }
 }
