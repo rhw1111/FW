@@ -64,6 +64,7 @@ namespace FW.TestPlatform.Main.Entities
 
         /// <summary>
         /// 类型
+        /// String,JsonKV,JsonList
         /// </summary>
         public string Type
         {

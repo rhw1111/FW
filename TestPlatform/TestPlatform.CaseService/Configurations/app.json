@@ -5,9 +5,9 @@
     "configurationall": "Server=localhost;Port=33060;Database=tpconfig;Uid=root;Pwd=123456;",
     "confifurationread": "Server=localhost;Port=33060;Database=tpconfig;Uid=root;Pwd=123456;"
   },
-  "ApplicationName": "TestPlatform.CaseService",
+  "ApplicationName": "TestPlatform.Portal.Api",
   "DISetting": {
-    "SearchAssemblyNames": [ "MSLibrary", "MSLibrary.CommandLine", "MSLibrary.MySqlStore", "TestPlatform.Main", "TestPlatform.CaseService" ]
+    "SearchAssemblyNames": [ "MSLibrary", "MSLibrary.CommandLine", "MSLibrary.MySqlStore", "MSLibrary.StreamingDB", "TestPlatform.Main", "TestPlatform.CaseService" ]
   },
   "Debug": true,
   "ThreadPoolSetting": {

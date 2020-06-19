@@ -22,6 +22,11 @@ namespace MSLibrary.Template
         {
             Regex regex = new Regex(@"(?<!\\)\{(\S+?)}");
             var matchs= regex.Matches(content);
+            bool isMatch = false;
+            if (matchs.Count>0)
+            {
+                isMatch = true;
+            }
             foreach(Match item in matchs)
             {
                 if (!TextReplaceContentGenerateServices.TryGetValue(item.Groups[1].Value, out ITextReplaceContentGenerateService generateService))
@@ -40,7 +45,10 @@ namespace MSLibrary.Template
                 content=content.Replace($"{{{item.Groups[1].Value}}}", replaceContent);
             }
 
-            content=content.Replace(@"\{", "{");
+            if (isMatch)
+            {
+                content = content.Replace(@"\{", "{");
+            }
 
             return content;
         }

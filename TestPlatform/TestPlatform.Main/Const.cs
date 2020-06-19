@@ -13,6 +13,11 @@ namespace FW.TestPlatform.Main
         public const string ResponseSeparator = "ResponseSeparator";
         public const string ReadyTime = "ReadyTime";
         public const string Address = "Address";
+        public const string DataSourceVars = "DataSourceVars";
+        public const string ConnectInit = "ConnectInit";
+        public const string Sendinit= "Sendinit";
+        public const string AdditionFuncNames = "AdditionFuncNames";
+
     }
 
     /// <summary>

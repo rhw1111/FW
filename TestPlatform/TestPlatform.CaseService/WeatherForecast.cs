@@ -1,6 +1,6 @@
 using System;
 
-namespace TestPlatform.CaseService
+namespace FW.TestPlatform.CaseService
 {
     public class WeatherForecast
     {

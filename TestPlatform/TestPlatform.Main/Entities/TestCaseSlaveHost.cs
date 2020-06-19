@@ -96,6 +96,23 @@ namespace FW.TestPlatform.Main.Entities
         }
 
         /// <summary>
+        /// 测试机名称
+        /// 通过该名称与副本Index，来区分每个Slave
+        /// </summary>
+        public string SlaveName
+        {
+            get
+            {
+
+                return GetAttribute<string>(nameof(SlaveName));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(SlaveName), value);
+            }
+        }
+
+        /// <summary>
         /// 在该主机上使用的副本数量
         /// </summary>
         public int Count
