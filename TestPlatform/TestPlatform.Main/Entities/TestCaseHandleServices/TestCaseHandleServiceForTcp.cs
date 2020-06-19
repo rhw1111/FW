@@ -13,8 +13,7 @@ using MSLibrary.Serializer;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.CommandLine.SSH;
 using FW.TestPlatform.Main.Template.LabelParameterHandlers;
-using MongoDB.Libmongocrypt;
-using Castle.Core.Internal;
+
 
 namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 {
@@ -22,13 +21,20 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
     public class TestCaseHandleServiceForTcp : ITestCaseHandleService
     {
         private const string _testFilePath = "/usr/testfile/";
-        private const string _testFileName = "script.py";
-        private const string _testLogFileName = "log";
+        private const string _testFileName = "script{0}.py";
+        private const string _testLogFileName = "log{0}";
         private const int _maxLogSize = 1024 * 1024;
 
         private readonly ITestDataSourceRepository _testDataSourceRepository;
         private readonly IScriptTemplateRepository _scriptTemplateRepository;
         private readonly ISSHEndpointRepository _sshEndpointRepository;
+
+
+        /// <summary>
+        /// 要使用的附加函数名称集合
+        /// 系统初始化时注入
+        /// </summary>
+        public static IList<string> AdditionFuncNames { get; } = new List<string>();
 
         public TestCaseHandleServiceForTcp(ITestDataSourceRepository testDataSourceRepository, IScriptTemplateRepository scriptTemplateRepository, ISSHEndpointRepository sshEndpointRepository)
         {
@@ -51,7 +57,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     var realSize=await fileStream.ReadAsync(memoryBytes);
                     result=UTF8Encoding.UTF8.GetString(memoryBytes.Slice(0, realSize).Span);
                 },
-                $"{_testFilePath}.{_testLogFileName}",
+                $"{_testFilePath}.{string.Format(_testLogFileName,string.Empty)}",
                 cancellationToken
                 );
             return result;
@@ -71,7 +77,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     var realSize = await fileStream.ReadAsync(memoryBytes);
                     result = UTF8Encoding.UTF8.GetString(memoryBytes.Slice(0, realSize).Span);
                 },
-                $"{_testFilePath}.{_testLogFileName}",
+                $"{_testFilePath}.{string.Format(_testLogFileName,"_slave")}",
                 cancellationToken
                 );
             return result;
@@ -81,7 +87,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         {
             //执行主机查进程命令
             var result=await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}'", cancellationToken);
-            if (result.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(result))
             {
                 return false;
             }
@@ -92,10 +98,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         public async Task Run(TestCase tCase, CancellationToken cancellationToken = default)
         {
             var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
-            if (configuration.DataSourceNames==null)
-            {
-                configuration.DataSourceNames = new List<string>();
-            }
+
 
             var scriptTemplate=await _scriptTemplateRepository.QueryByName(ScriptTemplateNames.LocustTcp, cancellationToken);
             
@@ -114,7 +117,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             var contextDict= new Dictionary<string, object>();
 
             //将引擎类型加入到模板上下文中
-            contextDict.Add(TemplateContextParameterNames.EngineType, tCase.EngineType);
+            contextDict.Add(TemplateContextParameterNames.EngineType, RuntimeEngineTypes.Locust);
             //将请求体模板加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.RequestBody, configuration.RequestBody);
             //将响应分隔符加入到模板上下文中
@@ -124,32 +127,48 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             //将测试地址加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.Address, configuration.Address);
 
+            //将要用到的附加函数名称集合加入到模板上下文中
+            contextDict.Add(TemplateContextParameterNames.AdditionFuncNames, AdditionFuncNames);
+            //将数据源变量配置加入到模板上下文中
+            contextDict.Add(TemplateContextParameterNames.DataSourceVars, configuration.DataSourceVars);
+            //将Tcp连接初始化脚本配置加入到模板上下文中
+            contextDict.Add(TemplateContextParameterNames.ConnectInit, configuration.ConnectInit);
+            //将Tcp发送前初始化脚本配置加入到模板上下文中
+            contextDict.Add(TemplateContextParameterNames.Sendinit, configuration.SendInit);
 
-            //生成数据源函数,加入到模板上下文中
-            var dataSources =await _testDataSourceRepository.QueryByNames(configuration.DataSourceNames, cancellationToken);
-                      
-            Dictionary<string,DataSourceFuncConfigurationItem> funcItems = new Dictionary<string, DataSourceFuncConfigurationItem>();
-            foreach (var item in dataSources)
+
+            //为DataSourceVars补充Data属性
+            foreach(var item in configuration.DataSourceVars)
             {
-                funcItems[item.Name] =
-                    new DataSourceFuncConfigurationItem()
+                var dataSource= await _testDataSourceRepository.QueryByName(item.DataSourceName, cancellationToken);
+                if (dataSource==null)
+                {
+                    var fragment = new TextFragment()
                     {
-                        FuncName = item.Name,
-                        FuncUniqueName = $"{item.Name}_{Guid.NewGuid().ToString("N")}",
-                        FuncType = item.Type,
-                        Data = item.Data
-                    };                   
-            }
+                        Code = TestPlatformTextCodes.NotFoundTestDataSourceByName,
+                        DefaultFormatting = "找不到名称为{0}的测试数据源",
+                        ReplaceParameters = new List<object>() { item.DataSourceName }
+                    };
 
-            contextDict.Add(TemplateContextParameterNames.DataSourceFuncs, funcItems);
+                    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestDataSourceByName, fragment, 1, 0);
+                }
+
+                item.Type = dataSource.Type;
+                item.Data = dataSource.Data;
+            }
+          
 
             //生成代码
             var strCode=await scriptTemplate.GenerateScript(contextDict, cancellationToken);
 
+
+            //代码模板必须有一个格式为{SlaveName}的替换符，该替换符标识每个Slave
+
+
             //获取测试用例的主测试机，上传测试代码
-            using (var textStream=new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode)))
+            using (var textStream=new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}","Master"))))
             {
-                await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{_testFilePath}{_testFileName}", cancellationToken);
+                await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{_testFilePath}{string.Format(_testFileName,string.Empty)}", cancellationToken);
                 textStream.Close();
             }
 
@@ -159,12 +178,23 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             List<TestCaseSlaveHost> slaveHostList = new List<TestCaseSlaveHost>();
             await foreach(var item in slaveHosts)
             {
-                slaveCount += item.Count;
-                using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode)))
+                //先删除文件夹内现有的所有文件
+                await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{_testLogFileName}*", cancellationToken);
+
+                //为该Slave测试机下的每个Slave上传文件
+
+                var index = 0;
+                for (index = 0; index <= item.Count - 1; index++)
                 {
-                    await item.Host.SSHEndpoint.UploadFile(textStream, $"{_testFilePath}{_testFileName}", cancellationToken);
-                    textStream.Close();
+                    using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}", $"{item.SlaveName}-{index.ToString()}"))))
+                    {
+                        await item.Host.SSHEndpoint.UploadFile(textStream, $"{_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")}", cancellationToken);
+                        textStream.Close();
+                    }
                 }
+
+                slaveCount += item.Count;
+
 
                 slaveHostList.Add(item);
             }
@@ -174,11 +204,11 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             {
                async (preResult)=>
                {
-                   return await Task.FromResult($"rm -rf {_testFilePath}{_testLogFileName}");
+                   return await Task.FromResult($"rm -rf {_testFilePath}{string.Format(_testLogFileName,string.Empty)}");
                },
                async (preResult)=>
                {
-                   return await Task.FromResult($"locust -f {_testFilePath}{_testFileName} --master --expect-slaves={slaveCount.ToString()} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{_testLogFileName} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
+                   return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName,string.Empty)} --master --expect-slaves={slaveCount.ToString()} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{string.Format(_testLogFileName,string.Empty)} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
                }
             };
             await tCase.MasterHost.SSHEndpoint.ExecuteCommandBatch(commands, cancellationToken);
@@ -192,11 +222,11 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     {
                         async (preResult)=>
                         {
-                            return await Task.FromResult($"rm -rf {_testFilePath}{_testLogFileName}");
+                            return await Task.FromResult($"rm -rf {_testFilePath}{string.Format(_testLogFileName,"_slave")}");
                         },
                         async (preResult)=>
                         {
-                            return await Task.FromResult($"locust -f {_testFilePath}{_testFileName} --slave --master-host={tCase.MasterHost.Address} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{_testLogFileName} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
+                            return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")} --slave --master-host={tCase.MasterHost.Address} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{string.Format(_testLogFileName,"_slave")} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
                         }
                     };
 
@@ -259,7 +289,27 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             {
                 get; set;
             } = null!;
-            
+
+            /// <summary>
+            /// Tcp连接初始化脚本配置
+            /// </summary>
+
+            [DataMember]
+            public ConfigurationDataForTcpConnectInit ConnectInit
+            {
+                get; set;
+            } = null!;
+
+            /// <summary>
+            /// Tcp发送前初始化脚本配置
+            /// </summary>
+            [DataMember]
+            public ConfigurationDataForTcpSendInit SendInit
+            {
+                get; set;
+            } = null!;
+
+
             /// <summary>
             /// 请求体内容
             /// </summary>
@@ -269,14 +319,16 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 get; set;
             } = null!;
 
+
+
             /// <summary>
-            /// 要用到的数据源名称列表
+            /// 数据源变量配置
             /// </summary>
             [DataMember]
-            public List<string> DataSourceNames
+            public List<ConfigurationDataForDataSourceVar> DataSourceVars
             {
                 get; set;
-            } = null!;
+            } = new List<ConfigurationDataForDataSourceVar>();
 
             /// <summary>
             /// 响应内容分隔符
@@ -286,6 +338,79 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             {
                 get; set;
             } = null!;
+        }
+
+        /// <summary>
+        /// Tcp连接初始化脚本配置
+        /// </summary>
+        [DataContract]
+        private class ConfigurationDataForTcpConnectInit
+        {
+            /// <summary>
+            /// 变量赋值配置
+            /// </summary>
+            public List<ConfigurationDataForVar> VarSettings
+            {
+                get; set;
+            } = new List<ConfigurationDataForVar>();
+        }
+
+        /// <summary>
+        /// Tcp发送前初始化脚本配置
+        /// </summary>
+        [DataContract]
+        private class ConfigurationDataForTcpSendInit
+        {
+            /// <summary>
+            /// 变量赋值配置
+            /// </summary>
+            public List<ConfigurationDataForVar> VarSettings
+            {
+                get; set;
+            } = new List<ConfigurationDataForVar>();
+        }
+
+        /// <summary>
+        /// 变量赋值配置
+        /// </summary>
+        [DataContract]
+        private class ConfigurationDataForVar
+        {
+            [DataMember]
+            public string Name { get; set; } = null!;
+            [DataMember]
+            public string Content { get; set; } = null!;
+        }
+
+        /// <summary>
+        /// 数据源变量
+        /// </summary>
+        [DataContract]
+        private class ConfigurationDataForDataSourceVar
+        {
+            /// <summary>
+            /// 变量名称
+            /// </summary>
+            [DataMember]
+            public string Name { get; set; } = null!;
+            /// <summary>
+            /// 变量类型
+            /// 来源自数据源
+            /// 配置时不需要配置此属性
+            /// </summary>
+      
+            public string Type { get; set; } = null!;
+            /// <summary>
+            /// 数据源名称
+            /// </summary>
+            [DataMember]
+            public string DataSourceName { get; set; } = null!;
+
+            /// <summary>
+            /// 数据
+            /// 配置时不需要配置此属性
+            /// </summary>
+            public string Data { get; set; } = string.Empty;
         }
     }
 }

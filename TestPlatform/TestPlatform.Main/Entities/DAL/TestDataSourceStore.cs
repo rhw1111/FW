@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using MSLibrary.DI;
 using MSLibrary.Transaction;
 using FW.TestPlatform.Main.DAL;
-using Microsoft.AspNetCore.Http.Features.Authentication;
 
 namespace FW.TestPlatform.Main.Entities.DAL
 {

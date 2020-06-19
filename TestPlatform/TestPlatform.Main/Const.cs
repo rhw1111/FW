@@ -13,6 +13,11 @@ namespace FW.TestPlatform.Main
         public const string ResponseSeparator = "ResponseSeparator";
         public const string ReadyTime = "ReadyTime";
         public const string Address = "Address";
+        public const string DataSourceVars = "DataSourceVars";
+        public const string ConnectInit = "ConnectInit";
+        public const string Sendinit= "Sendinit";
+        public const string AdditionFuncNames = "AdditionFuncNames";
+
     }
 
     /// <summary>
@@ -144,5 +149,21 @@ namespace FW.TestPlatform.Main
     public static class AuthenticationSchemes
     {
         public const string Default = "Default";
+    }
+
+    /// <summary>
+    /// 引擎类型
+    /// </summary>
+    public static class EngineTypes
+    {
+        public const string Http = "Http";
+    }
+
+    /// <summary>
+    /// 运行时引擎类型
+    /// </summary>
+    public static class RuntimeEngineTypes
+    {
+        public const string Locust = "Locust";
     }
 }

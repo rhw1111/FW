@@ -55,6 +55,14 @@ namespace FW.TestPlatform.Main
         /// </summary>
         NotFoundGenerateDataSourceFuncServiceByName= 325710030,
         /// <summary>
+        /// 找不到指定名称的数据变量声明代码块生成服务
+        /// </summary>
+        NotFoundGenerateDataVarDeclareServiceByName= 325710031,
+        /// <summary>
+        /// 找不到指定名称的附加函数生成服务
+        /// </summary>
+        NotFoundGenerateAdditionFuncServiceByName = 325710032,
+        /// <summary>
         /// 找不到指定名称的获取分隔符服务
         /// </summary>
         NotFoundGetSeparatorServiceByName = 325710035,
@@ -69,6 +77,10 @@ namespace FW.TestPlatform.Main
         /// <summary>
         /// 已经存在指定名称的测试数据源
         /// </summary>
-        ExistTestDataSourceByName= 325710101
+        ExistTestDataSourceByName= 325710101,
+        /// <summary>
+        /// 找不到指定名称的测试数据源
+        /// </summary>
+        NotFoundTestDataSourceByName= 325710102,
     }
 }

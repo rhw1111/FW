@@ -17,9 +17,11 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "TestPlatform.LocustScript",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSLibrary.CommandLine", "..\Commons\MSLibrary.CommandLine\MSLibrary.CommandLine.csproj", "{D0CF2428-5F7C-4A72-960D-AD3F350238C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSLibrary.MySqlStore", "..\Commons\MSLibrary.MySqlStore\MSLibrary.MySqlStore.csproj", "{23E9E5CC-BC1D-443D-8B06-107A2B1F6DC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSLibrary.MySqlStore", "..\Commons\MSLibrary.MySqlStore\MSLibrary.MySqlStore.csproj", "{23E9E5CC-BC1D-443D-8B06-107A2B1F6DC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlatform.CaseService", "TestPlatform.CaseService\TestPlatform.CaseService.csproj", "{1F05C47E-8DF5-4B83-AD9F-710E379E4C51}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPlatform.CaseService", "TestPlatform.CaseService\TestPlatform.CaseService.csproj", "{1F05C47E-8DF5-4B83-AD9F-710E379E4C51}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSLibrary.StreamingDB", "..\Commons\MSLibrary.StreamingDB\MSLibrary.StreamingDB.csproj", "{0AE96952-C61F-435D-A128-A0520FD6E4AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,10 @@ Global
 		{1F05C47E-8DF5-4B83-AD9F-710E379E4C51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F05C47E-8DF5-4B83-AD9F-710E379E4C51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F05C47E-8DF5-4B83-AD9F-710E379E4C51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AE96952-C61F-435D-A128-A0520FD6E4AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AE96952-C61F-435D-A128-A0520FD6E4AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AE96952-C61F-435D-A128-A0520FD6E4AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AE96952-C61F-435D-A128-A0520FD6E4AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
