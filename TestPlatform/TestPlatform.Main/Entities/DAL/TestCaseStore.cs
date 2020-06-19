@@ -13,19 +13,19 @@ using Microsoft.AspNetCore.Http.Features.Authentication;
 
 namespace FW.TestPlatform.Main.Entities.DAL
 {
-    [Injection(InterfaceType = typeof(ITestDataSourceStore), Scope = InjectionScope.Singleton)]
-    public class TestDataSourceStore : ITestDataSourceStore
+    [Injection(InterfaceType = typeof(ITestCaseStore), Scope = InjectionScope.Singleton)]
+    public class TestCaseStore : ITestCaseStore
     {
         private readonly IMainDBConnectionFactory _mainDBConnectionFactory;
         private readonly IMainDBContextFactory _mainDBContextFactory;
 
-        public TestDataSourceStore(IMainDBConnectionFactory mainDBConnectionFactory, IMainDBContextFactory mainDBContextFactory)
+        public TestCaseStore(IMainDBConnectionFactory mainDBConnectionFactory, IMainDBContextFactory mainDBContextFactory)
         {
             _mainDBConnectionFactory = mainDBConnectionFactory;
             _mainDBContextFactory = mainDBContextFactory;
         }
 
-        public async Task Add(TestDataSource source, CancellationToken cancellationToken = default)
+        public async Task Add(TestCase source, CancellationToken cancellationToken = default)
         {
             await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
             {
@@ -36,15 +36,15 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
 
-                    if (source.ID==Guid.Empty)
+                    if (source.ID == Guid.Empty)
                     {
                         source.ID = Guid.NewGuid();
                     }
 
                     source.CreateTime = DateTime.UtcNow;
-                    source.ModifyTime= DateTime.UtcNow;
+                    source.ModifyTime = DateTime.UtcNow;
 
-                    await dbContext.TestDataSources.AddAsync(source, cancellationToken);
+                    await dbContext.TestCases.AddAsync(source, cancellationToken);
 
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }
@@ -63,18 +63,18 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
 
-                    var deleteObj = new TestDataSource() { ID = id };
-                    dbContext.TestDataSources.Attach(deleteObj);
-                    dbContext.TestDataSources.Remove(deleteObj);
+                    var deleteObj = new TestCase() { ID = id };
+                    dbContext.TestCases.Attach(deleteObj);
+                    dbContext.TestCases.Remove(deleteObj);
 
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }
             });
         }
 
-        public async Task<TestDataSource?> QueryByID(Guid id, CancellationToken cancellationToken = default)
+        public async Task<TestCase?> QueryByID(Guid id, CancellationToken cancellationToken = default)
         {
-            TestDataSource? result = null;
+            TestCase? result = null;
             await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
             {
                 await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
@@ -85,18 +85,18 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     }
 
 
-                    result =await (from item in dbContext.TestDataSources
-                              where item.ID == id
-                              select item).FirstOrDefaultAsync();
+                    result = await (from item in dbContext.TestCases
+                                    where item.ID == id
+                                    select item).FirstOrDefaultAsync();
                 }
             });
 
             return result;
         }
 
-        public async Task<TestDataSource?> QueryByName(string name, CancellationToken cancellationToken = default)
+        public async Task<TestCase?> QueryByName(string name, CancellationToken cancellationToken = default)
         {
-            TestDataSource? result = null;
+            TestCase? result = null;
             await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
             {
                 await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
@@ -107,7 +107,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     }
 
 
-                    result = await (from item in dbContext.TestDataSources
+                    result = await (from item in dbContext.TestCases
                                     where item.Name == name
                                     select item).FirstOrDefaultAsync();
                 }
@@ -131,16 +131,11 @@ namespace FW.TestPlatform.Main.Entities.DAL
                             await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                         }
 
-                        var dataSourceItem = await (from item in dbContext.TestDataSources
-                                          where item.Name == name
-                                          orderby EF.Property<long>(item, "Sequence")
-                                          select item).FirstOrDefaultAsync();
-                        if (dataSourceItem != null)
-                            result = dataSourceItem.ID;
-                        //result = await (from item in dbContext.TestDataSources
-                        //                where item.Name == name
-                        //                orderby EF.Property<long>(item, "Sequence")
-                        //                select item.ID).FirstOrDefaultAsync();
+
+                        result = await (from item in dbContext.TestCases
+                                        where item.Name == name
+                                        orderby EF.Property<long>(item, "Sequence")
+                                        select item.ID).FirstOrDefaultAsync();
                     }
                 });
 
@@ -149,9 +144,9 @@ namespace FW.TestPlatform.Main.Entities.DAL
             return result;
         }
 
-        public async Task<IList<TestDataSource>> QueryByNames(IList<string> names, CancellationToken cancellationToken = default)
+        public async Task<IList<TestCase>> QueryByNames(IList<string> names, CancellationToken cancellationToken = default)
         {
-            List<TestDataSource> result = new List<TestDataSource>();
+            List<TestCase> result = new List<TestCase>();
 
             await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
             {
@@ -163,7 +158,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     }
 
 
-                    result = await (from item in dbContext.TestDataSources
+                    result = await (from item in dbContext.TestCases
                                     where names.Contains(item.Name)
                                     select item).ToListAsync();
                 }
@@ -173,9 +168,9 @@ namespace FW.TestPlatform.Main.Entities.DAL
             return result;
         }
 
-        public async Task<QueryResult<TestDataSource>> QueryByPage(string matchName, int page, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<QueryResult<TestCase>> QueryByPage(string matchName, int page, int pageSize, CancellationToken cancellationToken = default)
         {
-            QueryResult<TestDataSource> result = new QueryResult<TestDataSource>()
+            QueryResult<TestCase> result = new QueryResult<TestCase>()
             {
                 CurrentPage = page
             };
@@ -190,53 +185,69 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     }
 
                     var strLike = $"{matchName.ToSqlLike()}%";
-                    var count = await (from item in dbContext.TestDataSources
-                                    where EF.Functions.Like(item.Name, strLike)
-                                    select item.ID).CountAsync();
+                    var count = await (from item in dbContext.TestCases
+                                       where EF.Functions.Like(item.Name, strLike)
+                                       select item.ID).CountAsync();
 
                     result.TotalCount = count;
 
-                    var ids= (from item in dbContext.TestDataSources
-                                        where EF.Functions.Like(item.Name, strLike)  
-                                        orderby item.CreateTime descending
-                                        select item.ID                                 
-                                        ).Skip((page-1)*pageSize).Take(pageSize);
+                    var ids = (from item in dbContext.TestCases
+                               where EF.Functions.Like(item.Name, strLike)
+                               orderby item.CreateTime descending
+                               select item.ID
+                                        ).Skip((page - 1) * pageSize).Take(pageSize);
 
-                    var datas =await (from item in dbContext.TestDataSources
-                                 join idItem in ids
-                                 on item.ID equals idItem
-                                 orderby item.CreateTime descending
-                                 select item).ToListAsync();
+                    var datas = await (from item in dbContext.TestCases
+                                       join idItem in ids
+                                  on item.ID equals idItem
+                                       orderby item.CreateTime descending
+                                       select item).ToListAsync();
 
-                    result.Results.AddRange(datas);                    
+                    result.Results.AddRange(datas);
                 }
             });
 
             return result;
         }
 
-        public async Task Update(TestDataSource source, CancellationToken cancellationToken = default)
+        public async Task Update(TestCase source, CancellationToken cancellationToken = default)
         {
-                await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
                 {
-                    await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                    if (transaction != null)
                     {
-                        if (transaction != null)
-                        {
-                            await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
-                        }
-
-                        source.ModifyTime = DateTime.UtcNow;
-                        dbContext.TestDataSources.Attach(source);
-
-                        var entry = dbContext.Entry(source);
-                        foreach (var item in entry.Properties)
-                        {
-                            entry.Property(item.Metadata.Name).IsModified = true;
-                        }
-                        await dbContext.SaveChangesAsync(cancellationToken);
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-                });
+
+                    source.ModifyTime = DateTime.UtcNow;
+                    //source.CreateTime = DateTime.UtcNow;
+                    dbContext.TestCases.Attach(source);
+
+                    var entry = dbContext.Entry(source);
+                    foreach (var item in entry.Properties)
+                    {
+                        if(item.Metadata.Name != "ID")
+                            entry.Property(item.Metadata.Name).IsModified = true;
+                    }
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
+        }
+
+        public async Task UpdateStatus(Guid id, TestCaseStatus status, CancellationToken cancellationToken = default)
+        {
+            TestCase? testCase = await QueryByID(id);
+            if(testCase != null)
+            {
+                testCase.Status = status;
+                await Update(testCase);
+            }            
+        }
+        public Task<List<TestCase>> QueryCountNolockByStatus(TestCaseStatus status, IList<Guid> hostIds, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }

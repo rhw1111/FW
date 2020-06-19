@@ -121,3 +121,34 @@ REPLACE INTO `user` (`id`, `name`, `createtime`, `modifytime`, `sequence`) VALUE
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+
+DROP TABLE IF EXISTS `sshendpoint`;
+CREATE TABLE `sshendpoint` (
+  `id` char(36) NOT NULL,
+  `type` varchar(150) NOT NULL DEFAULT '',
+  `name` varchar(150) NOT NULL DEFAULT '',
+  `configuration` varchar(1000) NOT NULL DEFAULT '',
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `testcase`;
+CREATE TABLE `testcase` (
+  `id` char(36) NOT NULL,
+  `masterhostid` char(36) NOT NULL,
+  `ownerid` char(36) NOT NULL,
+  `enginetype` varchar(150) NOT NULL DEFAULT '',
+  `name` varchar(150) NOT NULL DEFAULT '',
+  `configuration` varchar(4000) NOT NULL '',
+  `status` int NOT NULL DEFAULT '0',
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`),
+  KEY `name` (`name`),
+  KEY `createtime` (`createtime`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;

@@ -30,7 +30,9 @@
     //9.
     //tuntimeCompiler: false,
     //10.
-    transpileDependencies: [],
+    transpileDependencies: [
+      'quasar'
+    ],
     //11.如果你不需要生产环境的 source map，可以将其设置为 false 以加速生产环境构建
     productionSourceMap: true,
     //12.
@@ -42,7 +44,12 @@
     //15.向PWA插件传递选项
     pwa: {},
     //16.不进行任何schema验证的对象，可以用来传递任何第三方插件选项，不是webpack的plugins
-    pluginOptions: {},
+    pluginOptions: {
+      quasar: {
+        importStrategy: 'manual',
+        rtlSupport: true
+      }
+    },
 
     //17.和wenpack相关的配置参考最上面代码
 }
