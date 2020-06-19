@@ -196,7 +196,7 @@ namespace MSLibrary.StreamingDB.InfluxDB
         /// 文本替换服务
         /// 如果该属性赋值，则configuration中的内容将首先使用该服务来替换占位符
         /// </summary>
-        public static ITextReplaceService TextReplaceService { set; get; }
+        public static ITextReplaceService? TextReplaceService { set; get; }
 
         private readonly IHttpClientFactory _httpClientFactory;
 

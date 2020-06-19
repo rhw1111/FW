@@ -107,6 +107,8 @@ using FW.TestPlatform.Main.Context.ClaimContextGeneratorServices;
 using FW.TestPlatform.Main.Context.EnvironmentClaimGeneratorServices;
 using FW.TestPlatform.Main.Context;
 using FW.TestPlatform.Main.Configuration;
+using FW.TestPlatform.Main.Entities;
+using FW.TestPlatform.Main.Entities.TestCaseHandleServices;
 
 namespace FW.TestPlatform.Main
 {
@@ -259,6 +261,10 @@ namespace FW.TestPlatform.Main
 
 
             DBTransactionHelper.DBConnGenerates[DBTypes.MySql] = new DBConnGenerateForMySql();
+
+
+
+            TestCaseIMP.HandleServiceFactories[EngineTypes.Http] = DIContainerContainer.Get<TestCaseHandleServiceForHttpFactory>();
         }
 
   

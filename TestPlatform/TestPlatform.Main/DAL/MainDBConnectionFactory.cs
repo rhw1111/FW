@@ -6,6 +6,7 @@ using MSLibrary.Configuration.DAL;
 using MSLibrary.Logger.DAL;
 using MSLibrary.Transaction;
 using MSLibrary.Context.DAL;
+using MSLibrary.StreamingDB.DAL;
 using FW.TestPlatform.Main.Configuration;
 
 namespace FW.TestPlatform.Main.DAL
@@ -14,6 +15,7 @@ namespace FW.TestPlatform.Main.DAL
     [Injection(InterfaceType = typeof(ISystemConfigurationConnectionFactory), Scope = InjectionScope.Singleton)]
     [Injection(InterfaceType = typeof(IContextConnectionFactory), Scope = InjectionScope.Singleton)]
     [Injection(InterfaceType = typeof(IMainDBConnectionFactory), Scope = InjectionScope.Singleton)]
+    [Injection(InterfaceType = typeof(IStreamingDBConnectionFactory), Scope = InjectionScope.Singleton)]
     public class MainDBConnectionFactory : IMainDBConnectionFactory
     {
         private readonly ISystemConfigurationService _systemConfigurationService;
@@ -36,6 +38,11 @@ namespace FW.TestPlatform.Main.DAL
         public string CreateAllForMain()
         {
             return _systemConfigurationService.GetConnectionString("mainall");
+        }
+
+        public string CreateAllForStreamingDB()
+        {
+            return CreateAllForLocalCommonLog();
         }
 
         public string CreateAllForSystemConfiguration()
@@ -64,6 +71,11 @@ namespace FW.TestPlatform.Main.DAL
                 return CreateAllForLocalCommonLog();
             }
             return _systemConfigurationService.GetConnectionString("mainread");
+        }
+
+        public string CreateReadForStreamingDB()
+        {
+            return CreateReadForLocalCommonLog();
         }
 
         public string CreateReadForSystemConfiguration()

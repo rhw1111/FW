@@ -150,4 +150,20 @@ namespace FW.TestPlatform.Main
     {
         public const string Default = "Default";
     }
+
+    /// <summary>
+    /// 引擎类型
+    /// </summary>
+    public static class EngineTypes
+    {
+        public const string Http = "Http";
+    }
+
+    /// <summary>
+    /// 运行时引擎类型
+    /// </summary>
+    public static class RuntimeEngineTypes
+    {
+        public const string Locust = "Locust";
+    }
 }

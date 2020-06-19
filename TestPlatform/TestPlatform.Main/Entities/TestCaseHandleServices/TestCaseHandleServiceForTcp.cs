@@ -13,8 +13,7 @@ using MSLibrary.Serializer;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.CommandLine.SSH;
 using FW.TestPlatform.Main.Template.LabelParameterHandlers;
-using MongoDB.Libmongocrypt;
-using Castle.Core.Internal;
+
 
 namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 {
@@ -88,7 +87,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         {
             //执行主机查进程命令
             var result=await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}'", cancellationToken);
-            if (result.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(result))
             {
                 return false;
             }
@@ -118,7 +117,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             var contextDict= new Dictionary<string, object>();
 
             //将引擎类型加入到模板上下文中
-            contextDict.Add(TemplateContextParameterNames.EngineType, tCase.EngineType);
+            contextDict.Add(TemplateContextParameterNames.EngineType, RuntimeEngineTypes.Locust);
             //将请求体模板加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.RequestBody, configuration.RequestBody);
             //将响应分隔符加入到模板上下文中
