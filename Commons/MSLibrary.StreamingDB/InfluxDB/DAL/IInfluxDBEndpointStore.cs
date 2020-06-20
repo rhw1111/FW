@@ -8,6 +8,6 @@ namespace MSLibrary.StreamingDB.InfluxDB.DAL
 {
     public interface IInfluxDBEndpointStore
     {
-        Task<InfluxDBEndpoint> QueryByName(string name, CancellationToken cancellationToken = default);
+        Task<InfluxDBEndpoint?> QueryByName(string name, CancellationToken cancellationToken = default);
     }
 }

@@ -17,9 +17,18 @@ namespace MSLibrary.StreamingDB.InfluxDB
     /// </summary>
     public class InfluxDBEndpoint : EntityBase<IInfluxDBEndpointIMP>
     {
-        public override IFactory<IInfluxDBEndpointIMP> GetIMPFactory()
+        private static IFactory<IInfluxDBEndpointIMP>? _influxDBEndpointIMPFactory;
+
+        public static IFactory<IInfluxDBEndpointIMP>? InfluxDBEndpointIMPFactory
         {
-            throw new NotImplementedException();
+            set
+            {
+                _influxDBEndpointIMPFactory = value;
+            }
+        }
+        public override IFactory<IInfluxDBEndpointIMP>? GetIMPFactory()
+        {
+            return _influxDBEndpointIMPFactory;
         }
 
         /// <summary>

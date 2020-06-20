@@ -61,6 +61,23 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             return result;
         }
 
+        public async Task ExecuteCommand(string configuration, Func<ISSHEndpointCommandService, Task> action, CancellationToken cancellationToken = default)
+        {
+            var configurationObj = getConfiguration(configuration);
+
+            using (var sshClient = new SshClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
+            {
+
+                sshClient.Connect();
+
+                SSHEndpointCommandService service = new SSHEndpointCommandService(sshClient);
+                await action(service);
+
+                sshClient.Disconnect();
+            }
+
+        }
+
         public async Task<string> ExecuteCommandBatch(string configuration, IList<Func<string?, Task<string>>> commondGenerators, CancellationToken cancellationToken = default)
         {
             var configurationObj = getConfiguration(configuration);
@@ -93,6 +110,20 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                 client.Connect(); 
                 await client.UploadAsync(stream, path);
                 
+                client.Disconnect();
+            }
+        }
+
+        public async Task UploadFile(string configuration, Func<ISSHEndpointUploadFileService, Task> action, CancellationToken cancellationToken = default)
+        {
+            var configurationObj = getConfiguration(configuration);
+            using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
+            {
+                client.Connect();
+
+                SSHEndpointUploadFileServiceForDefault service = new SSHEndpointUploadFileServiceForDefault(client);
+                await action(service);
+
                 client.Disconnect();
             }
         }
@@ -130,6 +161,34 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             [DataMember]
             public string Password { get; set; } = null!;
 
+        }
+    }
+
+    public class SSHEndpointUploadFileServiceForDefault : ISSHEndpointUploadFileService
+    {
+        private readonly SftpClient _sftpClient;
+
+        public SSHEndpointUploadFileServiceForDefault(SftpClient sftpClient)
+        {
+            _sftpClient = sftpClient;
+        }
+        public async Task Upload(Stream fileStream, string path)
+        {
+            await _sftpClient.UploadAsync(fileStream, path);
+        }
+    }
+
+    public class SSHEndpointCommandService : ISSHEndpointCommandService
+    {
+        private readonly SshClient _sshClient;
+
+        public SSHEndpointCommandService(SshClient sshClient)
+        {
+            _sshClient = sshClient;
+        }
+        public async Task<string> Do(string command)
+        {
+            return await _sshClient.RunCommand(command).ExecuteAsync();
         }
     }
 }

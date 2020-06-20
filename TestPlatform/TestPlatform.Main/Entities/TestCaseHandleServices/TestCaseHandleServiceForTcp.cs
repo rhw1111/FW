@@ -9,6 +9,7 @@ using System.Runtime;
 using Newtonsoft.Json.Linq;
 using MSLibrary;
 using MSLibrary.DI;
+using MSLibrary.Thread;
 using MSLibrary.Serializer;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.CommandLine.SSH;
@@ -138,24 +139,29 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
 
             //为DataSourceVars补充Data属性
-            foreach(var item in configuration.DataSourceVars)
-            {
-                var dataSource= await _testDataSourceRepository.QueryByName(item.DataSourceName, cancellationToken);
-                if (dataSource==null)
-                {
-                    var fragment = new TextFragment()
-                    {
-                        Code = TestPlatformTextCodes.NotFoundTestDataSourceByName,
-                        DefaultFormatting = "找不到名称为{0}的测试数据源",
-                        ReplaceParameters = new List<object>() { item.DataSourceName }
-                    };
 
-                    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestDataSourceByName, fragment, 1, 0);
+            await ParallelHelper.ForEach(configuration.DataSourceVars, 10,
+                async(item)=>
+                {
+                    var dataSource = await _testDataSourceRepository.QueryByName(item.DataSourceName, cancellationToken);
+                    if (dataSource == null)
+                    {
+                        var fragment = new TextFragment()
+                        {
+                            Code = TestPlatformTextCodes.NotFoundTestDataSourceByName,
+                            DefaultFormatting = "找不到名称为{0}的测试数据源",
+                            ReplaceParameters = new List<object>() { item.DataSourceName }
+                        };
+
+                        throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestDataSourceByName, fragment, 1, 0);
+                    }
+
+                    item.Type = dataSource.Type;
+                    item.Data = dataSource.Data;
                 }
 
-                item.Type = dataSource.Type;
-                item.Data = dataSource.Data;
-            }
+                );
+
           
 
             //生成代码
@@ -175,29 +181,41 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             //获取测试用例的所有从属测试机，上传测试代码
             var slaveHosts=tCase.GetAllSlaveHosts(cancellationToken);
             int slaveCount = 0;
+            object lockObj = new object();
             List<TestCaseSlaveHost> slaveHostList = new List<TestCaseSlaveHost>();
-            await foreach(var item in slaveHosts)
-            {
-                //先删除文件夹内现有的所有文件
-                await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{_testLogFileName}*", cancellationToken);
 
-                //为该Slave测试机下的每个Slave上传文件
-
-                var index = 0;
-                for (index = 0; index <= item.Count - 1; index++)
+            await ParallelHelper.ForEach(slaveHosts, 10,
+                async (item) =>
                 {
-                    using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}", $"{item.SlaveName}-{index.ToString()}"))))
+                    //先删除文件夹内现有的所有文件
+                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{_testLogFileName}*", cancellationToken);
+
+                    //为该Slave测试机下的每个Slave上传文件
+
+                    var index = 0;
+                    for (index = 0; index <= item.Count - 1; index++)
                     {
-                        await item.Host.SSHEndpoint.UploadFile(textStream, $"{_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")}", cancellationToken);
-                        textStream.Close();
+                        using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}", $"{item.SlaveName}-{index.ToString()}"))))
+                        {
+                            await item.Host.SSHEndpoint.UploadFile(
+                                async (service) =>
+                                {
+                                    await service.Upload(textStream, $"{_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")}");
+                                }
+                                ,
+                                cancellationToken
+                              );  
+                                
+                            textStream.Close();
+                        }
                     }
-                }
 
-                slaveCount += item.Count;
-
-
-                slaveHostList.Add(item);
-            }
+                    lock (lockObj)
+                    {
+                        slaveCount += item.Count;
+                        slaveHostList.Add(item);
+                    }
+                });
 
             //执行主机测试命令
             List<Func<string?, Task<string>>> commands = new List<Func<string?, Task<string>>>()
@@ -216,23 +234,27 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             //执行从属机测试命令
             foreach(var item in slaveHostList)
             {
-                for(var index=0;index<= item.Count-1;index++)
-                {
-                    List<Func<string?, Task<string>>> slaveCommands = new List<Func<string?, Task<string>>>()
+                List<Func<string?, Task<string>>> slaveCommands = new List<Func<string?, Task<string>>>()
                     {
                         async (preResult)=>
                         {
-                            return await Task.FromResult($"rm -rf {_testFilePath}{string.Format(_testLogFileName,"_slave")}");
-                        },
-                        async (preResult)=>
-                        {
-                            return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")} --slave --master-host={tCase.MasterHost.Address} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{string.Format(_testLogFileName,"_slave")} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
+                            return await Task.FromResult($"rm -rf {_testFilePath}{string.Format(_testLogFileName, "_slave")}");
                         }
                     };
 
 
-                    await item.Host.SSHEndpoint.ExecuteCommandBatch(slaveCommands, cancellationToken);
+                //await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{string.Format(_testLogFileName, "_slave")}", cancellationToken);
+                for (var index=0;index<= item.Count-1;index++)
+                {
+                    slaveCommands.Add(
+                        async (preResult) =>
+                        {
+                            return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")} --slave --master-host={tCase.MasterHost.Address} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{string.Format(_testLogFileName, "_slave")} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
+                        }
+                   );                  
                 }
+
+                await item.Host.SSHEndpoint.ExecuteCommandBatch(slaveCommands, cancellationToken);
             }
 
         }

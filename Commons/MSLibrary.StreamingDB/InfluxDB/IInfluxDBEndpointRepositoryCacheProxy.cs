@@ -6,10 +6,7 @@ using System.Threading.Tasks;
 
 namespace MSLibrary.StreamingDB.InfluxDB
 {
-    /// <summary>
-    /// InfluxDB终结点仓储
-    /// </summary>
-    public interface IInfluxDBEndpointRepository
+    public interface IInfluxDBEndpointRepositoryCacheProxy
     {
         Task<InfluxDBEndpoint?> QueryByName(string name, CancellationToken cancellationToken = default);
     }

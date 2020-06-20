@@ -176,6 +176,27 @@ namespace MSLibrary.CommandLine.SSH
             await _imp.DownloadFile(this,action, path, cancellationToken);
         }
 
+        /// <summary>
+        /// 上传文件
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task UploadFile(Func<ISSHEndpointUploadFileService, Task> action, CancellationToken cancellationToken = default)
+        {
+            await _imp.UploadFile(this, action, cancellationToken);
+        }
+
+        /// <summary>
+        /// 执行命令
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task ExecuteCommand(Func<ISSHEndpointCommandService, Task> action, CancellationToken cancellationToken = default)
+        {
+            await _imp.ExecuteCommand(this, action, cancellationToken);
+        }
     }
 
     public interface ISSHEndpointIMP
@@ -187,6 +208,10 @@ namespace MSLibrary.CommandLine.SSH
         Task UploadFileBatch(SSHEndpoint endpoint, IList<(Stream,string)> uploadFileInfos, CancellationToken cancellationToken = default);
 
         Task DownloadFile(SSHEndpoint endpoint, Func<Stream, Task> action, string path, CancellationToken cancellationToken = default);
+
+        Task UploadFile(SSHEndpoint endpoint, Func<ISSHEndpointUploadFileService, Task> action, CancellationToken cancellationToken = default);
+
+        Task ExecuteCommand(SSHEndpoint endpoint, Func<ISSHEndpointCommandService, Task> action, CancellationToken cancellationToken = default);
 
     }
 
@@ -200,6 +225,8 @@ namespace MSLibrary.CommandLine.SSH
         Task<string> ExecuteCommandBatch(string configuration, IList<Func<string?, Task<string>>> commondGenerators, CancellationToken cancellationToken = default);
         Task UploadFileBatch(string configuration, IList<(Stream, string)> uploadFileInfos, CancellationToken cancellationToken = default);
 
+        Task UploadFile(string configuration, Func<ISSHEndpointUploadFileService,Task> action, CancellationToken cancellationToken = default);
+        Task ExecuteCommand(string configuration, Func<ISSHEndpointCommandService,Task> action, CancellationToken cancellationToken = default);
     }
 
     [Injection(InterfaceType = typeof(ISSHEndpointIMP), Scope = InjectionScope.Transient)]
@@ -237,6 +264,12 @@ namespace MSLibrary.CommandLine.SSH
             await service.UploadFileBatch(endpoint.Configuration, uploadFileInfos, cancellationToken);
         }
 
+        public async Task UploadFile(SSHEndpoint endpoint, Func<ISSHEndpointUploadFileService, Task> action, CancellationToken cancellationToken = default)
+        {
+            var service = getService(endpoint.Type);
+            await service.UploadFile(endpoint.Configuration, action, cancellationToken);
+        }
+
         private ISSHEndpointService getService(string type)
         {
             if (!SSHEndpointServiceFactories.TryGetValue(type,out IFactory<ISSHEndpointService> serviceFactory))
@@ -253,5 +286,21 @@ namespace MSLibrary.CommandLine.SSH
 
             return serviceFactory.Create();
         }
+
+        public async Task ExecuteCommand(SSHEndpoint endpoint, Func<ISSHEndpointCommandService, Task> action, CancellationToken cancellationToken = default)
+        {
+            var service = getService(endpoint.Type);
+            await service.ExecuteCommand(endpoint.Configuration, action, cancellationToken);
+        }
+    }
+
+    public interface ISSHEndpointUploadFileService
+    {
+        Task Upload(Stream fileStream,string path);
+    }
+
+    public interface ISSHEndpointCommandService
+    {
+        Task<string> Do(string command);
     }
 }
