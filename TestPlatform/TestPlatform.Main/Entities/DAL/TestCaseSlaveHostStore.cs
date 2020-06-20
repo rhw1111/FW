@@ -120,7 +120,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
         public async IAsyncEnumerable<TestCaseSlaveHost> QueryByCase(Guid caseId, CancellationToken cancellationToken = default)
         {
-            TestCaseSlaveHost result = new TestCaseSlaveHost();
+            List<TestCaseSlaveHost> list = new List<TestCaseSlaveHost>();
             await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
             {
                 await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
@@ -131,13 +131,15 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     }
 
 
-                    result = await (from item in dbContext.TestCaseSlaveHosts
-                                    where item.ID == caseId
-                                    select item).FirstOrDefaultAsync();
+                    list = await (from item in dbContext.TestCaseSlaveHosts
+                                    where item.TestCaseID == caseId
+                                    select item).ToListAsync();
                 }
             });
-
-            yield return result;
+            foreach (var item in list)
+            {
+                yield return item;
+            }
         }
 
         public async Task<TestCase?> QueryByName(string name, CancellationToken cancellationToken = default)

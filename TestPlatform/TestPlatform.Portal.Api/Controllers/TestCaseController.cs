@@ -31,6 +31,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             return await _appQueryTestCase.Do(matchName, page, _pageSize);
         }
 
+        [HttpGet("getcase")]
+        public async Task<TestCaseViewData?> GetCase(Guid id)
+        {
+            return await _appQueryTestCase.GetCase(id);
+        }
+
         [HttpPost("add")]
         public async Task<TestCaseViewData> Add(TestCaseAddModel model)
         {
@@ -41,6 +47,19 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         public async Task<TestCaseViewData> Update(TestCaseAddModel model)
         {
             return await _appAddTestCase.Update(model);
+        }
+
+        [HttpDelete("delete")]
+        public async Task<TestCaseViewData> Delete(TestCaseAddModel model)
+        {
+            try
+            {
+                return await _appAddTestCase.Delete(model);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }
