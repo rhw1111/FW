@@ -152,3 +152,30 @@ CREATE TABLE `testcase` (
   KEY `name` (`name`),
   KEY `createtime` (`createtime`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `testcaseslavehost`;
+CREATE TABLE `testcaseslavehost` (
+  `id` char(36) NOT NULL,
+  `hostid` char(36) NOT NULL,
+  `testcaseid` char(36) NOT NULL,
+  `slavename` varchar(150) NOT NULL DEFAULT '',
+  `count` int NOT NULL DEFAULT '0',
+  `extensioninfo` varchar(1000) NOT NULL DEFAULT '',
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `testcasehistory`;
+CREATE TABLE `testcasehistory` (
+  `id` char(36) NOT NULL,
+  `caseid` char(36) NOT NULL,
+  `summary` varchar(4000) NOT NULL DEFAULT '',
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
