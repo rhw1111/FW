@@ -157,6 +157,7 @@ namespace FW.TestPlatform.Main
     public static class EngineTypes
     {
         public const string Http = "Http";
+        public const string Tcp = "Tcp";
     }
 
     /// <summary>
