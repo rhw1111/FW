@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>4de962d7-b044-4d55-aed0-36fcd50cc40a</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>TestPlatform.LocustScript.py</StartupFile>
+    <StartupFile>Score.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,6 +21,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Score.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="TestPlatform.LocustScript.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

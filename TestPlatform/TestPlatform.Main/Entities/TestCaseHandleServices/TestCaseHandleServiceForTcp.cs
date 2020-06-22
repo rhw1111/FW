@@ -264,175 +264,177 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             //执行主机杀进程命令
             await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}' | xargs kill -9", cancellationToken);
         }
+    }
 
 
-        [DataContract]
-        private class ConfigurationData
+
+    [DataContract]
+    public class ConfigurationData
+    {
+        /// <summary>
+        /// 用户数量
+        /// </summary>
+        [DataMember]
+        public int UserCount
         {
-            /// <summary>
-            /// 用户数量
-            /// </summary>
-            [DataMember]
-            public int UserCount
-            {
-                get; set;
-            }
-            /// <summary>
-            /// 每秒增加用户数量
-            /// </summary>
-            [DataMember]
-            public int PerSecondUserCount
-            {
-                get; set;
-            }
-
-            /// <summary>
-            /// 持续时间（秒）
-            /// </summary>
-            [DataMember]
-            public int Duration
-            {
-                get; set;
-            }
-            /// <summary>
-            /// 预热时间（秒）
-            /// </summary>
-            [DataMember]
-            public int ReadyTime
-            {
-                get; set;
-            }
-
-            /// <summary>
-            /// 测试接口地址
-            /// </summary>
-            [DataMember]
-            public string Address
-            {
-                get; set;
-            } = null!;
-
-            /// <summary>
-            /// Tcp连接初始化脚本配置
-            /// </summary>
-
-            [DataMember]
-            public ConfigurationDataForTcpConnectInit ConnectInit
-            {
-                get; set;
-            } = null!;
-
-            /// <summary>
-            /// Tcp发送前初始化脚本配置
-            /// </summary>
-            [DataMember]
-            public ConfigurationDataForTcpSendInit SendInit
-            {
-                get; set;
-            } = null!;
-
-
-            /// <summary>
-            /// 请求体内容
-            /// </summary>
-            [DataMember]
-            public string RequestBody
-            {
-                get; set;
-            } = null!;
-
-
-
-            /// <summary>
-            /// 数据源变量配置
-            /// </summary>
-            [DataMember]
-            public List<ConfigurationDataForDataSourceVar> DataSourceVars
-            {
-                get; set;
-            } = new List<ConfigurationDataForDataSourceVar>();
-
-            /// <summary>
-            /// 响应内容分隔符
-            /// </summary>
-            [DataMember]
-            public string ResponseSeparator
-            {
-                get; set;
-            } = null!;
+            get; set;
         }
+        /// <summary>
+        /// 每秒增加用户数量
+        /// </summary>
+        [DataMember]
+        public int PerSecondUserCount
+        {
+            get; set;
+        }
+
+        /// <summary>
+        /// 持续时间（秒）
+        /// </summary>
+        [DataMember]
+        public int Duration
+        {
+            get; set;
+        }
+        /// <summary>
+        /// 预热时间（秒）
+        /// </summary>
+        [DataMember]
+        public int ReadyTime
+        {
+            get; set;
+        }
+
+        /// <summary>
+        /// 测试接口地址
+        /// </summary>
+        [DataMember]
+        public string Address
+        {
+            get; set;
+        } = null!;
 
         /// <summary>
         /// Tcp连接初始化脚本配置
         /// </summary>
-        [DataContract]
-        private class ConfigurationDataForTcpConnectInit
+
+        [DataMember]
+        public ConfigurationDataForTcpConnectInit ConnectInit
         {
-            /// <summary>
-            /// 变量赋值配置
-            /// </summary>
-            public List<ConfigurationDataForVar> VarSettings
-            {
-                get; set;
-            } = new List<ConfigurationDataForVar>();
-        }
+            get; set;
+        } = null!;
 
         /// <summary>
         /// Tcp发送前初始化脚本配置
         /// </summary>
-        [DataContract]
-        private class ConfigurationDataForTcpSendInit
+        [DataMember]
+        public ConfigurationDataForTcpSendInit SendInit
         {
-            /// <summary>
-            /// 变量赋值配置
-            /// </summary>
-            public List<ConfigurationDataForVar> VarSettings
-            {
-                get; set;
-            } = new List<ConfigurationDataForVar>();
-        }
+            get; set;
+        } = null!;
 
+
+        /// <summary>
+        /// 请求体内容
+        /// </summary>
+        [DataMember]
+        public string RequestBody
+        {
+            get; set;
+        } = null!;
+
+
+
+        /// <summary>
+        /// 数据源变量配置
+        /// </summary>
+        [DataMember]
+        public List<ConfigurationDataForDataSourceVar> DataSourceVars
+        {
+            get; set;
+        } = new List<ConfigurationDataForDataSourceVar>();
+
+        /// <summary>
+        /// 响应内容分隔符
+        /// </summary>
+        [DataMember]
+        public string ResponseSeparator
+        {
+            get; set;
+        } = null!;
+    }
+
+    /// <summary>
+    /// Tcp连接初始化脚本配置
+    /// </summary>
+    [DataContract]
+    public class ConfigurationDataForTcpConnectInit
+    {
         /// <summary>
         /// 变量赋值配置
         /// </summary>
-        [DataContract]
-        private class ConfigurationDataForVar
+        public List<ConfigurationDataForVar> VarSettings
         {
-            [DataMember]
-            public string Name { get; set; } = null!;
-            [DataMember]
-            public string Content { get; set; } = null!;
-        }
+            get; set;
+        } = new List<ConfigurationDataForVar>();
+    }
+
+    /// <summary>
+    /// Tcp发送前初始化脚本配置
+    /// </summary>
+    [DataContract]
+    public class ConfigurationDataForTcpSendInit
+    {
+        /// <summary>
+        /// 变量赋值配置
+        /// </summary>
+        public List<ConfigurationDataForVar> VarSettings
+        {
+            get; set;
+        } = new List<ConfigurationDataForVar>();
+    }
+
+    /// <summary>
+    /// 变量赋值配置
+    /// </summary>
+    [DataContract]
+    public class ConfigurationDataForVar
+    {
+        [DataMember]
+        public string Name { get; set; } = null!;
+        [DataMember]
+        public string Content { get; set; } = null!;
+    }
+
+    /// <summary>
+    /// 数据源变量
+    /// </summary>
+    [DataContract]
+    public class ConfigurationDataForDataSourceVar
+    {
+        /// <summary>
+        /// 变量名称
+        /// </summary>
+        [DataMember]
+        public string Name { get; set; } = null!;
+        /// <summary>
+        /// 变量类型
+        /// 来源自数据源
+        /// 配置时不需要配置此属性
+        /// </summary>
+
+        public string Type { get; set; } = null!;
+        /// <summary>
+        /// 数据源名称
+        /// </summary>
+        [DataMember]
+        public string DataSourceName { get; set; } = null!;
 
         /// <summary>
-        /// 数据源变量
+        /// 数据
+        /// 配置时不需要配置此属性
         /// </summary>
-        [DataContract]
-        private class ConfigurationDataForDataSourceVar
-        {
-            /// <summary>
-            /// 变量名称
-            /// </summary>
-            [DataMember]
-            public string Name { get; set; } = null!;
-            /// <summary>
-            /// 变量类型
-            /// 来源自数据源
-            /// 配置时不需要配置此属性
-            /// </summary>
-      
-            public string Type { get; set; } = null!;
-            /// <summary>
-            /// 数据源名称
-            /// </summary>
-            [DataMember]
-            public string DataSourceName { get; set; } = null!;
-
-            /// <summary>
-            /// 数据
-            /// 配置时不需要配置此属性
-            /// </summary>
-            public string Data { get; set; } = string.Empty;
-        }
+        public string Data { get; set; } = string.Empty;
     }
+
 }
