@@ -18,11 +18,13 @@ namespace FW.TestPlatform.Portal.Api.Controllers
 
         private readonly IAppQueryTestCase _appQueryTestCase;
         private readonly IAppAddTestCase _appAddTestCase;
+        private readonly IAppQueryTestHost _appQueryTestHost;
 
-        public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase)
+        public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQueryTestHost appQueryTestHost)
         {
             _appQueryTestCase = appQueryTestCase;
             _appAddTestCase = appAddTestCase;
+            _appQueryTestHost = appQueryTestHost;
         }
 
         [HttpGet("getbypage")]
@@ -57,6 +59,19 @@ namespace FW.TestPlatform.Portal.Api.Controllers
                 return await _appAddTestCase.Delete(model);
             }
             catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpDelete("gethosts")]
+        public async Task<QueryResult<TestHostViewData>> GetHosts(TestCaseAddModel model)
+        {
+            try
+            {
+                return await _appQueryTestHost.GetHosts();
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

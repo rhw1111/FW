@@ -110,7 +110,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
 
                     result = await (from item in dbContext.TestCaseSlaveHosts
-                                    where item.HostID == slaveId && item.TestCaseID == caseId
+                                    where item.ID == slaveId
                                     select item).FirstOrDefaultAsync();
                 }
             });
@@ -142,27 +142,27 @@ namespace FW.TestPlatform.Main.Entities.DAL
             }
         }
 
-        public async Task<TestCase?> QueryByName(string name, CancellationToken cancellationToken = default)
-        {
-            TestCase? result = null;
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
-            {
-                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
-                {
-                    if (transaction != null)
-                    {
-                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
-                    }
+        //public async Task<TestCase?> QueryByName(string name, CancellationToken cancellationToken = default)
+        //{
+        //    TestCase? result = null;
+        //    await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+        //    {
+        //        await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+        //        {
+        //            if (transaction != null)
+        //            {
+        //                await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+        //            }
 
 
-                    result = await (from item in dbContext.TestCases
-                                    where item.Name == name
-                                    select item).FirstOrDefaultAsync();
-                }
-            });
+        //            result = await (from item in dbContext.TestCases
+        //                            where item.Name == name
+        //                            select item).FirstOrDefaultAsync();
+        //        }
+        //    });
 
-            return result;
-        }
+        //    return result;
+        //}
 
     }
 }

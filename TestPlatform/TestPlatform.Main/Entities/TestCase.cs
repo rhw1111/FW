@@ -262,12 +262,14 @@ namespace FW.TestPlatform.Main.Entities
         private ITestCaseStore _testCaseStore;
         private ITestCaseSlaveHostStore _testCaseSlaveHostStore;
         private ITestHostRepository _testHostRepository;
+        private ITestCaseHistoryRepository _testCaseHistoryRepository;
 
-        public TestCaseIMP(ITestCaseStore testCaseStore, ITestCaseSlaveHostStore testCaseSlaveHostStore, ITestHostRepository testHostRepository)
+        public TestCaseIMP(ITestCaseStore testCaseStore, ITestCaseSlaveHostStore testCaseSlaveHostStore, ITestHostRepository testHostRepository, ITestCaseHistoryRepository testCaseHistoryRepository)
         {
             _testCaseStore = testCaseStore;
             _testCaseSlaveHostStore = testCaseSlaveHostStore;
             _testHostRepository = testHostRepository;
+            _testCaseHistoryRepository = testCaseHistoryRepository;
         }
 
         public async Task Add(TestCase tCase, CancellationToken cancellationToken = default)
@@ -289,14 +291,15 @@ namespace FW.TestPlatform.Main.Entities
             await _testCaseStore.Add(tCase, cancellationToken);
         }
 
-        public Task AddHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default)
+        public async Task AddHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            history.CaseID = tCase.ID;
+            await _testCaseHistoryRepository.Add(history, cancellationToken);
         }
 
         public async Task AddSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
-            var host = await _testHostRepository.QueryByID(slaveHost.HostID, cancellationToken);
+            var host = await _testHostRepository.QueryByID(tCase.MasterHostID, cancellationToken);
             if (host == null)
             {
                 var fragment = new TextFragment()
@@ -358,10 +361,6 @@ namespace FW.TestPlatform.Main.Entities
         {
             return _testCaseSlaveHostStore.QueryByCase(tCase.ID, cancellationToken);
         }
-        //public Task<List<TestCaseSlaveHost>> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default)
-        //{
-        //    return _testCaseSlaveHostStore.QueryByCase(tCase.ID, cancellationToken);
-        //}
 
         public Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default)
         {
@@ -382,7 +381,7 @@ namespace FW.TestPlatform.Main.Entities
         public async Task<TestCaseSlaveHost?> GetSlaveHost(TestCase tCase, Guid slaveHostID, CancellationToken cancellationToken = default)
         {
             var host= await _testCaseSlaveHostStore.QueryByCase(tCase.ID, slaveHostID, cancellationToken);
-            /*if (host==null)
+            if (host == null)
             {
                 var fragment = new TextFragment()
                 {
@@ -392,7 +391,7 @@ namespace FW.TestPlatform.Main.Entities
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSlaveHostInCase, fragment, 1, 0);
-            }*/
+            }
 
             return host;
         }

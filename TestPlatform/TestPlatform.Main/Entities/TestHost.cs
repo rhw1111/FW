@@ -124,6 +124,11 @@ namespace FW.TestPlatform.Main.Entities
                 SetAttribute<DateTime>(nameof(ModifyTime), value);
             }
         }
+
+        public async Task<QueryResult<TestHost>> GetHosts(CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetHosts(cancellationToken);
+        }
     }
 
     [Injection(InterfaceType = typeof(ITestHostIMP),Scope = InjectionScope.Transient)]
@@ -164,6 +169,10 @@ namespace FW.TestPlatform.Main.Entities
                 }
             }
         }
+        public async Task<QueryResult<TestHost>> GetHosts(CancellationToken cancellationToken = default)
+        {
+            return await _testHostStore.GetHosts(cancellationToken);
+        }
     }
 
     public interface ITestHostIMP
@@ -171,5 +180,6 @@ namespace FW.TestPlatform.Main.Entities
         Task Add(TestHost host, CancellationToken cancellationToken = default);
         Task Update(TestHost host, CancellationToken cancellationToken = default);
         Task Delete(TestHost host, CancellationToken cancellationToken = default);
+        Task<QueryResult<TestHost>> GetHosts(CancellationToken cancellationToken = default);
     }
 }

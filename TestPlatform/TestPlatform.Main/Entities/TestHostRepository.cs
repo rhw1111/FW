@@ -23,5 +23,10 @@ namespace FW.TestPlatform.Main.Entities
         {
             return await _testHostStore.QueryByID(id, cancellationToken);
         }
+
+        public async Task<QueryResult<TestHost>> GetHosts(CancellationToken cancellationToken = default)
+        {
+            return await _testHostStore.GetHosts(cancellationToken);
+        }
     }
 }
