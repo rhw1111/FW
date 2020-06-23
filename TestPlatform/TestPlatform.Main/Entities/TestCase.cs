@@ -225,9 +225,29 @@ namespace FW.TestPlatform.Main.Entities
             await _imp.Update(this, cancellationToken);
         }
 
+        public async Task Update()
+        {
+            await _imp.Update(this);
+        }
+
         public async Task Delete(CancellationToken cancellationToken = default)
         {
             await _imp.Delete(this, cancellationToken);
+        }
+
+        public async Task Delete()
+        {
+            await _imp.Delete(this);
+        }
+
+        public async Task Run()
+        {
+            await _imp.Run(this);
+        }
+
+        public async Task Run(CancellationToken cancellationToken = default)
+        {
+            await _imp.Run(this, cancellationToken);
         }
     }
 

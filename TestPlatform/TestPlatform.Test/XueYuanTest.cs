@@ -75,7 +75,7 @@ namespace TestPlatform.Test
         {
             TestDataSource testDataSource = new TestDataSource()
             {
-                ID = Guid.NewGuid(),
+                ID = new Guid("dae3d35b-f618-47b9-b852-4ebee4b4e046"),
                 Name = "dataSource1",
                 Type = "Json",
                 Data = "{}"
@@ -129,36 +129,36 @@ namespace TestPlatform.Test
         {
             TestCase testCase = new TestCase()
             {
-                ID = Guid.NewGuid(),
+                ID = new Guid("cae64c27-8e87-4a38-b94a-32a47a7eea63"),
                 MasterHostID = new Guid("822114cf-5277-4667-961f-e231f9e67e4d"),
                 OwnerID = new Guid("46f8bcca-af6e-11ea-8e6a-0242ac110002"),
-                EngineType = TemplateContextParameterNames.EngineType,
+                EngineType = EngineTypes.Tcp,
                 Name = "Case1",
                 Configuration = "",
                 Status = TestCaseStatus.NoRun
             };
 
-            //await testCase.Add();
+            await testCase.Add();
 
-            var testCaseStore = DIContainerContainer.Get<ITestCaseStore>();
-            var testHostStore = DIContainerContainer.Get<ITestHostStore>();
-            TestHostRepository testHostRepository = new TestHostRepository(testHostStore);
+            //var testCaseStore = DIContainerContainer.Get<ITestCaseStore>();
+            //var testHostStore = DIContainerContainer.Get<ITestHostStore>();
+            //TestHostRepository testHostRepository = new TestHostRepository(testHostStore);
 
-            //var handleService = getHandleService(tCase.EngineType);
-            var host = await testHostRepository.QueryByID(testCase.MasterHostID);
-            if (host == null)
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TestPlatformTextCodes.NotFoundTestHostByID,
-                    DefaultFormatting = "找不到Id为{0}的测试主机",
-                    ReplaceParameters = new List<object>() { testCase.MasterHostID.ToString() }
-                };
+            ////var handleService = getHandleService(tCase.EngineType);
+            //var host = await testHostRepository.QueryByID(testCase.MasterHostID);
+            //if (host == null)
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TestPlatformTextCodes.NotFoundTestHostByID,
+            //        DefaultFormatting = "找不到Id为{0}的测试主机",
+            //        ReplaceParameters = new List<object>() { testCase.MasterHostID.ToString() }
+            //    };
 
-                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
-            }
+            //    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
+            //}
 
-            await testCaseStore.Add(testCase);
+            //await testCaseStore.Add(testCase);
 
             Assert.Pass();
         }
@@ -169,12 +169,66 @@ namespace TestPlatform.Test
         {
             TestHost testHost = new TestHost()
             {
-                ID = Guid.NewGuid(),
+                ID = new Guid("822114cf-5277-4667-961f-e231f9e67e4d"),
                 Address = "127.0.0.1",
-                SSHEndpointID = Guid.NewGuid()
+                SSHEndpointID = new Guid("1b846704-5449-4585-bb15-8b13388cb68b")
             };
 
             await testHost.Add();
+
+            Assert.Pass();
+        }
+
+        //[Test]
+        public async Task TestTestCaseSlaveHostAdd()
+        {
+            TestCaseSlaveHost testCaseSlaveHost = new TestCaseSlaveHost()
+            {
+                ID = new Guid("17c5a79c-0b05-4329-92fb-e83108d67831"),
+                HostID = new Guid("822114cf-5277-4667-961f-e231f9e67e4d"),
+                TestCaseID = new Guid("cae64c27-8e87-4a38-b94a-32a47a7eea63"),
+                SlaveName = "slave1",
+                Count = 100,
+                ExtensionInfo = ""
+            };
+
+            await testCaseSlaveHost.Add();
+
+            Assert.Pass();
+        }
+
+
+        [Test]
+        public async Task TestTestCaseRun()
+        {
+            TestCase testCase = new TestCase()
+            {
+                ID = new Guid("cae64c27-8e87-4a38-b94a-32a47a7eea63"),
+                MasterHostID = new Guid("822114cf-5277-4667-961f-e231f9e67e4d"),
+                OwnerID = new Guid("46f8bcca-af6e-11ea-8e6a-0242ac110002"),
+                EngineType = EngineTypes.Tcp,
+                Name = "Case1",
+                Configuration = "",
+                Status = TestCaseStatus.NoRun
+            };
+
+            var testCaseStore = DIContainerContainer.Get<ITestCaseStore>();
+
+            var testCaseRunner = testCaseStore.QueryByID(testCase.ID);
+
+            if (testCaseRunner == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestCaseByID,
+                    DefaultFormatting = "找不到Id为{0}的测试案例",
+                    ReplaceParameters = new List<object>() { testCase.ID.ToString() }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
+            }
+
+            await testCase.Run();
 
             Assert.Pass();
         }
