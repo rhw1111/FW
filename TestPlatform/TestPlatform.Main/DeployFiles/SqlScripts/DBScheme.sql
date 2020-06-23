@@ -180,18 +180,6 @@ CREATE TABLE `testcasehistory` (
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `testcasehistory`;
-CREATE TABLE `testcasehistory` (
-  `id` char(36) NOT NULL,
-  `caseid` char(36) NOT NULL,
-  `summary` varchar(4000) NOT NULL DEFAULT '',
-  `createtime` datetime NOT NULL,
-  `modifytime` datetime NOT NULL,
-  `sequence` bigint NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`sequence`),
-  UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
-
 DROP TABLE IF EXISTS `influxdbendpoint`;
 CREATE TABLE `influxdbendpoint` (
   `id` char(36) NOT NULL,
