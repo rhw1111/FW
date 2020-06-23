@@ -9,7 +9,7 @@ using FW.TestPlatform.Main.Entities.DAL;
 
 namespace FW.TestPlatform.Main.Entities
 {
-    [Injection(InterfaceType = typeof(ITestDataSourceRepository), Scope = InjectionScope.Singleton)]
+    [Injection(InterfaceType = typeof(ITestCaseHistoryRepository), Scope = InjectionScope.Singleton)]
     public class TestCaseHistoryRepository : ITestCaseHistoryRepository
     {
         private readonly ITestCaseHistoryStore _testCaseHistoryStore;

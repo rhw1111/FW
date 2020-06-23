@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Http.Features.Authentication;
 
 namespace FW.TestPlatform.Main.Entities.DAL
 {
-    [Injection(InterfaceType = typeof(ITestHostStore), Scope = InjectionScope.Singleton)]
+    [Injection(InterfaceType = typeof(ITestCaseHistoryStore), Scope = InjectionScope.Singleton)]
     public class TestCaseHistoryStore : ITestCaseHistoryStore
     {
         private readonly IMainDBConnectionFactory _mainDBConnectionFactory;
