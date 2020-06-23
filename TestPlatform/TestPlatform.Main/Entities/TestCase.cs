@@ -234,20 +234,46 @@ namespace FW.TestPlatform.Main.Entities
         {
             await _imp.Delete(this, cancellationToken);
         }
-
-        public async Task Delete()
-        {
-            await _imp.Delete(this);
-        }
-
-        public async Task Run()
-        {
-            await _imp.Run(this);
-        }
-
         public async Task Run(CancellationToken cancellationToken = default)
         {
             await _imp.Run(this, cancellationToken);
+        }
+        public async Task Stop(CancellationToken cancellationToken = default)
+        {
+            await _imp.Stop(this, cancellationToken);
+        }
+        public async Task<bool> IsEngineRun(CancellationToken cancellationToken = default)
+        {
+            return await _imp.IsEngineRun(this, cancellationToken);
+        }
+        public async Task AddSlaveHost(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
+        {
+            await _imp.AddSlaveHost(this, slaveHost, cancellationToken);
+        }
+        public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default)
+        {
+            return _imp.GetAllSlaveHosts(tCase, cancellationToken);
+        }
+        public async Task UpdateSlaveHost(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
+        {
+            await _imp.UpdateSlaveHost(this, slaveHost, cancellationToken);
+        }
+        public async Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetHistories(caseID, page, pageSize, cancellationToken);
+        }
+        public async Task DeleteHistory(Guid historyID, CancellationToken cancellationToken = default)
+        {
+            await _imp.DeleteHistory(this, historyID, cancellationToken);
+        }
+        public async Task DeleteSlaveHost(Guid slaveHostID, CancellationToken cancellationToken = default)
+        {
+            await _imp.DeleteSlaveHost(this, slaveHostID, cancellationToken);
+        }
+
+        public async Task<TestCaseHistory?> GetHistory(Guid historyID, CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetHistory(this, historyID, cancellationToken);
         }
     }
 
@@ -340,9 +366,9 @@ namespace FW.TestPlatform.Main.Entities
             await _testCaseStore.Delete(tCase.ID, cancellationToken);
         }
 
-        public Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
+        public async Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await _testCaseHistoryRepository.Delete(historyID, cancellationToken);
         }
 
         public async Task DeleteSlaveHost(TestCase tCase, Guid slaveHostID, CancellationToken cancellationToken = default)
@@ -382,14 +408,16 @@ namespace FW.TestPlatform.Main.Entities
             return _testCaseSlaveHostStore.QueryByCase(tCase.ID, cancellationToken);
         }
 
-        public Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return await _testCaseHistoryRepository.QueryByPage(caseID, page, pageSize, cancellationToken);
         }
 
-        public Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
+        public async Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            TestCaseHistory? testHistory;
+            testHistory = await _testCaseHistoryRepository.QueryByID(tCase.ID, historyID, cancellationToken);
+            return testHistory;
         }
 
         public async Task<string> GetMasterLog(TestCase tCase, CancellationToken cancellationToken = default)

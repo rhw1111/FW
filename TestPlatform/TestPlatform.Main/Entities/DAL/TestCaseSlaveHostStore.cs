@@ -10,6 +10,7 @@ using MSLibrary.DI;
 using MSLibrary.Transaction;
 using FW.TestPlatform.Main.DAL;
 using Microsoft.AspNetCore.Http.Features.Authentication;
+using FW.TestPlatform.Main.DTOModel;
 
 namespace FW.TestPlatform.Main.Entities.DAL
 {
