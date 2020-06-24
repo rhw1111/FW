@@ -167,4 +167,30 @@ namespace FW.TestPlatform.Main
     {
         public const string Locust = "Locust";
     }
+
+    /// <summary>
+    /// InfluxDB数据库参数
+    /// </summary>
+    public static class InfluxDBParameters
+    {
+        /// <summary>
+        /// EndpointName
+        /// </summary>
+        public const string EndpointName = "EndpointName";
+
+        /// <summary>
+        /// 数据库名
+        /// </summary>
+        public const string DBName = "Monitor";
+
+        /// <summary>
+        /// MasterData
+        /// </summary>
+        public const string MasterMeasurementName = "MasterData";
+
+        /// <summary>
+        /// SlaveData
+        /// </summary>
+        public const string SlaveMeasurementName = "SlaveData";
+    }
 }

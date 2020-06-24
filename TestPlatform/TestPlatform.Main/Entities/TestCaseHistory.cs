@@ -9,9 +9,19 @@ namespace FW.TestPlatform.Main.Entities
 {
     public class TestCaseHistory : EntityBase<ITestCaseHistoryIMP>
     {
+        private static IFactory<ITestCaseHistoryIMP>? _testCaseHistoryIMPFactory;
+
+        public static IFactory<ITestCaseHistoryIMP> TestCaseHistoryIMPFactory
+        {
+            set
+            {
+                _testCaseHistoryIMPFactory = value;
+            }
+        }
+
         public override IFactory<ITestCaseHistoryIMP>? GetIMPFactory()
         {
-            throw new NotImplementedException();
+            return _testCaseHistoryIMPFactory;
         }
 
         /// <summary>

@@ -15,7 +15,7 @@ using FW.TestPlatform.Main.DAL;
 
 namespace FW.TestPlatform.Main.InfluxDB.DAL
 {
-    [Injection(InterfaceType = typeof(InfluxDBEndpointStore), Scope = InjectionScope.Singleton)]
+    [Injection(InterfaceType = typeof(IInfluxDBEndpointStore), Scope = InjectionScope.Singleton)]
     public class InfluxDBEndpointStore : IInfluxDBEndpointStore
     {
         private readonly IStreamingDBConnectionFactory _streamingDBConnectionFactory;

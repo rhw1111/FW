@@ -63,6 +63,22 @@ REPLACE INTO `systemconfiguration` (`id`, `name`, `content`, `createtime`, `modi
 	('057d6ca4-af70-11ea-8e6a-0242ac110002', 'OutputStreamReplaceExcludePaths', '[]', '2020-06-16 01:23:45', '2020-06-16 01:23:45', 4);
 /*!40000 ALTER TABLE `systemconfiguration` ENABLE KEYS */;
 
+DROP TABLE IF EXISTS `influxdbendpoint`;
+CREATE TABLE `influxdbendpoint` (
+  `id` char(36) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `address` varchar(150) NOT NULL,
+  `isauth` bit NOT NULL,
+  `username` varchar(150),
+  `password` varchar(150),
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+REPLACE INTO `influxdbendpoint` (`id`, `name`, `address`, `isauth`, `username`, `password`, `createtime`, `modifytime`) VALUES ('c7a290e6-eddd-4126-abc9-5e129718e0fc', 'EndpointName', 'http://localhost:8086/', b'1', 'admin', 'admin', UTC_TIMESTAMP(),UTC_TIMESTAMP());
 
 -- 导出 tpmain 的数据库结构
 CREATE DATABASE IF NOT EXISTS `tpmain` /*!40100 DEFAULT CHARACTER SET utf8 */ /*!80016 DEFAULT ENCRYPTION='N' */;
@@ -180,17 +196,3 @@ CREATE TABLE `testcasehistory` (
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `influxdbendpoint`;
-CREATE TABLE `influxdbendpoint` (
-  `id` char(36) NOT NULL,
-  `name` varchar(150) NOT NULL,
-  `address` varchar(150) NOT NULL,
-  `isauth` bit NOT NULL,
-  `username` varchar(150),
-  `password` varchar(150),
-  `createtime` datetime NOT NULL,
-  `modifytime` datetime NOT NULL,
-  `sequence` bigint NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`sequence`),
-  UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
