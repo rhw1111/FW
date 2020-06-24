@@ -140,5 +140,11 @@ namespace FW.TestPlatform.Main
         /// {1}：发生位置
         /// </summary>
         public const string NotFoundGenerateAdditionFuncServiceByName = "NotFoundGenerateAdditionFuncServiceByName";
+        /// <summary>
+        /// 找不到指定Id的测试案例
+        /// 格式为“找不到Id为{0}的测试案例”
+        /// {0}：测试案例ID
+        /// </summary>
+        public const string NotFoundTestCaseByID = "NotFoundTestCaseByID";
     }
 }

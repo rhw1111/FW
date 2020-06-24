@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MSLibrary;
 
-
-namespace FW.TestPlatform.Main.Entities.DAL
+namespace FW.TestPlatform.Main.Entities
 {
-    public interface ITestCaseSlaveHostStore
+    public interface ITestCaseSlaveHostRepository
     {
+
         Task Add(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default);
         Task Update(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default);
         Task Delete(Guid id, CancellationToken cancellationToken = default);

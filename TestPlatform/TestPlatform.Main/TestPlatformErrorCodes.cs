@@ -81,6 +81,10 @@ namespace FW.TestPlatform.Main
         /// <summary>
         /// 找不到指定名称的测试数据源
         /// </summary>
-        NotFoundTestDataSourceByName= 325710102,
+        NotFoundTestDataSourceByName = 325710102,
+        /// <summary>
+        /// 找不到指定Id的测试案例
+        /// </summary>
+        NotFoundTestCaseByID = 325710201,
     }
 }

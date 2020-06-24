@@ -129,6 +129,38 @@ namespace FW.TestPlatform.Main.Entities
         {
             return await _imp.GetHosts(cancellationToken);
         }
+
+        public async Task Add()
+        {
+            await _imp.Add(this);
+        }
+
+        public async Task Update()
+        {
+            await _imp.Update(this);
+        }
+
+        public async Task Delete()
+        {
+            await _imp.Delete(this);
+        }
+
+
+
+        public async Task Add(CancellationToken cancellationToken = default)
+        {
+            await _imp.Add(this, cancellationToken);
+        }
+
+        public async Task Update(CancellationToken cancellationToken = default)
+        {
+            await _imp.Update(this, cancellationToken);
+        }
+
+        public async Task Delete(CancellationToken cancellationToken = default)
+        {
+            await _imp.Delete(this, cancellationToken);
+        }
     }
 
     [Injection(InterfaceType = typeof(ITestHostIMP),Scope = InjectionScope.Transient)]
