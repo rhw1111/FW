@@ -127,6 +127,8 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             contextDict.Add(TemplateContextParameterNames.ReadyTime, configuration.ReadyTime);
             //将测试地址加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.Address, configuration.Address);
+            //将测试端口加入到模板上下文中
+            contextDict.Add(TemplateContextParameterNames.Port, configuration.Port);
 
             //将要用到的附加函数名称集合加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.AdditionFuncNames, AdditionFuncNames);
@@ -137,13 +139,13 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             //将Tcp发送前初始化脚本配置加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.Sendinit, configuration.SendInit);
 
-
             //为DataSourceVars补充Data属性
 
             await ParallelHelper.ForEach(configuration.DataSourceVars, 10,
                 async(item)=>
                 {
                     var dataSource = await _testDataSourceRepository.QueryByName(item.DataSourceName, cancellationToken);
+
                     if (dataSource == null)
                     {
                         var fragment = new TextFragment()
@@ -159,8 +161,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     item.Type = dataSource.Type;
                     item.Data = dataSource.Data;
                 }
-
-                );
+            );
 
           
 
@@ -279,6 +280,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         {
             get; set;
         }
+
         /// <summary>
         /// 每秒增加用户数量
         /// </summary>
@@ -296,6 +298,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         {
             get; set;
         }
+
         /// <summary>
         /// 预热时间（秒）
         /// </summary>
@@ -315,9 +318,17 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         } = null!;
 
         /// <summary>
+        /// 测试接口地址
+        /// </summary>
+        [DataMember]
+        public int Port
+        {
+            get; set;
+        }
+
+        /// <summary>
         /// Tcp连接初始化脚本配置
         /// </summary>
-
         [DataMember]
         public ConfigurationDataForTcpConnectInit ConnectInit
         {
@@ -333,7 +344,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             get; set;
         } = null!;
 
-
         /// <summary>
         /// 请求体内容
         /// </summary>
@@ -342,8 +352,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         {
             get; set;
         } = null!;
-
-
 
         /// <summary>
         /// 数据源变量配置
@@ -417,13 +425,14 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         /// </summary>
         [DataMember]
         public string Name { get; set; } = null!;
+
         /// <summary>
         /// 变量类型
         /// 来源自数据源
         /// 配置时不需要配置此属性
         /// </summary>
-
         public string Type { get; set; } = null!;
+
         /// <summary>
         /// 数据源名称
         /// </summary>

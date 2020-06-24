@@ -505,6 +505,7 @@ namespace FW.TestPlatform.Main.Entities
             {
                 await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.Running, cancellationToken);
                 var existsCases = await _testCaseStore.QueryCountNolockByStatus(TestCaseStatus.Running, hostIDs, cancellationToken);
+
                 if (existsCases.Count > 1)
                 {
 
@@ -517,6 +518,7 @@ namespace FW.TestPlatform.Main.Entities
 
                     throw new UtilityException((int)TestPlatformErrorCodes.TestHostHasRunning, fragment, 1, 0);
                 }
+
                 scope.Complete();
             }
 

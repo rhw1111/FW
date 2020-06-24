@@ -109,6 +109,10 @@ using FW.TestPlatform.Main.Context;
 using FW.TestPlatform.Main.Configuration;
 using FW.TestPlatform.Main.Entities;
 using FW.TestPlatform.Main.Entities.TestCaseHandleServices;
+using FW.TestPlatform.Main.Template.LabelParameterHandlers;
+using FW.TestPlatform.Main.Code;
+using FW.TestPlatform.Main.Code.GetSeparatorServices;
+using FW.TestPlatform.Main.Code.GenerateDataVarDeclareServices;
 
 namespace FW.TestPlatform.Main
 {
@@ -266,9 +270,16 @@ namespace FW.TestPlatform.Main
 
             TestCaseIMP.HandleServiceFactories[EngineTypes.Http] = DIContainerContainer.Get<TestCaseHandleServiceForHttpFactory>();
             TestCaseIMP.HandleServiceFactories[EngineTypes.Tcp] = DIContainerContainer.Get<TestCaseHandleServiceForTcpFactory>();
+
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataVarDeclareInit] = DIContainerContainer.Get<LabelParameterHandlerForDataVarDeclareInitFactory>();
+
+            GetSeparatorServiceSelector.GetSeparatorServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSeparatorServiceForLocustFactory>();
+            GenerateDataVarDeclareServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{DataSourceTypes.String}"] = DIContainerContainer.Get<GenerateDataVarDeclareServiceForLocustStringFactory>();
+            GenerateDataVarDeclareServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{DataSourceTypes.Int}"] = DIContainerContainer.Get<GenerateDataVarDeclareServiceForLocustIntFactory>();
+            GenerateDataVarDeclareServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{DataSourceTypes.Json}"] = DIContainerContainer.Get<GenerateDataVarDeclareServiceForLocustJsonFactory>();
         }
 
-  
+
 
 
 

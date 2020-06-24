@@ -13,6 +13,7 @@ namespace FW.TestPlatform.Main
         public const string ResponseSeparator = "ResponseSeparator";
         public const string ReadyTime = "ReadyTime";
         public const string Address = "Address";
+        public const string Port = "Port";
         public const string DataSourceVars = "DataSourceVars";
         public const string ConnectInit = "ConnectInit";
         public const string Sendinit= "Sendinit";
@@ -101,6 +102,7 @@ namespace FW.TestPlatform.Main
     {
         public const string Default = "Default";
     }
+
     /// <summary>
     /// 身份声明类型集合
     /// </summary>
@@ -167,4 +169,23 @@ namespace FW.TestPlatform.Main
     {
         public const string Locust = "Locust";
     }
+
+    /// <summary>
+    /// 标签参数处理器类型
+    /// </summary>
+    public static class LabelParameterTypes
+    {
+        public const string DataVarDeclareInit = "datavardeclareinit";
+    }
+
+    /// <summary>
+    /// 标签参数处理器类型
+    /// </summary>
+    public static class DataSourceTypes
+    {
+        public const string String = "String";
+        public const string Int = "Int";
+        public const string Json = "Json";
+    }
+
 }

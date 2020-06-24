@@ -77,7 +77,7 @@ namespace TestPlatform.Test
             {
                 ID = new Guid("dae3d35b-f618-47b9-b852-4ebee4b4e046"),
                 Name = "dataSource1",
-                Type = "Json",
+                Type = DataSourceTypes.Json,
                 Data = "{}"
             };
 
@@ -228,7 +228,7 @@ namespace TestPlatform.Test
 
             var testCaseStore = DIContainerContainer.Get<ITestCaseStore>();
 
-            var testCaseRunner = testCaseStore.QueryByID(testCase.ID);
+            var testCaseRunner = await testCaseStore.QueryByID(testCase.ID);
 
             if (testCaseRunner == null)
             {
@@ -242,7 +242,7 @@ namespace TestPlatform.Test
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
             }
 
-            await testCase.Run();
+            await testCaseRunner.Run();
 
             Assert.Pass();
         }
