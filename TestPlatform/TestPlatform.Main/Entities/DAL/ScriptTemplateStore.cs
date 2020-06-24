@@ -25,6 +25,97 @@ namespace FW.TestPlatform.Main.Entities.DAL
             _mainDBContextFactory = mainDBContextFactory;
         }
 
+        public async Task Add(ScriptTemplate template, CancellationToken cancellationToken = default)
+        {
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    if (template.ID == Guid.Empty)
+                    {
+                        template.ID = Guid.NewGuid();
+                    }
+
+                    template.CreateTime = DateTime.UtcNow;
+                    template.ModifyTime = DateTime.UtcNow;
+
+                    await dbContext.ScriptTemplates.AddAsync(template, cancellationToken);
+
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
+        }
+
+        public async Task Delete(Guid id, CancellationToken cancellationToken = default)
+        {
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    var deleteObj = new ScriptTemplate() { ID = id };
+                    dbContext.ScriptTemplates.Attach(deleteObj);
+                    dbContext.ScriptTemplates.Remove(deleteObj);
+
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
+        }
+
+        public async Task Update(ScriptTemplate template, CancellationToken cancellationToken = default)
+        {
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    template.ModifyTime = DateTime.UtcNow;
+                    dbContext.ScriptTemplates.Attach(template);
+
+                    var entry = dbContext.Entry(template);
+                    foreach (var item in entry.Properties)
+                    {
+                        entry.Property(item.Metadata.Name).IsModified = true;
+                    }
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
+        }
+
+        public async Task<ScriptTemplate?> QueryByID(Guid id, CancellationToken cancellationToken = default)
+        {
+            ScriptTemplate? result = null;
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    result = await (from item in dbContext.ScriptTemplates
+                                    where item.ID == id
+                                    select item).FirstOrDefaultAsync();
+                }
+            });
+
+            return result;
+        }
+
         public async Task<ScriptTemplate?> QueryByName(string name, CancellationToken cancellationToken = default)
         {
             ScriptTemplate? result = null;
@@ -38,9 +129,9 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     }
 
 
-                    //result = await (from item in dbContext.TestCases
-                    //                where item.Name == name
-                    //                select item).FirstOrDefaultAsync();
+                    result = await (from item in dbContext.ScriptTemplates
+                                    where item.Name == name
+                                    select item).FirstOrDefaultAsync();
                 }
             });
 

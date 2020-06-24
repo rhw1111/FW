@@ -145,8 +145,6 @@ namespace FW.TestPlatform.Main.Entities
             await _imp.Delete(this);
         }
 
-
-
         public async Task Add(CancellationToken cancellationToken = default)
         {
             await _imp.Add(this, cancellationToken);

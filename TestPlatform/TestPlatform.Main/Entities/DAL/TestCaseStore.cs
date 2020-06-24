@@ -245,9 +245,27 @@ namespace FW.TestPlatform.Main.Entities.DAL
                 await Update(testCase);
             }            
         }
-        public Task<List<TestCase>> QueryCountNolockByStatus(TestCaseStatus status, IList<Guid> hostIds, CancellationToken cancellationToken = default)
+        public async Task<List<TestCase>> QueryCountNolockByStatus(TestCaseStatus status, IList<Guid> hostIds, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            List<TestCase> result = new List<TestCase>();
+
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+
+                    result = await (from item in dbContext.TestCases
+                                    where item.Status == status && hostIds.Contains(item.MasterHostID)
+                                    select item).ToListAsync();
+                }
+            });
+
+            return result;
         }
     }
 }
