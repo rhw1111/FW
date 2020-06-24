@@ -63,7 +63,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             StringBuilder strCode = new StringBuilder();
             var separatorService = _getSeparatorServiceSelector.Choose(engineType).Create();
-            var strFuncSeparator = separatorService.GetFuncSeparator();
+            var strFuncSeparator = await separatorService.GetFuncSeparator();
         
             foreach (var item in dataSourceVars)
             {
