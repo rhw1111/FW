@@ -10,5 +10,7 @@ namespace FW.TestPlatform.Main.Application
     public interface IAppAddTestDataSource
     {
         Task<TestDataSourceViewData> Do(TestDataSourceAddModel model, CancellationToken cancellationToken = default);
+        Task<TestDataSourceViewData> Update(TestDataSourceAddModel model, CancellationToken cancellationToken = default);
+        Task<TestDataSourceViewData> Delete(TestDataSourceAddModel model, CancellationToken cancellationToken = default);
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using FW.TestPlatform.Main.Application;
 using FW.TestPlatform.Main.DTOModel;
 using MSLibrary;
+using FW.TestPlatform.Main.Entities;
 
 namespace FW.TestPlatform.Portal.Api.Controllers
 {
@@ -19,12 +20,14 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppQueryTestCase _appQueryTestCase;
         private readonly IAppAddTestCase _appAddTestCase;
         private readonly IAppQueryTestHost _appQueryTestHost;
+        private readonly IAppExecuteTestCase _appExecuteTestCase;
 
-        public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQueryTestHost appQueryTestHost)
+        public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQueryTestHost appQueryTestHost, IAppExecuteTestCase appExecuteTestCase)
         {
             _appQueryTestCase = appQueryTestCase;
             _appAddTestCase = appAddTestCase;
             _appQueryTestHost = appQueryTestHost;
+            _appExecuteTestCase = appExecuteTestCase;
         }
 
         [HttpGet("getbypage")]
@@ -65,7 +68,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         }
 
         [HttpDelete("gethosts")]
-        public async Task<QueryResult<TestHostViewData>> GetHosts(TestCaseAddModel model)
+        public async Task<QueryResult<TestHostViewData>> GetHosts()
         {
             try
             {
@@ -75,6 +78,48 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             {
                 throw new Exception(ex.Message);
             }
+        }
+        [HttpDelete("run")]
+        public async Task Run(TestCaseAddModel model)
+        {
+            await _appExecuteTestCase.Run(model);
+        }
+        public async Task Stop(TestCaseAddModel model)
+        {
+            await _appExecuteTestCase.Run(model);
+        }
+        public async Task<TestCaseViewData> IsEngineRun(TestCaseAddModel model)
+        {
+            return await _appExecuteTestCase.IsEngineRun(model);
+        }
+        public async Task AddSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost)
+        {
+            await _appExecuteTestCase.AddSlaveHost(tCase, slaveHost);
+        }
+        public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCaseAddModel tCase)
+        {
+            return _appExecuteTestCase.GetAllSlaveHosts(tCase);
+        }
+        public async Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost)
+        {
+            await _appExecuteTestCase.UpdateSlaveHost(tCase, slaveHost);
+        }
+        public async Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize)
+        {
+            return await _appExecuteTestCase.GetHistories(caseID, page, pageSize);
+        }
+        public async Task DeleteHistory(TestCase tCase, Guid historyID)
+        {
+            await _appExecuteTestCase.DeleteHistory(tCase, historyID);
+        }
+        public async Task DeleteSlaveHost(TestCase tCase ,Guid slaveHostID)
+        {
+            await _appExecuteTestCase.DeleteSlaveHost(tCase, slaveHostID);
+        }
+
+        public async Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID)
+        {
+            return await _appExecuteTestCase.GetHistory(tCase, historyID);
         }
     }
 }

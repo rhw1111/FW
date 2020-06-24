@@ -45,5 +45,23 @@ namespace FW.TestPlatform.Main.Application
 
             return result;
         }
+        public async Task<TestDataSourceViewData?> QueryByID(Guid id, CancellationToken cancellationToken = default)
+        {
+            TestDataSourceViewData result = new TestDataSourceViewData();
+            var item = await _testDataSourceRepository.QueryByID(id);
+            if (item != null)
+            {
+                result = new TestDataSourceViewData()
+                {
+                    ID = item.ID,
+                    Name = item.Name,
+                    Type = item.Type,
+                    Data = item.Data,
+                    CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
+                    ModifyTime = item.ModifyTime.ToCurrentUserTimeZone()
+                };
+            }
+            return result;
+        }
     }
 }

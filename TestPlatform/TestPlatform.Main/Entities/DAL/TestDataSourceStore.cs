@@ -231,7 +231,8 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         var entry = dbContext.Entry(source);
                         foreach (var item in entry.Properties)
                         {
-                            entry.Property(item.Metadata.Name).IsModified = true;
+                            if(item.Metadata.Name != "ID")
+                                entry.Property(item.Metadata.Name).IsModified = true;
                         }
                         await dbContext.SaveChangesAsync(cancellationToken);
                     }
