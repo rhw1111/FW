@@ -194,3 +194,17 @@ CREATE TABLE `influxdbendpoint` (
   PRIMARY KEY (`sequence`),
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `scripttemplate`;
+CREATE TABLE `scripttemplate` (
+  `id` char(36) NOT NULL,
+  `name` varchar(150) NOT NULL DEFAULT '',
+  `content` mediumtext NOT NULL,
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`),
+  KEY `name` (`name`),
+  KEY `createtime` (`createtime`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;

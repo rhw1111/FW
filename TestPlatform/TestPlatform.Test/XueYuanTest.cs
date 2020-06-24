@@ -197,6 +197,20 @@ namespace TestPlatform.Test
             Assert.Pass();
         }
 
+        //[Test]
+        public async Task TestScriptTemplateAdd()
+        {
+            ScriptTemplate scriptTemplate = new ScriptTemplate()
+            {
+                ID = new Guid("9adb8033-f28a-43a1-b396-0f36307b213b"),
+                Name = "LocustTcp",
+                Content = ""
+            };
+
+            await scriptTemplate.Add();
+
+            Assert.Pass();
+        }
 
         [Test]
         public async Task TestTestCaseRun()
