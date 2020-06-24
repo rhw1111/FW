@@ -95,5 +95,15 @@ namespace FW.TestPlatform.Main.Application
             };
             return viewData;
         }
+
+        public async Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default)
+        {
+            TestCase source = new TestCase()
+            {
+                ID = model.CaseID
+            };
+
+            await source.AddHistory(model);
+        }
     }
 }

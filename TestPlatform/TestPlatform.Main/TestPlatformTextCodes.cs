@@ -146,5 +146,12 @@ namespace FW.TestPlatform.Main
         /// {0}：测试案例ID
         /// </summary>
         public const string NotFoundTestCaseByID = "NotFoundTestCaseByID";
+
+        /// <summary>
+        /// 找不到指定名称的InfluxDB数据源配置
+        /// 格式为“找不到指定名称{0}的InfluxDB数据源配置”
+        /// {0}：名称
+        /// </summary>
+        public const string NotFoundInfluxDBEndpoint = "NotFoundInfluxDBEndpoint";
     }
 }

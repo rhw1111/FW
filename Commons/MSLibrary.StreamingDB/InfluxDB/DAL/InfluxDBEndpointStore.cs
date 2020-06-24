@@ -26,7 +26,7 @@ namespace MSLibrary.StreamingDB.InfluxDB.DAL
         public async Task<InfluxDBEndpoint?> QueryByName(string name, CancellationToken cancellationToken = default)
         {
             InfluxDBEndpoint? result = null;
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, true, false, _streamingDBConnectionFactory.CreateReadForStreamingDB(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _streamingDBConnectionFactory.CreateReadForStreamingDB(), async (conn, transaction) =>
             {
                 await using (var dbContext = _streamingDBEntityDBContextFactory.CreateStreamingDBDBContext(conn))
                 {
@@ -34,10 +34,9 @@ namespace MSLibrary.StreamingDB.InfluxDB.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-
-
+                     //var aa = await dbContext.InfluxDBEndpoints.FirstOrDefaultAsync();
                     result = await (from item in dbContext.InfluxDBEndpoints
-                                    where item.Name == name
+                                    //where item.Name == name
                                     select item).FirstOrDefaultAsync();
                 }
             });
