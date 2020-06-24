@@ -29,6 +29,22 @@ namespace FW.TestPlatform.Main.DTOModel
             }
         }
 
+        /// <summary>
+        /// 测试案例ID
+        /// </summary>
+        [DataMember]
+        public string SlaveID
+        {
+            get
+            {
+
+                return GetAttribute<string>(nameof(SlaveID));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(SlaveID), value);
+            }
+        }
 
         /// <summary>
         /// 当前QPS

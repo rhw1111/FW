@@ -17,7 +17,7 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
             builder.Property((entity) => entity.Name).IsRequired().HasColumnName("name").HasColumnType("varchar(150)");
             builder.Property((entity) => entity.Address).IsRequired().HasColumnName("address").HasColumnType("varchar(150)");
             builder.Property((entity) => entity.IsAuth).IsRequired().HasColumnName("isauth").HasColumnType("bit");
-            builder.Property((entity) => entity.Password).HasColumnName("username").HasColumnType("varchar(150)");
+            builder.Property((entity) => entity.UserName).HasColumnName("username").HasColumnType("varchar(150)");
             builder.Property((entity) => entity.Password).HasColumnName("password").HasColumnType("varchar(150)");
             builder.Property((entity) => entity.CreateTime).IsRequired().HasColumnName("createtime").HasColumnType("datetime").Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             builder.Property((entity) => entity.ModifyTime).IsRequired().HasColumnName("modifytime").HasColumnType("datetime");

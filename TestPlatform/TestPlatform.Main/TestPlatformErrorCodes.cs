@@ -86,5 +86,9 @@ namespace FW.TestPlatform.Main
         /// 找不到指定Id的测试案例
         /// </summary>
         NotFoundTestCaseByID = 325710201,
+        /// <summary>
+        /// 找不到指定名称的InfluxDB数据源配置
+        /// </summary>
+        NotFoundInfluxDBEndpoint = 325710202,
     }
 }

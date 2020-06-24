@@ -220,7 +220,7 @@ namespace MSLibrary.StreamingDB.InfluxDB
             {
                 initHttpClient(endpoint, httpClient);
                 HttpContent content = new StringContent(record.ToDataString());
-                var response=await httpClient.PostAsync($"{ getContent(endpoint.Address)}/write?db={dbName.ToUrlEncode()}", content);
+                var response=await httpClient.PostAsync($"{await getContent(endpoint.Address)}/write?db={dbName.ToUrlEncode()}", content);
                 if (!response.IsSuccessStatusCode)
                 {
                     string errorMessage = await response.Content.ReadAsStringAsync();
@@ -252,8 +252,8 @@ namespace MSLibrary.StreamingDB.InfluxDB
             {
                 initHttpClient(endpoint, httpClient);
 
-                HttpContent content = new StringContent(records.ToDisplayString((v) => v.ToDataString(), () => "\r\n"));
-                var response = await httpClient.PostAsync($"{ getContent(endpoint.Address)}/write?db={dbName.ToUrlEncode()}", content);
+                HttpContent content = new StringContent(records.ToDisplayString((v) => v.ToDataString(), () => "\n"));
+                var response = await httpClient.PostAsync($"{await getContent(endpoint.Address)}/write?db={dbName.ToUrlEncode()}", content);
                 if (!response.IsSuccessStatusCode)
                 {
                     string errorMessage = await response.Content.ReadAsStringAsync();
@@ -282,7 +282,7 @@ namespace MSLibrary.StreamingDB.InfluxDB
                 initHttpClient(endpoint, httpClient);
 
                 HttpContent content = new StringContent($"q=CREATE DATABASE {dbName}");
-                var response = await httpClient.PostAsync($"{ getContent(endpoint.Address)}/query", content);
+                var response = await httpClient.PostAsync($"{await getContent(endpoint.Address)}/query", content);
                 if (!response.IsSuccessStatusCode)
                 {
                     string errorMessage = await response.Content.ReadAsStringAsync();

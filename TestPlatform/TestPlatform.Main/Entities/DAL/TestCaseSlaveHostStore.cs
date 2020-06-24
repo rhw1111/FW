@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using MSLibrary.DI;
 using MSLibrary.Transaction;
+using MSLibrary.Collections;
 using FW.TestPlatform.Main.DAL;
 using Microsoft.AspNetCore.Http.Features.Authentication;
 using FW.TestPlatform.Main.DTOModel;
@@ -119,28 +120,40 @@ namespace FW.TestPlatform.Main.Entities.DAL
             return result;
         }
 
-        public async IAsyncEnumerable<TestCaseSlaveHost> QueryByCase(Guid caseId, CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<TestCaseSlaveHost> QueryByCase(Guid caseId, CancellationToken cancellationToken = default)
         {
-            List<TestCaseSlaveHost> list = new List<TestCaseSlaveHost>();
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
-            {
-                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+
+            AsyncInteration<TestCaseSlaveHost> interation = new AsyncInteration<TestCaseSlaveHost>(
+                async(index)=>
                 {
-                    if (transaction != null)
+                    List<TestCaseSlaveHost>? datas = null ;
+                    await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
                     {
-                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
-                    }
+                        await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                        {
+                            if (transaction != null)
+                            {
+                                await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                            }
 
+                            var ids = (from item in dbContext.TestCaseSlaveHosts
+                                       where item.TestCaseID == caseId
+                                       orderby EF.Property<long>(item, "Sequence")
+                                       select item.ID
+                                                ).Skip((index) * 500).Take(500);
 
-                    list = await (from item in dbContext.TestCaseSlaveHosts
-                                    where item.TestCaseID == caseId
-                                    select item).ToListAsync();
+                            datas = await (from item in dbContext.TestCaseSlaveHosts
+                                               join idItem in ids
+                                          on item.ID equals idItem
+                                               orderby EF.Property<long>(item, "Sequence")
+                                               select item).ToListAsync();                    
+                        }
+                    });
+
+                    return datas;
                 }
-            });
-            foreach (var item in list)
-            {
-                yield return item;
-            }
+                );
+            return interation;
         }
 
         public async Task<TestCaseSlaveHost?> QueryByID(Guid id, CancellationToken cancellationToken)

@@ -15,7 +15,7 @@ using FW.TestPlatform.Main.DAL;
 
 namespace FW.TestPlatform.Main.InfluxDB.DAL
 {
-    [Injection(InterfaceType = typeof(InfluxDBEndpointStore), Scope = InjectionScope.Singleton)]
+    [Injection(InterfaceType = typeof(IInfluxDBEndpointStore), Scope = InjectionScope.Singleton)]
     public class InfluxDBEndpointStore : IInfluxDBEndpointStore
     {
         private readonly IStreamingDBConnectionFactory _streamingDBConnectionFactory;
@@ -29,7 +29,7 @@ namespace FW.TestPlatform.Main.InfluxDB.DAL
         public async Task<InfluxDBEndpoint?> QueryByName(string name, CancellationToken cancellationToken = default)
         {
             InfluxDBEndpoint? result = null;
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, true, false, _streamingDBConnectionFactory.CreateReadForStreamingDB(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _streamingDBConnectionFactory.CreateReadForStreamingDB(), async (conn, transaction) =>
             {
                 await using (var dbContext = _mainDBContextFactory.CreateConfigurationDBContext(conn))
                 {
