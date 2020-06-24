@@ -13,8 +13,8 @@ namespace FW.TestPlatform.Main.DAL
     {
         public ConfigurationDBContext CreateConfigurationDBContext(DbConnection conn)
         {
-            DbContextOptions<MainDBContext> option = new DbContextOptions<MainDBContext>();
-            DbContextOptionsBuilder<MainDBContext> optionBuilder = new DbContextOptionsBuilder<MainDBContext>(option);
+            DbContextOptions<ConfigurationDBContext> option = new DbContextOptions<ConfigurationDBContext>();
+            DbContextOptionsBuilder<ConfigurationDBContext> optionBuilder = new DbContextOptionsBuilder<ConfigurationDBContext>(option);
             ConfigurationDBContext context = new ConfigurationDBContext(optionBuilder.UseMySql(conn).Options);
 
             return context;
