@@ -7,7 +7,7 @@
   },
   "ApplicationName": "TestPlatform.Portal.Api",
   "DISetting": {
-    "SearchAssemblyNames": [ "MSLibrary", "MSLibrary.CommandLine", "MSLibrary.MySqlStore", "TestPlatform.Main", "MSLibrary.StreamingDB" ]
+    "SearchAssemblyNames": [ "MSLibrary", "MSLibrary.CommandLine", "MSLibrary.MySqlStore", "TestPlatform.Main","MSLibrary.StreamingDB" ]
   },
   "Debug": true,
   "ThreadPoolSetting": {

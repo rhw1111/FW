@@ -9,6 +9,7 @@ using FW.TestPlatform.Main.DTOModel;
 using FW.TestPlatform.Main.Entities;
 using MSLibrary.StreamingDB.InfluxDB;
 using MSLibrary.LanguageTranslate;
+using System.Globalization;
 
 namespace FW.TestPlatform.Main.Application
 {
@@ -37,19 +38,35 @@ namespace FW.TestPlatform.Main.Application
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundInfluxDBEndpoint, fragment, 1, 0);
             }
 
+            
+
             IList<InfluxDBRecord> influxDBRecordList = new List<InfluxDBRecord>();
             InfluxDBRecord influxDBRecord = null;
             foreach (MonitorSlaveDataAddModel model in modelList)
             {
                 influxDBRecord = new InfluxDBRecord();
                 influxDBRecord.MeasurementName = InfluxDBParameters.SlaveMeasurementName;
+                influxDBRecord.Timestamp = ConvertToTimeStamp(model.Time);
                 influxDBRecord.Tags.Add("CaseID", model.CaseID);
+                influxDBRecord.Tags.Add("SlaveID", model.SlaveID);
                 influxDBRecord.Fields.Add("QPS", model.QPS);
-                influxDBRecord.Fields.Add("Time", model.Time);
-                influxDBRecordList.Add(influxDBRecord);
+                influxDBRecord.Fields.Add("Time", model.Time);                
+                influxDBRecordList.Add(influxDBRecord);                
             }
-            await influxDBEndpoint.AddDatas(InfluxDBParameters.MasterMeasurementName, influxDBRecordList);
+            await influxDBEndpoint.AddDatas(InfluxDBParameters.DBName, influxDBRecordList);
 
+        }
+
+        /// <summary>
+        /// 时间转成时间戳
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        private long ConvertToTimeStamp(string time)
+        {
+            DateTime dtTime = DateTime.ParseExact(time,"yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+            TimeSpan ts = dtTime - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            return Convert.ToInt64(ts.TotalSeconds);
         }
     }
 }

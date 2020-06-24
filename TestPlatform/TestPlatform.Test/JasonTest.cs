@@ -23,6 +23,8 @@ using FW.TestPlatform.Main.Entities;
 using FW.TestPlatform.Main.Entities.DAL;
 using FW.TestPlatform.Main.Application;
 using FW.TestPlatform.Main.DTOModel;
+using MSLibrary.StreamingDB.InfluxDB;
+using MSLibrary.StreamingDB.InfluxDB.DAL;
 
 namespace TestPlatform.Test
 {
@@ -73,11 +75,13 @@ namespace TestPlatform.Test
         [Test]
         public async Task Test2()
         {
-
+            //await QueryByCaseID("c7a290e6-eddd-4126-abc9-5e129718e0fc");
             //await AddTestCase();
             //await AddTestCaseHistory();
-            await CreateMonitorDB();
+            //await CreateMonitorDB();
             //await AddMasterData();
+
+            await AddSlaveData();
         }
 
         private async Task CreateMonitorDB()
@@ -97,10 +101,47 @@ namespace TestPlatform.Test
             MonitorMasterDataAddModel model = new MonitorMasterDataAddModel();
 
             model.CaseID = "c7a290e6-eddd-4126-abc9-5e129718e0fc";
-
+            model.ConnectCount = "100";
+            model.ConnectFailCount = "100";
+            model.MaxDuration = "100";
+            model.MinDurartion = "100";
+            model.ReqCount = "100";
+            model.ReqFailCount = "100";
+            model.AvgDuration = "100";
 
 
             await test.Do(model);
+        }
+
+        private async Task AddSlaveData()
+        {
+
+            IAppAddMonitorSlaveData test = DIContainerContainer.Get<IAppAddMonitorSlaveData>();
+
+            IList<MonitorSlaveDataAddModel> modelList = new List<MonitorSlaveDataAddModel>();
+            MonitorSlaveDataAddModel model = new MonitorSlaveDataAddModel();
+
+            model.CaseID = "c7a290e6-eddd-4126-abc9-5e129718e0fc";
+            model.QPS = "100";
+            model.Time = "20200623151201";
+            model.SlaveID = "aaaaa";
+            modelList.Add(model);
+
+            model = new MonitorSlaveDataAddModel();
+            model.CaseID = "c7a290e6-eddd-4126-abc9-5e129718e0fc";
+            model.QPS = "100";
+            model.Time = "20200623151301";
+            model.SlaveID = "aaaaa";
+            modelList.Add(model);
+
+            model = new MonitorSlaveDataAddModel();
+            model.CaseID = "c7a290e6-eddd-4126-abc9-5e129718e0fc";
+            model.QPS = "100";
+            model.Time = "20200623161201";
+            model.SlaveID = "aaaaa";
+            modelList.Add(model);
+
+            await test.Do(modelList);
         }
 
         private async Task AddTestCase()
@@ -121,6 +162,14 @@ namespace TestPlatform.Test
 
 
             await test.Add(testcase);
+        }
+
+        private async Task<TestCase> QueryByCaseID(string id)
+        {
+
+            ITestCaseRepository test = DIContainerContainer.Get<ITestCaseRepository>();
+
+            return await test.QueryByID(Guid.Parse(id));
         }
 
         private async Task AddTestCaseHistory()

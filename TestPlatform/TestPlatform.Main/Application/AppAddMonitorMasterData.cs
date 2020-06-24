@@ -47,7 +47,7 @@ namespace FW.TestPlatform.Main.Application
             influxDBRecord.Fields.Add("MaxDuration", model.MaxDuration);
             influxDBRecord.Fields.Add("MinDurartion", model.MinDurartion);
             influxDBRecord.Fields.Add("AvgDuration", model.AvgDuration);
-            await influxDBEndpoint.AddData(InfluxDBParameters.MasterMeasurementName, influxDBRecord);
+            await influxDBEndpoint.AddData(InfluxDBParameters.DBName, influxDBRecord);
         }
     }
 }
