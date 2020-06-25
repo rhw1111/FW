@@ -92,34 +92,34 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         {
             return await _appExecuteTestCase.IsEngineRun(model);
         }
-        public async Task AddSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost)
-        {
-            await _appExecuteTestCase.AddSlaveHost(tCase, slaveHost);
-        }
-        public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCaseAddModel tCase)
-        {
-            return _appExecuteTestCase.GetAllSlaveHosts(tCase);
-        }
-        public async Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost)
-        {
-            await _appExecuteTestCase.UpdateSlaveHost(tCase, slaveHost);
-        }
-        public async Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize)
-        {
-            return await _appExecuteTestCase.GetHistories(caseID, page, pageSize);
-        }
-        public async Task DeleteHistory(TestCase tCase, Guid historyID)
-        {
-            await _appExecuteTestCase.DeleteHistory(tCase, historyID);
-        }
-        public async Task DeleteSlaveHost(TestCase tCase ,Guid slaveHostID)
-        {
-            await _appExecuteTestCase.DeleteSlaveHost(tCase, slaveHostID);
-        }
+        //public async Task AddSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost)
+        //{
+        //    await _appExecuteTestCase.AddSlaveHost(tCase, slaveHost);
+        //}
+        //public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCaseAddModel tCase)
+        //{
+        //    return _appExecuteTestCase.GetAllSlaveHosts(tCase);
+        //}
+        //public async Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost)
+        //{
+        //    await _appExecuteTestCase.UpdateSlaveHost(tCase, slaveHost);
+        //}
+        //public async Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize)
+        //{
+        //    return await _appExecuteTestCase.GetHistories(caseID, page, pageSize);
+        //}
+        //public async Task DeleteHistory(TestCase tCase, Guid historyID)
+        //{
+        //    await _appExecuteTestCase.DeleteHistory(tCase, historyID);
+        //}
+        //public async Task DeleteSlaveHost(TestCase tCase ,Guid slaveHostID)
+        //{
+        //    await _appExecuteTestCase.DeleteSlaveHost(tCase, slaveHostID);
+        //}
 
-        public async Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID)
-        {
-            return await _appExecuteTestCase.GetHistory(tCase, historyID);
-        }
+        //public async Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID)
+        //{
+        //    return await _appExecuteTestCase.GetHistory(tCase, historyID);
+        //}
     }
 }
