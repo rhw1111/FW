@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="DockerCompose\BaseImages\" />
+    <Folder Include="DockerCompose\DockerFiles\CaseServiceBin\" />
+    <Folder Include="DockerCompose\DockerFiles\PortalApiBin\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="DockerCompose\DockerFiles\Dockerfile-PortalApi">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="DockerCompose\DockerFiles\Dockerfile-CaseService">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

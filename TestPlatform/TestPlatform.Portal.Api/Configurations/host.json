@@ -2,7 +2,7 @@
   "Kestrel": {
     "Endpoints": {
       "Http": {
-        "Url": "http://*:8099"
+        "Url": "http://*:80"
       }
     }
   }

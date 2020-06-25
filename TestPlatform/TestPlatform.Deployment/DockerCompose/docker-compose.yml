@@ -1,0 +1,21 @@
+﻿version: "3.7"
+services:
+
+  portalapi:
+    build:
+        context: DockerFiles
+        dockerfile: Dockerfile-PortalApi
+    ports:
+      - "8081:80"
+  caseservice:
+    build:
+        context: DockerFiles
+        dockerfile: Dockerfile-CaseService
+    ports:
+      - "8082:80"
+  portalweb:
+    build:
+        context: DockerFiles
+        dockerfile: Dockerfile-PortalWeb
+    ports:
+      - "8080:80"
