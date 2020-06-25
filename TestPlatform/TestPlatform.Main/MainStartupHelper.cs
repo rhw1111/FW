@@ -274,6 +274,8 @@ namespace FW.TestPlatform.Main
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataVarDeclareInit] = DIContainerContainer.Get<LabelParameterHandlerForDataVarDeclareInitFactory>();
 
             GetSeparatorServiceSelector.GetSeparatorServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSeparatorServiceForLocustFactory>();
+
+            GenerateDataVarDeclareServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}"] = DIContainerContainer.Get<GenerateDataVarDeclareServiceForLocustFactory>();
             GenerateDataVarDeclareServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{DataSourceTypes.String}"] = DIContainerContainer.Get<GenerateDataVarDeclareServiceForLocustStringFactory>();
             GenerateDataVarDeclareServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{DataSourceTypes.Int}"] = DIContainerContainer.Get<GenerateDataVarDeclareServiceForLocustIntFactory>();
             GenerateDataVarDeclareServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{DataSourceTypes.Json}"] = DIContainerContainer.Get<GenerateDataVarDeclareServiceForLocustJsonFactory>();
