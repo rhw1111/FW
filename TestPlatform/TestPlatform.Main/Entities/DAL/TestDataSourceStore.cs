@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using MSLibrary.DI;
 using MSLibrary.Transaction;
 using FW.TestPlatform.Main.DAL;
-using Microsoft.AspNetCore.Http.Features.Authentication;
 
 namespace FW.TestPlatform.Main.Entities.DAL
 {
@@ -131,11 +130,16 @@ namespace FW.TestPlatform.Main.Entities.DAL
                             await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                         }
 
-
-                        result = await (from item in dbContext.TestDataSources
-                                        where item.Name == name
-                                        orderby EF.Property<long>(item, "Sequence")
-                                        select item.ID).FirstOrDefaultAsync();
+                        var dataSourceItem = await (from item in dbContext.TestDataSources
+                                          where item.Name == name
+                                          orderby EF.Property<long>(item, "Sequence")
+                                          select item).FirstOrDefaultAsync();
+                        if (dataSourceItem != null)
+                            result = dataSourceItem.ID;
+                        //result = await (from item in dbContext.TestDataSources
+                        //                where item.Name == name
+                        //                orderby EF.Property<long>(item, "Sequence")
+                        //                select item.ID).FirstOrDefaultAsync();
                     }
                 });
 
@@ -227,7 +231,8 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         var entry = dbContext.Entry(source);
                         foreach (var item in entry.Properties)
                         {
-                            entry.Property(item.Metadata.Name).IsModified = true;
+                            if(item.Metadata.Name != "ID")
+                                entry.Property(item.Metadata.Name).IsModified = true;
                         }
                         await dbContext.SaveChangesAsync(cancellationToken);
                     }

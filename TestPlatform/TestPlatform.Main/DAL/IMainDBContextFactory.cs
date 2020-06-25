@@ -8,5 +8,6 @@ namespace FW.TestPlatform.Main.DAL
     public interface IMainDBContextFactory
     {
         MainDBContext CreateMainDBContext(DbConnection conn);
+        ConfigurationDBContext CreateConfigurationDBContext(DbConnection conn);
     }
 }

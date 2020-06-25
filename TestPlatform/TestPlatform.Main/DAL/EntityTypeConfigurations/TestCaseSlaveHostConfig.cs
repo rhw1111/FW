@@ -17,10 +17,12 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
             builder.HasOne((entity) => entity.Host).WithMany().HasForeignKey(entity => entity.HostID);
             builder.Property((entity) => entity.TestCaseID).IsRequired().HasColumnType("char(36)");
             builder.HasOne((entity) => entity.TestCase).WithMany().HasForeignKey(entity => entity.TestCaseID);
+            builder.Property((entity) => entity.SlaveName).IsRequired().HasColumnType("varchar(150)");
             builder.Property((entity) => entity.Count).IsRequired().HasColumnType("int");
             builder.Property((entity) => entity.ExtensionInfo).IsRequired().HasColumnType("varchar(1000)");
             builder.Property((entity) => entity.CreateTime).HasColumnType("datetime").Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             builder.Property((entity) => entity.ModifyTime).HasColumnType("datetime");
+            builder.Property<long>("Sequence").HasColumnName("sequence").HasColumnType("bigint").Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
         }
     }
 }

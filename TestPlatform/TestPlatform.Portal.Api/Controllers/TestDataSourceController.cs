@@ -36,5 +36,15 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         {
             return await _appAddTestDataSource.Do(model);
         }
+        [HttpPut("update")]
+        public async Task<TestDataSourceViewData> Update(TestDataSourceAddModel model)
+        {
+            return await _appAddTestDataSource.Delete(model);
+        }
+        [HttpPost("delete")]
+        public async Task<TestDataSourceViewData> Delete(TestDataSourceAddModel model)
+        {
+            return await _appAddTestDataSource.Do(model);
+        }
     }
 }

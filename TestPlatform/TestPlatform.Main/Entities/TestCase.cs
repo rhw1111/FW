@@ -9,6 +9,8 @@ using MSLibrary.Collections;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.Transaction;
 using FW.TestPlatform.Main.Entities.DAL;
+using FW.TestPlatform.Main.DTOModel;
+using MSLibrary.Serializer;
 
 namespace FW.TestPlatform.Main.Entities
 {
@@ -209,6 +211,82 @@ namespace FW.TestPlatform.Main.Entities
         {
             return _imp.GetAllSlaveHosts(this, cancellationToken);
         }
+
+        public async Task Add(CancellationToken cancellationToken = default)
+        {
+            await _imp.Add(this,cancellationToken);
+        }
+
+        public async Task Add()
+        {
+            await _imp.Add(this);
+        }
+
+        public async Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default)
+        {
+            await _imp.AddHistory(model, cancellationToken);
+        }
+
+        public async Task Update(CancellationToken cancellationToken = default)
+        {
+            await _imp.Update(this, cancellationToken);
+        }
+
+        public async Task Update()
+        {
+            await _imp.Update(this);
+        }
+
+        public async Task Delete(CancellationToken cancellationToken = default)
+        {
+            await _imp.Delete(this, cancellationToken);
+        }
+        public async Task Delete()
+        {
+            await _imp.Delete(this);
+        }
+
+        public async Task Run(CancellationToken cancellationToken = default)
+        {
+            await _imp.Run(this, cancellationToken);
+        }
+        public async Task Stop(CancellationToken cancellationToken = default)
+        {
+            await _imp.Stop(this, cancellationToken);
+        }
+        public async Task<bool> IsEngineRun(CancellationToken cancellationToken = default)
+        {
+            return await _imp.IsEngineRun(this, cancellationToken);
+        }
+        public async Task AddSlaveHost(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
+        {
+            await _imp.AddSlaveHost(this, slaveHost, cancellationToken);
+        }
+        public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default)
+        {
+            return _imp.GetAllSlaveHosts(tCase, cancellationToken);
+        }
+        public async Task UpdateSlaveHost(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
+        {
+            await _imp.UpdateSlaveHost(this, slaveHost, cancellationToken);
+        }
+        public async Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetHistories(caseID, page, pageSize, cancellationToken);
+        }
+        public async Task DeleteHistory(Guid historyID, CancellationToken cancellationToken = default)
+        {
+            await _imp.DeleteHistory(this, historyID, cancellationToken);
+        }
+        public async Task DeleteSlaveHost(Guid slaveHostID, CancellationToken cancellationToken = default)
+        {
+            await _imp.DeleteSlaveHost(this, slaveHostID, cancellationToken);
+        }
+
+        public async Task<TestCaseHistory?> GetHistory(Guid historyID, CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetHistory(this, historyID, cancellationToken);
+        }
     }
 
     public interface ITestCaseIMP
@@ -221,7 +299,7 @@ namespace FW.TestPlatform.Main.Entities
         Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default);
         IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default);
         Task<TestCaseSlaveHost?> GetSlaveHost(TestCase tCase,Guid slaveHostID, CancellationToken cancellationToken = default);
-        Task AddHistory(TestCase tCase,TestCaseHistory history, CancellationToken cancellationToken = default);
+        Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default);
         Task UpdateHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default);
         Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default);
         Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default);
@@ -242,12 +320,14 @@ namespace FW.TestPlatform.Main.Entities
         private ITestCaseStore _testCaseStore;
         private ITestCaseSlaveHostStore _testCaseSlaveHostStore;
         private ITestHostRepository _testHostRepository;
+        private ITestCaseHistoryRepository _testCaseHistoryRepository;
 
-        public TestCaseIMP(ITestCaseStore testCaseStore, ITestCaseSlaveHostStore testCaseSlaveHostStore, ITestHostRepository testHostRepository)
+        public TestCaseIMP(ITestCaseStore testCaseStore, ITestCaseSlaveHostStore testCaseSlaveHostStore, ITestHostRepository testHostRepository, ITestCaseHistoryRepository testCaseHistoryRepository)
         {
             _testCaseStore = testCaseStore;
             _testCaseSlaveHostStore = testCaseSlaveHostStore;
             _testHostRepository = testHostRepository;
+            _testCaseHistoryRepository = testCaseHistoryRepository;
         }
 
         public async Task Add(TestCase tCase, CancellationToken cancellationToken = default)
@@ -269,14 +349,47 @@ namespace FW.TestPlatform.Main.Entities
             await _testCaseStore.Add(tCase, cancellationToken);
         }
 
-        public Task AddHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default)
+        //public async Task AddHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default)
+        //{
+        //    history.CaseID = tCase.ID;
+        //    await _testCaseHistoryRepository.Add(history, cancellationToken);
+        //}
+
+        public async Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
+            {
+                TestCase? testCase = await _testCaseStore.QueryByID(model.CaseID);
+
+                if (testCase == null)
+                {
+                    var fragment = new TextFragment()
+                    {
+                        Code = TestPlatformTextCodes.NotFoundTestCaseByID,
+                        DefaultFormatting = "找不到ID为{0}的测试案例",
+                        ReplaceParameters = new List<object>() { model.CaseID }
+                    };
+
+                    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
+                }
+
+                //修改case状态为完成
+                await _testCaseStore.UpdateStatus(model.CaseID, TestCaseStatus.NoRun);
+
+                //保存历史
+                TestCaseHistory history = new TestCaseHistory();
+                history.CaseID = model.CaseID;
+                //history.Case = testCase;                
+                history.Summary = JsonSerializerHelper.Serializer(model);
+                await _testCaseHistoryRepository.Add(history);
+
+                scope.Complete();
+            }
         }
 
         public async Task AddSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
-            var host = await _testHostRepository.QueryByID(slaveHost.HostID, cancellationToken);
+            var host = await _testHostRepository.QueryByID(tCase.MasterHostID, cancellationToken);
             if (host == null)
             {
                 var fragment = new TextFragment()
@@ -297,9 +410,9 @@ namespace FW.TestPlatform.Main.Entities
             await _testCaseStore.Delete(tCase.ID, cancellationToken);
         }
 
-        public Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
+        public async Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await _testCaseHistoryRepository.Delete(historyID, cancellationToken);
         }
 
         public async Task DeleteSlaveHost(TestCase tCase, Guid slaveHostID, CancellationToken cancellationToken = default)
@@ -339,14 +452,16 @@ namespace FW.TestPlatform.Main.Entities
             return _testCaseSlaveHostStore.QueryByCase(tCase.ID, cancellationToken);
         }
 
-        public Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return await _testCaseHistoryRepository.QueryByPage(caseID, page, pageSize, cancellationToken);
         }
 
-        public Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
+        public async Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            TestCaseHistory? testHistory;
+            testHistory = await _testCaseHistoryRepository.QueryByID(tCase.ID, historyID, cancellationToken);
+            return testHistory;
         }
 
         public async Task<string> GetMasterLog(TestCase tCase, CancellationToken cancellationToken = default)
@@ -358,7 +473,7 @@ namespace FW.TestPlatform.Main.Entities
         public async Task<TestCaseSlaveHost?> GetSlaveHost(TestCase tCase, Guid slaveHostID, CancellationToken cancellationToken = default)
         {
             var host= await _testCaseSlaveHostStore.QueryByCase(tCase.ID, slaveHostID, cancellationToken);
-            /*if (host==null)
+            if (host == null)
             {
                 var fragment = new TextFragment()
                 {
@@ -368,7 +483,7 @@ namespace FW.TestPlatform.Main.Entities
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSlaveHostInCase, fragment, 1, 0);
-            }*/
+            }
 
             return host;
         }
@@ -429,6 +544,7 @@ namespace FW.TestPlatform.Main.Entities
             {
                 await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.Running, cancellationToken);
                 var existsCases = await _testCaseStore.QueryCountNolockByStatus(TestCaseStatus.Running, hostIDs, cancellationToken);
+
                 if (existsCases.Count > 1)
                 {
 
@@ -441,6 +557,7 @@ namespace FW.TestPlatform.Main.Entities
 
                     throw new UtilityException((int)TestPlatformErrorCodes.TestHostHasRunning, fragment, 1, 0);
                 }
+
                 scope.Complete();
             }
 

@@ -63,6 +63,22 @@ REPLACE INTO `systemconfiguration` (`id`, `name`, `content`, `createtime`, `modi
 	('057d6ca4-af70-11ea-8e6a-0242ac110002', 'OutputStreamReplaceExcludePaths', '[]', '2020-06-16 01:23:45', '2020-06-16 01:23:45', 4);
 /*!40000 ALTER TABLE `systemconfiguration` ENABLE KEYS */;
 
+DROP TABLE IF EXISTS `influxdbendpoint`;
+CREATE TABLE `influxdbendpoint` (
+  `id` char(36) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `address` varchar(150) NOT NULL,
+  `isauth` bit NOT NULL,
+  `username` varchar(150),
+  `password` varchar(150),
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+REPLACE INTO `influxdbendpoint` (`id`, `name`, `address`, `isauth`, `username`, `password`, `createtime`, `modifytime`) VALUES ('c7a290e6-eddd-4126-abc9-5e129718e0fc', 'EndpointName', 'http://localhost:8086/', b'1', 'admin', 'admin', UTC_TIMESTAMP(),UTC_TIMESTAMP());
 
 -- 导出 tpmain 的数据库结构
 CREATE DATABASE IF NOT EXISTS `tpmain` /*!40100 DEFAULT CHARACTER SET utf8 */ /*!80016 DEFAULT ENCRYPTION='N' */;
@@ -121,3 +137,74 @@ REPLACE INTO `user` (`id`, `name`, `createtime`, `modifytime`, `sequence`) VALUE
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+
+DROP TABLE IF EXISTS `sshendpoint`;
+CREATE TABLE `sshendpoint` (
+  `id` char(36) NOT NULL,
+  `type` varchar(150) NOT NULL DEFAULT '',
+  `name` varchar(150) NOT NULL DEFAULT '',
+  `configuration` varchar(1000) NOT NULL DEFAULT '',
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `testcase`;
+CREATE TABLE `testcase` (
+  `id` char(36) NOT NULL,
+  `masterhostid` char(36) NOT NULL,
+  `ownerid` char(36) NOT NULL,
+  `enginetype` varchar(150) NOT NULL DEFAULT '',
+  `name` varchar(150) NOT NULL DEFAULT '',
+  `configuration` varchar(4000) NOT NULL DEFAULT '',
+  `status` int NOT NULL DEFAULT '0',
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`),
+  KEY `name` (`name`),
+  KEY `createtime` (`createtime`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `testcaseslavehost`;
+CREATE TABLE `testcaseslavehost` (
+  `id` char(36) NOT NULL,
+  `hostid` char(36) NOT NULL,
+  `testcaseid` char(36) NOT NULL,
+  `slavename` varchar(150) NOT NULL DEFAULT '',
+  `count` int NOT NULL DEFAULT '0',
+  `extensioninfo` varchar(1000) NOT NULL DEFAULT '',
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `testcasehistory`;
+CREATE TABLE `testcasehistory` (
+  `id` char(36) NOT NULL,
+  `caseid` char(36) NOT NULL,
+  `summary` varchar(4000) NOT NULL DEFAULT '',
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `scripttemplate`;
+CREATE TABLE `scripttemplate` (
+  `id` char(36) NOT NULL,
+  `name` varchar(150) NOT NULL DEFAULT '',
+  `content` mediumtext NOT NULL,
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`),
+  KEY `name` (`name`),
+  KEY `createtime` (`createtime`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;

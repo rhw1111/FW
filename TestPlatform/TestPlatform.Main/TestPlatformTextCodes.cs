@@ -119,5 +119,39 @@ namespace FW.TestPlatform.Main
         /// {0}：名称
         /// </summary>
         public const string ExistTestDataSourceByName = "ExistTestDataSourceByName";
+
+        /// <summary>
+        /// 找不到指定名称的数据变量声明代码块生成服务
+        /// 格式为“找不到名称为{1}的数据变量声明代码块生成服务,发生位置为{1}”
+        /// {0}：名称
+        /// {1}：发生位置
+        /// </summary>
+        public const string NotFoundGenerateDataVarDeclareServiceByName = "NotFoundGenerateDataVarDeclareServiceByName";
+        /// <summary>
+        /// 找不到指定名称的测试数据源
+        /// 格式为“找不到名称为{0}的测试数据源”
+        /// {0}：数据源名称
+        /// </summary>
+        public const string NotFoundTestDataSourceByName = "NotFoundTestDataSourceByName";
+        /// <summary>
+        /// 找不到指定名称的附加函数生成服务
+        /// 格式为“找不到名称为{0}的附件函数生成服务，发生位置为{1}”
+        /// {0}：名称
+        /// {1}：发生位置
+        /// </summary>
+        public const string NotFoundGenerateAdditionFuncServiceByName = "NotFoundGenerateAdditionFuncServiceByName";
+        /// <summary>
+        /// 找不到指定Id的测试案例
+        /// 格式为“找不到Id为{0}的测试案例”
+        /// {0}：测试案例ID
+        /// </summary>
+        public const string NotFoundTestCaseByID = "NotFoundTestCaseByID";
+
+        /// <summary>
+        /// 找不到指定名称的InfluxDB数据源配置
+        /// 格式为“找不到指定名称{0}的InfluxDB数据源配置”
+        /// {0}：名称
+        /// </summary>
+        public const string NotFoundInfluxDBEndpoint = "NotFoundInfluxDBEndpoint";
     }
 }

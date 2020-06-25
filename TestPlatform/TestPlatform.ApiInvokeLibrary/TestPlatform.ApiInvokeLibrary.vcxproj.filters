@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Setting.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Setting.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="inc">
+      <UniqueIdentifier>{ce1ca271-899e-491b-85a8-28b44621d46f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{84841425-31a9-4743-97ec-5753322b9fe6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dll">
+      <UniqueIdentifier>{31b8c2ee-81b7-46dd-bdb8-49d6d57c1598}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

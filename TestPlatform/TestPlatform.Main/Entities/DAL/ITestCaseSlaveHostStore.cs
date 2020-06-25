@@ -14,5 +14,6 @@ namespace FW.TestPlatform.Main.Entities.DAL
         Task Delete(Guid id, CancellationToken cancellationToken = default);
         IAsyncEnumerable<TestCaseSlaveHost> QueryByCase(Guid caseID, CancellationToken cancellationToken = default);
         Task<TestCaseSlaveHost?> QueryByCase(Guid caseID, Guid slaveHostID, CancellationToken cancellationToken = default);
+        Task<TestCaseSlaveHost?> QueryByID(Guid id, CancellationToken cancellationToken = default);
     }
 }
