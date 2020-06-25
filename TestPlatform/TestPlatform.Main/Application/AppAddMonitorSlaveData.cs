@@ -49,8 +49,8 @@ namespace FW.TestPlatform.Main.Application
                 influxDBRecord.Timestamp = ConvertToTimeStamp(model.Time);
                 influxDBRecord.Tags.Add("CaseID", model.CaseID);
                 influxDBRecord.Tags.Add("SlaveID", model.SlaveID);
-                influxDBRecord.Fields.Add("QPS", model.QPS);
-                influxDBRecord.Fields.Add("Time", model.Time);                
+                influxDBRecord.Tags.Add("Time", model.Time);
+                influxDBRecord.Fields.Add("QPS", model.QPS);                            
                 influxDBRecordList.Add(influxDBRecord);                
             }
             await influxDBEndpoint.AddDatas(InfluxDBParameters.DBName, influxDBRecordList);
