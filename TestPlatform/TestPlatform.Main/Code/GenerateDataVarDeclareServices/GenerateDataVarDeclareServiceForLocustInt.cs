@@ -18,7 +18,6 @@ namespace FW.TestPlatform.Main.Code.GenerateDataVarDeclareServices
             string result = $"{name} = {data}";
 
             return await Task.FromResult(result);
-            //return data;
         }
     }
 
