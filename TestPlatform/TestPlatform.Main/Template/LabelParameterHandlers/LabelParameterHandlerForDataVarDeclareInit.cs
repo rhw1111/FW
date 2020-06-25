@@ -18,6 +18,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
     ///要求context中的Parameters中
     ///包含EngineType参数，参数类型为string
     ///包含DataSourceVars参数，参数类型为List<ConfigurationDataForDataSourceVar>
+    [Injection(InterfaceType = typeof(LabelParameterHandlerForDataVarDeclareInit), Scope = InjectionScope.Singleton)]
     public class LabelParameterHandlerForDataVarDeclareInit : ILabelParameterHandler
     {
         private readonly ISelector<IFactory<IGenerateDataVarDeclareService>> _generateDataVarDeclareServiceFactorySelector;
@@ -28,6 +29,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
             _generateDataVarDeclareServiceFactorySelector = generateDataVarDeclareServiceFactorySelector;
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
+
         public async Task<string> Execute(TemplateContext context, string[] parameters)
         {
             if (!context.Parameters.TryGetValue(TemplateContextParameterNames.EngineType, out object? objEngineType))
@@ -61,7 +63,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             StringBuilder strCode = new StringBuilder();
             var separatorService = _getSeparatorServiceSelector.Choose(engineType).Create();
-            var strFuncSeparator = separatorService.GetFuncSeparator();
+            var strFuncSeparator = await separatorService.GetFuncSeparator();
         
             foreach (var item in dataSourceVars)
             {

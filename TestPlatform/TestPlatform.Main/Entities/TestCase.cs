@@ -9,6 +9,8 @@ using MSLibrary.Collections;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.Transaction;
 using FW.TestPlatform.Main.Entities.DAL;
+using FW.TestPlatform.Main.DTOModel;
+using MSLibrary.Serializer;
 
 namespace FW.TestPlatform.Main.Entities
 {
@@ -220,6 +222,11 @@ namespace FW.TestPlatform.Main.Entities
             await _imp.Add(this);
         }
 
+        public async Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default)
+        {
+            await _imp.AddHistory(model, cancellationToken);
+        }
+
         public async Task Update(CancellationToken cancellationToken = default)
         {
             await _imp.Update(this, cancellationToken);
@@ -292,7 +299,7 @@ namespace FW.TestPlatform.Main.Entities
         Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default);
         IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default);
         Task<TestCaseSlaveHost?> GetSlaveHost(TestCase tCase,Guid slaveHostID, CancellationToken cancellationToken = default);
-        Task AddHistory(TestCase tCase,TestCaseHistory history, CancellationToken cancellationToken = default);
+        Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default);
         Task UpdateHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default);
         Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default);
         Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default);
@@ -342,10 +349,42 @@ namespace FW.TestPlatform.Main.Entities
             await _testCaseStore.Add(tCase, cancellationToken);
         }
 
-        public async Task AddHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default)
+        //public async Task AddHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default)
+        //{
+        //    history.CaseID = tCase.ID;
+        //    await _testCaseHistoryRepository.Add(history, cancellationToken);
+        //}
+
+        public async Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default)
         {
-            history.CaseID = tCase.ID;
-            await _testCaseHistoryRepository.Add(history, cancellationToken);
+            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
+            {
+                TestCase? testCase = await _testCaseStore.QueryByID(model.CaseID);
+
+                if (testCase == null)
+                {
+                    var fragment = new TextFragment()
+                    {
+                        Code = TestPlatformTextCodes.NotFoundTestCaseByID,
+                        DefaultFormatting = "找不到ID为{0}的测试案例",
+                        ReplaceParameters = new List<object>() { model.CaseID }
+                    };
+
+                    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
+                }
+
+                //修改case状态为完成
+                await _testCaseStore.UpdateStatus(model.CaseID, TestCaseStatus.NoRun);
+
+                //保存历史
+                TestCaseHistory history = new TestCaseHistory();
+                history.CaseID = model.CaseID;
+                //history.Case = testCase;                
+                history.Summary = JsonSerializerHelper.Serializer(model);
+                await _testCaseHistoryRepository.Add(history);
+
+                scope.Complete();
+            }
         }
 
         public async Task AddSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
@@ -505,6 +544,7 @@ namespace FW.TestPlatform.Main.Entities
             {
                 await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.Running, cancellationToken);
                 var existsCases = await _testCaseStore.QueryCountNolockByStatus(TestCaseStatus.Running, hostIDs, cancellationToken);
+
                 if (existsCases.Count > 1)
                 {
 
@@ -517,6 +557,7 @@ namespace FW.TestPlatform.Main.Entities
 
                     throw new UtilityException((int)TestPlatformErrorCodes.TestHostHasRunning, fragment, 1, 0);
                 }
+
                 scope.Complete();
             }
 

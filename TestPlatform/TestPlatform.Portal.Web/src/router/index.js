@@ -8,7 +8,40 @@ export default new Router({
     {
       path: '/',
       name: 'index',
-      component: () => import('@/components/HelloWorld.vue')
-    }
+      component: () => import('@/pages/index.vue'),
+      children: [
+        {
+          path: '/TestCase',
+          name: 'TestCase',
+          component: () => import('@/pages/TestCase/index.vue'),
+        },
+        {
+          path: '/TestCase/Detail',
+          name: 'TestCaseDetail',
+          component: () => import('@/pages/TestCase/Detail.vue'),
+        },
+        {
+          path: '/TestCase/Detail/SlaveHostDetail',
+          name: 'SlaveHostDetail',
+          component: () => import('@/pages/TestCase/SlaveHostDetail.vue'),
+        },
+        {
+          path: '/TestCase/Detail/HistoryDetail',
+          name: 'HistoryDetail',
+          component: () => import('@/pages/TestCase/HistoryDetail.vue'),
+        },
+
+        {
+          path: '/TestDataSource',
+          name: 'TestDataSource',
+          component: () => import('@/pages/TestDataSource/index.vue'),
+          children: [{
+            path: '/TestDataSource/Detail',
+            name: 'TestDataSourceDetail',
+            component: () => import('@/pages/TestDataSource/Detail.vue'),
+          }]
+        }
+      ]
+    },
   ]
 })

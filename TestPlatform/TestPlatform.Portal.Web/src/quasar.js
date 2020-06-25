@@ -4,6 +4,7 @@ import './styles/quasar.scss'
 import 'quasar/dist/quasar.ie.polyfills'
 import '@quasar/extras/material-icons/material-icons.css'
 import {
+  // 组件
   Quasar,
   QLayout,
   QHeader,
@@ -18,7 +19,22 @@ import {
   QItem,
   QItemSection,
   QItemLabel,
+  QFab,
+  QFabAction,
+  QTabs,
+  QAvatar,
+  QRouteTab,
+  QDialog,
+  QCard,
+  QCardSection,
+  QSeparator,
+  QCardActions,
+  QCheckbox,
+  QInput,
+  QRadio,
+  // 事件
   Ripple,
+  ClosePopup,
 } from 'quasar'
 
 Vue.use(Quasar, {
@@ -37,9 +53,23 @@ Vue.use(Quasar, {
     QItem,
     QItemSection,
     QItemLabel,
+    QFab,
+    QFabAction,
+    QAvatar,
+    QTabs,
+    QRouteTab,
+    QDialog,
+    QCard,
+    QCardSection,
+    QSeparator,
+    QCardActions,
+    QCheckbox,
+    QInput,
+    QRadio,
   },
   directives: {
-    Ripple
+    Ripple,
+    ClosePopup,
   },
   plugins: {
   }
