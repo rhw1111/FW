@@ -202,6 +202,10 @@ namespace FW.TestPlatform.Main
     public static class LabelParameterTypes
     {
         public const string DataVarDeclareInit = "datavardeclareinit";
+        public const string AdditionFunc = "additionfunc";
+        public const string ConnectInit = "connectinit";
+        public const string SendInit = "sendinit";
+        public const string SendData = "senddata";
     }
 
     /// <summary>

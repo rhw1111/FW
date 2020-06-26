@@ -8,16 +8,11 @@ using MSLibrary.DI;
 namespace FW.TestPlatform.Main.Code.GenerateDataVarDeclareServices
 {
     /// <summary>
-    /// 针对Locust+String的数据变量声明代码块生成服务
+    /// 针对Locust+Json的数据变量声明代码块生成服务
     /// </summary>
     [Injection(InterfaceType = typeof(GenerateDataVarDeclareServiceForLocustJson), Scope = InjectionScope.Singleton)]
-    public class GenerateDataVarDeclareServiceForLocustJson : IGenerateDataVarDeclareService
+    public class GenerateDataVarDeclareServiceForLocustJson : GenerateDataVarDeclareServiceForLocust
     {
-        public async Task<string> Generate(string name, string data)
-        {
-            return await Task.FromResult(data);
-            //return data;
-        }
     }
 
 }

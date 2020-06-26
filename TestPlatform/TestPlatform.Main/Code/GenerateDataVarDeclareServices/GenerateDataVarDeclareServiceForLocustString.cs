@@ -11,12 +11,7 @@ namespace FW.TestPlatform.Main.Code.GenerateDataVarDeclareServices
     /// 针对Locust+String的数据变量声明代码块生成服务
     /// </summary>
     [Injection(InterfaceType = typeof(GenerateDataVarDeclareServiceForLocustString), Scope = InjectionScope.Singleton)]
-    public class GenerateDataVarDeclareServiceForLocustString : IGenerateDataVarDeclareService
+    public class GenerateDataVarDeclareServiceForLocustString : GenerateDataVarDeclareServiceForLocust
     {
-        public async Task<string> Generate(string name, string data)
-        {
-            return await Task.FromResult(data);
-            //return data;
-        }
     }
 }
