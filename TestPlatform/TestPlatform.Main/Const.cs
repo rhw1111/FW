@@ -14,11 +14,11 @@ namespace FW.TestPlatform.Main
         public const string ReadyTime = "ReadyTime";
         public const string Address = "Address";
         public const string Port = "Port";
+        public const string AdditionFuncNames = "AdditionFuncNames";
         public const string DataSourceVars = "DataSourceVars";
         public const string ConnectInit = "ConnectInit";
-        public const string Sendinit= "Sendinit";
-        public const string AdditionFuncNames = "AdditionFuncNames";
-
+        public const string SendInit = "SendInit";
+        public const string SendData = "SendData";
     }
 
     /// <summary>
@@ -202,7 +202,6 @@ namespace FW.TestPlatform.Main
     public static class LabelParameterTypes
     {
         public const string DataVarDeclareInit = "datavardeclareinit";
-        public const string AdditionFunc = "additionfunc";
         public const string ConnectInit = "connectinit";
         public const string SendInit = "sendinit";
         public const string SendData = "senddata";
