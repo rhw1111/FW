@@ -46,7 +46,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             var engineType = (string)objEngineType;
 
-            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.AdditionFuncNames, out object? objDataSourceVars))
+            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.AdditionFuncNames, out object? strVars))
             {
                 var fragment = new TextFragment()
                 {
@@ -58,17 +58,16 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.NotFoundParameterInTemplateContextByName, fragment, 1, 0);
             }
 
-            var dataSourceVars = (List<ConfigurationDataForDataSourceVar>)objDataSourceVars;
+            var vars = (List<string>)strVars;
 
 
             StringBuilder strCode = new StringBuilder();
             var separatorService = _getSeparatorServiceSelector.Choose(engineType).Create();
             var strFuncSeparator = await separatorService.GetFuncSeparator();
 
-            foreach (var item in dataSourceVars)
+            foreach (var item in vars)
             {
-                var funService = _generateDataVarDeclareServiceFactorySelector.Choose($"{engineType}-{item.Type}").Create();
-                strCode.Append(await funService.Generate(item.Name, item.Data));
+                strCode.Append(item);
                 strCode.Append(strFuncSeparator);
             }
 

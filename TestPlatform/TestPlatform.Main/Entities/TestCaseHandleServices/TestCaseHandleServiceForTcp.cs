@@ -37,6 +37,8 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         /// </summary>
         public static IList<string> AdditionFuncNames { get; } = new List<string>();
 
+        public static IList<string> SendData { get; } = new List<string>();
+
         public TestCaseHandleServiceForTcp(ITestDataSourceRepository testDataSourceRepository, IScriptTemplateRepository scriptTemplateRepository, ISSHEndpointRepository sshEndpointRepository)
         {
             _testDataSourceRepository = testDataSourceRepository;
@@ -137,7 +139,9 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             //将Tcp连接初始化脚本配置加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.ConnectInit, configuration.ConnectInit);
             //将Tcp发送前初始化脚本配置加入到模板上下文中
-            contextDict.Add(TemplateContextParameterNames.Sendinit, configuration.SendInit);
+            contextDict.Add(TemplateContextParameterNames.SendInit, configuration.SendInit);
+            //将Tcp发送数据加入到模板上下文中
+            contextDict.Add(TemplateContextParameterNames.SendData, configuration.SendData);
 
             //为DataSourceVars补充Data属性
 
@@ -345,6 +349,15 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         } = null!;
 
         /// <summary>
+        /// Tcp发送数据配置
+        /// </summary>
+        [DataMember]
+        public ConfigurationDataForTcpSendData SendData
+        {
+            get; set;
+        } = null!;
+
+        /// <summary>
         /// 请求体内容
         /// </summary>
         [DataMember]
@@ -392,6 +405,21 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
     /// </summary>
     [DataContract]
     public class ConfigurationDataForTcpSendInit
+    {
+        /// <summary>
+        /// 变量赋值配置
+        /// </summary>
+        public List<ConfigurationDataForVar> VarSettings
+        {
+            get; set;
+        } = new List<ConfigurationDataForVar>();
+    }
+
+    /// <summary>
+    /// Tcp发送数据配置
+    /// </summary>
+    [DataContract]
+    public class ConfigurationDataForTcpSendData
     {
         /// <summary>
         /// 变量赋值配置

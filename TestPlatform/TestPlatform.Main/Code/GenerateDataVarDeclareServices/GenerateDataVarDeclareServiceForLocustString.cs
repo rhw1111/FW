@@ -13,5 +13,11 @@ namespace FW.TestPlatform.Main.Code.GenerateDataVarDeclareServices
     [Injection(InterfaceType = typeof(GenerateDataVarDeclareServiceForLocustString), Scope = InjectionScope.Singleton)]
     public class GenerateDataVarDeclareServiceForLocustString : GenerateDataVarDeclareServiceForLocust
     {
+        public virtual async Task<string> Generate(string name, string data)
+        {
+            string result = $"{name} = \"{data}\"";
+
+            return await Task.FromResult(result);
+        }
     }
 }
