@@ -58,8 +58,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.NotFoundParameterInTemplateContextByName, fragment, 1, 0);
             }
 
-            var vars = (List<ConfigurationDataForVar>)objVars;
-
+            var vars = ((ConfigurationDataForTcpSendInit)objVars).VarSettings;
 
             StringBuilder strCode = new StringBuilder();
             var separatorService = _getSeparatorServiceSelector.Choose(engineType).Create();
@@ -67,9 +66,8 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             foreach (var item in vars)
             {
-                //var funService = _generateDataVarDeclareServiceFactorySelector.Choose($"{engineType}-{item.Type}").Create();
-                //strCode.Append(await funService.Generate(item.Name, item.Data));
-                //strCode.Append(strFuncSeparator);
+                strCode.Append($"{item.Name} = {item.Content}");
+                strCode.Append(strFuncSeparator);
             }
 
             return strCode.ToString();

@@ -46,7 +46,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             var engineType = (string)objEngineType;
 
-            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.SendData, out object? strVars))
+            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.SendData, out object? objVars))
             {
                 var fragment = new TextFragment()
                 {
@@ -58,7 +58,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.NotFoundParameterInTemplateContextByName, fragment, 1, 0);
             }
 
-            var vars = (List<ConfigurationDataForVar>)strVars;
+            var vars = ((ConfigurationDataForTcpSendData)objVars).VarSettings;
 
 
             StringBuilder strCode = new StringBuilder();
@@ -67,9 +67,8 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             foreach (var item in vars)
             {
-                //var funService = _generateDataVarDeclareServiceFactorySelector.Choose($"{engineType}-{item.Type}").Create();
-                //strCode.Append(await funService.Generate(item.Name, item.Data));
-                //strCode.Append(strFuncSeparator);
+                strCode.Append($"{item.Name} = {item.Content}");
+                strCode.Append(strFuncSeparator);
             }
 
             return strCode.ToString();

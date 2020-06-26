@@ -15,6 +15,7 @@ namespace FW.TestPlatform.Main
         public const string Address = "Address";
         public const string Port = "Port";
         public const string AdditionFuncNames = "AdditionFuncNames";
+        public const string AdditionFunc = "AdditionFunc";
         public const string DataSourceVars = "DataSourceVars";
         public const string ConnectInit = "ConnectInit";
         public const string SendInit = "SendInit";
@@ -201,6 +202,7 @@ namespace FW.TestPlatform.Main
     /// </summary>
     public static class LabelParameterTypes
     {
+        public const string AdditionFunc = "additionfunc";
         public const string DataVarDeclareInit = "datavardeclareinit";
         public const string ConnectInit = "connectinit";
         public const string SendInit = "sendinit";
@@ -216,4 +218,22 @@ namespace FW.TestPlatform.Main
         public const string Int = "Int";
         public const string Json = "Json";
     }
+
+    /// <summary>
+    /// 标签参数处理器类型
+    /// </summary>
+    public static class AdditionFuncNames
+    {
+        public const string NameOnceJsonData = "NameOnceJsonData";
+        public const string TcpRR = "TcpRR";
+        public const string TcpRRWithConnect = "TcpRRWithConnect";
+        public const string GetJsonRowData = "GetJsonRowData";
+        public const string GetNameSerialNo = "GetNameSerialNo";
+        public const string NumberFill = "NumberFill";
+        public const string IntRange = "IntRange";
+        public const string DecimalRange = "DecimalRange";
+        public const string RanJsonData = "RanJsonData";
+        public const string DesSecurity = "DesSecurity";
+    }
+
 }

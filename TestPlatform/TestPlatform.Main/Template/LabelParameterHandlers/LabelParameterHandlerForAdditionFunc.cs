@@ -46,13 +46,13 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             var engineType = (string)objEngineType;
 
-            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.AdditionFuncNames, out object? strVars))
+            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.AdditionFunc, out object? strVars))
             {
                 var fragment = new TextFragment()
                 {
                     Code = TextCodes.NotFoundParameterInTemplateContextByName,
                     DefaultFormatting = "在模板上下文中找不到名称为{0}的参数",
-                    ReplaceParameters = new List<object>() { TemplateContextParameterNames.AdditionFuncNames }
+                    ReplaceParameters = new List<object>() { TemplateContextParameterNames.AdditionFunc }
                 };
 
                 throw new UtilityException((int)Errors.NotFoundParameterInTemplateContextByName, fragment, 1, 0);
