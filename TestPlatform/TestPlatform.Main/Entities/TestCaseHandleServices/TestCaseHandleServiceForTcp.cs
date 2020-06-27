@@ -146,8 +146,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             contextDict.Add(TemplateContextParameterNames.ConnectInit, configuration.ConnectInit);
             //将Tcp发送前初始化脚本配置加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.SendInit, configuration.SendInit);
-            //将Tcp发送数据加入到模板上下文中
-            contextDict.Add(TemplateContextParameterNames.SendData, configuration.SendData);
             
 
 
@@ -361,14 +359,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             get; set;
         } = null!;
 
-        /// <summary>
-        /// Tcp发送数据配置
-        /// </summary>
-        [DataMember]
-        public ConfigurationDataForTcpSendData SendData
-        {
-            get; set;
-        } = null!;
 
         /// <summary>
         /// 请求体内容
@@ -430,21 +420,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         } = new List<ConfigurationDataForVar>();
     }
 
-    /// <summary>
-    /// Tcp发送数据配置
-    /// </summary>
-    [DataContract]
-    public class ConfigurationDataForTcpSendData
-    {
-        /// <summary>
-        /// 变量赋值配置
-        /// </summary>
-        [DataMember]
-        public List<ConfigurationDataForVar> VarSettings
-        {
-            get; set;
-        } = new List<ConfigurationDataForVar>();
-    }
+
 
     /// <summary>
     /// 变量赋值配置

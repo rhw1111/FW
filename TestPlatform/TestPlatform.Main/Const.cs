@@ -18,7 +18,6 @@ namespace FW.TestPlatform.Main
         public const string DataSourceVars = "DataSourceVars";
         public const string ConnectInit = "ConnectInit";
         public const string SendInit = "SendInit";
-        public const string SendData = "SendData";
 
         public const string CaseServiceBaseAddress = "CaseServiceBaseAddress";
         public const string CaseID = "CaseID";
