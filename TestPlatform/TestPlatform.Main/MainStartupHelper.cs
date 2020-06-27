@@ -113,6 +113,7 @@ using FW.TestPlatform.Main.Template.LabelParameterHandlers;
 using FW.TestPlatform.Main.Code;
 using FW.TestPlatform.Main.Code.GetSeparatorServices;
 using FW.TestPlatform.Main.Code.GenerateDataVarDeclareServices;
+using FW.TestPlatform.Main.Code.GenerateAdditionFuncServices;
 
 namespace FW.TestPlatform.Main
 {
@@ -271,11 +272,33 @@ namespace FW.TestPlatform.Main
             TestCaseIMP.HandleServiceFactories[EngineTypes.Http] = DIContainerContainer.Get<TestCaseHandleServiceForHttpFactory>();
             TestCaseIMP.HandleServiceFactories[EngineTypes.Tcp] = DIContainerContainer.Get<TestCaseHandleServiceForTcpFactory>();
 
+            TestCaseHandleServiceForTcp.AdditionFuncNames = new List<string> { 
+                AdditionFuncNames.NameOnceJsonData, 
+                AdditionFuncNames.TcpRR, 
+                AdditionFuncNames.TcpRRWithConnect,
+                AdditionFuncNames.GetJsonRowData,
+                AdditionFuncNames.GetNameSerialNo,
+                AdditionFuncNames.NumberFill,
+                AdditionFuncNames.IntRange,
+                AdditionFuncNames.DecimalRange,
+                AdditionFuncNames.RanJsonData,
+                AdditionFuncNames.DesSecurity };
+
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.NameOnceJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustNameOnceJsonDataFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.TcpRR}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustTcpRRFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.TcpRRWithConnect}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustTcpRRWithConnectFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.GetJsonRowData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustGetJsonRowDataFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.GetNameSerialNo}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustGetNameSerialNoFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.NumberFill}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustNumberFillFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.IntRange}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustIntRangeFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.DecimalRange}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustDecimalRangeFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.RanJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustRanJsonDataFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.DesSecurity}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustDesSecurityFactory>();
+
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataVarDeclareInit] = DIContainerContainer.Get<LabelParameterHandlerForDataVarDeclareInitFactory>();
-            LabelParameterIMP.HandlerFactories[LabelParameterTypes.AdditionFunc] = DIContainerContainer.Get<LabelParameterHandlerForAdditionFuncFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.ConnectInit] = DIContainerContainer.Get<LabelParameterHandlerForConnectInitFactory>();
-            LabelParameterIMP.HandlerFactories[LabelParameterTypes.SendInit] = DIContainerContainer.Get<LabelParameterHandlerForSendInitFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.SendData] = DIContainerContainer.Get<LabelParameterHandlerForSendDataFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.SendInit] = DIContainerContainer.Get<LabelParameterHandlerForSendInitFactory>();
 
             GetSeparatorServiceSelector.GetSeparatorServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSeparatorServiceForLocustFactory>();
 
