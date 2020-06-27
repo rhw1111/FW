@@ -26,7 +26,7 @@ namespace FW.TestPlatform.Main.Configuration
             var appConfiguration = ConfigurationContainer.Get<ApplicationConfiguration>(ConfigurationNames.Application);
             var configurationName = string.Format(SystemConfigurationItemNames.ApplicationCrosOrigin, appConfiguration.ApplicationName);
             var appCrosOrigin = systemConfigurationRepositoryCacheProxy.QueryByName(configurationName);
-            if (appConfiguration == null)
+            if (appCrosOrigin == null)
             {
                 var fragment = new TextFragment()
                 {
@@ -45,6 +45,30 @@ namespace FW.TestPlatform.Main.Configuration
         public async Task<string[]> GetApplicationCrosOriginAsync(CancellationToken cancellationToken = default)
         {
             return await Task.FromResult(GetApplicationCrosOrigin(cancellationToken));
+        }
+
+        public string GetCaseServiceBaseAddress(CancellationToken cancellationToken = default)
+        {
+            var systemConfigurationRepositoryCacheProxy = DIContainerContainer.Get<ISystemConfigurationRepositoryCacheProxy>();
+            var appConfiguration = systemConfigurationRepositoryCacheProxy.QueryByName(SystemConfigurationItemNames.CaseServiceBaseAddress);
+            if (appConfiguration == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.NotFoundSystemConfigurationByName,
+                    DefaultFormatting = "找不到名称为{0}的系统配置",
+                    ReplaceParameters = new List<object>() { SystemConfigurationItemNames.CaseServiceBaseAddress }
+                };
+
+                throw new UtilityException((int)Errors.NotFoundSystemConfigurationByName, fragment, 1, 0);
+            }
+
+            return appConfiguration.GetConfigurationValue<string>();
+        }
+
+        public async Task<string> GetCaseServiceBaseAddressAsync(CancellationToken cancellationToken = default)
+        {
+            return await Task.FromResult(GetCaseServiceBaseAddress(cancellationToken));
         }
 
         public string GetConnectionString(string name, CancellationToken cancellationToken)

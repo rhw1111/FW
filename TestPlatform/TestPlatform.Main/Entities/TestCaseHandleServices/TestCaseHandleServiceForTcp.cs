@@ -14,7 +14,7 @@ using MSLibrary.Serializer;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.CommandLine.SSH;
 using FW.TestPlatform.Main.Template.LabelParameterHandlers;
-
+using FW.TestPlatform.Main.Configuration;
 
 namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 {
@@ -29,21 +29,21 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         private readonly ITestDataSourceRepository _testDataSourceRepository;
         private readonly IScriptTemplateRepository _scriptTemplateRepository;
         private readonly ISSHEndpointRepository _sshEndpointRepository;
+        private readonly ISystemConfigurationService _systemConfigurationService;
 
 
         /// <summary>
         /// 要使用的附加函数名称集合
         /// 系统初始化时注入
         /// </summary>
-        public static IList<string> AdditionFuncNames { get; } = new List<string>();
+        public static IList<string> AdditionFuncNames { get; set; } = new List<string>();
 
-        public static IList<string> SendData { get; } = new List<string>();
-
-        public TestCaseHandleServiceForTcp(ITestDataSourceRepository testDataSourceRepository, IScriptTemplateRepository scriptTemplateRepository, ISSHEndpointRepository sshEndpointRepository)
+        public TestCaseHandleServiceForTcp(ITestDataSourceRepository testDataSourceRepository, IScriptTemplateRepository scriptTemplateRepository, ISSHEndpointRepository sshEndpointRepository, ISystemConfigurationService systemConfigurationService)
         {
             _testDataSourceRepository = testDataSourceRepository;
             _scriptTemplateRepository = scriptTemplateRepository;
             _sshEndpointRepository = sshEndpointRepository;
+            _systemConfigurationService = systemConfigurationService;
         }
 
         public async Task<string> GetMasterLog(TestHost host, CancellationToken cancellationToken = default)
@@ -117,8 +117,14 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundScriptTemplateByName, fragment, 1, 0);
             }
 
+            var caseServiceBaseAddress = await _systemConfigurationService.GetCaseServiceBaseAddressAsync(cancellationToken);
+
             var contextDict= new Dictionary<string, object>();
 
+            //将CaseID加入到模板上下文中
+            contextDict.Add(TemplateContextParameterNames.CaseID, tCase.ID);
+            //将CaseService基地址加入到模板上下文中
+            contextDict.Add(TemplateContextParameterNames.CaseServiceBaseAddress, caseServiceBaseAddress);
             //将引擎类型加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.EngineType, RuntimeEngineTypes.Locust);
             //将请求体模板加入到模板上下文中
@@ -140,8 +146,8 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             contextDict.Add(TemplateContextParameterNames.ConnectInit, configuration.ConnectInit);
             //将Tcp发送前初始化脚本配置加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.SendInit, configuration.SendInit);
-            //将Tcp发送数据加入到模板上下文中
-            contextDict.Add(TemplateContextParameterNames.SendData, configuration.SendData);
+            
+
 
             //为DataSourceVars补充Data属性
 
@@ -172,12 +178,17 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             //生成代码
             var strCode=await scriptTemplate.GenerateScript(contextDict, cancellationToken);
 
+            // 替换生成代码中的固定标签
+            strCode = strCode.Replace("{Address}", configuration.Address);
+            strCode = strCode.Replace("{Port}", configuration.Port.ToString());
+            strCode = strCode.Replace("{CaseName}", tCase.Name);
+            strCode = strCode.Replace("{ResponseSeparator}", configuration.ResponseSeparator);
 
             //代码模板必须有一个格式为{SlaveName}的替换符，该替换符标识每个Slave
 
 
             //获取测试用例的主测试机，上传测试代码
-            using (var textStream=new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}","Master"))))
+            using (var textStream=new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}", "Master"))))
             {
                 await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{_testFilePath}{string.Format(_testFileName,string.Empty)}", cancellationToken);
                 textStream.Close();
@@ -348,14 +359,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             get; set;
         } = null!;
 
-        /// <summary>
-        /// Tcp发送数据配置
-        /// </summary>
-        [DataMember]
-        public ConfigurationDataForTcpSendData SendData
-        {
-            get; set;
-        } = null!;
 
         /// <summary>
         /// 请求体内容
@@ -394,6 +397,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         /// <summary>
         /// 变量赋值配置
         /// </summary>
+        [DataMember]
         public List<ConfigurationDataForVar> VarSettings
         {
             get; set;
@@ -409,26 +413,14 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         /// <summary>
         /// 变量赋值配置
         /// </summary>
+        [DataMember]
         public List<ConfigurationDataForVar> VarSettings
         {
             get; set;
         } = new List<ConfigurationDataForVar>();
     }
 
-    /// <summary>
-    /// Tcp发送数据配置
-    /// </summary>
-    [DataContract]
-    public class ConfigurationDataForTcpSendData
-    {
-        /// <summary>
-        /// 变量赋值配置
-        /// </summary>
-        public List<ConfigurationDataForVar> VarSettings
-        {
-            get; set;
-        } = new List<ConfigurationDataForVar>();
-    }
+
 
     /// <summary>
     /// 变量赋值配置
@@ -438,6 +430,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
     {
         [DataMember]
         public string Name { get; set; } = null!;
+
         [DataMember]
         public string Content { get; set; } = null!;
     }

@@ -46,31 +46,13 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             var engineType = (string)objEngineType;
 
-            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.SendData, out object? strVars))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TextCodes.NotFoundParameterInTemplateContextByName,
-                    DefaultFormatting = "在模板上下文中找不到名称为{0}的参数",
-                    ReplaceParameters = new List<object>() { TemplateContextParameterNames.SendData }
-                };
-
-                throw new UtilityException((int)Errors.NotFoundParameterInTemplateContextByName, fragment, 1, 0);
-            }
-
-            var vars = (List<ConfigurationDataForVar>)strVars;
 
 
             StringBuilder strCode = new StringBuilder();
             var separatorService = _getSeparatorServiceSelector.Choose(engineType).Create();
             var strFuncSeparator = await separatorService.GetFuncSeparator();
 
-            foreach (var item in vars)
-            {
-                //var funService = _generateDataVarDeclareServiceFactorySelector.Choose($"{engineType}-{item.Type}").Create();
-                //strCode.Append(await funService.Generate(item.Name, item.Data));
-                //strCode.Append(strFuncSeparator);
-            }
+
 
             return strCode.ToString();
         }

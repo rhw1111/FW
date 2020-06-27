@@ -22,5 +22,4 @@ namespace FW.TestPlatform.Main.Code.GenerateDataVarDeclareServices
             return _generateDataVarDeclareServiceForLocust;
         }
     }
-
 }
