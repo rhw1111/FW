@@ -24,5 +24,18 @@ namespace FW.TestPlatform.Main.Configuration
         string[] GetApplicationCrosOrigin(CancellationToken cancellationToken = default);
         Task<string[]> GetApplicationCrosOriginAsync(CancellationToken cancellationToken = default);
 
+        /// <summary>
+        /// 获取CaseService服务的基地址
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        string GetCaseServiceBaseAddress(CancellationToken cancellationToken = default);
+        /// <summary>
+        /// 获取CaseService服务的基地址（异步）
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<string> GetCaseServiceBaseAddressAsync(CancellationToken cancellationToken = default);
+
     }
 }

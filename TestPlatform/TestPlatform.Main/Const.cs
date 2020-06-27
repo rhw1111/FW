@@ -58,6 +58,7 @@ namespace FW.TestPlatform.Main
         /// {0}为应用程序名称
         /// </summary>
         public const string ApplicationCrosOrigin = "{0}_CrosOrigin";
+        public const string CaseServiceBaseAddress = "CaseServiceBaseAddress";
     }
 
     /// <summary>
