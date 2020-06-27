@@ -47,16 +47,10 @@ const action = ({
 }
 
 
-//获得函件数据
-export const postGetData = payload =>
+
+export const getbypage = payload =>
   action({
-    apiName: 'postGetData',
-    payload
-  })
-//获得IAMtoken
-export const getIamToken = payload =>
-  action({
-    apiName: 'getIamToken',
+    apiName: 'getbypage',
     payload
   })
 

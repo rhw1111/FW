@@ -68,6 +68,7 @@
 </template>
 
 <script>
+import * as Apis from "@/api/index"
 export default {
   name: 'TestCase',
   data () {
@@ -94,6 +95,13 @@ export default {
   },
   mounted () {
     console.log(this.$route)
+    let para = {
+      matchName: 'aaa',
+      page: 1
+    }
+    Apis.getbypage(para).then((res) => {
+      console.log(res)
+    })
   },
   methods: {
 
