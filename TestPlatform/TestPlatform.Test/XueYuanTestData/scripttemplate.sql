@@ -1,10 +1,10 @@
 SELECT * FROM tpmain.scripttemplate;
 
-insert into tpmain.scripttemplate
-values('9adb8033-f28a-43a1-b396-0f36307b213b', 'LocustTcp', '', now(), now(), '1');
+INSERT INTO tpmain.scripttemplate
+VALUES('9adb8033-f28a-43a1-b396-0f36307b213b', 'LocustTcp', '', now(), now(), '1');
 
-update tpmain.scripttemplate
-set content = '# !/usr/bin/env python3
+UPDATE tpmain.scripttemplate
+SET content = '# !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 import time
@@ -1144,7 +1144,7 @@ class TcpTestUser(User):
 
         self.reset_data()
 '
-where id = '9adb8033-f28a-43a1-b396-0f36307b213b';
+WHERE id = '9adb8033-f28a-43a1-b396-0f36307b213b';
 
 
 
