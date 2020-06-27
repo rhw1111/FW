@@ -181,7 +181,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             // 替换生成代码中的固定标签
             strCode = strCode.Replace("{Address}", configuration.Address);
             strCode = strCode.Replace("{Port}", configuration.Port.ToString());
-            strCode = strCode.Replace("{CaseName}", tCase.Name);
+            strCode = strCode.Replace("{CaseID}", tCase.ID.ToString());
             strCode = strCode.Replace("{ResponseSeparator}", configuration.ResponseSeparator);
 
             //代码模板必须有一个格式为{SlaveName}的替换符，该替换符标识每个Slave
