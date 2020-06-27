@@ -14,7 +14,7 @@ using MSLibrary.Serializer;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.CommandLine.SSH;
 using FW.TestPlatform.Main.Template.LabelParameterHandlers;
-
+using FW.TestPlatform.Main.Configuration;
 
 namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 {
@@ -29,6 +29,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         private readonly ITestDataSourceRepository _testDataSourceRepository;
         private readonly IScriptTemplateRepository _scriptTemplateRepository;
         private readonly ISSHEndpointRepository _sshEndpointRepository;
+        private readonly ISystemConfigurationService _systemConfigurationService;
 
 
         /// <summary>
@@ -37,11 +38,12 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         /// </summary>
         public static IList<string> AdditionFuncNames { get; set; } = new List<string>();
 
-        public TestCaseHandleServiceForTcp(ITestDataSourceRepository testDataSourceRepository, IScriptTemplateRepository scriptTemplateRepository, ISSHEndpointRepository sshEndpointRepository)
+        public TestCaseHandleServiceForTcp(ITestDataSourceRepository testDataSourceRepository, IScriptTemplateRepository scriptTemplateRepository, ISSHEndpointRepository sshEndpointRepository, ISystemConfigurationService systemConfigurationService)
         {
             _testDataSourceRepository = testDataSourceRepository;
             _scriptTemplateRepository = scriptTemplateRepository;
             _sshEndpointRepository = sshEndpointRepository;
+            _systemConfigurationService = systemConfigurationService;
         }
 
         public async Task<string> GetMasterLog(TestHost host, CancellationToken cancellationToken = default)
@@ -115,8 +117,14 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundScriptTemplateByName, fragment, 1, 0);
             }
 
+            var caseServiceBaseAddress = await _systemConfigurationService.GetCaseServiceBaseAddressAsync(cancellationToken);
+
             var contextDict= new Dictionary<string, object>();
 
+            //将CaseID加入到模板上下文中
+            contextDict.Add(TemplateContextParameterNames.CaseID, tCase.ID);
+            //将CaseService基地址加入到模板上下文中
+            contextDict.Add(TemplateContextParameterNames.CaseServiceBaseAddress, caseServiceBaseAddress);
             //将引擎类型加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.EngineType, RuntimeEngineTypes.Locust);
             //将请求体模板加入到模板上下文中
@@ -140,6 +148,8 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             contextDict.Add(TemplateContextParameterNames.SendInit, configuration.SendInit);
             //将Tcp发送数据加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.SendData, configuration.SendData);
+            
+
 
             //为DataSourceVars补充Data属性
 

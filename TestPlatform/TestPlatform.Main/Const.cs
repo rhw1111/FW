@@ -15,11 +15,13 @@ namespace FW.TestPlatform.Main
         public const string Address = "Address";
         public const string Port = "Port";
         public const string AdditionFuncNames = "AdditionFuncNames";
-        public const string AdditionFunc = "AdditionFunc";
         public const string DataSourceVars = "DataSourceVars";
         public const string ConnectInit = "ConnectInit";
         public const string SendInit = "SendInit";
         public const string SendData = "SendData";
+
+        public const string CaseServiceBaseAddress = "CaseServiceBaseAddress";
+        public const string CaseID = "CaseID";
     }
 
     /// <summary>
