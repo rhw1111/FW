@@ -218,31 +218,15 @@ namespace TestPlatform.Test
             TestCase testCase = new TestCase()
             {
                 ID = new Guid("cae64c27-8e87-4a38-b94a-32a47a7eea63"),
-                MasterHostID = new Guid("822114cf-5277-4667-961f-e231f9e67e4d"),
-                OwnerID = new Guid("46f8bcca-af6e-11ea-8e6a-0242ac110002"),
-                EngineType = EngineTypes.Tcp,
-                Name = "Case1",
-                Configuration = "",
-                Status = TestCaseStatus.NoRun
             };
 
             var testCaseStore = DIContainerContainer.Get<ITestCaseStore>();
-
             var testCaseRunner = await testCaseStore.QueryByID(testCase.ID);
 
-            if (testCaseRunner == null)
+            if (testCaseRunner != null)
             {
-                var fragment = new TextFragment()
-                {
-                    Code = TestPlatformTextCodes.NotFoundTestCaseByID,
-                    DefaultFormatting = "找不到Id为{0}的测试案例",
-                    ReplaceParameters = new List<object>() { testCase.ID.ToString() }
-                };
-
-                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
+                await testCaseRunner.Run();
             }
-
-            await testCaseRunner.Run();
 
             Assert.Pass();
         }

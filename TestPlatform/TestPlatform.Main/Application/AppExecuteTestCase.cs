@@ -104,11 +104,11 @@ namespace FW.TestPlatform.Main.Application
             };
             return result;
         }
-        public async Task AddSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
+        public async Task AddSlaveHost(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
             TestCase source = new TestCase()
             {
-                ID = tCase.ID
+                ID = slaveHost.TestCaseID
             };
             await source.AddSlaveHost(slaveHost, cancellationToken);
         }
@@ -164,28 +164,22 @@ namespace FW.TestPlatform.Main.Application
 
         public async Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
         {
-            TestCase source = new TestCase()
-            {
-                ID = tCase.ID
-            };
+            TestCase source = new TestCase();
             return await source.GetHistory(historyID, cancellationToken);
         }
 
         public async Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
         {
-            TestCase source = new TestCase()
-            {
-                ID = tCase.ID
-            };
+            TestCase source = new TestCase();
             await source.DeleteHistory(historyID, cancellationToken);
         }
 
-        public async Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
+        public async Task UpdateSlaveHost(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
             TestCase source = new TestCase()
             {
-                ID = tCase.ID,
-                Status = tCase.Status
+                ID = slaveHost.TestCaseID,
+                Status = slaveHost.TestCase.Status
             };
             await source.UpdateSlaveHost(slaveHost, cancellationToken);
         }

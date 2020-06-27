@@ -87,7 +87,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
                     result = await (from item in dbContext.TestCases
                                     where item.ID == id
-                                    select item).FirstOrDefaultAsync();
+                                    select item).Include(u => u.MasterHost).Include(u => u.MasterHost.SSHEndpoint).FirstOrDefaultAsync();
                 }
             });
 
