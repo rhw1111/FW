@@ -18,13 +18,15 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
     ///要求context中的Parameters中
     ///包含EngineType参数，参数类型为string
     ///包含DataSourceVars参数，参数类型为List<ConfigurationDataForDataSourceVar>
-    [Injection(InterfaceType = typeof(LabelParameterHandlerForConnectInit), Scope = InjectionScope.Singleton)]
-    public class LabelParameterHandlerForConnectInit : ILabelParameterHandler
+    [Injection(InterfaceType = typeof(LabelParameterHandlerForAdditionFunc), Scope = InjectionScope.Singleton)]
+    public class LabelParameterHandlerForAdditionFunc : ILabelParameterHandler
     {
+        private readonly ISelector<IFactory<IGenerateAdditionFuncService>> _generateAdditionFuncServiceFactorySelector;
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForConnectInit(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForAdditionFunc(ISelector<IFactory<IGenerateAdditionFuncService>> generateAdditionFuncServiceFactorySelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
+            _generateAdditionFuncServiceFactorySelector = generateAdditionFuncServiceFactorySelector;
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
 

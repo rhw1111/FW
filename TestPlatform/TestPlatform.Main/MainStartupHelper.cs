@@ -295,7 +295,8 @@ namespace FW.TestPlatform.Main
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.RanJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustRanJsonDataFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.DesSecurity}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustDesSecurityFactory>();
 
-            LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataVarDeclareInit] = DIContainerContainer.Get<LabelParameterHandlerForDataVarDeclareInitFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.AdditionFunc] = DIContainerContainer.Get<LabelParameterHandlerForDataVarDeclareInitFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataVarDeclareInit] = DIContainerContainer.Get<LabelParameterHandlerForAdditionFuncFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.ConnectInit] = DIContainerContainer.Get<LabelParameterHandlerForConnectInitFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.SendData] = DIContainerContainer.Get<LabelParameterHandlerForSendDataFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.SendInit] = DIContainerContainer.Get<LabelParameterHandlerForSendInitFactory>();

@@ -21,12 +21,10 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
     [Injection(InterfaceType = typeof(LabelParameterHandlerForSendInit), Scope = InjectionScope.Singleton)]
     public class LabelParameterHandlerForSendInit : ILabelParameterHandler
     {
-        private readonly ISelector<IFactory<IGenerateDataVarDeclareService>> _generateDataVarDeclareServiceFactorySelector;
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForSendInit(ISelector<IFactory<IGenerateDataVarDeclareService>> generateDataVarDeclareServiceFactorySelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForSendInit(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
-            _generateDataVarDeclareServiceFactorySelector = generateDataVarDeclareServiceFactorySelector;
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
 
