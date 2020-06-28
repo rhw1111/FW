@@ -16,8 +16,9 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
         {
             StringBuilder sbCode = new StringBuilder();
             sbCode.AppendLine("def IntRange(min, max):");
-            sbCode.AppendLine(" print(\"IntRange\")");
-            sbCode.AppendLine(" return \"\"");
+            sbCode.AppendLine("    print(\"IntRange\")");
+            sbCode.AppendLine("    return \"\"");
+            sbCode.AppendLine("");
 
             return await Task.FromResult(sbCode.ToString());
         }

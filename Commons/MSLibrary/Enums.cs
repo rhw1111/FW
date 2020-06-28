@@ -355,20 +355,30 @@ namespace MSLibrary
         /// 找不到指定名称的标签参数处理器
         /// </summary>
         NotFoundLabelParameterHandlerByName = 314720150,
-
         /// <summary>
         /// 指定标签参数的个数不正确
         /// </summary>
         LabelParameterCountError = 314720151,
-
         /// <summary>
         /// 指定标签参数的个数要求最小数量
         /// </summary>
         LabelParameterCountRequireMin = 314720152,
         /// <summary>
+        /// 指定系统模板参数名称标签标签参数类型错误
+        /// </summary>
+        LabelParameterTypeError = 314720153,
+        /// <summary>
+        /// 指定系统模板参数名称标签标签最小值和最大值错误
+        /// </summary>
+        LabelParameterMinMaxError = 314720154,
+        /// <summary>
+        /// 指定系统模板参数名称标签标签加密算法Key错误
+        /// </summary>
+        LabelParameterDesSecurityKeyError = 314720155,
+        /// <summary>
         /// 在模板上下文中找不到指定名称的参数
         /// </summary>
-        NotFoundParameterInTemplateContextByName= 314720169,
+        NotFoundParameterInTemplateContextByName = 314720169,
         /// <summary>
         /// 找不到指定名称的系统模板
         /// </summary>

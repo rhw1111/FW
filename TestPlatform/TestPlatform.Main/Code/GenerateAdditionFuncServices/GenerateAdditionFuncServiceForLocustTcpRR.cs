@@ -16,8 +16,9 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
         {
             StringBuilder sbCode = new StringBuilder();
             sbCode.AppendLine("def TcpRR(address, senddata, receivereg):");
-            sbCode.AppendLine(" print(\"TcpRR\")");
-            sbCode.AppendLine(" return \"\"");
+            sbCode.AppendLine("    print(\"TcpRR\")");
+            sbCode.AppendLine("    return \"\"");
+            sbCode.AppendLine("");
 
             return await Task.FromResult(sbCode.ToString());
         }

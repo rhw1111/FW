@@ -49,12 +49,12 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
             {
                 var fragment = new TextFragment()
                 {
-                    Code = TextCodes.NotFoundParameterInTemplateContextByName,
+                    Code = TextCodes.LabelParameterCountError,
                     DefaultFormatting = "在模板上下文中找不到名称为{0}的参数",
                     ReplaceParameters = new List<object>() { TemplateContextParameterNames.ConnectInit }
                 };
 
-                throw new UtilityException((int)Errors.NotFoundParameterInTemplateContextByName, fragment, 1, 0);
+                throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
             }
 
             var vars = (List<string>)objVars;

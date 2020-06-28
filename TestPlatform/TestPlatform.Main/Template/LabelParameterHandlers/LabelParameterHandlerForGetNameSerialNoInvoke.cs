@@ -43,13 +43,23 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             var engineType = (string)objEngineType;
 
-
-
             StringBuilder strCode = new StringBuilder();
             var separatorService = _getSeparatorServiceSelector.Choose(engineType).Create();
             var strFuncSeparator = await separatorService.GetFuncSeparator();
 
+            if (parameters.Length < 3)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.LabelParameterCountError,
+                    DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
+                    ReplaceParameters = new List<object>() { "{$getnameserialnoinvoke(name,type,start)}", 3, parameters.Length }
+                };
 
+                throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
+            }
+
+            strCode.Append($"GetNameSerialNo({parameters[0]}, {parameters[1]}, {parameters[2]})");
 
             return strCode.ToString();
         }
