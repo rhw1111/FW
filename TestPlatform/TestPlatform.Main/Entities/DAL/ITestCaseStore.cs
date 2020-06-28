@@ -23,6 +23,6 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
         Task<TestCase?> QueryByName(string name, CancellationToken cancellationToken = default);
         Task<IList<TestCase>> QueryByNames(IList<string> names, CancellationToken cancellationToken = default);
-
+        Task<QueryResult<TestCase>> QueryByPage(int page, int pageSize, CancellationToken cancellationToken = default);
     }
 }

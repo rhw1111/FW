@@ -8,6 +8,7 @@ using FW.TestPlatform.Main.Application;
 using FW.TestPlatform.Main.DTOModel;
 using MSLibrary;
 using FW.TestPlatform.Main.Entities;
+using MSLibrary.Security.RequestController;
 
 namespace FW.TestPlatform.Portal.Api.Controllers
 {
@@ -36,6 +37,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             return await _appQueryTestCase.Do(matchName, page, _pageSize);
         }
 
+        [HttpGet("gettestcsesbypage")]
+        public async Task<QueryResult<TestCaseViewData>> GetByPage(int page, int pageSize)
+        {
+            return await _appQueryTestCase.GetByPage(page, _pageSize);
+        }
+
         [HttpGet("getcase")]
         public async Task<TestCaseViewData?> GetCase(Guid id)
         {
@@ -55,11 +62,15 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         }
 
         [HttpDelete("delete")]
-        public async Task<TestCaseViewData> Delete(TestCaseAddModel model)
+        public async Task<TestCaseViewData> Delete(Guid id)
         {
             try
             {
-                return await _appAddTestCase.Delete(model);
+                TestCase source = new TestCase()
+                {
+                    ID = id
+                };
+                return await _appAddTestCase.Delete(source);
             }
             catch(Exception ex)
             {
@@ -68,11 +79,14 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         }
 
         [HttpGet("gethosts")]
-        public async Task<QueryResult<TestHostViewData>> GetHosts()
+        public async Task<List<TestHostViewData>> GetHosts()
         {
             try
             {
-                return await _appQueryTestHost.GetHosts();
+                //RequestResult<QueryResult<TestHostViewData>> requestRel = new RequestResult<QueryResult<TestHostViewData>>();
+                
+                List<TestHostViewData> result = await _appQueryTestHost.GetHosts();
+                return result;
             }
             catch (Exception ex)
             {
@@ -95,17 +109,17 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             return await _appExecuteTestCase.IsEngineRun(model);
         }
         [HttpPost("addslavehost")]
-        public async Task AddSlaveHost(TestCaseSlaveHost slaveHost)
+        public async Task AddSlaveHost(TestCaseSlaveHostAddModel slaveHost)
         {
             await _appExecuteTestCase.AddSlaveHost(slaveHost);
         }
         [HttpPost("GetAllSlaveHosts")]
-        public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCaseAddModel tCase)
+        public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(Guid caseId)
         {
-            return _appExecuteTestCase.GetAllSlaveHosts(tCase);
+            return _appExecuteTestCase.GetAllSlaveHosts(caseId);
         }
         [HttpPut("UpdateSlaveHost")]
-        public async Task UpdateSlaveHost(TestCaseSlaveHost slaveHost)
+        public async Task UpdateSlaveHost(TestCaseSlaveHostAddModel slaveHost)
         {
             await _appExecuteTestCase.UpdateSlaveHost(slaveHost);
         }
@@ -117,24 +131,17 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         [HttpDelete("DeleteHistory")]
         public async Task DeleteHistory(Guid historyID)
         {
-            TestCase tCase = new TestCase();
-            await _appExecuteTestCase.DeleteHistory(tCase, historyID);
+            await _appExecuteTestCase.DeleteHistory(historyID);
         }
         [HttpDelete("DeleteSlaveHost")]
-        public async Task DeleteSlaveHost(TestCaseSlaveHost tCaseSlaveHost)
+        public async Task DeleteSlaveHost(Guid slaveHostId)
         {
-            TestCase tCase = new TestCase()
-            {
-                ID = tCaseSlaveHost.TestCaseID,
-                Status = tCaseSlaveHost.TestCase.Status
-            };
-            await _appExecuteTestCase.DeleteSlaveHost(tCase, tCaseSlaveHost.ID);
+            await _appExecuteTestCase.DeleteSlaveHost(slaveHostId);
         }
         [HttpDelete("GetHistory")]
         public async Task<TestCaseHistory?> GetHistory(Guid historyID)
         {
-            TestCase tCase = new TestCase();
-            return await _appExecuteTestCase.GetHistory(tCase, historyID);
+            return await _appExecuteTestCase.GetHistory(historyID);
         }
     }
 }

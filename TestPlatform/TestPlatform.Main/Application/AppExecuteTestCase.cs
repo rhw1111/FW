@@ -104,52 +104,34 @@ namespace FW.TestPlatform.Main.Application
             };
             return result;
         }
-        public async Task AddSlaveHost(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
+        public async Task AddSlaveHost(TestCaseSlaveHostAddModel slaveHost, CancellationToken cancellationToken = default)
         {
             TestCase source = new TestCase()
             {
                 ID = slaveHost.TestCaseID
             };
-            await source.AddSlaveHost(slaveHost, cancellationToken);
+            TestCaseSlaveHost testCaseSlaveHost = new TestCaseSlaveHost()
+            {
+                SlaveName = slaveHost.SlaveName,
+                ExtensionInfo = slaveHost.ExtensionInfo,
+                HostID = slaveHost.HostID,
+                TestCaseID = slaveHost.TestCaseID,
+                Count = slaveHost.Count
+            };
+            await source.AddSlaveHost(testCaseSlaveHost, cancellationToken);
         }
-        public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCaseAddModel model, CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(Guid caseId, CancellationToken cancellationToken = default)
         {
-            //TestCaseSlaveHostViewData viewData = new TestCaseSlaveHostViewData()
-            //{
-            //    ID = item.ID,
-            //    SlaveName = item.SlaveName,
-            //    Count = item.Count,
-            //    ExtensionInfo = item.ExtensionInfo,
-            //    Host = item.Host,
-            //    TestCase = item.TestCase,
-            //    ModifyTime = item.ModifyTime,
-            //    CreateTime = item.CreateTime
-            //};
             TestCase source = new TestCase()
             {
-                ID = model.ID,
-                Name = model.Name,
-                OwnerID = model.OwnerID,
-                EngineType = model.EngineType,
-                MasterHostID = model.MasterHostID,
-                Configuration = model.Configuration,
-                Status = model.Status
+                ID = caseId
             };
             return source.GetAllSlaveHosts(cancellationToken);
         }
 
-        public async Task DeleteSlaveHost(TestCase model, Guid slaveHostID, CancellationToken cancellationToken = default)
+        public async Task DeleteSlaveHost(Guid slaveHostID, CancellationToken cancellationToken = default)
         {
-            TestCase source = new TestCase()
-            {
-                ID = model.ID,
-                Name = model.Name,
-                OwnerID = model.OwnerID,
-                EngineType = model.EngineType,
-                MasterHostID = model.MasterHostID,
-                Configuration = model.Configuration,
-                Status = model.Status
-            };
+            TestCase source = new TestCase();
             await source.DeleteSlaveHost(slaveHostID, cancellationToken);
         }
 
@@ -162,26 +144,35 @@ namespace FW.TestPlatform.Main.Application
            return await source.GetHistories(caseID, page, pageSize, cancellationToken);
         }
 
-        public async Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
+        public async Task<TestCaseHistory?> GetHistory(Guid historyID, CancellationToken cancellationToken = default)
         {
             TestCase source = new TestCase();
             return await source.GetHistory(historyID, cancellationToken);
         }
 
-        public async Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
+        public async Task DeleteHistory(Guid historyID, CancellationToken cancellationToken = default)
         {
             TestCase source = new TestCase();
             await source.DeleteHistory(historyID, cancellationToken);
         }
 
-        public async Task UpdateSlaveHost(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
+        public async Task UpdateSlaveHost(TestCaseSlaveHostAddModel slaveHost, CancellationToken cancellationToken = default)
         {
             TestCase source = new TestCase()
             {
-                ID = slaveHost.TestCaseID,
-                Status = slaveHost.TestCase.Status
+                ID = slaveHost.TestCaseID
             };
-            await source.UpdateSlaveHost(slaveHost, cancellationToken);
+            TestCaseSlaveHost tCaseSlaveHost = new TestCaseSlaveHost() {
+                ID = slaveHost.ID,
+                TestCaseID = slaveHost.TestCaseID,
+                HostID = slaveHost.TestCaseID,
+                Count = slaveHost.Count,
+                ExtensionInfo = slaveHost.ExtensionInfo,
+                SlaveName = slaveHost.SlaveName,
+                CreateTime = DateTime.UtcNow,
+                ModifyTime = DateTime.UtcNow
+            };
+            await source.UpdateSlaveHost(tCaseSlaveHost, cancellationToken);
         }
     }
 }

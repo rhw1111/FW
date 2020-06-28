@@ -7,6 +7,7 @@ using MSLibrary;
 using MSLibrary.DI;
 using FW.TestPlatform.Main.DTOModel;
 using FW.TestPlatform.Main.Entities;
+using FW.TestPlatform.Main.Configuration;
 
 namespace FW.TestPlatform.Main.Application
 {
@@ -18,14 +19,17 @@ namespace FW.TestPlatform.Main.Application
             TestCaseViewData result;
             try
             {
+                SystemConfigurationService _sysConfigService = new SystemConfigurationService();
                 TestCase source = new TestCase()
                 {
                     Name = model.Name,
-                    OwnerID = model.OwnerID,
+                    OwnerID = await _sysConfigService.GetDefaultUserIDAsync(),
                     EngineType = model.EngineType,
                     MasterHostID = model.MasterHostID,
                     Configuration = model.Configuration,
-                    Status = model.Status
+                    Status = TestCaseStatus.NoRun,
+                    CreateTime = DateTime.UtcNow,
+                    ModifyTime = DateTime.UtcNow
                 };               
                 await source.Add();
 
@@ -82,7 +86,7 @@ namespace FW.TestPlatform.Main.Application
             return result;
         }
 
-        public async Task<TestCaseViewData> Delete(TestCaseAddModel model, CancellationToken cancellationToken = default)
+        public async Task<TestCaseViewData> Delete(TestCase model, CancellationToken cancellationToken = default)
         {
             TestCase source = new TestCase()
             {

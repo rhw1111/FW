@@ -10,6 +10,6 @@ namespace FW.TestPlatform.Main.Entities
     public interface ITestHostRepository
     {
         Task<TestHost?> QueryByID(Guid id, CancellationToken cancellationToken = default);
-        Task<QueryResult<TestHost>> GetHosts(CancellationToken cancellationToken = default);
+        IAsyncEnumerable<TestHost> GetHosts(CancellationToken cancellationToken = default);
     }
 }

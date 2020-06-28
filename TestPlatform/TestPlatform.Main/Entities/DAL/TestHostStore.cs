@@ -10,6 +10,7 @@ using MSLibrary.DI;
 using MSLibrary.Transaction;
 using FW.TestPlatform.Main.DAL;
 using Microsoft.AspNetCore.Http.Features.Authentication;
+using MSLibrary.Collections;
 
 namespace FW.TestPlatform.Main.Entities.DAL
 {
@@ -160,25 +161,37 @@ namespace FW.TestPlatform.Main.Entities.DAL
             return result;
         }
 
-        public async Task<QueryResult<TestHost>> GetHosts(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<TestHost> GetHosts(CancellationToken cancellationToken = default)
         {
-            QueryResult<TestHost> result = new QueryResult<TestHost>();
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
-            {
-                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+            AsyncInteration<TestHost> interation = new AsyncInteration<TestHost>(
+                async (index) =>
                 {
-                    if (transaction != null)
+                    List<TestHost>? datas = null;
+                    await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
                     {
-                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
-                    }
-                    var datas = await (from item in dbContext.TestHosts
-                                       orderby item.CreateTime descending
-                                       select item).ToListAsync();
-                    result.TotalCount = datas.Count;
-                    result.Results.AddRange(datas);
+                        await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                        {
+                            if (transaction != null)
+                            {
+                                await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                            }
+
+                            var ids = (from item in dbContext.TestHosts
+                                       orderby EF.Property<long>(item, "Sequence")
+                                       select item.ID
+                                                ).Skip((index) * 500).Take(500);
+                            datas = await (from item in dbContext.TestHosts
+                                           join idItem in ids
+                                           on item.ID equals idItem
+                                           orderby EF.Property<long>(item, "Sequence")
+                                           select item).ToListAsync();
+                        }
+                    });
+
+                    return datas;
                 }
-            });
-            return result;
+                );
+            return interation;
         }
     }
 }

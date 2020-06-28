@@ -35,18 +35,14 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-
                     if (source.ID == Guid.Empty)
                     {
                         source.ID = Guid.NewGuid();
                     }
-
-                    source.CreateTime = DateTime.UtcNow;
-                    source.ModifyTime = DateTime.UtcNow;
-
-                    await dbContext.TestCases.AddAsync(source, cancellationToken);
-
-                    await dbContext.SaveChangesAsync(cancellationToken);
+                    //source.CreateTime = DateTime.UtcNow;
+                    //source.ModifyTime = DateTime.UtcNow;
+                    var entity = await dbContext.TestCases.AddAsync(source, cancellationToken);
+                    var result = await dbContext.SaveChangesAsync(cancellationToken);
                 }
             });
 
@@ -62,11 +58,9 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-
                     var deleteObj = new TestCase() { ID = id };
                     dbContext.TestCases.Attach(deleteObj);
                     dbContext.TestCases.Remove(deleteObj);
-
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }
             });
@@ -83,8 +77,6 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-
-
                     result = await (from item in dbContext.TestCases
                                     where item.ID == id
                                     select item).Include(u => u.MasterHost).Include(u => u.MasterHost.SSHEndpoint).FirstOrDefaultAsync();
@@ -202,6 +194,35 @@ namespace FW.TestPlatform.Main.Entities.DAL
                                   on item.ID equals idItem
                                        orderby item.CreateTime descending
                                        select item).ToListAsync();
+
+                    result.Results.AddRange(datas);
+                }
+            });
+
+            return result;
+        }
+
+        public async Task<QueryResult<TestCase>> QueryByPage(int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            QueryResult<TestCase> result = new QueryResult<TestCase>()
+            {
+                CurrentPage = page
+            };
+
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    var datas = await (from item in dbContext.TestCases
+                               orderby item.CreateTime descending
+                               select item).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+                    result.TotalCount = datas.Count;
 
                     result.Results.AddRange(datas);
                 }

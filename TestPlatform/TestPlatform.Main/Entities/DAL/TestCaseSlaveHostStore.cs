@@ -98,7 +98,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
             });
         }
 
-        public async Task<TestCaseSlaveHost?> QueryByCase(Guid caseId,Guid slaveId, CancellationToken cancellationToken = default)
+        public async Task<TestCaseSlaveHost?> QueryByCase(Guid caseId, Guid slaveId, CancellationToken cancellationToken = default)
         {
             TestCaseSlaveHost? result = null;
             await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
