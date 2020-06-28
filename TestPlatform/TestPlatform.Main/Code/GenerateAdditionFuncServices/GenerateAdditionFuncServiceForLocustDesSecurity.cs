@@ -16,8 +16,9 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
         {
             StringBuilder sbCode = new StringBuilder();
             sbCode.AppendLine("def DesSecurity(data, key):");
-            sbCode.AppendLine(" print(\"DesSecurity\")");
-            sbCode.AppendLine(" return \"\"");
+            sbCode.AppendLine("    print(\"DesSecurity\")");
+            sbCode.AppendLine("    return \"\"");
+            sbCode.AppendLine("");
 
             return await Task.FromResult(sbCode.ToString());
         }

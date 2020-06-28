@@ -16,8 +16,9 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
         {
             StringBuilder sbCode = new StringBuilder();
             sbCode.AppendLine("def GetNameSerialNo(name, type, start):");
-            sbCode.AppendLine(" print(\"GetNameSerialNo\")");
-            sbCode.AppendLine(" return \"\"");
+            sbCode.AppendLine("    print(\"GetNameSerialNo\")");
+            sbCode.AppendLine("    return \"\"");
+            sbCode.AppendLine("");
 
             return await Task.FromResult(sbCode.ToString());
         }

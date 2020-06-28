@@ -45,7 +45,7 @@ port = {Port}
 client_id = "{SlaveName}"
 # case_id
 # case_id = "case_id"
-case_id = "{CaseName}"
+case_id = "{CaseID}"
 # # 数据包头
 package_start = "<package>"
 # # 数据包尾

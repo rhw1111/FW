@@ -183,6 +183,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             strCode = strCode.Replace("{Port}", configuration.Port.ToString());
             strCode = strCode.Replace("{CaseID}", tCase.ID.ToString());
             strCode = strCode.Replace("{ResponseSeparator}", configuration.ResponseSeparator);
+            strCode = strCode.Replace("{CaseServiceBaseAddress}", caseServiceBaseAddress);
 
             //代码模板必须有一个格式为{SlaveName}的替换符，该替换符标识每个Slave
 

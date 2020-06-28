@@ -16,8 +16,8 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
         {
             StringBuilder sbCode = new StringBuilder();
             sbCode.AppendLine("def DecimalRange(min, max):");
-            sbCode.AppendLine(" print(\"DecimalRange\")");
-            sbCode.AppendLine(" return \"\"");
+            sbCode.AppendLine("    print(\"DecimalRange\")");
+            sbCode.AppendLine("    return \"\"");
             sbCode.AppendLine("");
 
             return await Task.FromResult(sbCode.ToString());
