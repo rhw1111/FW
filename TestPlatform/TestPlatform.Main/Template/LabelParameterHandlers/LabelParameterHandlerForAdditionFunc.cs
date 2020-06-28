@@ -46,7 +46,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             var engineType = (string)objEngineType;
 
-            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.ConnectInit, out object? objVars))
+            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.AdditionFuncNames, out object? objVars))
             {
                 var fragment = new TextFragment()
                 {
@@ -58,7 +58,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.NotFoundParameterInTemplateContextByName, fragment, 1, 0);
             }
 
-            var vars = ((ConfigurationDataForTcpConnectInit)objVars).VarSettings;
+            var vars = (List<string>)objVars;
 
             StringBuilder strCode = new StringBuilder();
             var separatorService = _getSeparatorServiceSelector.Choose(engineType).Create();
@@ -66,7 +66,8 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             foreach (var item in vars)
             {
-                strCode.Append($"{item.Name} = {item.Content}");
+                var funService = _generateAdditionFuncServiceFactorySelector.Choose($"{engineType}-{item}").Create();
+                strCode.Append(await funService.Generate());
                 strCode.Append(strFuncSeparator);
             }
 

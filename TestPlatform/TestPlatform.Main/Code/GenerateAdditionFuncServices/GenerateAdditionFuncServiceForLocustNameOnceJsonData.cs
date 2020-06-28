@@ -12,9 +12,14 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
     [Injection(InterfaceType = typeof(GenerateAdditionFuncServiceForLocustNameOnceJsonData), Scope = InjectionScope.Singleton)]
     public class GenerateAdditionFuncServiceForLocustNameOnceJsonData : IGenerateAdditionFuncService
     {
-        public Task<string> Generate()
+        public async Task<string> Generate()
         {
-            throw new NotImplementedException();
+            StringBuilder sbCode = new StringBuilder();
+            sbCode.AppendLine("def NameOnceJsonData(json):");
+            sbCode.AppendLine(" print(\"NameOnceJsonData\")");
+            sbCode.AppendLine(" return \"\"");
+
+            return await Task.FromResult(sbCode.ToString());
         }
     }
 }

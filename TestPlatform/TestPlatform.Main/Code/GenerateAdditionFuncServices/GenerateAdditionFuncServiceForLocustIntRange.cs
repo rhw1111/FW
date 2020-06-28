@@ -12,9 +12,14 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
     [Injection(InterfaceType = typeof(GenerateAdditionFuncServiceForLocustIntRange), Scope = InjectionScope.Singleton)]
     public class GenerateAdditionFuncServiceForLocustIntRange : IGenerateAdditionFuncService
     {
-        public Task<string> Generate()
+        public async Task<string> Generate()
         {
-            throw new NotImplementedException();
+            StringBuilder sbCode = new StringBuilder();
+            sbCode.AppendLine("def IntRange(min, max):");
+            sbCode.AppendLine(" print(\"IntRange\")");
+            sbCode.AppendLine(" return \"\"");
+
+            return await Task.FromResult(sbCode.ToString());
         }
     }
 }
