@@ -15,7 +15,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
         public async Task<string> Generate()
         {
             StringBuilder sbCode = new StringBuilder();
-            sbCode.AppendLine("def NumberFill(number, type, length):");
+            sbCode.AppendLine("def NumberFill(number, direct, length):");
             sbCode.AppendLine(" print(\"NumberFill\")");
             sbCode.AppendLine(" return \"\"");
 

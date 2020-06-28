@@ -15,7 +15,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
         public async Task<string> Generate()
         {
             StringBuilder sbCode = new StringBuilder();
-            sbCode.AppendLine("def TcpRRWithConnect(connect, content, regex):");
+            sbCode.AppendLine("def TcpRRWithConnect(connect, senddata, receivereg):");
             sbCode.AppendLine(" print(\"TcpRRWithConnect\")");
             sbCode.AppendLine(" return \"\"");
 

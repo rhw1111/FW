@@ -15,7 +15,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
         public async Task<string> Generate()
         {
             StringBuilder sbCode = new StringBuilder();
-            sbCode.AppendLine("def TcpRR(address, content, regex):");
+            sbCode.AppendLine("def TcpRR(address, senddata, receivereg):");
             sbCode.AppendLine(" print(\"TcpRR\")");
             sbCode.AppendLine(" return \"\"");
 

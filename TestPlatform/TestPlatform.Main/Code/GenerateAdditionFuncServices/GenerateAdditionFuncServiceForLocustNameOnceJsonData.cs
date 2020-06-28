@@ -15,7 +15,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
         public async Task<string> Generate()
         {
             StringBuilder sbCode = new StringBuilder();
-            sbCode.AppendLine("def NameOnceJsonData(json):");
+            sbCode.AppendLine("def NameOnceJsonData(data):");
             sbCode.AppendLine(" print(\"NameOnceJsonData\")");
             sbCode.AppendLine(" return \"\"");
 

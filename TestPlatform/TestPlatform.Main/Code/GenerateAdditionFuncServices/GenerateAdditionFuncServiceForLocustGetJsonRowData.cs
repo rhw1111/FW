@@ -15,7 +15,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
         public async Task<string> Generate()
         {
             StringBuilder sbCode = new StringBuilder();
-            sbCode.AppendLine("def GetJsonRowData(json):");
+            sbCode.AppendLine("def GetJsonRowData(data):");
             sbCode.AppendLine(" print(\"GetJsonRowData\")");
             sbCode.AppendLine(" return \"\"");
 

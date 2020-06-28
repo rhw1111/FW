@@ -14,18 +14,16 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 {
     /// <summary>
     ///针对全局数据变量声明的标签参数处理
-    ///格式:{$additionfunc()}
+    ///格式:{$getnameserialnoinvoke(name,type,start)}
     ///要求context中的Parameters中
     ///包含EngineType参数，参数类型为string
-    [Injection(InterfaceType = typeof(LabelParameterHandlerForAdditionFunc), Scope = InjectionScope.Singleton)]
-    public class LabelParameterHandlerForAdditionFunc : ILabelParameterHandler
+    [Injection(InterfaceType = typeof(LabelParameterHandlerForGetNameSerialNoInvoke), Scope = InjectionScope.Singleton)]
+    public class LabelParameterHandlerForGetNameSerialNoInvoke : ILabelParameterHandler
     {
-        private readonly ISelector<IFactory<IGenerateAdditionFuncService>> _generateAdditionFuncServiceFactorySelector;
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForAdditionFunc(ISelector<IFactory<IGenerateAdditionFuncService>> generateAdditionFuncServiceFactorySelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForGetNameSerialNoInvoke(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
-            _generateAdditionFuncServiceFactorySelector = generateAdditionFuncServiceFactorySelector;
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
 
@@ -45,30 +43,13 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             var engineType = (string)objEngineType;
 
-            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.AdditionFuncNames, out object? objVars))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TextCodes.NotFoundParameterInTemplateContextByName,
-                    DefaultFormatting = "在模板上下文中找不到名称为{0}的参数",
-                    ReplaceParameters = new List<object>() { TemplateContextParameterNames.ConnectInit }
-                };
 
-                throw new UtilityException((int)Errors.NotFoundParameterInTemplateContextByName, fragment, 1, 0);
-            }
-
-            var vars = (List<string>)objVars;
 
             StringBuilder strCode = new StringBuilder();
             var separatorService = _getSeparatorServiceSelector.Choose(engineType).Create();
             var strFuncSeparator = await separatorService.GetFuncSeparator();
 
-            foreach (var item in vars)
-            {
-                var funService = _generateAdditionFuncServiceFactorySelector.Choose($"{engineType}-{item}").Create();
-                strCode.Append(await funService.Generate());
-                strCode.Append(strFuncSeparator);
-            }
+
 
             return strCode.ToString();
         }
