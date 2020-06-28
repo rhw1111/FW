@@ -1,14 +1,14 @@
 SELECT * FROM tpmain.testcase;
 
-insert into tpmain.testcase
-values('cae64c27-8e87-4a38-b94a-32a47a7eea63', '822114cf-5277-4667-961f-e231f9e67e4d', '46f8bcca-af6e-11ea-8e6a-0242ac110002', 'Tcp', 'Case1', '', '0', now(), now(), '1');
+INSERT INTO tpmain.testcase
+VALUES('cae64c27-8e87-4a38-b94a-32a47a7eea63', '822114cf-5277-4667-961f-e231f9e67e4d', '46f8bcca-af6e-11ea-8e6a-0242ac110002', 'Tcp', 'Case1', '', '0', now(), now(), '1');
 
-update tpmain.testcase
-set status = '0'
+UPDATE tpmain.testcase
+SET status = '0'
 where id = 'cae64c27-8e87-4a38-b94a-32a47a7eea63';
 
-update tpmain.testcase
-set configuration = '{
+UPDATE tpmain.testcase
+SET configuration = '{
     "UserCount": 10,
     "PerSecondUserCount": 10,
     "Duration": 100,
@@ -58,6 +58,6 @@ set configuration = '{
         ]
     }
 }'
-where id = 'cae64c27-8e87-4a38-b94a-32a47a7eea63';
+WHERE id = 'cae64c27-8e87-4a38-b94a-32a47a7eea63';
 
 
