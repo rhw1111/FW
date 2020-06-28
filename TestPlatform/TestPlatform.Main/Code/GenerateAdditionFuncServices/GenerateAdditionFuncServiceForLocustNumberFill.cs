@@ -12,9 +12,15 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
     [Injection(InterfaceType = typeof(GenerateAdditionFuncServiceForLocustNumberFill), Scope = InjectionScope.Singleton)]
     public class GenerateAdditionFuncServiceForLocustNumberFill : IGenerateAdditionFuncService
     {
-        public Task<string> Generate()
+        public async Task<string> Generate()
         {
-            throw new NotImplementedException();
+            StringBuilder sbCode = new StringBuilder();
+            sbCode.AppendLine("def NumberFill(number, direct, length):");
+            sbCode.AppendLine("    print(\"NumberFill\")");
+            sbCode.AppendLine("    return \"\"");
+            sbCode.AppendLine("");
+
+            return await Task.FromResult(sbCode.ToString());
         }
     }
 }

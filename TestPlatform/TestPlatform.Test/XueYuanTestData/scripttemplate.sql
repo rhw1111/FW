@@ -45,7 +45,7 @@ port = {Port}
 client_id = "{SlaveName}"
 # case_id
 # case_id = "case_id"
-case_id = "{CaseName}"
+case_id = "{CaseID}"
 # # 数据包头
 package_start = "<package>"
 # # 数据包尾
@@ -79,11 +79,11 @@ key = "tjjtgjzs########"
 all_locusts_spawned = Semaphore()
 lock = threading.Lock()
 
+
+{$additionfunc()}
+
+
 {$datavardeclareinit()}
-
-{$senddata()}
-
-{$sendinit()}
 
 
 class EncryptDate():
@@ -204,6 +204,7 @@ class TcpTestUser(User):
     port = port
     ADDR = (host, port)
     user_id = ""
+    user_token = ""
     worker_report_time = datetime.datetime.now()
 
     stats_tcps = {
@@ -223,7 +224,10 @@ class TcpTestUser(User):
         self.client = TcpSocketClient(socket.AF_INET, socket.SOCK_STREAM)
 
     def get_package(self):
+        {$sendinit()}
+
         # package = "123122123"
+        package = {$senddata()}
 
         if is_security_data:
             package = ed.encrypt(package)
@@ -1047,6 +1051,8 @@ class TcpTestUser(User):
         TcpTestUser.quitting()
 
     def on_start(self):
+        {$connectinit()}
+
         # print("on_start")
 
         if is_hatch_complete_run:
@@ -1060,6 +1066,7 @@ class TcpTestUser(User):
             # print(all_locusts_spawned.ready())
 
         self.user_id = "user_id_%s" % str(random.randint(1, 10000))
+        self.user_token = "user_token_%s" % str(random.randint(1, 10000))
         connect_run_time = 0.0
         connect_start_time = datetime.datetime.now()
         is_success = self.connect()

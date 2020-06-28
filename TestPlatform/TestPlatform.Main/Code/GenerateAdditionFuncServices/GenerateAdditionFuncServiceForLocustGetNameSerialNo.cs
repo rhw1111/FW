@@ -12,9 +12,15 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
     [Injection(InterfaceType = typeof(GenerateAdditionFuncServiceForLocustGetNameSerialNo), Scope = InjectionScope.Singleton)]
     public class GenerateAdditionFuncServiceForLocustGetNameSerialNo : IGenerateAdditionFuncService
     {
-        public Task<string> Generate()
+        public async Task<string> Generate()
         {
-            throw new NotImplementedException();
+            StringBuilder sbCode = new StringBuilder();
+            sbCode.AppendLine("def GetNameSerialNo(name, type, start):");
+            sbCode.AppendLine("    print(\"GetNameSerialNo\")");
+            sbCode.AppendLine("    return \"\"");
+            sbCode.AppendLine("");
+
+            return await Task.FromResult(sbCode.ToString());
         }
     }
 }

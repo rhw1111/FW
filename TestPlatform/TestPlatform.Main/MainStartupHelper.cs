@@ -295,10 +295,29 @@ namespace FW.TestPlatform.Main
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.RanJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustRanJsonDataFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.DesSecurity}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustDesSecurityFactory>();
 
-            LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataVarDeclareInit] = DIContainerContainer.Get<LabelParameterHandlerForDataVarDeclareInitFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.AdditionFunc] = DIContainerContainer.Get<LabelParameterHandlerForDataVarDeclareInitFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataVarDeclareInit] = DIContainerContainer.Get<LabelParameterHandlerForAdditionFuncFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.ConnectInit] = DIContainerContainer.Get<LabelParameterHandlerForConnectInitFactory>();
-            LabelParameterIMP.HandlerFactories[LabelParameterTypes.SendData] = DIContainerContainer.Get<LabelParameterHandlerForSendDataFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.SendInit] = DIContainerContainer.Get<LabelParameterHandlerForSendInitFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.SendData] = DIContainerContainer.Get<LabelParameterHandlerForSendDataFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.HostName] = DIContainerContainer.Get<LabelParameterHandlerForHostNameFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.CurConnectID] = DIContainerContainer.Get<LabelParameterHandlerForCurConnectIDFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.CurConnect] = DIContainerContainer.Get<LabelParameterHandlerForCurConnectFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataSource] = DIContainerContainer.Get<LabelParameterHandlerForDataSourceFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.NameOnceJsonDataInvoke] = DIContainerContainer.Get<LabelParameterHandlerForNameOnceJsonDataInvokeFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.TcpRRInvoke] = DIContainerContainer.Get<LabelParameterHandlerForTcpRRInvokeFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.TcpRRWithConnectInvoke] = DIContainerContainer.Get<LabelParameterHandlerForTcpRRWithConnectInvokeFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.GetJsonRowDataInvoke] = DIContainerContainer.Get<LabelParameterHandlerForGetJsonRowDataInvokeFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.GetNameSerialNoInvoke] = DIContainerContainer.Get<LabelParameterHandlerForGetNameSerialNoInvokeFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.NumberFill] = DIContainerContainer.Get<LabelParameterHandlerForNumberFillFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.IntRange] = DIContainerContainer.Get<LabelParameterHandlerForIntRangeFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.DecimalRange] = DIContainerContainer.Get<LabelParameterHandlerForDecimalRangeFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.RanJsonData] = DIContainerContainer.Get<LabelParameterHandlerForRanJsonDataFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.DesSecurity] = DIContainerContainer.Get<LabelParameterHandlerForDesSecurityFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.VarKV] = DIContainerContainer.Get<LabelParameterHandlerForVarKVFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.CurrConnectKV] = DIContainerContainer.Get<LabelParameterHandlerForCurrConnectKVFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.CaseID] = DIContainerContainer.Get<LabelParameterHandlerForCaseIDFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.CaseServiceBaseAddress] = DIContainerContainer.Get<LabelParameterHandlerForCaseServiceBaseAddressFactory>();
 
             GetSeparatorServiceSelector.GetSeparatorServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSeparatorServiceForLocustFactory>();
 

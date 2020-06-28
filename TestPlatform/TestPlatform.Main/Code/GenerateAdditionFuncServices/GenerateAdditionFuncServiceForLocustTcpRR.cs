@@ -12,9 +12,15 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
     [Injection(InterfaceType = typeof(GenerateAdditionFuncServiceForLocustTcpRR), Scope = InjectionScope.Singleton)]
     public class GenerateAdditionFuncServiceForLocustTcpRR : IGenerateAdditionFuncService
     {
-        public Task<string> Generate()
+        public async Task<string> Generate()
         {
-            throw new NotImplementedException();
+            StringBuilder sbCode = new StringBuilder();
+            sbCode.AppendLine("def TcpRR(address, senddata, receivereg):");
+            sbCode.AppendLine("    print(\"TcpRR\")");
+            sbCode.AppendLine("    return \"\"");
+            sbCode.AppendLine("");
+
+            return await Task.FromResult(sbCode.ToString());
         }
     }
 }

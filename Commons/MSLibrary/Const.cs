@@ -463,6 +463,30 @@ namespace MSLibrary
         /// {0}为转换参数名称
         /// </summary>
         public const string LabelParameterSystemTemplateParamaterNamesError = "LabelParameterSystemTemplateParamaterNamesError";
+        /// <summary>
+        /// 指定系统模板参数名称标签标签参数类型错误
+        /// 格式为“标签{0}要求的参数{1}应为{2}，参数类型错误”
+        /// {0}为标签名称
+        /// {1}为参数名称
+        /// {2}为类型名称
+        /// </summary>
+        public const string LabelParameterTypeError = "LabelParameterTypeError";
+        /// <summary>
+        /// 指定系统模板参数名称标签标签最小值和最大值错误
+        /// 格式为“标签{0}要求的参数最小值和最大值错误，而实际最小值为{1}，最大值为{2}”
+        /// {0}为标签名称
+        /// {1}为最小值
+        /// {2}为最大值
+        /// </summary>
+        public const string LabelParameterMinMaxError = "LabelParameterMinMaxError";
+        /// <summary>
+        /// 指定系统模板参数名称标签标签加密算法Key错误
+        /// 格式为“标签{0}要求的参数中，加密算法Key错误，应该为{1}位，而实际为{2}”
+        /// {0}为标签名称
+        /// {1}为最小值
+        /// {2}为最大值
+        /// </summary>
+        public const string LabelParameterDesSecurityKeyError = "LabelParameterDesSecurityKeyError";
 
         /// <summary>
         /// 指定的上下文实体中找不到指定的系统模板记录名称

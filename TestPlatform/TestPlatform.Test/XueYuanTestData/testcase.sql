@@ -5,7 +5,7 @@ VALUES('cae64c27-8e87-4a38-b94a-32a47a7eea63', '822114cf-5277-4667-961f-e231f9e6
 
 UPDATE tpmain.testcase
 SET status = '0'
-WHERE id = 'cae64c27-8e87-4a38-b94a-32a47a7eea63';
+where id = 'cae64c27-8e87-4a38-b94a-32a47a7eea63';
 
 UPDATE tpmain.testcase
 SET configuration = '{
@@ -16,7 +16,7 @@ SET configuration = '{
     "Address": "127.0.0.1",
     "Port": 12345,
     "ResponseSeparator": "</package>",    
-    "RequestBody": "RequestBody",
+    "RequestBody": "[{\'UserName\': \'{$currconnectkv(UserName)}\', \'UserToken\': \'{$currconnectkv(UserToken)}\', \'a\': \'a\'}]",
     "DataSourceVars": [
         {
             "Name": "user_account_list",
@@ -28,12 +28,12 @@ SET configuration = '{
     "ConnectInit": {
         "VarSettings": [
             {
-                "Name": "ConnectInit_1",
-                "Content": "Content"
+                "Name": "{$currconnectkv(UserName)}",
+                "Content": "self.user_id"
             },
             {
-                "Name": "ConnectInit_2",
-                "Content": "Content"
+                "Name": "{$currconnectkv(UserToken)}",
+                "Content": "self.user_token"
             }
         ]
     },
@@ -41,19 +41,11 @@ SET configuration = '{
         "VarSettings": [
             {
                 "Name": "SendInit_1",
-                "Content": "Content"
+                "Content": "{$currconnectkv(UserName)}"
             },
             {
                 "Name": "SendInit_2",
-                "Content": "Content"
-            }
-        ]
-    },  
-    "SendData": {
-        "VarSettings": [
-            {
-                "Name": "send_data",
-                "Content": "[{\'UserName\': \'{$GetUserName()}\', \'Token\': \'{$GetToken()}\', \'a\': \'a\'}]"
+                "Content": "{$currconnectkv(UserToken)}"
             }
         ]
     }

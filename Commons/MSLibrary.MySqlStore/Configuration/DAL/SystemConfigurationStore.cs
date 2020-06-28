@@ -42,7 +42,7 @@ namespace MSLibrary.MySqlStore.Configuration.DAL
                 {
                     Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
-                    CommandText = string.Format(@"select {0} from SystemConfiguration where name=@name", NStoreHelper.GetSystemConfigurationSelectFields(string.Empty)),
+                    CommandText = string.Format(@"select {0} from systemconfiguration where name=@name", NStoreHelper.GetSystemConfigurationSelectFields(string.Empty)),
                     Transaction = sqlTran
                 })
                 {
