@@ -86,12 +86,6 @@ lock = threading.Lock()
 {$datavardeclareinit()}
 
 
-{$senddata()}
-
-
-{$sendinit()}
-
-
 class EncryptDate():
     def __init__(self, key):
         self.key = key
@@ -230,7 +224,10 @@ class TcpTestUser(User):
         self.client = TcpSocketClient(socket.AF_INET, socket.SOCK_STREAM)
 
     def get_package(self):
-        package = "123122123"
+        {$sendinit()}
+
+        # package = "123122123"
+        package = {$senddata()}
 
         if is_security_data:
             package = ed.encrypt(package)
@@ -1054,6 +1051,8 @@ class TcpTestUser(User):
         TcpTestUser.quitting()
 
     def on_start(self):
+        {$connectinit()}
+
         # print("on_start")
 
         if is_hatch_complete_run:

@@ -13,19 +13,19 @@ using MSLibrary.Template;
 
 namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 {
-    [Injection(InterfaceType = typeof(LabelParameterHandlerForDessecurityFactory), Scope = InjectionScope.Singleton)]
-    public class LabelParameterHandlerForDessecurityFactory : IFactory<ILabelParameterHandler>
+    [Injection(InterfaceType = typeof(LabelParameterHandlerForDesSecurityFactory), Scope = InjectionScope.Singleton)]
+    public class LabelParameterHandlerForDesSecurityFactory : IFactory<ILabelParameterHandler>
     {
-        private readonly LabelParameterHandlerForDessecurity _labelParameterHandlerForDessecurity;
+        private readonly LabelParameterHandlerForDesSecurity _labelParameterHandlerForDesSecurity;
 
-        public LabelParameterHandlerForDessecurityFactory(LabelParameterHandlerForDessecurity labelParameterHandlerForDessecurity)
+        public LabelParameterHandlerForDesSecurityFactory(LabelParameterHandlerForDesSecurity labelParameterHandlerForDesSecurity)
         {
-            _labelParameterHandlerForDessecurity = labelParameterHandlerForDessecurity;
+            _labelParameterHandlerForDesSecurity = labelParameterHandlerForDesSecurity;
         }
 
         public ILabelParameterHandler Create()
         {
-            return _labelParameterHandlerForDessecurity;
+            return _labelParameterHandlerForDesSecurity;
         }
     }
 }

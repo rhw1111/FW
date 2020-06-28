@@ -16,7 +16,7 @@ SET configuration = '{
     "Address": "127.0.0.1",
     "Port": 12345,
     "ResponseSeparator": "</package>",    
-    "RequestBody": "RequestBody",
+    "RequestBody": "[{\'UserName\': \'{$currconnectkv(UserName)}\', \'UserToken\': \'{$currconnectkv(UserToken)}\', \'a\': \'a\'}]",
     "DataSourceVars": [
         {
             "Name": "user_account_list",
@@ -28,12 +28,12 @@ SET configuration = '{
     "ConnectInit": {
         "VarSettings": [
             {
-                "Name": "ConnectInit_1",
-                "Content": "Content"
+                "Name": "{$currconnectkv(UserName)}",
+                "Content": "self.user_id"
             },
             {
-                "Name": "ConnectInit_2",
-                "Content": "Content"
+                "Name": "{$currconnectkv(UserToken)}",
+                "Content": "self.user_token"
             }
         ]
     },
@@ -41,19 +41,11 @@ SET configuration = '{
         "VarSettings": [
             {
                 "Name": "SendInit_1",
-                "Content": "Content"
+                "Content": "{$currconnectkv(UserName)}"
             },
             {
                 "Name": "SendInit_2",
-                "Content": "Content"
-            }
-        ]
-    },  
-    "SendData": {
-        "VarSettings": [
-            {
-                "Name": "send_data",
-                "Content": "[{\'UserName\': \'{$GetUserName()}\', \'Token\': \'{$GetToken()}\', \'a\': \'a\'}]"
+                "Content": "{$currconnectkv(UserToken)}"
             }
         ]
     }

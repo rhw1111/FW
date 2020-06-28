@@ -17,12 +17,12 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
     ///格式:{$dessecurity(data,key)}
     ///要求context中的Parameters中
     ///包含EngineType参数，参数类型为string
-    [Injection(InterfaceType = typeof(LabelParameterHandlerForDessecurity), Scope = InjectionScope.Singleton)]
-    public class LabelParameterHandlerForDessecurity : ILabelParameterHandler
+    [Injection(InterfaceType = typeof(LabelParameterHandlerForDesSecurity), Scope = InjectionScope.Singleton)]
+    public class LabelParameterHandlerForDesSecurity : ILabelParameterHandler
     {
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForDessecurity(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForDesSecurity(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
