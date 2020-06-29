@@ -68,7 +68,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 {
                     Code = TextCodes.LabelParameterTypeError,
                     DefaultFormatting = "标签{0}要求的参数{1}应为{2}，参数类型错误",
-                    ReplaceParameters = new List<object>() { "{$intrange(min,max)}", "min", "Decimal" }
+                    ReplaceParameters = new List<object>() { "{$intrange(min,max)}", "min", "Int" }
                 };
 
                 throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
@@ -80,7 +80,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 {
                     Code = TextCodes.LabelParameterTypeError,
                     DefaultFormatting = "标签{0}要求的参数{1}应为{2}，参数类型错误",
-                    ReplaceParameters = new List<object>() { "{$intrange(min,max)}", "max", "Decimal" }
+                    ReplaceParameters = new List<object>() { "{$intrange(min,max)}", "max", "Int" }
                 };
 
                 throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);

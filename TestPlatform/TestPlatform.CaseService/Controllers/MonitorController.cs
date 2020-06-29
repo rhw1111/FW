@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FW.TestPlatform.Main;
 using FW.TestPlatform.Main.Application;
@@ -44,11 +45,11 @@ namespace FW.TestPlatform.CaseService.Controllers
         }
 
         [HttpPost("addmasterdata")]
-        public async Task AddMasterData(dynamic data)
+        public async Task AddMasterData([FromBody]string data)
         {
             try
             {
-                MonitorMasterDataAddModel model = JsonSerializerHelper.Deserialize(data);
+                MonitorMasterDataAddModel model = JsonSerializerHelper.Deserialize<MonitorMasterDataAddModel>(data);
 
                 if (model != null)
                 {
@@ -57,16 +58,17 @@ namespace FW.TestPlatform.CaseService.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw ex;
             }
         }
 
         [HttpPost("addslavedata")]
-        public async Task AddSlaveData(dynamic data)
+        public async Task AddSlaveData([FromBody]string data)
         {
             try
             {
-                IList<MonitorSlaveDataAddModel> modelList = JsonSerializerHelper.Deserialize(data);
+                IList<MonitorSlaveDataAddModel> modelList = JsonSerializerHelper.Deserialize<IList<MonitorSlaveDataAddModel>>(data);
                 if (modelList != null)
                 {
                     await _appAddMonitorSlaveData.Do(modelList);
@@ -74,7 +76,8 @@ namespace FW.TestPlatform.CaseService.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw ex;
             }
         }
     }
