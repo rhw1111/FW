@@ -20,10 +20,12 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    import socket");
             sbCode.AppendLine("    import re");
             sbCode.AppendLine("    ");
+            sbCode.AppendLine("    bufsize = 2048");
+            sbCode.AppendLine("    ");
             sbCode.AppendLine("    try:");
-            sbCode.AppendLine("        s.send(str(senddata).encode())");
+            sbCode.AppendLine("        connect.send(str(senddata).encode())");
             sbCode.AppendLine("        ");
-            sbCode.AppendLine("        data = s.recv(bufsize).decode()");
+            sbCode.AppendLine("        data = connect.recv(bufsize).decode()");
             sbCode.AppendLine("        ");
             sbCode.AppendLine("        p = re.compile(receivereg, re.S)");
             sbCode.AppendLine("        result = re.findall(p, data)");
