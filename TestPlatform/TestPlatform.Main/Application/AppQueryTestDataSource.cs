@@ -38,7 +38,7 @@ namespace FW.TestPlatform.Main.Application
                         Type = item.Type,
                         Data = item.Data,
                         CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
-                         ModifyTime= item.ModifyTime.ToCurrentUserTimeZone()
+                        ModifyTime= item.ModifyTime.ToCurrentUserTimeZone()
                     }
                     );
             }

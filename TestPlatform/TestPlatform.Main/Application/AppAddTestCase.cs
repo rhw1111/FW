@@ -8,6 +8,7 @@ using MSLibrary.DI;
 using FW.TestPlatform.Main.DTOModel;
 using FW.TestPlatform.Main.Entities;
 using FW.TestPlatform.Main.Configuration;
+using System.Linq;
 
 namespace FW.TestPlatform.Main.Application
 {
@@ -98,6 +99,21 @@ namespace FW.TestPlatform.Main.Application
                 ID = model.ID
             };
             return viewData;
+        }
+
+        public async Task DeleteMutiple(List<TestCaseAddModel> list, CancellationToken cancellationToken = default)
+        {
+            TestCase source = new TestCase();
+            List<TestCase> array = new List<TestCase>();
+            foreach (TestCaseAddModel item in list)
+            {
+                TestCase tCase = new TestCase()
+                {
+                    ID = item.ID
+                };
+                array.Add(tCase);
+            }
+            await source.DeleteMultiple(array.ToList(), cancellationToken);
         }
 
         public async Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default)

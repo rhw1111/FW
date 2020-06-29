@@ -66,6 +66,23 @@ namespace FW.TestPlatform.Main.Entities.DAL
             });
         }
 
+        public async Task DeleteMutiple(List<TestCase> list, CancellationToken cancellationToken = default)
+        {
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    dbContext.TestCases.AttachRange(list.ToArray());
+                    dbContext.TestCases.RemoveRange(list.ToArray());
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
+        }
+
         public async Task<TestCase?> QueryByID(Guid id, CancellationToken cancellationToken = default)
         {
             TestCase? result = null;
@@ -79,7 +96,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     }
                     result = await (from item in dbContext.TestCases
                                     where item.ID == id
-                                    select item).Include(u => u.MasterHost).Include(u => u.MasterHost.SSHEndpoint).FirstOrDefaultAsync();
+                                    select item).Include(u => u.MasterHost).ThenInclude(u => u.SSHEndpoint).FirstOrDefaultAsync();
                 }
             });
 

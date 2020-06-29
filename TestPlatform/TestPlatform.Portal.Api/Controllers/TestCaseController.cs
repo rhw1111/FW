@@ -37,7 +37,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             return await _appQueryTestCase.Do(matchName, page, _pageSize);
         }
 
-        [HttpGet("gettestcsesbypage")]
+        [HttpGet("getbypagesize")]
         public async Task<QueryResult<TestCaseViewData>> GetByPage(int page, int pageSize)
         {
             return await _appQueryTestCase.GetByPage(page, pageSize);
@@ -77,6 +77,18 @@ namespace FW.TestPlatform.Portal.Api.Controllers
                 throw new Exception(ex.Message);
             }
         }
+        [HttpDelete("deletemultiple")]
+        public async Task DeleteMultiple(List<TestCaseAddModel> list)
+        {
+            try
+            {
+                await _appAddTestCase.DeleteMutiple(list);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
         [HttpGet("gethosts")]
         public async Task<List<TestHostViewData>> GetHosts()
@@ -109,9 +121,9 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             return await _appExecuteTestCase.IsEngineRun(model);
         }
         [HttpPost("addslavehost")]
-        public async Task AddSlaveHost(TestCaseSlaveHostAddModel slaveHost)
+        public async Task<TestCaseSlaveHost> AddSlaveHost(TestCaseSlaveHostAddModel slaveHost)
         {
-            await _appExecuteTestCase.AddSlaveHost(slaveHost);
+            return await _appExecuteTestCase.AddSlaveHost(slaveHost);
         }
         [HttpPost("GetAllSlaveHosts")]
         public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(Guid caseId)

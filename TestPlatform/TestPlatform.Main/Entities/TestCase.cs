@@ -246,6 +246,11 @@ namespace FW.TestPlatform.Main.Entities
             await _imp.Delete(this);
         }
 
+        public async Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default)
+        {
+            await _imp.DeleteMultiple(list, cancellationToken);
+        }
+
         public async Task Run(CancellationToken cancellationToken = default)
         {
             await _imp.Run(this, cancellationToken);
@@ -293,6 +298,7 @@ namespace FW.TestPlatform.Main.Entities
     {
         Task Add(TestCase tCase, CancellationToken cancellationToken = default);
         Task Delete(TestCase tCase, CancellationToken cancellationToken = default);
+        Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default);
         Task Update(TestCase tCase, CancellationToken cancellationToken = default);
         Task AddSlaveHost(TestCase tCase,TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default);
         Task DeleteSlaveHost(TestCase tCase,Guid slaveHostID, CancellationToken cancellationToken = default);
@@ -387,17 +393,29 @@ namespace FW.TestPlatform.Main.Entities
 
         public async Task AddSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
-            var host = await _testHostRepository.QueryByID(tCase.MasterHostID, cancellationToken);
+            var host = await _testHostRepository.QueryByID(slaveHost.HostID, cancellationToken);
             if (host == null)
             {
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.NotFoundTestHostByID,
                     DefaultFormatting = "找不到Id为{0}的测试主机",
-                    ReplaceParameters = new List<object>() { tCase.MasterHostID.ToString() }
+                    ReplaceParameters = new List<object>() { slaveHost.HostID.ToString() }
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
+            }
+            var testCase = await _testCaseStore.QueryByID(slaveHost.TestCaseID, cancellationToken);
+            if (testCase == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestHostByID,
+                    DefaultFormatting = "找不到Id为{0}的测试用例",
+                    ReplaceParameters = new List<object>() { slaveHost.TestCaseID.ToString() }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
             }
             slaveHost.TestCaseID = tCase.ID;
             await _testCaseSlaveHostStore.Add(slaveHost, cancellationToken);
@@ -406,6 +424,10 @@ namespace FW.TestPlatform.Main.Entities
         public async Task Delete(TestCase tCase, CancellationToken cancellationToken = default)
         {
             await _testCaseStore.Delete(tCase.ID, cancellationToken);
+        }
+        public async Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default)
+        {
+            await _testCaseStore.DeleteMutiple(list, cancellationToken);
         }
 
         public async Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)

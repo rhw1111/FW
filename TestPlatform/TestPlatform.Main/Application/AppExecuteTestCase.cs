@@ -104,7 +104,7 @@ namespace FW.TestPlatform.Main.Application
             };
             return result;
         }
-        public async Task AddSlaveHost(TestCaseSlaveHostAddModel slaveHost, CancellationToken cancellationToken = default)
+        public async Task<TestCaseSlaveHost> AddSlaveHost(TestCaseSlaveHostAddModel slaveHost, CancellationToken cancellationToken = default)
         {
             TestCase source = new TestCase()
             {
@@ -119,6 +119,7 @@ namespace FW.TestPlatform.Main.Application
                 Count = slaveHost.Count
             };
             await source.AddSlaveHost(testCaseSlaveHost, cancellationToken);
+            return testCaseSlaveHost;
         }
         public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(Guid caseId, CancellationToken cancellationToken = default)
         {
