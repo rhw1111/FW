@@ -25,12 +25,10 @@ namespace FW.TestPlatform.CaseService.Controllers
         }
 
         [HttpPost("addhistory")]
-        public async Task AddHistory([FromBody]string data)
+        public async Task AddHistory(TestCaseHistorySummyAddModel model)
         {
             try
             {
-                TestCaseHistorySummyAddModel model = JsonSerializerHelper.Deserialize<TestCaseHistorySummyAddModel>(data);
-
                 if (model != null)
                 {
                     await _appAddTestCase.AddHistory(model);
