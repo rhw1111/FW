@@ -3,6 +3,8 @@ SELECT * FROM tpmain.scripttemplate;
 INSERT INTO tpmain.scripttemplate
 VALUES('9adb8033-f28a-43a1-b396-0f36307b213b', 'LocustTcp', '', now(), now(), '1');
 
+USE tpmain;
+
 UPDATE tpmain.scripttemplate
 SET content = '# !/usr/bin/env python3
 # -*- coding:utf-8 -*-
@@ -51,6 +53,8 @@ package_start = "<package>"
 # # 数据包尾
 # package_end = "</package>"
 package_end = "{ResponseSeparator}"
+# PortalPAI的地址
+case_service_base_address = "{CaseServiceBaseAddress}"
 
 # 每个用户每次Task之间的等待时间，单位：秒
 min_wait = 1
@@ -204,7 +208,9 @@ class TcpTestUser(User):
     port = port
     ADDR = (host, port)
     user_id = ""
+    user_password = ""
     user_token = ""
+    send_data = ""
     worker_report_time = datetime.datetime.now()
 
     stats_tcps = {
@@ -224,13 +230,13 @@ class TcpTestUser(User):
         self.client = TcpSocketClient(socket.AF_INET, socket.SOCK_STREAM)
 
     def get_package(self):
+        # request_body
+        request_body = {RequestBody}
+        self.send_data = request_body
+
         {$sendinit()}
 
-        # package = "123122123"
-        package = {$senddata()}
-
-        if is_security_data:
-            package = ed.encrypt(package)
+        package = self.send_data
 
         return package
 
@@ -1051,9 +1057,8 @@ class TcpTestUser(User):
         TcpTestUser.quitting()
 
     def on_start(self):
-        {$connectinit()}
-
         # print("on_start")
+        {$connectinit()}
 
         if is_hatch_complete_run:
             # print(all_locusts_spawned.ready())
