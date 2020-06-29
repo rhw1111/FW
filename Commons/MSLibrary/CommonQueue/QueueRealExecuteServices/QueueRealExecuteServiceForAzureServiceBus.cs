@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Transactions;
 using Microsoft.Azure.ServiceBus;
+using Microsoft.Azure.ServiceBus.Core;
 using MSLibrary;
 using MSLibrary.DI;
 using MSLibrary.Logger;
@@ -65,7 +66,10 @@ namespace MSLibrary.CommonQueue.QueueRealExecuteServices
             foreach (var item in consumeConfiguration.Items)
             {
                 var newClient = new SubscriptionClient(consumeConfiguration.ConnectionString, item.Topic, consumeConfiguration.Subscription);
-                var tempItem = item;
+
+                //EntityNameHelper.FormatDeadLetterPath
+
+                  var tempItem = item;
                 loggerDatetimes[item.Topic] = DateTime.UtcNow;
                 var messageHandlerOptions = new MessageHandlerOptions(async (args) =>
                 {
@@ -76,6 +80,7 @@ namespace MSLibrary.CommonQueue.QueueRealExecuteServices
                         LoggerHelper.LogError(ConsumeErrorLoggerCategoryName, $"Message:{args.Exception.Message},stack:{args.Exception.StackTrace},Endpoint: {args.ExceptionReceivedContext.Endpoint},Entity Path: {args.ExceptionReceivedContext.EntityPath},Executing Action: {args.ExceptionReceivedContext.Action}");
                     }
 
+                    await Task.CompletedTask;
                 })
                 {
                     MaxConcurrentCalls = 1,
@@ -83,8 +88,10 @@ namespace MSLibrary.CommonQueue.QueueRealExecuteServices
                     AutoComplete = false
                 };
 
+
                 newClient.RegisterMessageHandler(async (azureMessage, cancellation) =>
                 {
+                   
                     bool catchError = true;
                     var fromService = getAzureServiceBusMessageConvertFromService(tempItem.ConvertFromServiceName);
                     var message = await fromService.From(azureMessage);
@@ -116,7 +123,7 @@ namespace MSLibrary.CommonQueue.QueueRealExecuteServices
 
                               
                                     //移到死信队列
-                                    newClient.DeadLetterAsync(azureMessage.SystemProperties.LockToken, strError);
+                                    await newClient.DeadLetterAsync(azureMessage.SystemProperties.LockToken, strError);
                                     break;
                                 }
                                 else
@@ -151,7 +158,7 @@ namespace MSLibrary.CommonQueue.QueueRealExecuteServices
 
             CommonQueueEndpointConsumeControllerForServiceBus controller = new CommonQueueEndpointConsumeControllerForServiceBus(clients);
 
-            return controller;
+            return await Task.FromResult(controller);
         }
 
         public async Task Product(CommonQueueProductEndpoint endpint, string configuration, CommonMessage message)

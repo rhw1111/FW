@@ -49,7 +49,7 @@ namespace MSLibrary.MySqlStore.Logger.DAL
                         log.ID = Guid.NewGuid();
                     }
 
-                        command.CommandText = string.Format(@"insert into CommonLog_Local (id,parentid,prelevelid,currentlevelid,contextinfo,categoryname,actionname,parentactionname,requestbody,responsebody,requesturi,message,root,level,duration,createtime,modifytime)
+                        command.CommandText = string.Format(@"insert into commonlog_local (id,parentid,prelevelid,currentlevelid,contextinfo,categoryname,actionname,parentactionname,requestbody,responsebody,requesturi,message,root,level,duration,createtime,modifytime)
                                                 VALUES (@id,@parentid,@prelevelid,@currentlevelid,@contextinfo,@categoryname,@actionname,@parentactionname,@requestbody,@responsebody,@requesturi,@message,@root,@level,@duration,utc_timestamp(),utc_timestamp())");
 
                         parameter = new MySqlParameter("@id", MySqlDbType.Guid)
