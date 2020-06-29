@@ -11,7 +11,7 @@
     {
       "Type": "Local",
       "LogLevels": {
-        "TestPlatform.Portal.Api": "4",
+        "TestPlatform.CaseService": "4",
         "DIWrapper": "2",
         "HttpRequest": "4",
         "SystemAuthentication": "4",

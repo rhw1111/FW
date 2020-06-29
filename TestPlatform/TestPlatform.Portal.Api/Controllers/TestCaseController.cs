@@ -40,7 +40,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         [HttpGet("gettestcsesbypage")]
         public async Task<QueryResult<TestCaseViewData>> GetByPage(int page, int pageSize)
         {
-            return await _appQueryTestCase.GetByPage(page, _pageSize);
+            return await _appQueryTestCase.GetByPage(page, pageSize);
         }
 
         [HttpGet("getcase")]
