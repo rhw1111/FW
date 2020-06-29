@@ -18,19 +18,17 @@ namespace FW.TestPlatform.CaseService.Controllers
         private readonly ILogger<TestCaseHistoryController> _logger;
         private readonly IAppAddTestCase _appAddTestCase;
 
-        public TestCaseHistoryController(ILogger<TestCaseHistoryController> logger,IAppAddTestCase appAddTestCase)
+        public TestCaseHistoryController(ILogger<TestCaseHistoryController> logger, IAppAddTestCase appAddTestCase)
         {
             _logger = logger;
             _appAddTestCase = appAddTestCase;
         }
 
         [HttpPost("addhistory")]
-        public async Task AddHistory(dynamic data)
+        public async Task AddHistory(TestCaseHistorySummyAddModel model)
         {
             try
             {
-                TestCaseHistorySummyAddModel model = JsonSerializerHelper.Deserialize(data);
-
                 if (model != null)
                 {
                     await _appAddTestCase.AddHistory(model);
@@ -39,8 +37,9 @@ namespace FW.TestPlatform.CaseService.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
+                throw ex;
             }
-            
+
         }
 
     }

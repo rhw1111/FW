@@ -45,12 +45,10 @@ namespace FW.TestPlatform.CaseService.Controllers
         }
 
         [HttpPost("addmasterdata")]
-        public async Task AddMasterData([FromBody]string data)
+        public async Task AddMasterData(MonitorMasterDataAddModel model)
         {
             try
             {
-                MonitorMasterDataAddModel model = JsonSerializerHelper.Deserialize<MonitorMasterDataAddModel>(data);
-
                 if (model != null)
                 {
                     await _appAddMonitorMasterData.Do(model);
@@ -64,11 +62,10 @@ namespace FW.TestPlatform.CaseService.Controllers
         }
 
         [HttpPost("addslavedata")]
-        public async Task AddSlaveData([FromBody]string data)
+        public async Task AddSlaveData(IList<MonitorSlaveDataAddModel> modelList)
         {
             try
             {
-                IList<MonitorSlaveDataAddModel> modelList = JsonSerializerHelper.Deserialize<IList<MonitorSlaveDataAddModel>>(data);
                 if (modelList != null)
                 {
                     await _appAddMonitorSlaveData.Do(modelList);
