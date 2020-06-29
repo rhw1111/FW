@@ -16,7 +16,7 @@ SET configuration = '{
     "Address": "127.0.0.1",
     "Port": 12345,
     "ResponseSeparator": "</package>",    
-    "RequestBody": "[{\'UserName\': \'{$currconnectkv(UserName)}\', \'UserToken\': \'{$currconnectkv(UserToken)}\', \'a\': \'a\'}]",
+    "RequestBody": "{\'UserName\': self.user_id, \'UserToken\': self.user_token, \'a\': \'a\'}",
     "DataSourceVars": [
         {
             "Name": "user_account_list",
@@ -28,24 +28,28 @@ SET configuration = '{
     "ConnectInit": {
         "VarSettings": [
             {
-                "Name": "{$currconnectkv(UserName)}",
-                "Content": "self.user_id"
+                "Name": "json_user_account",
+                "Content": "{$nameoncejsondatainvoke({$datasource(user_account_list)})}"
             },
             {
-                "Name": "{$currconnectkv(UserToken)}",
-                "Content": "self.user_token"
+                "Name": "{$currconnectkv(self.user_id)}",
+                "Content": "{$varkv(json_user_account, \'UserName\')}"
+            },
+            {
+                "Name": "{$currconnectkv(self.password)}",
+                "Content": "{$varkv(json_user_account, \'Password\')}"
+            },
+            {
+                "Name": "{$currconnectkv(self.user_token)}",
+                "Content": "{$tcprrwithconnectinvoke({$curconnect()}, \'\', \'\')}"
             }
         ]
     },
     "SendInit": {
         "VarSettings": [
             {
-                "Name": "SendInit_1",
-                "Content": "{$currconnectkv(UserName)}"
-            },
-            {
-                "Name": "SendInit_2",
-                "Content": "{$currconnectkv(UserToken)}"
+                "Name": "{$SendData()}",
+                "Content": "{$dessecurity({$SendData()}, \'abcdefghjhijklmn\')}"
             }
         ]
     }
