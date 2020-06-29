@@ -28,13 +28,13 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    ADDR = (host, port)");
             sbCode.AppendLine("    bufsize = 2048");
             sbCode.AppendLine("    ");
-            sbCode.AppendLine("    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)");
+            sbCode.AppendLine("    connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)");
             sbCode.AppendLine("    ");
             sbCode.AppendLine("    try:");
-            sbCode.AppendLine("        s.connect(ADDR)");
-            sbCode.AppendLine("        s.send(str(senddata).encode())");
+            sbCode.AppendLine("        connect.connect(ADDR)");
+            sbCode.AppendLine("        connect.send(str(senddata).encode())");
             sbCode.AppendLine("        ");
-            sbCode.AppendLine("        data = s.recv(bufsize).decode()");
+            sbCode.AppendLine("        data = connect.recv(bufsize).decode()");
             sbCode.AppendLine("        ");
             sbCode.AppendLine("        p = re.compile(receivereg, re.S)");
             sbCode.AppendLine("        result = re.findall(p, data)");

@@ -74,7 +74,6 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
             }
 
-
             strCode.Append($"TcpRR({parameters[0]}, {parameters[1]}, {parameters[2]}, {parameters[3]})");
 
             return strCode.ToString();
