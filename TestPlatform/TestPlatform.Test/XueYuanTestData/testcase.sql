@@ -32,16 +32,20 @@ SET configuration = '{
                 "Content": "{$nameoncejsondatainvoke({$datasource(user_account_list)})}"
             },
             {
-                "Name": "{$currconnectkv(self.user_id)}",
-                "Content": "{$varkv(json_user_account, \'UserName\')}"
+                "Name": "self.user_id",
+                "Content": "{$varkv(json_user_account,\'UserName\')}"
             },
             {
-                "Name": "{$currconnectkv(self.password)}",
-                "Content": "{$varkv(json_user_account, \'Password\')}"
+                "Name": "self.user_password",
+                "Content": "{$varkv(json_user_account,\'Password\')}"
             },
             {
-                "Name": "{$currconnectkv(self.user_token)}",
-                "Content": "{$tcprrwithconnectinvoke({$curconnect()}, \'\', \'\')}"
+                "Name": "login_send_data",
+                "Content": "{\'UserName\': self.user_id, \'UserToken\': self.user_password, \'a\': \'a\'}"
+            },
+            {
+                "Name": "self.user_token",
+                "Content": "{$tcprrwithconnectinvoke({$curconnect()},json.dumps(login_send_data),\'.*\')}"
             }
         ]
     },
@@ -49,7 +53,7 @@ SET configuration = '{
         "VarSettings": [
             {
                 "Name": "{$SendData()}",
-                "Content": "{$dessecurity({$SendData()}, \'abcdefghjhijklmn\')}"
+                "Content": "{$dessecurity({$SendData()},\'abcdefghjhijklmn\')}"
             }
         ]
     }

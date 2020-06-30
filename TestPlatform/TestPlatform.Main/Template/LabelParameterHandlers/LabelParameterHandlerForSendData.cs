@@ -50,7 +50,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
             var separatorService = _getSeparatorServiceSelector.Choose(engineType).Create();
             var strFuncSeparator = await separatorService.GetFuncSeparator();
 
-            strCode.Append($"self.send_data");
+            strCode.Append($"self.senddata");
 
             return strCode.ToString();
         }

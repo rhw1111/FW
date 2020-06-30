@@ -209,7 +209,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     var datas = await (from item in dbContext.TestCases
                                        join idItem in ids
                                   on item.ID equals idItem
-                                       orderby item.CreateTime descending
+                                       orderby EF.Property<long>(item, "Sequence")
                                        select item).ToListAsync();
 
                     result.Results.AddRange(datas);
@@ -234,12 +234,14 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
+                    var count = await (from item in dbContext.TestCases
+                                       select item.ID).CountAsync();
+
+                    result.TotalCount = count;
 
                     var datas = await (from item in dbContext.TestCases
-                               orderby item.CreateTime descending
+                                       orderby EF.Property<long>(item, "Sequence")
                                select item).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-
-                    result.TotalCount = datas.Count;
 
                     result.Results.AddRange(datas);
                 }

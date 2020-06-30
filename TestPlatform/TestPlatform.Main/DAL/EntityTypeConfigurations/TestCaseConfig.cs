@@ -28,6 +28,7 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
 
             builder.Property((entity) => entity.CreateTime).HasColumnType("datetime").Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             builder.Property((entity) => entity.ModifyTime).HasColumnType("datetime");
+            builder.Property<long>("Sequence").HasColumnName("sequence").HasColumnType("bigint").Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
         }
     }
 }

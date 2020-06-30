@@ -108,19 +108,20 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-
+                    var count = await (from item in dbContext.TestCaseHistories
+                                 where item.CaseID == caseID
+                                 select item.ID).CountAsync();
+                    result.TotalCount = count;
                     var ids= (from item in dbContext.TestCaseHistories
                               where item.CaseID == caseID  
-                                        orderby item.CreateTime descending
                                         select item.ID                                 
                                         ).Skip((page-1)*pageSize).Take(pageSize);
 
                     var datas =await (from item in dbContext.TestCaseHistories
                                       join idItem in ids
                                  on item.ID equals idItem
-                                 orderby item.CreateTime descending
-                                 select item).ToListAsync();
-                    result.TotalCount = datas.Count();
+                                      orderby EF.Property<long>(item, "Sequence")
+                                      select item).ToListAsync();                   
                     result.Results.AddRange(datas);                    
                 }
             });

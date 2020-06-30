@@ -449,7 +449,7 @@ namespace FW.TestPlatform.Main.Entities
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSlaveHostInCase, fragment, 1, 0);
             }
-            if (slaveHost.TestCase.Status != TestCaseStatus.NoRun)
+            if (slaveHost.TestCase != null && slaveHost.TestCase.Status != TestCaseStatus.NoRun)
             {
                 var fragment = new TextFragment()
                 {
@@ -457,9 +457,7 @@ namespace FW.TestPlatform.Main.Entities
                     DefaultFormatting = "只能在状态{0}的时候允许删除测试案例，当前测试案例{1}的状态为{2}",
                     ReplaceParameters = new List<object>() { TestCaseStatus.NoRun.ToString(), tCase.ID.ToString(), tCase.Status.ToString() }
                 };
-
                 throw new UtilityException((int)TestPlatformErrorCodes.StatusErrorOnTestCaseDelete, fragment, 1, 0);
-
             }
             await _testCaseSlaveHostStore.Delete(slaveHost.ID, cancellationToken);    
         }
