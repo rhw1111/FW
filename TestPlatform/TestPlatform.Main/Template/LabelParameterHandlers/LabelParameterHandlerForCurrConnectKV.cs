@@ -59,7 +59,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
             }
 
-            strCode.Append($"{parameters[0]}");
+            strCode.Append($"self.currconnectkv[{parameters[0]}]");
 
             return strCode.ToString();
         }

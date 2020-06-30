@@ -32,7 +32,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    ");
             sbCode.AppendLine("    try:");
             sbCode.AppendLine("        connect.connect(ADDR)");
-            sbCode.AppendLine("        connect.send(str(senddata).encode())");
+            sbCode.AppendLine("        connect.send(senddata.encode())");
             sbCode.AppendLine("        ");
             sbCode.AppendLine("        data = connect.recv(bufsize).decode()");
             sbCode.AppendLine("        ");

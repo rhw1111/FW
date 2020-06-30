@@ -213,6 +213,13 @@ class TcpTestUser(User):
     send_data = ""
     worker_report_time = datetime.datetime.now()
 
+    # 自定义变量集合
+    currconnectkv = [
+        {
+            "name": ""
+        }
+    ]
+
     stats_tcps = {
         "stats_tcps": []
     }
@@ -230,13 +237,13 @@ class TcpTestUser(User):
         self.client = TcpSocketClient(socket.AF_INET, socket.SOCK_STREAM)
 
     def get_package(self):
-        # request_body
         request_body = {RequestBody}
         self.send_data = request_body
 
         {$sendinit()}
 
-        package = self.send_data
+        package = self.senddata
+        package = json.dumps(package)
 
         return package
 
@@ -255,6 +262,10 @@ class TcpTestUser(User):
 
         print("Client: connect success, %s:%s" % self.ADDR)
         return is_success
+
+    def login(self):
+        # Login
+        {$connectinit()}
 
     def send_data(self, package):
         # while self.client.send(package) is False:
@@ -715,241 +726,6 @@ class TcpTestUser(User):
         pandas_stats_tcps_totals = pandas.read_json(json.dumps(stats_tcps_totals["stats_tcps_totals"]), "records")
         print(pandas_stats_tcps_totals)
 
-        # stats_tcps = {
-        #     "stats_tcps": [
-        #         {
-        #             "user_id": "user_id",
-        #             "client_id": "client_id",
-        #             "case_id": "case_id",
-        #             "name": "connect",
-        #             "start_time": "2020-06-06 00:00:00.000000",
-        #             "end_time": "2020-06-06 00:00:00.000000",
-        #             "run_time": 0.0,
-        #             "is_success": True,
-        #             "message": "",
-        #             "error_message": ""
-        #         }
-        #     ]
-        # }
-
-        # stats_tcps_current = {
-        #     "stats_tcps_current": [
-        #         {
-        #             "client_id": "client_id",
-        #             "case_id": "case_id",
-        #             "name": "connect",
-        #             "start_time": "2020-06-06 00:00:00.000000",
-        #             "end_time": "2020-06-06 00:00:00.000000",
-        #             "run_time": 0.0,
-        #             "max_time": 0.0,
-        #             "min_time": 0.0,
-        #             "avg_time": 0.0,
-        #             "med_time": 0.0,
-        #             "count_num": 0.0,
-        #             "success_num": 0,
-        #             "fail_num": 0,
-        #             "count/s": 0,
-        #             "success/s": 0,
-        #             "fail/s": 0
-        #         },
-        #         {
-        #             "client_id": "client_id",
-        #             "case_id": "case_id",
-        #             "name": "send",
-        #             "start_time": "2020-06-06 00:00:00.000000",
-        #             "end_time": "2020-06-06 00:00:00.000000",
-        #             "run_time": 0.0,
-        #             "max_time": 0.0,
-        #             "min_time": 0.0,
-        #             "avg_time": 0.0,
-        #             "med_time": 0.0,
-        #             "count_num": 0.0,
-        #             "success_num": 0,
-        #             "fail_num": 0,
-        #             "count/s": 0,
-        #             "success/s": 0,
-        #             "fail/s": 0
-        #         },
-        #         {
-        #             "client_id": "client_id",
-        #             "case_id": "case_id",
-        #             "name": "recv",
-        #             "start_time": "2020-06-06 00:00:00.000000",
-        #             "end_time": "2020-06-06 00:00:00.000000",
-        #             "run_time": 0.0,
-        #             "max_time": 0.0,
-        #             "min_time": 0.0,
-        #             "avg_time": 0.0,
-        #             "med_time": 0.0,
-        #             "count_num": 0.0,
-        #             "success_num": 0,
-        #             "fail_num": 0,
-        #             "count/s": 0,
-        #             "success/s": 0,
-        #             "fail/s": 0
-        #         }
-        #     ]
-        # }
-
-        # stats_tcps_totals = {
-        #     "stats_tcps_totals": [
-        #         {
-        #             "client_id": "client_id",
-        #             "case_id": "case_id",
-        #             "name": "connect",
-        #             "start_time": "2020-06-06 00:00:00.000000",
-        #             "end_time": "2020-06-06 00:00:00.000000",
-        #             "run_time": 0.0,
-        #             "max_time": 0.0,
-        #             "min_time": 0.0,
-        #             "avg_time": 0.0,
-        #             "med_time": 0.0,
-        #             "count_num": 0.0,
-        #             "success_num": 0,
-        #             "fail_num": 0,
-        #             "count/s": 0,
-        #             "success/s": 0,
-        #             "fail/s": 0
-        #         },
-        #         {
-        #             "client_id": "client_id",
-        #             "case_id": "case_id",
-        #             "name": "send",
-        #             "start_time": "2020-06-06 00:00:00.000000",
-        #             "end_time": "2020-06-06 00:00:00.000000",
-        #             "run_time": 0.0,
-        #             "max_time": 0.0,
-        #             "min_time": 0.0,
-        #             "avg_time": 0.0,
-        #             "med_time": 0.0,
-        #             "count_num": 0.0,
-        #             "success_num": 0,
-        #             "fail_num": 0,
-        #             "count/s": 0,
-        #             "success/s": 0,
-        #             "fail/s": 0
-        #         },
-        #         {
-        #             "client_id": "client_id",
-        #             "case_id": "case_id",
-        #             "name": "recv",
-        #             "start_time": "2020-06-06 00:00:00.000000",
-        #             "end_time": "2020-06-06 00:00:00.000000",
-        #             "run_time": 0.0,
-        #             "max_time": 0.0,
-        #             "min_time": 0.0,
-        #             "avg_time": 0.0,
-        #             "med_time": 0.0,
-        #             "count_num": 0.0,
-        #             "success_num": 0,
-        #             "fail_num": 0,
-        #             "count/s": 0,
-        #             "success/s": 0,
-        #             "fail/s": 0
-        #         }
-        #     ]
-        # }
-
-        # task_data = {
-        #     "client_id": "",
-        #     "data": {
-        #         "stats_tcps": [
-        #             {
-        #                 "user_id": "user_id",
-        #                 "client_id": "client_id",
-        #                 "case_id": "case_id",
-        #                 "name": "connect",
-        #                 "start_time": "2020-06-06 00:00:00.000000",
-        #                 "end_time": "2020-06-06 00:00:00.000000",
-        #                 "run_time": 0.0,
-        #                 "is_success": True,
-        #                 "message": "",
-        #                 "error_message": ""
-        #             },
-        #             {
-        #                 "user_id": "user_id",
-        #                 "client_id": "client_id",
-        #                 "case_id": "case_id",
-        #                 "name": "send",
-        #                 "start_time": "2020-06-06 00:00:00.000000",
-        #                 "end_time": "2020-06-06 00:00:00.000000",
-        #                 "run_time": 0.0,
-        #                 "is_success": True,
-        #                 "message": "",
-        #                 "error_message": ""
-        #             },
-        #             {
-        #                 "user_id": "user_id",
-        #                 "client_id": "client_id",
-        #                 "case_id": "case_id",
-        #                 "name": "recv",
-        #                 "start_time": "2020-06-06 00:00:00.000000",
-        #                 "end_time": "2020-06-06 00:00:00.000000",
-        #                 "run_time": 0.0,
-        #                 "is_success": True,
-        #                 "message": "",
-        #                 "error_message": ""
-        #             }
-        #         ],
-        #         "stats_tcps_totals": [
-        #             {
-        #                 "client_id": "client_id",
-        #                 "case_id": "case_id",
-        #                 "name": "connect",
-        #                 "start_time": "2020-06-06 00:00:00.000000",
-        #                 "end_time": "2020-06-06 00:00:00.000000",
-        #                 "run_time": 0.0,
-        #                 "max_time": 0.0,
-        #                 "min_time": 0.0,
-        #                 "avg_time": 0.0,
-        #                 "med_time": 0.0,
-        #                 "count_num": 0.0,
-        #                 "success_num": 0,
-        #                 "fail_num": 0,
-        #                 "count/s": 0,
-        #                 "success/s": 0,
-        #                 "fail/s": 0
-        #             },
-        #             {
-        #                 "client_id": "client_id",
-        #                 "case_id": "case_id",
-        #                 "name": "send",
-        #                 "start_time": "2020-06-06 00:00:00.000000",
-        #                 "end_time": "2020-06-06 00:00:00.000000",
-        #                 "run_time": 0.0,
-        #                 "max_time": 0.0,
-        #                 "min_time": 0.0,
-        #                 "avg_time": 0.0,
-        #                 "med_time": 0.0,
-        #                 "count_num": 0.0,
-        #                 "success_num": 0,
-        #                 "fail_num": 0,
-        #                 "count/s": 0,
-        #                 "success/s": 0,
-        #                 "fail/s": 0
-        #             },
-        #             {
-        #                 "client_id": "client_id",
-        #                 "case_id": "case_id",
-        #                 "name": "recv",
-        #                 "start_time": "2020-06-06 00:00:00.000000",
-        #                 "end_time": "2020-06-06 00:00:00.000000",
-        #                 "run_time": 0.0,
-        #                 "max_time": 0.0,
-        #                 "min_time": 0.0,
-        #                 "avg_time": 0.0,
-        #                 "med_time": 0.0,
-        #                 "count_num": 0.0,
-        #                 "success_num": 0,
-        #                 "fail_num": 0,
-        #                 "count/s": 0,
-        #                 "success/s": 0,
-        #                 "fail/s": 0
-        #             }
-        #         ]
-        #     }
-        # }
-
     def quitting():
         if len(TcpTestUser.stats_tcps_totals["stats_tcps_totals"]) == 0:
             # 在单节点非分布式运行时，判断此为master，master在quitting前，需汇总数据
@@ -1058,7 +834,6 @@ class TcpTestUser(User):
 
     def on_start(self):
         # print("on_start")
-        {$connectinit()}
 
         if is_hatch_complete_run:
             # print(all_locusts_spawned.ready())
@@ -1070,13 +845,10 @@ class TcpTestUser(User):
             lock.release()
             # print(all_locusts_spawned.ready())
 
-        self.user_id = "user_id_%s" % str(random.randint(1, 10000))
-        self.user_token = "user_token_%s" % str(random.randint(1, 10000))
         connect_run_time = 0.0
         connect_start_time = datetime.datetime.now()
         is_success = self.connect()
         connect_end_time = datetime.datetime.now()
-
         connect_run_time = connect_end_time - connect_start_time
 
         self.append_stats_tcps(
@@ -1087,6 +859,24 @@ class TcpTestUser(User):
             connect_start_time.strftime(datetime_format),
             connect_end_time.strftime(datetime_format),
             round(connect_run_time.total_seconds()),
+            is_success,
+            "",
+            "")
+
+        login_run_time = 0.0
+        login_start_time = datetime.datetime.now()
+        is_success = self.login()
+        login_end_time = datetime.datetime.now()
+        login_run_time = login_end_time - login_start_time
+
+        self.append_stats_tcps(
+            self.user_id,
+            client_id,
+            case_id,
+            "login",
+            login_start_time.strftime(datetime_format),
+            login_end_time.strftime(datetime_format),
+            round(login_run_time.total_seconds()),
             is_success,
             "",
             "")
