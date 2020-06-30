@@ -23,9 +23,9 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    bufsize = 2048");
             sbCode.AppendLine("    ");
             sbCode.AppendLine("    try:");
-            sbCode.AppendLine("        connect.send(str(senddata).encode())");
+            sbCode.AppendLine("        connect.send(senddata)");
             sbCode.AppendLine("        ");
-            sbCode.AppendLine("        data = connect.recv(bufsize).decode()");
+            sbCode.AppendLine("        data = connect.recv(bufsize)");
             sbCode.AppendLine("        ");
             sbCode.AppendLine("        p = re.compile(receivereg, re.S)");
             sbCode.AppendLine("        result = re.findall(p, data)");
