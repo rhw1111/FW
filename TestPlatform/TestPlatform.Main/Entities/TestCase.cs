@@ -11,6 +11,7 @@ using MSLibrary.Transaction;
 using FW.TestPlatform.Main.Entities.DAL;
 using FW.TestPlatform.Main.DTOModel;
 using MSLibrary.Serializer;
+using FW.TestPlatform.Main.Configuration;
 
 namespace FW.TestPlatform.Main.Entities
 {
@@ -335,13 +336,15 @@ namespace FW.TestPlatform.Main.Entities
         private ITestCaseSlaveHostStore _testCaseSlaveHostStore;
         private ITestHostRepository _testHostRepository;
         private ITestCaseHistoryStore _testCaseHistoryStore;
+        private ISystemConfigurationService _systemConfigurationService;
 
-        public TestCaseIMP(ITestCaseStore testCaseStore, ITestCaseSlaveHostStore testCaseSlaveHostStore, ITestHostRepository testHostRepository, ITestCaseHistoryStore testCaseHistoryStore)
+        public TestCaseIMP(ITestCaseStore testCaseStore, ITestCaseSlaveHostStore testCaseSlaveHostStore, ITestHostRepository testHostRepository, ITestCaseHistoryStore testCaseHistoryStore, ISystemConfigurationService systemConfigurationService)
         {
             _testCaseStore = testCaseStore;
             _testCaseSlaveHostStore = testCaseSlaveHostStore;
             _testHostRepository = testHostRepository;
             _testCaseHistoryStore = testCaseHistoryStore;
+            _systemConfigurationService = systemConfigurationService;
         }
 
         public async Task Add(TestCase tCase, CancellationToken cancellationToken = default)
@@ -372,6 +375,7 @@ namespace FW.TestPlatform.Main.Entities
                 throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseByName, fragment, 1, 0);
 
             }
+            tCase.OwnerID = await _systemConfigurationService.GetDefaultUserIDAsync();
             await _testCaseStore.Add(tCase, cancellationToken);
         }
 

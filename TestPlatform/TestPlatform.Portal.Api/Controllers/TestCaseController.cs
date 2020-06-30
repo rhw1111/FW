@@ -22,13 +22,22 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppAddTestCase _appAddTestCase;
         private readonly IAppQueryTestHost _appQueryTestHost;
         private readonly IAppExecuteTestCase _appExecuteTestCase;
+        private readonly IAppUpdateTestCase _appUpdateTestCase;
+        private readonly IAppDeleteTestCase _appDeleteTestCase;
+        private readonly IAppDeleteMultipleTestCase _appDeleteMultipleTestCase;
+        private readonly IAppQuerySingleTestCase _appQuerySingleTestCase;
 
-        public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQueryTestHost appQueryTestHost, IAppExecuteTestCase appExecuteTestCase)
+        public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQueryTestHost appQueryTestHost, IAppExecuteTestCase appExecuteTestCase, IAppQuerySingleTestCase appQuerySingleTestCase, IAppUpdateTestCase appUpdateTestCase,
+            IAppDeleteMultipleTestCase appDeleteMultipleTestCase, IAppDeleteTestCase appDeleteTestCase)
         {
             _appQueryTestCase = appQueryTestCase;
             _appAddTestCase = appAddTestCase;
             _appQueryTestHost = appQueryTestHost;
             _appExecuteTestCase = appExecuteTestCase;
+            _appUpdateTestCase = appUpdateTestCase;
+            _appDeleteTestCase = appDeleteTestCase;
+            _appDeleteMultipleTestCase = appDeleteMultipleTestCase;
+            _appQuerySingleTestCase = appQuerySingleTestCase;
         }
 
         [HttpGet("getbypage")]
@@ -37,16 +46,16 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             return await _appQueryTestCase.Do(matchName, page, _pageSize);
         }
 
-        [HttpGet("getbypagesize")]
-        public async Task<QueryResult<TestCaseViewData>> GetByPage(int page, int pageSize)
-        {
-            return await _appQueryTestCase.GetByPage(page, pageSize);
-        }
+        //[HttpGet("getbypagesize")]
+        //public async Task<QueryResult<TestCaseViewData>> GetByPage(int page, int pageSize)
+        //{
+        //    return await _appQueryTestCase.Do(page, pageSize);
+        //}
 
         [HttpGet("getcase")]
         public async Task<TestCaseViewData?> GetCase(Guid id)
         {
-            return await _appQueryTestCase.GetCase(id);
+            return await _appQuerySingleTestCase.Do(id);
         }
 
         [HttpPost("add")]
@@ -56,21 +65,21 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<TestCaseViewData> Update(TestCaseAddModel model)
+        public async Task Update(TestCaseAddModel model)
         {
-            return await _appAddTestCase.Update(model);
+            await _appUpdateTestCase.Do(model);
         }
 
         [HttpDelete("delete")]
-        public async Task<TestCaseViewData> Delete(Guid id)
+        public async Task Delete(Guid id)
         {
             try
             {
-                TestCase source = new TestCase()
-                {
-                    ID = id
-                };
-                return await _appAddTestCase.Delete(source);
+                //TestCase source = new TestCase()
+                //{
+                //    ID = id
+                //};
+                await _appDeleteTestCase.Do(id);
             }
             catch(Exception ex)
             {
@@ -78,11 +87,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             }
         }
         [HttpDelete("deletemultiple")]
-        public async Task DeleteMultiple(List<TestCaseAddModel> list)
+        public async Task DeleteMultiple(List<Guid> list)
         {
             try
             {
-                await _appAddTestCase.DeleteMutiple(list);
+                //List<TestCaseAddModel> list = new List<TestCaseAddModel>();
+                await _appDeleteMultipleTestCase.Do(list);
             }
             catch (Exception ex)
             {

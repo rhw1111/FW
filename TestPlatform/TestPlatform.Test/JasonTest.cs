@@ -216,13 +216,13 @@ namespace TestPlatform.Test
         private async Task AddTestCaseHistory()
         {
 
-            IAppAddTestCase test = DIContainerContainer.Get<IAppAddTestCase>();
+            IAppAddTestCaseHistory test = DIContainerContainer.Get<IAppAddTestCaseHistory>();
 
             TestCaseHistorySummyAddModel model = new TestCaseHistorySummyAddModel();
             model.CaseID = Guid.Parse("d4fdc4e2-4efd-4a1c-8372-5a6eca74e381");
             model.ConnectCount = 100;
 
-            await test.AddHistory(model);
+            await test.Do(model);
         }
 
     }
