@@ -23,6 +23,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
         Task<List<TestCase>> QueryCountNolockByStatus(TestCaseStatus status, IList<Guid> hostIds, CancellationToken cancellationToken = default);
 
         Task<TestCase?> QueryByName(string name, CancellationToken cancellationToken = default);
+        Task<Guid?> QueryByNameNoLock(string name, CancellationToken cancellationToken = default);
         Task<IList<TestCase>> QueryByNames(IList<string> names, CancellationToken cancellationToken = default);
         Task<QueryResult<TestCase>> QueryByPage(int page, int pageSize, CancellationToken cancellationToken = default);
     }
