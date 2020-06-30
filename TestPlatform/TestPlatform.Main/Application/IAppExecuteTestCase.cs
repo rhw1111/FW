@@ -14,7 +14,7 @@ namespace FW.TestPlatform.Main.Application
         Task<TestCaseViewData> Run(TestCaseAddModel model, CancellationToken cancellationToken = default);
         Task<TestCaseViewData> Stop(TestCaseAddModel model, CancellationToken cancellationToken = default);
         Task<TestCaseViewData> IsEngineRun(TestCaseAddModel model, CancellationToken cancellationToken = default);
-        Task AddSlaveHost(TestCaseSlaveHostAddModel slaveHost, CancellationToken cancellationToken = default);
+        Task<TestCaseSlaveHost> AddSlaveHost(TestCaseSlaveHostAddModel slaveHost, CancellationToken cancellationToken = default);
         IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(Guid caseId, CancellationToken cancellationToken = default);
         Task DeleteSlaveHost(Guid slaveHostID, CancellationToken cancellationToken = default);
         Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default);

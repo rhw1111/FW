@@ -14,5 +14,6 @@ namespace FW.TestPlatform.Main.Application
         Task<TestCaseViewData> Update(TestCaseAddModel model, CancellationToken cancellationToken = default);
         Task<TestCaseViewData> Delete(TestCase model, CancellationToken cancellationToken = default);
         Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default);
+        Task DeleteMutiple(List<TestCaseAddModel> list, CancellationToken cancellationToken = default);
     }
 }

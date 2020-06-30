@@ -36,13 +36,14 @@ namespace FW.TestPlatform.Main.Application
                         ID = item.ID,
                         Name = item.Name,
                         EngineType = item.EngineType,
+                        Configuration = item.Configuration,
                         Status = item.Status,
                         MasterHostID = item.MasterHostID,
                         MasterHost = item.MasterHost,
                         Owner = item.Owner,
                         OwnerID = item.OwnerID,
-                        CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
-                        ModifyTime= item.ModifyTime.ToCurrentUserTimeZone()
+                        CreateTime = item.CreateTime,
+                        ModifyTime= item.ModifyTime
                     }
                     );
             }
@@ -66,13 +67,14 @@ namespace FW.TestPlatform.Main.Application
                         ID = item.ID,
                         Name = item.Name,
                         EngineType = item.EngineType,
+                        Configuration = item.Configuration,
                         Status = item.Status,
                         MasterHostID = item.MasterHostID,
                         MasterHost = item.MasterHost,
                         Owner = item.Owner,
                         OwnerID = item.OwnerID,
-                        CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
-                        ModifyTime = item.ModifyTime.ToCurrentUserTimeZone()
+                        CreateTime = item.CreateTime,
+                        ModifyTime = item.ModifyTime
                     }
                     );
             }

@@ -59,7 +59,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
             }
 
-            if (parameters[1].Length % 16 != 0)
+            if (parameters[1].Replace("'", "").Replace("\"", "").Length % 16 != 0)
             {
                 var fragment = new TextFragment()
                 {

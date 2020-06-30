@@ -182,6 +182,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             strCode = strCode.Replace("{Address}", configuration.Address);
             strCode = strCode.Replace("{Port}", configuration.Port.ToString());
             strCode = strCode.Replace("{CaseID}", tCase.ID.ToString());
+            strCode = strCode.Replace("{RequestBody}", configuration.RequestBody);
             strCode = strCode.Replace("{ResponseSeparator}", configuration.ResponseSeparator);
             strCode = strCode.Replace("{CaseServiceBaseAddress}", caseServiceBaseAddress);
 
