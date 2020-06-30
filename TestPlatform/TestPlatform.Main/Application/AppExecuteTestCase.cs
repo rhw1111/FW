@@ -13,96 +13,48 @@ namespace FW.TestPlatform.Main.Application
     [Injection(InterfaceType = typeof(IAppExecuteTestCase), Scope = InjectionScope.Singleton)]
     public class AppExecuteTestCase : IAppExecuteTestCase
     {
-        public async Task<TestCaseViewData> Run(TestCaseAddModel model, CancellationToken cancellationToken = default)
+        public async Task Run(Guid id, CancellationToken cancellationToken = default)
         {
-            TestCaseViewData result;
-            try
-            {
-                TestCase source = new TestCase()
-                {
-                    Name = model.Name,
-                    OwnerID = model.OwnerID,
-                    EngineType = model.EngineType,
-                    MasterHostID = model.MasterHostID,
-                    Configuration = model.Configuration,
-                    Status = model.Status
-                };               
-                await source.Run();
-
-                result = new TestCaseViewData()
-                {
-                    ID = source.ID,
-                    EngineType = source.EngineType,
-                    Configuration = source.Configuration,
-                    Name = source.Name,
-                    CreateTime = source.CreateTime.ToCurrentUserTimeZone(),
-                    ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
-                };
-            }
-            catch(Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            
-
-            return result;
-        }
-
-        public async Task<TestCaseViewData> Stop(TestCaseAddModel model, CancellationToken cancellationToken = default)
-        {
-            TestCaseViewData result;
-            try
-            {
-                TestCase source = new TestCase()
-                {
-                    ID = model.ID,
-                    Name = model.Name,
-                    OwnerID = model.OwnerID,
-                    EngineType = model.EngineType,
-                    MasterHostID = model.MasterHostID,
-                    Configuration = model.Configuration,
-                    Status = model.Status
-                };
-                await source.Stop(cancellationToken);
-
-                result = new TestCaseViewData()
-                {
-                    EngineType = source.EngineType,
-                    Configuration = source.Configuration,
-                    Name = source.Name,
-                    ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
-                };
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return result;
-        }
-
-        public async Task<TestCaseViewData> IsEngineRun(TestCaseAddModel model, CancellationToken cancellationToken = default)
-        {
-            TestCaseViewData result;
             TestCase source = new TestCase()
             {
-                ID = model.ID,
-                Name = model.Name,
-                OwnerID = model.OwnerID,
-                EngineType = model.EngineType,
-                MasterHostID = model.MasterHostID,
-                Configuration = model.Configuration,
-                Status = model.Status
+                ID = id
+            };               
+            await source.Run();
+        }
+
+        public async Task Stop(Guid id, CancellationToken cancellationToken = default)
+        {
+            TestCase source = new TestCase()
+            {
+                ID = id
+            };
+            await source.Stop(cancellationToken);
+        }
+        public async Task<bool> IsEngineRun(Guid caseId, CancellationToken cancellationToken = default)
+        {
+            bool result= false;
+            TestCase source = new TestCase()
+            {
+                ID = caseId
             };
             await source.IsEngineRun(cancellationToken);
-
-            result = new TestCaseViewData()
-            {
-                EngineType = source.EngineType,
-                Configuration = source.Configuration,
-                Name = source.Name,
-                ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
-            };
             return result;
+        }
+        public async Task<string> GetMasterLog(Guid caseId, CancellationToken cancellationToken = default)
+        {
+            TestCase source = new TestCase()
+            {
+                ID = caseId
+            };
+            return await source.GetMasterLog(cancellationToken);
+        }
+        public async Task<string> GetSlaveLog(Guid caseId, Guid slaveHostId, CancellationToken cancellationToken = default)
+        {
+            TestCase source = new TestCase()
+            {
+                ID = caseId
+            };
+            return await source.GetSlaveLog(slaveHostId, cancellationToken);
         }
         public async Task<TestCaseSlaveHost> AddSlaveHost(TestCaseSlaveHostAddModel slaveHost, CancellationToken cancellationToken = default)
         {

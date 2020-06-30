@@ -106,19 +106,29 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             }
         }
         [HttpPost("run")]
-        public async Task Run(TestCaseAddModel model)
+        public async Task Run(Guid caseId)
         {
-            await _appExecuteTestCase.Run(model);
+            await _appExecuteTestCase.Run(caseId);
         }
         [HttpPost("stop")]
-        public async Task Stop(TestCaseAddModel model)
+        public async Task Stop(Guid caseId)
         {
-            await _appExecuteTestCase.Run(model);
+            await _appExecuteTestCase.Stop(caseId);
         }
-        [HttpPost("isenginerun")]
-        public async Task<TestCaseViewData> IsEngineRun(TestCaseAddModel model)
+        [HttpPost("CheckTestStatus")]
+        public async Task<bool> CheckTestStatus(Guid caseId)
         {
-            return await _appExecuteTestCase.IsEngineRun(model);
+            return await _appExecuteTestCase.IsEngineRun(caseId);
+        }
+        [HttpPost("GetMasterLog")]
+        public async Task<string> GetMasterLog(Guid caseId)
+        {
+             return await _appExecuteTestCase.GetMasterLog(caseId);
+        }
+        [HttpPost("GetSlaveLog")]
+        public async Task<string> GetSlaveLog(Guid caseId, Guid slaveHostId)
+        {
+            return await _appExecuteTestCase.GetSlaveLog(caseId, slaveHostId);
         }
         [HttpPost("addslavehost")]
         public async Task<TestCaseSlaveHost> AddSlaveHost(TestCaseSlaveHostAddModel slaveHost)

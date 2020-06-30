@@ -263,13 +263,21 @@ namespace FW.TestPlatform.Main.Entities
         {
             return await _imp.IsEngineRun(this, cancellationToken);
         }
+        public async Task<string> GetMasterLog(CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetMasterLog(this, cancellationToken);
+        }
+        public async Task<string> GetSlaveLog(Guid slaveID, CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetSlaveLog(this, slaveID, cancellationToken);
+        }
         public async Task AddSlaveHost(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
             await _imp.AddSlaveHost(this, slaveHost, cancellationToken);
         }
         public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default)
         {
-            return _imp.GetAllSlaveHosts(tCase, cancellationToken);
+            return _imp.GetAllSlaveHosts(this, cancellationToken);
         }
         public async Task UpdateSlaveHost(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
