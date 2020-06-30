@@ -166,7 +166,7 @@ namespace FW.TestPlatform.Main.Application
             TestCaseSlaveHost tCaseSlaveHost = new TestCaseSlaveHost() {
                 ID = slaveHost.ID,
                 TestCaseID = slaveHost.TestCaseID,
-                HostID = slaveHost.TestCaseID,
+                HostID = slaveHost.HostID,
                 Count = slaveHost.Count,
                 ExtensionInfo = slaveHost.ExtensionInfo,
                 SlaveName = slaveHost.SlaveName,

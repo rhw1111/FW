@@ -91,7 +91,8 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     var entry = dbContext.Entry(source);
                     foreach (var item in entry.Properties)
                     {
-                        entry.Property(item.Metadata.Name).IsModified = true;
+                        if(item.Metadata.Name != "ID")
+                            entry.Property(item.Metadata.Name).IsModified = true;
                     }
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }
@@ -167,11 +168,9 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-
-
                     result = await (from item in dbContext.TestCaseSlaveHosts
                                     where item.ID == id
-                                    select item).FirstOrDefaultAsync();
+                                    select item).Include(entity => entity.TestCase).Include(entity => entity.Host).FirstOrDefaultAsync();
                 }
             });
 

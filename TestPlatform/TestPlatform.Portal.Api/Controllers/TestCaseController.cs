@@ -125,7 +125,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         {
             return await _appExecuteTestCase.AddSlaveHost(slaveHost);
         }
-        [HttpPost("GetAllSlaveHosts")]
+        [HttpGet("GetAllSlaveHosts")]
         public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(Guid caseId)
         {
             return _appExecuteTestCase.GetAllSlaveHosts(caseId);
@@ -141,19 +141,19 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             return await _appExecuteTestCase.GetHistories(caseID, page, pageSize);
         }
         [HttpDelete("DeleteHistory")]
-        public async Task DeleteHistory(Guid historyID)
+        public async Task DeleteHistory(Guid id)
         {
-            await _appExecuteTestCase.DeleteHistory(historyID);
+            await _appExecuteTestCase.DeleteHistory(id);
         }
         [HttpDelete("DeleteSlaveHost")]
-        public async Task DeleteSlaveHost(Guid slaveHostId)
+        public async Task DeleteSlaveHost(Guid id)
         {
-            await _appExecuteTestCase.DeleteSlaveHost(slaveHostId);
+            await _appExecuteTestCase.DeleteSlaveHost(id);
         }
-        [HttpDelete("GetHistory")]
-        public async Task<TestCaseHistory?> GetHistory(Guid historyID)
+        [HttpGet("GetHistory")]
+        public async Task<TestCaseHistory?> GetHistory(Guid id)
         {
-            return await _appExecuteTestCase.GetHistory(historyID);
+            return await _appExecuteTestCase.GetHistory(id);
         }
     }
 }
