@@ -80,7 +80,7 @@ CREATE TABLE `influxdbendpoint` (
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-REPLACE INTO `influxdbendpoint` (`id`, `name`, `address`, `isauth`, `username`, `password`, `createtime`, `modifytime`) VALUES ('c7a290e6-eddd-4126-abc9-5e129718e0fc', 'EndpointName', 'http://localhost:8086/', b'1', 'admin', 'admin', UTC_TIMESTAMP(),UTC_TIMESTAMP());
+REPLACE INTO `influxdbendpoint` (`id`, `name`, `address`, `isauth`, `username`, `password`, `createtime`, `modifytime`) VALUES ('c7a290e6-eddd-4126-abc9-5e129718e0fc', 'EndpointName', 'http://172.17.0.1:8086', b'0', 'admin', 'admin', UTC_TIMESTAMP(),UTC_TIMESTAMP());
 
 -- 导出 tpmain 的数据库结构
 CREATE DATABASE IF NOT EXISTS `tpmain` /*!40100 DEFAULT CHARACTER SET utf8 */ /*!80016 DEFAULT ENCRYPTION='N' */;
