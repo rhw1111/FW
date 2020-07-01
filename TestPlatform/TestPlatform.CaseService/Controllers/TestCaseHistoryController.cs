@@ -27,19 +27,7 @@ namespace FW.TestPlatform.CaseService.Controllers
         [HttpPost("addhistory")]
         public async Task AddHistory(TestCaseHistorySummyAddModel model)
         {
-            try
-            {
-                if (model != null)
-                {
-                    await _appAddTestCaseHistory.Do(model);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                throw ex;
-            }
-
+            await _appAddTestCaseHistory.Do(model);
         }
 
     }

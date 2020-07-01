@@ -77,9 +77,9 @@ namespace TestPlatform.Test
         {
             //await QueryByCaseID("c7a290e6-eddd-4126-abc9-5e129718e0fc");
             //await AddTestCase();
-            //await AddTestCaseHistory();
+            await AddTestCaseHistory();
             //await CreateMonitorDB();
-            await AddMasterData();
+            //await AddMasterData();
 
             //await AddSlaveData();
         }
@@ -221,6 +221,15 @@ namespace TestPlatform.Test
             TestCaseHistorySummyAddModel model = new TestCaseHistorySummyAddModel();
             model.CaseID = Guid.Parse("d4fdc4e2-4efd-4a1c-8372-5a6eca74e381");
             model.ConnectCount = 100;
+            model.AvgDuration = 100;
+            model.AvgQPS = 100;
+            model.ConnectFailCount = 100;
+            model.MaxDuration = 100;
+            model.MaxQPS = 100;
+            model.MinDurartion = 100;
+            model.MinQPS = 100;
+            model.ReqCount = 100;
+            model.ReqFailCount = 100;
 
             await test.Do(model);
         }

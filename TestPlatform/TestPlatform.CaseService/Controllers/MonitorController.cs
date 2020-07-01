@@ -34,48 +34,19 @@ namespace FW.TestPlatform.CaseService.Controllers
         [HttpPost("createdatabase")]
         public async Task CreateDataBase()
         {
-            try
-            {
-                await _appCreateMonitorDB.Do();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
+            await _appCreateMonitorDB.Do();
         }
 
         [HttpPost("addmasterdata")]
         public async Task AddMasterData(MonitorMasterDataAddModel model)
         {
-            try
-            {
-                if (model != null)
-                {
-                    await _appAddMonitorMasterData.Do(model);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.StackTrace);
-                throw ex;
-            }
+            await _appAddMonitorMasterData.Do(model);
         }
 
         [HttpPost("addslavedata")]
         public async Task AddSlaveData(IList<MonitorSlaveDataAddModel> modelList)
         {
-            try
-            {
-                if (modelList != null)
-                {
-                    await _appAddMonitorSlaveData.Do(modelList);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.StackTrace);
-                throw ex;
-            }
+            await _appAddMonitorSlaveData.Do(modelList);
         }
     }
 }
