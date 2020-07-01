@@ -204,5 +204,49 @@ namespace FW.TestPlatform.Main.Entities.DAL
             }
             return result;
         }
+
+        public async Task DeleteSlaveHosts(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    List<TestCaseSlaveHost> list = new List<TestCaseSlaveHost>();
+                    foreach (Guid id in ids)
+                    {
+                        var deleteObj = new TestCaseSlaveHost() { ID = id };
+                        list.Add(deleteObj);
+                    }
+                    dbContext.TestCaseSlaveHosts.AttachRange(list.ToArray());
+                    dbContext.TestCaseSlaveHosts.RemoveRange(list.ToArray());
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
+        }
+
+        public async Task<List<TestCaseSlaveHost>> QueryByCaseIdAndSlaveHostIds(Guid caseId, List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            List<TestCaseSlaveHost> result = new List<TestCaseSlaveHost>();
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    result = await (from item in dbContext.TestCaseSlaveHosts
+                                   where item.TestCaseID == caseId && ids.Contains(item.ID)
+                                   select item).ToListAsync();
+                }
+            });
+
+            return result;
+        }
     }
 }

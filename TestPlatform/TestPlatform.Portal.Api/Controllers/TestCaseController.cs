@@ -39,10 +39,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppUpdateSlaveHost _appUpdateSlaveHost;
         private readonly IAppDeleteTestCaseHistory _appDeleteTestCaseHistory;
         private readonly IAppDeleteSlaveHost _appDeleteSlaveHost;
+        private readonly IAppDeleteSlaveHosts _appDeleteSlaveHosts;
+        private readonly IAppDeleteHistories _appDeleteHistories;
         public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQueryTestHost appQueryTestHost, IAppExecuteTestCase appExecuteTestCase, IAppQuerySingleTestCase appQuerySingleTestCase, IAppUpdateTestCase appUpdateTestCase,
             IAppDeleteMultipleTestCase appDeleteMultipleTestCase, IAppDeleteTestCase appDeleteTestCase, IAppRunTestCase appRunTestCase, IAppStopTestCase appStopTestCase, IAppCheckTestCaseStatus appCheckTestCaseStatus, IAppAddSlaveHost appAddSlaveHost,
             IAppQueryMasterLog appQueryMasterLog, IAppQuerySlaveLog appQuerySlaveLog, IAppQuerySlaveHost appQuerySlaveHost, IAppQueryTestCaseHistory appQueryTestCaseHistory, IAppQuerySingleTestCaseHistory appQuerySingleTestCaseHistory, IAppUpdateSlaveHost appUpdateSlaveHost,
-            IAppDeleteTestCaseHistory appDeleteTestCaseHistory, IAppDeleteSlaveHost appDeleteSlaveHost)
+            IAppDeleteTestCaseHistory appDeleteTestCaseHistory, IAppDeleteSlaveHost appDeleteSlaveHost, IAppDeleteHistories appDeleteHistories, IAppDeleteSlaveHosts appDeleteSlaveHosts)
         {
             _appQueryTestCase = appQueryTestCase;
             _appAddTestCase = appAddTestCase;
@@ -64,12 +66,22 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _appUpdateSlaveHost = appUpdateSlaveHost;
             _appDeleteTestCaseHistory = appDeleteTestCaseHistory;
             _appDeleteSlaveHost = appDeleteSlaveHost;
+            _appDeleteHistories = appDeleteHistories;
+            _appDeleteSlaveHosts = appDeleteSlaveHosts;
         }
         //查询增加修改执行TestCase
         [HttpGet("querybypage")]
-        public async Task<QueryResult<TestCaseViewData>> GetByPage(string matchName,int page)
+        public async Task<QueryResult<TestCaseViewData>> GetByPage(string? matchName,int page, int? pageSize)
         {
-            return await _appQueryTestCase.Do(matchName, page, _pageSize);
+            if(matchName == null)
+            {
+                matchName = "";
+            }
+            if(pageSize == null)
+            {
+                pageSize = _pageSize;
+            }
+            return await _appQueryTestCase.Do(matchName, page, (int)pageSize);
         }
         [HttpGet("testcase")]
         public async Task<TestCaseViewData> GetCase(Guid id)
@@ -92,11 +104,11 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             await _appDeleteTestCase.Do(id);
         }
 
-        [HttpDelete("deletemultiple")]
-        public async Task DeleteMultiple(List<Guid> list)
-        {
-           await _appDeleteMultipleTestCase.Do(list);
-        }      
+        //[HttpDelete("deletemultiple")]
+        //public async Task DeleteMultiple(List<Guid> list)
+        //{
+        //   await _appDeleteMultipleTestCase.Do(list);
+        //}      
         [HttpPost("run")]
         public async Task Run(Guid caseId)
         {
@@ -148,6 +160,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             await _appDeleteSlaveHost.Do(caseId, id);
         }
 
+        [HttpDelete("deleteslavehosts")]
+        public async Task DeleteSlaveHosts(MultipleDeleteModel model)
+        {
+            await _appDeleteSlaveHosts.Do(model.CaseID, model.IDS);
+        }
+
         //查询修改删除History
         [HttpGet("histories")]
         public async Task<QueryResult<TestCaseHistoryViewData>> GetHistories(Guid caseID, int page, int pageSize)
@@ -165,6 +183,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         public async Task DeleteHistory(Guid caseId, Guid historyId)
         {
             await _appDeleteTestCaseHistory.Do(caseId, historyId);
+        }
+
+        [HttpDelete("deletehistories")]
+        public async Task DeleteMultipleHistories(MultipleDeleteModel model)
+        {
+            await _appDeleteHistories.Do(model.CaseID, model.IDS);
         }
 
         //[HttpGet("gethosts")]

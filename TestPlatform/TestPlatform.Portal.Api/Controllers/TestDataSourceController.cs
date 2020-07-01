@@ -18,17 +18,38 @@ namespace FW.TestPlatform.Portal.Api.Controllers
 
         private readonly IAppQueryTestDataSource _appQueryTestDataSource;
         private readonly IAppAddTestDataSource _appAddTestDataSource;
+        private readonly IAppUpdateTestDataSource _appUpdateTestDataSource;
+        private readonly IAppDeleteTestDataSource _appDeleteTestDataSource;
+        private readonly IAppQuerySingleTestDataSource _appQuerySingleTestDataSource;
+        private readonly IAppDeleteMultipleTestDataSource _appDeleteMultipleTestDataSource;
 
-        public TestDataSourceController(IAppQueryTestDataSource appQueryTestDataSource, IAppAddTestDataSource appAddTestDataSource)
+        public TestDataSourceController(IAppQueryTestDataSource appQueryTestDataSource, IAppAddTestDataSource appAddTestDataSource, IAppUpdateTestDataSource appUpdateTestDataSource, IAppDeleteTestDataSource appDeleteTestDataSource, 
+            IAppQuerySingleTestDataSource appQuerySingleTestDataSource, IAppDeleteMultipleTestDataSource appDeleteMultipleTestDataSource)
         {
             _appQueryTestDataSource = appQueryTestDataSource;
             _appAddTestDataSource = appAddTestDataSource;
+            _appUpdateTestDataSource = appUpdateTestDataSource;
+            _appDeleteTestDataSource = appDeleteTestDataSource;
+            _appQuerySingleTestDataSource = appQuerySingleTestDataSource;
+            _appDeleteMultipleTestDataSource = appDeleteMultipleTestDataSource;
         }
 
-        [HttpGet("getbypage")]
-        public async Task<QueryResult<TestDataSourceViewData>> GetByPage(string matchName,int page)
+        [HttpGet("querybypage")]
+        public async Task<QueryResult<TestDataSourceViewData>> GetByPage(string? matchName,int page, int? pageSize)
         {
-            return await _appQueryTestDataSource.Do(matchName, page, _pageSize);
+            if (matchName == null)
+                matchName = "";
+            if(pageSize == null)
+            {
+                pageSize = _pageSize;
+            }
+            return await _appQueryTestDataSource.Do(matchName, page, (int)pageSize);
+        }
+
+        [HttpGet("testdatasource")]
+        public async Task<TestDataSourceViewData> GetTestDataSource(Guid id)
+        {
+            return await _appQuerySingleTestDataSource.Do(id);
         }
 
         [HttpPost("add")]
@@ -37,14 +58,20 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             return await _appAddTestDataSource.Do(model);
         }
         [HttpPut("update")]
-        public async Task<TestDataSourceViewData> Update(TestDataSourceAddModel model)
+        public async Task<TestDataSourceViewData> Update(TestDataSourceUpdateModel model)
         {
-            return await _appAddTestDataSource.Delete(model);
+            return await _appUpdateTestDataSource.Do(model);
         }
-        [HttpPost("delete")]
-        public async Task<TestDataSourceViewData> Delete(TestDataSourceAddModel model)
+        [HttpDelete("delete")]
+        public async Task Delete(Guid id)
         {
-            return await _appAddTestDataSource.Do(model);
+            await _appDeleteTestDataSource.Do(id);
+        }
+
+        [HttpDelete("deletemultiple")]
+        public async Task DeleteMutiple(List<Guid> ids)
+        {
+            await _appDeleteMultipleTestDataSource.Do(ids);
         }
     }
 }

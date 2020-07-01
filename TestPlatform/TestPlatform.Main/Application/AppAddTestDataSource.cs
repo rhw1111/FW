@@ -37,54 +37,54 @@ namespace FW.TestPlatform.Main.Application
             return result;
         }
 
-        public async Task<TestDataSourceViewData> Update(TestDataSourceAddModel model, CancellationToken cancellationToken = default)
-        {
-            TestDataSource source = new TestDataSource()
-            {
-                ID = model.ID,
-                Name = model.Name,
-                Data = model.Data,
-                Type = model.Type
-            };
+        //public async Task<TestDataSourceViewData> Update(TestDataSourceAddModel model, CancellationToken cancellationToken = default)
+        //{
+        //    TestDataSource source = new TestDataSource()
+        //    {
+        //        ID = model.ID,
+        //        Name = model.Name,
+        //        Data = model.Data,
+        //        Type = model.Type
+        //    };
 
-            await source.Update(cancellationToken);
+        //    await source.Update(cancellationToken);
 
-            TestDataSourceViewData result = new TestDataSourceViewData()
-            {
-                ID = source.ID,
-                Type = source.Type,
-                Data = source.Data,
-                Name = source.Name,
-                CreateTime = source.CreateTime.ToCurrentUserTimeZone(),
-                ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
-            };
+        //    TestDataSourceViewData result = new TestDataSourceViewData()
+        //    {
+        //        ID = source.ID,
+        //        Type = source.Type,
+        //        Data = source.Data,
+        //        Name = source.Name,
+        //        CreateTime = source.CreateTime.ToCurrentUserTimeZone(),
+        //        ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
+        //    };
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public async Task<TestDataSourceViewData> Delete(TestDataSourceAddModel model, CancellationToken cancellationToken = default)
-        {
-            TestDataSource source = new TestDataSource()
-            {
-                ID = model.ID,
-                Name = model.Name,
-                Data = model.Data,
-                Type = model.Type
-            };
+        //public async Task<TestDataSourceViewData> Delete(TestDataSourceAddModel model, CancellationToken cancellationToken = default)
+        //{
+        //    TestDataSource source = new TestDataSource()
+        //    {
+        //        ID = model.ID,
+        //        Name = model.Name,
+        //        Data = model.Data,
+        //        Type = model.Type
+        //    };
 
-            await source.Delete(cancellationToken);
+        //    await source.Delete(cancellationToken);
 
-            TestDataSourceViewData result = new TestDataSourceViewData()
-            {
-                ID = source.ID,
-                Type = source.Type,
-                Data = source.Data,
-                Name = source.Name,
-                CreateTime = source.CreateTime.ToCurrentUserTimeZone(),
-                ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
-            };
+        //    TestDataSourceViewData result = new TestDataSourceViewData()
+        //    {
+        //        ID = source.ID,
+        //        Type = source.Type,
+        //        Data = source.Data,
+        //        Name = source.Name,
+        //        CreateTime = source.CreateTime.ToCurrentUserTimeZone(),
+        //        ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
+        //    };
 
-            return result;
-        }
+        //    return result;
+        //}
     }
 }

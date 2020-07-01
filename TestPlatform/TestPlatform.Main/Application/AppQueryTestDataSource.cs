@@ -19,7 +19,6 @@ namespace FW.TestPlatform.Main.Application
         {
             _testDataSourceRepository = testDataSourceRepository;
         }
-
         public async Task<QueryResult<TestDataSourceViewData>> Do(string matchName, int page, int pageSize, CancellationToken cancellationToken = default)
         {
             QueryResult<TestDataSourceViewData> result = new QueryResult<TestDataSourceViewData>();
@@ -27,41 +26,43 @@ namespace FW.TestPlatform.Main.Application
 
             result.CurrentPage = queryResult.CurrentPage;
             result.TotalCount = queryResult.TotalCount;
-
-            foreach(var item in queryResult.Results)
+            if (queryResult.Results != null && queryResult.Results.Count > 0)
             {
-                result.Results.Add(
-                    new TestDataSourceViewData()
-                    {
-                        ID = item.ID,
-                        Name = item.Name,
-                        Type = item.Type,
-                        Data = item.Data,
-                        CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
-                        ModifyTime= item.ModifyTime.ToCurrentUserTimeZone()
-                    }
-                    );
-            }
-
-            return result;
-        }
-        public async Task<TestDataSourceViewData?> QueryByID(Guid id, CancellationToken cancellationToken = default)
-        {
-            TestDataSourceViewData result = new TestDataSourceViewData();
-            var item = await _testDataSourceRepository.QueryByID(id);
-            if (item != null)
-            {
-                result = new TestDataSourceViewData()
+                foreach (var item in queryResult.Results)
                 {
-                    ID = item.ID,
-                    Name = item.Name,
-                    Type = item.Type,
-                    Data = item.Data,
-                    CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
-                    ModifyTime = item.ModifyTime.ToCurrentUserTimeZone()
-                };
+                    result.Results.Add(
+                        new TestDataSourceViewData()
+                        {
+                            ID = item.ID,
+                            Name = item.Name,
+                            Type = item.Type,
+                            Data = item.Data,
+                            CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
+                            ModifyTime = item.ModifyTime.ToCurrentUserTimeZone()
+                        }
+                        );
+                }
             }
+
             return result;
         }
+        //public async Task<TestDataSourceViewData?> QueryByID(Guid id, CancellationToken cancellationToken = default)
+        //{
+        //    TestDataSourceViewData result = new TestDataSourceViewData();
+        //    var item = await _testDataSourceRepository.QueryByID(id);
+        //    if (item != null)
+        //    {
+        //        result = new TestDataSourceViewData()
+        //        {
+        //            ID = item.ID,
+        //            Name = item.Name,
+        //            Type = item.Type,
+        //            Data = item.Data,
+        //            CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
+        //            ModifyTime = item.ModifyTime.ToCurrentUserTimeZone()
+        //        };
+        //    }
+        //    return result;
+        //}
     }
 }

@@ -12,6 +12,7 @@ using FW.TestPlatform.Main.Entities.DAL;
 using FW.TestPlatform.Main.DTOModel;
 using MSLibrary.Serializer;
 using FW.TestPlatform.Main.Configuration;
+using System.Linq;
 
 namespace FW.TestPlatform.Main.Entities
 {
@@ -305,6 +306,14 @@ namespace FW.TestPlatform.Main.Entities
         {
             return await _imp.GetHistory(this, historyID, cancellationToken);
         }
+        public async Task DeleteSlaveHosts(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            await _imp.DeleteSlaveHosts(this, ids, cancellationToken);
+        }
+        public async Task DeleteHistories(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            await _imp.DeleteHistories(this, ids, cancellationToken);
+        }
     }
 
     public interface ITestCaseIMP
@@ -328,6 +337,8 @@ namespace FW.TestPlatform.Main.Entities
         Task<bool> IsEngineRun(TestCase tCase, CancellationToken cancellationToken = default);
         Task<string> GetMasterLog(TestCase tCase, CancellationToken cancellationToken = default);
         Task<string> GetSlaveLog(TestCase tCase,Guid slaveID, CancellationToken cancellationToken = default);
+        Task DeleteSlaveHosts(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default);
+        Task DeleteHistories(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default);
     }
 
 
@@ -460,10 +471,6 @@ namespace FW.TestPlatform.Main.Entities
             }
             await _testCaseStore.Delete(tCase.ID, cancellationToken);
         }
-        //public async Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default)
-        //{
-        //    await _testCaseStore.DeleteMutiple(list, cancellationToken);
-        //}
 
         public async Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
         {
@@ -732,6 +739,39 @@ namespace FW.TestPlatform.Main.Entities
 
             slaveHost.TestCaseID = tCase.ID;
             await _testCaseSlaveHostStore.Update(slaveHost, cancellationToken);
+        }
+
+        public async Task DeleteSlaveHosts(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            List<TestCaseSlaveHost> slaveHosts = await _testCaseSlaveHostStore.QueryByCaseIdAndSlaveHostIds(tCase.ID, ids, cancellationToken);
+            if (slaveHosts.Count != ids.Count)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestHostByID,
+                    DefaultFormatting = "批量删除异常, 不能找到所有测试用例Id为{0}的测试从机Id为{1}",
+                    ReplaceParameters = new List<object>() { tCase.ID.ToString(), string.Join(",", ids.ToArray()) }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
+            }
+            await _testCaseSlaveHostStore.DeleteSlaveHosts(ids, cancellationToken);
+        }
+        public async Task DeleteHistories(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            List<TestCaseHistory> histories = await _testCaseHistoryStore.QueryByCaseIdAndHistoryIds(tCase.ID, ids, cancellationToken);
+            if (histories.Count > 0 && histories.Count != ids.Count)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestCaseHistoryByID,
+                    DefaultFormatting = "批量删除异常, 不能找到所有测试用例Id为{0}的测试从机Id为{1}",
+                    ReplaceParameters = new List<object>() { tCase.ID.ToString(), string.Join(",", ids.ToArray()) }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseHistoryById, fragment, 1, 0);
+            }
+            await _testCaseSlaveHostStore.DeleteSlaveHosts(ids, cancellationToken);
         }
 
         private ITestCaseHandleService getHandleService(string engineType)

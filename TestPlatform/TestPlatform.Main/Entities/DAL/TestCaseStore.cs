@@ -149,7 +149,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
                         var testCase = await (from item in dbContext.TestCases
                                         where item.Name == name
-                                        orderby EF.Property<long>(item, "Sequence")
+                                        orderby EF.Property<long>(item, "Sequence") descending
                                         select item).FirstOrDefaultAsync();
                         if (testCase != null)
                             result = testCase.ID;
@@ -201,7 +201,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
 
-                    var strLike = $"{matchName.ToSqlLike()}%";
+                    var strLike = $"%{matchName.ToSqlLike()}%";
                     var count = await (from item in dbContext.TestCases
                                        where EF.Functions.Like(item.Name, strLike)
                                        select item.ID).CountAsync();
@@ -217,7 +217,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     var datas = await (from item in dbContext.TestCases
                                        join idItem in ids
                                   on item.ID equals idItem
-                                       orderby EF.Property<long>(item, "Sequence")
+                                       orderby EF.Property<long>(item, "Sequence") descending
                                        select item).ToListAsync();
 
                     result.Results.AddRange(datas);
@@ -248,7 +248,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     result.TotalCount = count;
 
                     var datas = await (from item in dbContext.TestCases
-                                       orderby EF.Property<long>(item, "Sequence")
+                                       orderby EF.Property<long>(item, "Sequence") descending
                                select item).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
                     result.Results.AddRange(datas);
