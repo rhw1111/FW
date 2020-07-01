@@ -2,7 +2,7 @@ import Vue from 'vue';
 import App from './App.vue';
 import router from './router/index'
 import './quasar'
-Vue.config.productionTip = true;
+window.VueInstance = Vue;
 
 new Vue({
   router,
