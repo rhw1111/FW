@@ -147,7 +147,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                                            join idItem in ids
                                       on item.ID equals idItem
                                            orderby EF.Property<long>(item, "Sequence")
-                                           select item).ToListAsync();
+                                           select item).Include(u => u.Host).ThenInclude(u => u.SSHEndpoint).ToListAsync();
                         }
                     });
 
