@@ -20,7 +20,7 @@ namespace FW.TestPlatform.Main.Application
             _testHostRepository = testHostRepository;
         }
 
-        public async Task<List<TestHostViewData>> GetHosts(CancellationToken cancellationToken = default)
+        public async Task<List<TestHostViewData>> Do(CancellationToken cancellationToken = default)
         {
             List<TestHostViewData> result = new List<TestHostViewData>();
             var queryResult = _testHostRepository.GetHosts(cancellationToken);
