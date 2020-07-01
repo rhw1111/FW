@@ -27,6 +27,7 @@ from locust.log import setup_logging
 from Crypto.Cipher import DES3
 import base64
 import requests
+from urllib import request, parse
 
 import sys
 import os
@@ -38,22 +39,18 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 setup_logging("INFO", None)
 
-# host = "127.0.0.1"
+
 host = "{Address}"
-# port = 12345
 port = {Port}
 # client_id
-# client_id = "client_id"
 client_id = "{SlaveName}"
 # case_id
-# case_id = "case_id"
 case_id = "{CaseID}"
 # # 数据包头
 package_start = "<package>"
 # # 数据包尾
-# package_end = "</package>"
 package_end = "{ResponseSeparator}"
-# PortalPAI的地址
+# API地址
 case_service_base_address = "{CaseServiceBaseAddress}"
 
 # 每个用户每次Task之间的等待时间，单位：秒
@@ -210,7 +207,7 @@ class TcpTestUser(User):
     user_id = ""
     user_password = ""
     user_token = ""
-    send_data = ""
+    senddata = ""
     worker_report_time = datetime.datetime.now()
 
     # 自定义变量集合
@@ -224,8 +221,8 @@ class TcpTestUser(User):
         "stats_tcps": []
     }
 
-    stats_tcps_current = {
-        "stats_tcps_current": []
+    stats_tcps_currents = {
+        "stats_tcps_currents": []
     }
 
     stats_tcps_totals = {
@@ -266,6 +263,8 @@ class TcpTestUser(User):
     def login(self):
         # Login
         {$connectinit()}
+
+        return True
 
     def send_data(self, package):
         # while self.client.send(package) is False:
@@ -413,26 +412,27 @@ class TcpTestUser(User):
 
         # 如果是单点模式，取定时清理stats_tcps，以免爆内存
         if self.environment.parsed_options.worker is False:
-            if len(TcpTestUser.stats_tcps["stats_tcps"]) > 50000:
+            if TcpTestUser.is_worker_report_time() and len(TcpTestUser.stats_tcps["stats_tcps"]) > 0:
                 lock.acquire()
 
-                if TcpTestUser.is_worker_report_time():
-                    TcpTestUser.create_stats_tcps_current_worker_report()
+                # temp_stats_tcps_currents = TcpTestUser.stats_tcps_currents["stats_tcps_currents"]
+                TcpTestUser.create_stats_tcps_currents()
+                # TcpTestUser.stats_tcps_currents["stats_tcps_currents"] = temp_stats_tcps_currents + TcpTestUser.stats_tcps_currents["stats_tcps_currents"]
+                # TcpTestUser.create_stats_tcps_currents_worker_report()
 
-                    temp_stats_tcps_totals = TcpTestUser.stats_tcps_totals["stats_tcps_totals"]
-                    TcpTestUser.create_stats_tcps_totals()
-                    TcpTestUser.stats_tcps_totals["stats_tcps_totals"] = temp_stats_tcps_totals + TcpTestUser.stats_tcps_totals["stats_tcps_totals"]
-                    TcpTestUser.create_stats_tcps_totals_worker_report()
+                temp_stats_tcps_totals = TcpTestUser.stats_tcps_totals["stats_tcps_totals"]
+                TcpTestUser.create_stats_tcps_totals()
+                TcpTestUser.stats_tcps_totals["stats_tcps_totals"] = temp_stats_tcps_totals + TcpTestUser.stats_tcps_totals["stats_tcps_totals"]
+                TcpTestUser.create_stats_tcps_totals_worker_report()
 
-                    if is_worker_report_save:
-                        if len(TcpTestUser.stats_tcps["stats_tcps"]) > 0 and len(TcpTestUser.stats_tcps_totals["stats_tcps_totals"]) > 0:
-                            # 在多节点分布式运行时，判断此为master, 汇总数据并提交API
-                            TcpTestUser.save_data(TcpTestUser.stats_tcps, TcpTestUser.stats_tcps_current, TcpTestUser.stats_tcps_totals)                
+                if is_worker_report_save:
+                    if len(TcpTestUser.stats_tcps["stats_tcps"]) > 0 and len(TcpTestUser.stats_tcps_totals["stats_tcps_totals"]) > 0:
+                        # 在多节点分布式运行时，判断此为master, 汇总数据并提交API
+                        TcpTestUser.save_data(TcpTestUser.stats_tcps, TcpTestUser.stats_tcps_currents, TcpTestUser.stats_tcps_totals)                
 
-                            TcpTestUser.reset_stats_tcps()
-                            # TcpTestUser.reset_stats_tcps_current()
-                            # TcpTestUser.reset_stats_tcps_totals()
-
+                        TcpTestUser.reset_stats_tcps()
+                        # TcpTestUser.reset_stats_tcps_currents()
+                        # TcpTestUser.reset_stats_tcps_totals()
                 lock.release()
 
     def append_stats_tcps(self, user_id, client_id, case_id, name, start_time, end_time, run_time, is_success, message, error_message):
@@ -449,27 +449,33 @@ class TcpTestUser(User):
         stats_tcp["error_message"] = error_message
         TcpTestUser.stats_tcps["stats_tcps"].append(stats_tcp)
 
-    def append_stats_tcps_current(client_id, case_id, name, start_time, end_time, run_time, max_time, min_time, avg_time, med_time, count_num, success_num, fail_num, count_s, success_s, fail_s):
-        stats_tcps_total = {}
-        stats_tcps_total["client_id"] = client_id
-        stats_tcps_total["case_id"] = case_id
-        stats_tcps_total["name"] = name
-        stats_tcps_total["start_time"] = start_time
-        stats_tcps_total["end_time"] = end_time
-        stats_tcps_total["run_time"] = run_time
-        stats_tcps_total["max_time"] = max_time
-        stats_tcps_total["min_time"] = min_time
-        stats_tcps_total["avg_time"] = avg_time
-        stats_tcps_total["med_time"] = med_time
-        stats_tcps_total["count_num"] = count_num
-        stats_tcps_total["success_num"] = success_num
-        stats_tcps_total["fail_num"] = fail_num
-        stats_tcps_total["count_s"] = count_s
-        stats_tcps_total["success_s"] = success_s
-        stats_tcps_total["fail_s"] = fail_s
-        TcpTestUser.stats_tcps_current["stats_tcps_current"].append(stats_tcps_total)
+    def append_stats_tcps_currents(client_id, case_id, name, start_time, end_time, run_time, max_time, min_time, avg_time, med_time, count_num, success_num, fail_num, count_s, success_s, fail_s, max_count_s, min_count_s, max_success_s, min_success_s, max_fail_s, min_fail_s):
+        stats_tcps_current = {}
+        stats_tcps_current["client_id"] = client_id
+        stats_tcps_current["case_id"] = case_id
+        stats_tcps_current["name"] = name
+        stats_tcps_current["start_time"] = start_time
+        stats_tcps_current["end_time"] = end_time
+        stats_tcps_current["run_time"] = run_time
+        stats_tcps_current["max_time"] = max_time
+        stats_tcps_current["min_time"] = min_time
+        stats_tcps_current["avg_time"] = avg_time
+        stats_tcps_current["med_time"] = med_time
+        stats_tcps_current["count_num"] = count_num
+        stats_tcps_current["success_num"] = success_num
+        stats_tcps_current["fail_num"] = fail_num
+        stats_tcps_current["count_s"] = count_s
+        stats_tcps_current["success_s"] = success_s
+        stats_tcps_current["fail_s"] = fail_s
+        stats_tcps_current["max_count_s"] = max_count_s
+        stats_tcps_current["min_count_s"] = min_count_s
+        stats_tcps_current["max_success_s"] = max_success_s
+        stats_tcps_current["min_success_s"] = min_success_s
+        stats_tcps_current["max_fail_s"] = max_fail_s
+        stats_tcps_current["min_fail_s"] = min_fail_s
+        TcpTestUser.stats_tcps_currents["stats_tcps_currents"].append(stats_tcps_current)
 
-    def append_stats_tcps_totals(client_id, case_id, name, start_time, end_time, run_time, max_time, min_time, avg_time, med_time, count_num, success_num, fail_num, count_s, success_s, fail_s):
+    def append_stats_tcps_totals(client_id, case_id, name, start_time, end_time, run_time, max_time, min_time, avg_time, med_time, count_num, success_num, fail_num, count_s, success_s, fail_s, max_count_s, min_count_s, max_success_s, min_success_s, max_fail_s, min_fail_s):
         stats_tcps_total = {}
         stats_tcps_total["client_id"] = client_id
         stats_tcps_total["case_id"] = case_id
@@ -486,7 +492,14 @@ class TcpTestUser(User):
         stats_tcps_total["fail_num"] = fail_num
         stats_tcps_total["count_s"] = count_s
         stats_tcps_total["success_s"] = success_s
-        stats_tcps_total["fail_s"] = fail_s
+        stats_tcps_total["fail_s"] = fail_s        
+        stats_tcps_total["max_count_s"] = max_count_s
+        stats_tcps_total["min_count_s"] = min_count_s
+        stats_tcps_total["max_success_s"] = max_success_s
+        stats_tcps_total["min_success_s"] = min_success_s
+        stats_tcps_total["max_fail_s"] = max_fail_s
+        stats_tcps_total["min_fail_s"] = min_fail_s
+
         TcpTestUser.stats_tcps_totals["stats_tcps_totals"].append(stats_tcps_total)
 
     def reset_stats_tcps():
@@ -494,9 +507,9 @@ class TcpTestUser(User):
             "stats_tcps": []
         }
 
-    def reset_stats_tcps_current():
-        TcpTestUser.stats_tcps_current = {
-            "stats_tcps_current": []
+    def reset_stats_tcps_currents():
+        TcpTestUser.stats_tcps_currents = {
+            "stats_tcps_currents": []
         }
 
     def reset_stats_tcps_totals():
@@ -514,11 +527,11 @@ class TcpTestUser(User):
 
         return True
 
-    def create_stats_tcps_current():
+    def create_stats_tcps_currents():
         if len(TcpTestUser.stats_tcps["stats_tcps"]) == 0:
             return False
 
-        TcpTestUser.reset_stats_tcps_current()
+        TcpTestUser.reset_stats_tcps_currents()
 
         pandas_stats_tcps = pandas.read_json(json.dumps(TcpTestUser.stats_tcps["stats_tcps"]), "records")
         # print(pandas_stats_tcps)
@@ -526,7 +539,7 @@ class TcpTestUser(User):
         if len(pandas_stats_tcps) == 0:
             return False
 
-        names = ["connect", "send",  "recv"]
+        names = ["connect", "login", "send",  "recv"]
 
         for name in names:
             pandas_stats_tcps_name = pandas_stats_tcps[pandas_stats_tcps["name"]==name]
@@ -540,7 +553,7 @@ class TcpTestUser(User):
                 if run_time == 0:
                     run_time = 1
 
-                TcpTestUser.append_stats_tcps_current(
+                TcpTestUser.append_stats_tcps_currents(
                     client_id,
                     case_id,
                     name,
@@ -554,68 +567,76 @@ class TcpTestUser(User):
                     float(pandas_stats_tcps_name["is_success"].count()),
                     float(pandas_stats_tcps_name_true["is_success"].count()),
                     float(pandas_stats_tcps_name_false["is_success"].count()),
-                    float(pandas_stats_tcps_name["is_success"].count() / run_time),
-                    float(pandas_stats_tcps_name_true["is_success"].count() / run_time),
-                    float(pandas_stats_tcps_name_false["is_success"].count() / run_time))            
+                    float(round(pandas_stats_tcps_name["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name_true["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name_false["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name_true["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name_true["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name_false["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name_false["is_success"].count() / run_time, 6)))       
 
-        # pandas_stats_tcps_current = pandas.read_json(json.dumps(TcpTestUser.stats_tcps_current["stats_tcps_current"]), "records")
-        # print(pandas_stats_tcps_current)
+        # pandas_stats_tcps_currents = pandas.read_json(json.dumps(TcpTestUser.stats_tcps_currents["stats_tcps_currents"]), "records")
+        # print(pandas_stats_tcps_currents)
+
         return True
 
-    def create_stats_tcps_current_worker_report():
+    def create_stats_tcps_currents_worker_report():
         if is_current is False:
             return True
 
         if len(TcpTestUser.stats_tcps["stats_tcps"]) == 0:
             return False
 
-        stats_tcps_current = TcpTestUser.stats_tcps_current
-        TcpTestUser.reset_stats_tcps_current()        
+        stats_tcps_currents = TcpTestUser.stats_tcps_currents
+        TcpTestUser.reset_stats_tcps_currents()        
 
-        # start_time = (TcpTestUser.worker_report_time + datetime.timedelta(seconds=0))
-        # end_time = (start_time + datetime.timedelta(seconds=1))
+        # pandas_stats_tcps_currents = pandas.read_json(json.dumps(TcpTestUser.stats_tcps["stats_tcps"]), "records")
+        pandas_stats_tcps_currents = pandas.read_json(json.dumps(stats_tcps_currents["stats_tcps_currents"]), "records")
+        # print(pandas_stats_tcps_currents)
 
-        pandas_stats_tcps = pandas.read_json(json.dumps(TcpTestUser.stats_tcps["stats_tcps"]), "records")
-        # pandas_stats_tcps = pandas_stats_tcps[(pandas_stats_tcps["start_time"]>=start_time) & (pandas_stats_tcps["start_time"]<=end_time)]
-        # print(pandas_stats_tcps)
-
-        if len(pandas_stats_tcps) == 0:
+        if len(pandas_stats_tcps_currents) == 0:
             return False
 
-        names = ["connect", "send",  "recv"]
+        names = ["connect", "login", "send",  "recv"]
 
         for name in names:
-            pandas_stats_tcps_name = pandas_stats_tcps[pandas_stats_tcps["name"]==name]
-            pandas_stats_tcps_name_true = pandas_stats_tcps_name[pandas_stats_tcps_name["is_success"]==True]
-            pandas_stats_tcps_name_false = pandas_stats_tcps_name[pandas_stats_tcps_name["is_success"]==False]
+            pandas_stats_tcps_currents_name = pandas_stats_tcps_currents[pandas_stats_tcps_currents["name"]==name]
 
-            if pandas_stats_tcps_name["name"].count() > 0:
-                run_time = pandas_stats_tcps_name["end_time"].max() - pandas_stats_tcps_name["start_time"].min()
+            if pandas_stats_tcps_currents_name["name"].count() > 0:
+                run_time = pandas_stats_tcps_currents_name["end_time"].max() - pandas_stats_tcps_currents_name["start_time"].min()
                 run_time = run_time.total_seconds()
 
                 if run_time == 0:
                     run_time = 1
 
-                TcpTestUser.append_stats_tcps_current(
+                TcpTestUser.append_stats_tcps_currents(
                     client_id,
                     case_id,
                     name,
-                    pandas_stats_tcps_name["start_time"].min().strftime(datetime_format),
-                    pandas_stats_tcps_name["end_time"].max().strftime(datetime_format),
+                    pandas_stats_tcps_currents_name["start_time"].min().strftime(datetime_format),
+                    pandas_stats_tcps_currents_name["end_time"].max().strftime(datetime_format),
                     float(round(run_time, 6)),
-                    float(round(pandas_stats_tcps_name["run_time"].max(), 6)),
-                    float(round(pandas_stats_tcps_name["run_time"].min(), 6)),
-                    float(round(pandas_stats_tcps_name["run_time"].mean(), 6)),
-                    float(round(pandas_stats_tcps_name["run_time"].median(), 6)),
-                    float(pandas_stats_tcps_name["is_success"].count()),
-                    float(pandas_stats_tcps_name_true["is_success"].count()),
-                    float(pandas_stats_tcps_name_false["is_success"].count()),
-                    float(pandas_stats_tcps_name["is_success"].count() / run_time),
-                    float(pandas_stats_tcps_name_true["is_success"].count() / run_time),
-                    float(pandas_stats_tcps_name_false["is_success"].count() / run_time))            
+                    float(round(pandas_stats_tcps_currents_name["max_time"].max(), 6)),
+                    float(round(pandas_stats_tcps_currents_name["min_time"].min(), 6)),
+                    float(round(pandas_stats_tcps_currents_name["avg_time"].mean(), 6)),
+                    float(round(pandas_stats_tcps_currents_name["med_time"].median(), 6)),
+                    float(pandas_stats_tcps_currents_name["count_num"].sum()),
+                    float(pandas_stats_tcps_currents_name["success_num"].sum()),
+                    float(pandas_stats_tcps_currents_name["fail_num"].sum()),
+                    float(round(pandas_stats_tcps_currents_name["count_num"].sum() / run_time, 6)),
+                    float(round(pandas_stats_tcps_currents_name["success_num"].sum() / run_time, 6)),
+                    float(round(pandas_stats_tcps_currents_name["fail_num"].sum() / run_time, 6)),
+                    float(round(pandas_stats_tcps_currents_name["count_s"].max(), 6)),
+                    float(round(pandas_stats_tcps_currents_name["count_s"].min(), 6)),
+                    float(round(pandas_stats_tcps_currents_name["success_s"].max(), 6)),
+                    float(round(pandas_stats_tcps_currents_name["success_s"].min(), 6)),
+                    float(round(pandas_stats_tcps_currents_name["fail_s"].max(), 6)),
+                    float(round(pandas_stats_tcps_currents_name["fail_s"].max(), 6)))          
 
-        # pandas_stats_tcps_current = pandas.read_json(json.dumps(TcpTestUser.stats_tcps_current["stats_tcps_current"]), "records")
-        # print(pandas_stats_tcps_current)
+        pandas_stats_tcps_currents = pandas.read_json(json.dumps(TcpTestUser.stats_tcps_currents["stats_tcps_currents"]), "records")
+        print(pandas_stats_tcps_currents)
 
         return True
 
@@ -631,7 +652,7 @@ class TcpTestUser(User):
         if len(pandas_stats_tcps) == 0:
             return False        
 
-        names = ["connect", "send",  "recv"]
+        names = ["connect", "login", "send",  "recv"]
 
         for name in names:
             pandas_stats_tcps_name = pandas_stats_tcps[pandas_stats_tcps["name"]==name]
@@ -659,9 +680,15 @@ class TcpTestUser(User):
                     float(pandas_stats_tcps_name["is_success"].count()),
                     float(pandas_stats_tcps_name_true["is_success"].count()),
                     float(pandas_stats_tcps_name_false["is_success"].count()),
-                    float(pandas_stats_tcps_name["is_success"].count() / run_time),
-                    float(pandas_stats_tcps_name_true["is_success"].count() / run_time),
-                    float(pandas_stats_tcps_name_false["is_success"].count() / run_time))            
+                    float(round(pandas_stats_tcps_name["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name_true["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name_false["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name_true["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name_true["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name_false["is_success"].count() / run_time, 6)),
+                    float(round(pandas_stats_tcps_name_false["is_success"].count() / run_time, 6)))            
 
         # pandas_stats_tcps_totals = pandas.read_json(json.dumps(TcpTestUser.stats_tcps_totals["stats_tcps_totals"]), "records")
         # print(pandas_stats_tcps_totals)
@@ -680,7 +707,7 @@ class TcpTestUser(User):
         if len(pandas_stats_tcps_totals) == 0:
             return False    
 
-        names = ["connect", "send",  "recv"]
+        names = ["connect", "login", "send",  "recv"]
 
         for name in names:
             pandas_stats_tcps_totals_name = pandas_stats_tcps_totals[pandas_stats_tcps_totals["name"]==name]
@@ -706,25 +733,150 @@ class TcpTestUser(User):
                     float(pandas_stats_tcps_totals_name["count_num"].sum()),
                     float(pandas_stats_tcps_totals_name["success_num"].sum()),
                     float(pandas_stats_tcps_totals_name["fail_num"].sum()),
-                    float(pandas_stats_tcps_totals_name["count_num"].sum() / run_time),
-                    float(pandas_stats_tcps_totals_name["success_num"].sum() / run_time),
-                    float(pandas_stats_tcps_totals_name["fail_num"].sum() / run_time))        
+                    float(round(pandas_stats_tcps_totals_name["count_num"].sum() / run_time, 6)),
+                    float(round(pandas_stats_tcps_totals_name["success_num"].sum() / run_time, 6)),
+                    float(round(pandas_stats_tcps_totals_name["fail_num"].sum() / run_time, 6)),
+                    float(round(pandas_stats_tcps_totals_name["count_s"].max(), 6)),
+                    float(round(pandas_stats_tcps_totals_name["count_s"].min(), 6)),
+                    float(round(pandas_stats_tcps_totals_name["success_s"].max(), 6)),
+                    float(round(pandas_stats_tcps_totals_name["success_s"].min(), 6)),
+                    float(round(pandas_stats_tcps_totals_name["fail_s"].max(), 6)),
+                    float(round(pandas_stats_tcps_totals_name["fail_s"].max(), 6)))
 
         # pandas_stats_tcps_totals = pandas.read_json(json.dumps(TcpTestUser.stats_tcps_totals["stats_tcps_totals"]), "records")
         # print(pandas_stats_tcps_totals)
         return True
 
-    def save_data(stats_tcps, stats_tcps_current, stats_tcps_totals):
+    def save_data(stats_tcps, stats_tcps_currents, stats_tcps_totals):
         # print("save_data")
 
         pandas_stats_tcps = pandas.read_json(json.dumps(stats_tcps["stats_tcps"]), "records")
         print(pandas_stats_tcps)
 
-        pandas_stats_tcps_current = pandas.read_json(json.dumps(stats_tcps_current["stats_tcps_current"]), "records")
-        print(pandas_stats_tcps_current)
+        pandas_stats_tcps_currents = pandas.read_json(json.dumps(stats_tcps_currents["stats_tcps_currents"]), "records")
+        print(pandas_stats_tcps_currents)
 
         pandas_stats_tcps_totals = pandas.read_json(json.dumps(stats_tcps_totals["stats_tcps_totals"]), "records")
         print(pandas_stats_tcps_totals)
+
+        TcpTestUser.add_master_data(stats_tcps, stats_tcps_currents, stats_tcps_totals)
+        TcpTestUser.add_history_data(TcpTestUser.stats_tcps, TcpTestUser.stats_tcps_currents, TcpTestUser.stats_tcps_totals)        
+
+    def add_master_data(stats_tcps, stats_tcps_currents, stats_tcps_totals):
+        # print("add_master_data")
+
+        master_data = {}
+        master_data["CaseID"] = ""
+        master_data["ConnectCount"] = ""
+        master_data["ConnectFailCount"] = ""
+        master_data["ReqCount"] = ""
+        master_data["ReqFailCount"] = ""
+        master_data["MaxDuration"] = ""
+        master_data["MinDurartion"] = ""
+        master_data["AvgDuration"] = ""
+
+        for row in stats_tcps_currents["stats_tcps_currents"]:
+            if row["name"] == "connect":
+                a = 1
+            elif row["name"] == "send":
+                master_data["ReqCount"] = str(row["count_num"])
+                master_data["ReqFailCount"] = str(row["fail_num"])
+                master_data["MaxDuration"] = str(row["max_time"])
+                master_data["MinDurartion"] = str(row["min_time"])
+                master_data["AvgDuration"] = str(row["avg_time"])
+            elif row["name"] == "recv":
+                a = 1
+
+        for row in stats_tcps_totals["stats_tcps_totals"]:
+            if row["name"] == "connect":
+                master_data["CaseID"] = row["case_id"]
+                master_data["ConnectCount"] = str(row["count_num"])
+                master_data["ConnectFailCount"] = str(row["fail_num"])
+            elif row["name"] == "send":
+                a = 1
+            elif row["name"] == "recv":
+                a = 1
+
+        # print(master_data)
+        TcpTestUser.post_api("api/monitor/addmasterdata", master_data)
+
+    def add_worker_data(stats_tcps, stats_tcps_currents, stats_tcps_totals):
+        # print("add_worker_data")
+
+        worker_data_data = {}
+        worker_data_data["CaseID"] = ""
+        worker_data_data["SlaveID"] = ""
+        worker_data_data["QPS"] = ""
+        worker_data_data["Time"] = ""
+
+        for row in stats_tcps_currents["stats_tcps_currents"]:
+            if row["name"] == "connect":
+                a = 1
+            elif row["name"] == "send":
+                worker_data_data["CaseID"] = row["case_id"]
+                worker_data_data["SlaveID"] = row["client_id"]
+                worker_data_data["QPS"] = str(row["count_s"])
+                worker_data_data["Time"] = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+            elif row["name"] == "recv":
+                a = 1
+
+        worker_data = []
+        worker_data.append(worker_data_data)
+
+        # print(worker_data)
+        TcpTestUser.post_api("api/monitor/addslavedata", worker_data)
+
+    def add_history_data(stats_tcps, stats_tcps_currents, stats_tcps_totals):
+        # print("add_history_data")
+
+        history_data = {}
+        history_data["CaseID"] = ""
+        history_data["ConnectCount"] = ""
+        history_data["ConnectFailCount"] = ""
+        history_data["ReqCount"] = ""
+        history_data["ReqFailCount"] = ""
+        history_data["MaxQPS"] = ""
+        history_data["MinQPS"] = ""
+        history_data["AvgQPS"] = ""
+        history_data["MaxDuration"] = ""
+        history_data["MinDurartion"] = ""
+        history_data["AvgDuration"] = ""
+
+        for row in stats_tcps_totals["stats_tcps_totals"]:
+            if row["name"] == "connect":
+                history_data["CaseID"] = row["case_id"]
+                history_data["ConnectCount"] = row["count_num"]
+                history_data["ConnectFailCount"] = row["fail_num"]
+            elif row["name"] == "send":
+                history_data["ReqCount"] = row["count_num"]
+                history_data["ReqFailCount"] = row["fail_num"]
+                history_data["MaxDuration"] = row["max_time"]
+                history_data["MinDurartion"] = row["min_time"]
+                history_data["AvgDuration"] = row["avg_time"]
+                history_data["MaxQPS"] = row["max_count_s"]
+                history_data["MinQPS"] = row["min_count_s"]
+                history_data["AvgQPS"] = row["count_s"]
+            elif row["name"] == "recv":
+                a = 1
+
+        # print(history_data)
+        TcpTestUser.post_api("api/monitor/addhistory", history_data)
+
+    def post_api(path, data):
+        # print("post_api")
+        # print(data)
+
+        try:
+            github_url = "%s%s" % (case_service_base_address, path)
+            headers = {
+                "Content-Type": "application/json"
+            }
+            result = requests.post(github_url, json=data, headers=headers)
+            # print("Url: %s" % github_url)
+            # print("Result: %s" % result.text)
+        except Exception as e:
+            print(str(e))
+            return
 
     def quitting():
         if len(TcpTestUser.stats_tcps_totals["stats_tcps_totals"]) == 0:
@@ -741,14 +893,14 @@ class TcpTestUser(User):
         else:
             # 在单节点非分布式运行时，判断此为master，master在quitting前，需提交API
             print("master")
-            # my_api = api.api()
-            # my_api.save_data(TcpTestUser.stats_tcps, TcpTestUser.stats_tcps_totals)
-            TcpTestUser.create_stats_tcps_current_worker_report()
+            TcpTestUser.create_stats_tcps_currents_worker_report()
             TcpTestUser.create_stats_tcps_totals_worker_report()
-            TcpTestUser.save_data(TcpTestUser.stats_tcps, TcpTestUser.stats_tcps_current, TcpTestUser.stats_tcps_totals)
-            TcpTestUser.reset_stats_tcps()
-            TcpTestUser.reset_stats_tcps_current()
-            TcpTestUser.reset_stats_tcps_totals()
+            TcpTestUser.save_data(TcpTestUser.stats_tcps, TcpTestUser.stats_tcps_currents, TcpTestUser.stats_tcps_totals)
+
+        TcpTestUser.add_history_data(TcpTestUser.stats_tcps, TcpTestUser.stats_tcps_currents, TcpTestUser.stats_tcps_totals)        
+        TcpTestUser.reset_stats_tcps()
+        TcpTestUser.reset_stats_tcps_currents()
+        TcpTestUser.reset_stats_tcps_totals()
 
     @events.hatch_complete.add_listener
     def on_hatch_complete(**kwargs):
@@ -794,19 +946,20 @@ class TcpTestUser(User):
         # 在多节点分布式运行时，判断此为master, 汇总worker来的数据
         lock.acquire()
         TcpTestUser.stats_tcps["stats_tcps"] = TcpTestUser.stats_tcps["stats_tcps"] + kwargs["data"]["stats_tcps"]
+        TcpTestUser.stats_tcps_currents["stats_tcps_currents"] = TcpTestUser.stats_tcps_currents["stats_tcps_currents"] + kwargs["data"]["stats_tcps_currents"]
         TcpTestUser.stats_tcps_totals["stats_tcps_totals"] = TcpTestUser.stats_tcps_totals["stats_tcps_totals"] + kwargs["data"]["stats_tcps_totals"]
         
         if TcpTestUser.is_worker_report_time():
-            TcpTestUser.create_stats_tcps_current_worker_report()
+            TcpTestUser.create_stats_tcps_currents_worker_report()
             TcpTestUser.create_stats_tcps_totals_worker_report()
 
             if is_worker_report_save:
                 if len(TcpTestUser.stats_tcps["stats_tcps"]) > 0 and len(TcpTestUser.stats_tcps_totals["stats_tcps_totals"]) > 0:
                     # 在多节点分布式运行时，判断此为master, 汇总数据并提交API
-                    TcpTestUser.save_data(TcpTestUser.stats_tcps, TcpTestUser.stats_tcps_current, TcpTestUser.stats_tcps_totals)
+                    TcpTestUser.save_data(TcpTestUser.stats_tcps, TcpTestUser.stats_tcps_currents, TcpTestUser.stats_tcps_totals)
 
                     TcpTestUser.reset_stats_tcps()
-                    # TcpTestUser.reset_stats_tcps_current()
+                    TcpTestUser.reset_stats_tcps_currents()
                     # TcpTestUser.reset_stats_tcps_totals()
         
         lock.release()
@@ -818,12 +971,15 @@ class TcpTestUser(User):
         # 在多节点分布式运行时，判断此为worker, 汇总数据后提交master，并清空worker数据
         lock.acquire()
         kwargs["data"]["stats_tcps"] = TcpTestUser.stats_tcps["stats_tcps"]
-        # TcpTestUser.create_stats_tcps_current()
-        kwargs["data"]["stats_tcps_current"] = TcpTestUser.stats_tcps_current["stats_tcps_current"]
+        TcpTestUser.create_stats_tcps_currents()
+        kwargs["data"]["stats_tcps_currents"] = TcpTestUser.stats_tcps_currents["stats_tcps_currents"]
         TcpTestUser.create_stats_tcps_totals()
         kwargs["data"]["stats_tcps_totals"] = TcpTestUser.stats_tcps_totals["stats_tcps_totals"]
+
+        TcpTestUser.add_worker_data(TcpTestUser.stats_tcps, TcpTestUser.stats_tcps_currents, TcpTestUser.stats_tcps_totals)
+
         TcpTestUser.reset_stats_tcps()
-        TcpTestUser.reset_stats_tcps_current()
+        TcpTestUser.reset_stats_tcps_currents()
         TcpTestUser.reset_stats_tcps_totals()
         lock.release()
 
@@ -832,7 +988,7 @@ class TcpTestUser(User):
         # print("on_quitting")
         TcpTestUser.quitting()
 
-    def on_start(self):
+    def on_start(self):        
         # print("on_start")
 
         if is_hatch_complete_run:
