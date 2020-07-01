@@ -20,7 +20,7 @@ namespace FW.TestPlatform.Main.Application
         {
             _testCaseRepository = testCaseRepository;
         }
-        public async Task<QueryResult<TestCaseHistoryViewData>> Do(Guid caseId, int page, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<QueryResult<TestCaseHistoryListViewData>> Do(Guid caseId, int page, int pageSize, CancellationToken cancellationToken = default)
         {
             var queryResult = await _testCaseRepository.QueryByID(caseId, cancellationToken);
             if (queryResult == null)
@@ -34,28 +34,33 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
             }
-            QueryResult<TestCaseHistoryViewData> histories = new QueryResult<TestCaseHistoryViewData>();
+            QueryResult<TestCaseHistoryListViewData> histories = new QueryResult<TestCaseHistoryListViewData>();
             var result = await queryResult.GetHistories(caseId, page, pageSize, cancellationToken);
             if(result != null && result.Results != null && result.Results.Count > 0)
             {
                 foreach (TestCaseHistory history in result.Results)
                 {
-                    TestCaseHistorySummyAddModel addModel = JsonSerializerHelper.Deserialize<TestCaseHistorySummyAddModel>(history.Summary);
-                    TestCaseHistoryViewData viewHistory = new TestCaseHistoryViewData()
+                    //TestCaseHistorySummyAddModel addModel = JsonSerializerHelper.Deserialize<TestCaseHistorySummyAddModel>(history.Summary);
+                    //TestCaseHistoryViewData viewHistory = new TestCaseHistoryViewData()
+                    //{
+                    //    AvgDuration = addModel.AvgDuration,
+                    //    ConnectCount = addModel.ConnectCount,
+                    //    AvgQPS = addModel.AvgQPS,
+                    //    CaseID = addModel.CaseID,
+                    //    MaxDuration = addModel.MaxDuration,
+                    //    MinDurartion = addModel.MinDurartion,
+                    //    MinQPS = addModel.MinQPS,
+                    //    ReqFailCount = addModel.ReqFailCount,
+                    //    ReqCount = addModel.ReqCount,
+                    //    ModifyTime = history.ModifyTime,
+                    //    ID = history.ID
+                    //};                    
+                    histories.Results.Add(new TestCaseHistoryListViewData()
                     {
-                        AvgDuration = addModel.AvgDuration,
-                        ConnectCount = addModel.ConnectCount,
-                        AvgQPS = addModel.AvgQPS,
-                        CaseID = addModel.CaseID,
-                        MaxDuration = addModel.MaxDuration,
-                        MinDurartion = addModel.MinDurartion,
-                        MinQPS = addModel.MinQPS,
-                        ReqFailCount = addModel.ReqFailCount,
-                        ReqCount = addModel.ReqCount,
-                        ModifyTime = history.ModifyTime,
-                        ID = history.ID
-                    };
-                    histories.Results.Add(viewHistory);
+                        ID = history.ID,
+                        CaseID = history.CaseID,
+                        CreateTime = history.CreateTime.ToCurrentUserTimeZone()
+                    });
                 }
                 histories.TotalCount = result.TotalCount;
                 histories.CurrentPage = result.CurrentPage;

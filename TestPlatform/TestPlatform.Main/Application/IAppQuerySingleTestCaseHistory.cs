@@ -11,6 +11,6 @@ namespace FW.TestPlatform.Main.Application
 {
     public interface IAppQuerySingleTestCaseHistory
     {
-        Task<TestCaseHistoryViewData> Do(Guid caseId, Guid historyId, CancellationToken cancellationToken = default);
+        Task<TestCaseHistoryDetailViewData> Do(Guid caseId, Guid historyId, CancellationToken cancellationToken = default);
     }
 }

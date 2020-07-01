@@ -168,13 +168,13 @@ namespace FW.TestPlatform.Portal.Api.Controllers
 
         //查询修改删除History
         [HttpGet("histories")]
-        public async Task<QueryResult<TestCaseHistoryViewData>> GetHistories(Guid caseID, int page, int pageSize)
+        public async Task<QueryResult<TestCaseHistoryListViewData>> GetHistories(Guid caseID, int page, int pageSize)
         {
             return await _appQueryTestCaseHistory.Do(caseID, page, pageSize);
         }
 
         [HttpGet("history")]
-        public async Task<TestCaseHistoryViewData> GetHistory(Guid caseId, Guid historyId)
+        public async Task<TestCaseHistoryDetailViewData> GetHistory(Guid caseId, Guid historyId)
         {
             return await _appQuerySingleTestCaseHistory.Do(caseId, historyId);
         }

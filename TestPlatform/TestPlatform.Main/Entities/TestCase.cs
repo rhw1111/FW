@@ -744,7 +744,7 @@ namespace FW.TestPlatform.Main.Entities
         public async Task DeleteSlaveHosts(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default)
         {
             List<TestCaseSlaveHost> slaveHosts = await _testCaseSlaveHostStore.QueryByCaseIdAndSlaveHostIds(tCase.ID, ids, cancellationToken);
-            if (slaveHosts.Count != ids.Count)
+            if (slaveHosts.Count == 0 || slaveHosts.Count != ids.Count)
             {
                 var fragment = new TextFragment()
                 {
@@ -760,7 +760,7 @@ namespace FW.TestPlatform.Main.Entities
         public async Task DeleteHistories(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default)
         {
             List<TestCaseHistory> histories = await _testCaseHistoryStore.QueryByCaseIdAndHistoryIds(tCase.ID, ids, cancellationToken);
-            if (histories.Count > 0 && histories.Count != ids.Count)
+            if (histories.Count == 0 || histories.Count != ids.Count)
             {
                 var fragment = new TextFragment()
                 {
