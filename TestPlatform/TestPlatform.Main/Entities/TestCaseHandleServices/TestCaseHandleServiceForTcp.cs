@@ -191,7 +191,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             //获取测试用例的主测试机，上传测试代码
             using (var textStream=new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}", "Master"))))
             {
-                #region XueYuan Test Code
+                #region Test Code
 #if DEBUG
                 //string testFilePath = @"E:\Downloads\script.py";
 
