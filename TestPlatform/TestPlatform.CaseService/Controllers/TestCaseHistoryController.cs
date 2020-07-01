@@ -16,12 +16,12 @@ namespace FW.TestPlatform.CaseService.Controllers
     public class TestCaseHistoryController : ControllerBase
     {
         private readonly ILogger<TestCaseHistoryController> _logger;
-        private readonly IAppAddTestCase _appAddTestCase;
+        private readonly IAppAddTestCaseHistory _appAddTestCaseHistory;
 
-        public TestCaseHistoryController(ILogger<TestCaseHistoryController> logger, IAppAddTestCase appAddTestCase)
+        public TestCaseHistoryController(ILogger<TestCaseHistoryController> logger, IAppAddTestCaseHistory appAddTestCaseHistory)
         {
             _logger = logger;
-            _appAddTestCase = appAddTestCase;
+            _appAddTestCaseHistory = appAddTestCaseHistory;
         }
 
         [HttpPost("addhistory")]
@@ -31,7 +31,7 @@ namespace FW.TestPlatform.CaseService.Controllers
             {
                 if (model != null)
                 {
-                    await _appAddTestCase.AddHistory(model);
+                    await _appAddTestCaseHistory.Do(model);
                 }
             }
             catch (Exception ex)

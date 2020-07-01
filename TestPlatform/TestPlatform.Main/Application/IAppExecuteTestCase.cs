@@ -11,9 +11,11 @@ namespace FW.TestPlatform.Main.Application
 {
     public interface IAppExecuteTestCase
     {
-        Task<TestCaseViewData> Run(TestCaseAddModel model, CancellationToken cancellationToken = default);
-        Task<TestCaseViewData> Stop(TestCaseAddModel model, CancellationToken cancellationToken = default);
-        Task<TestCaseViewData> IsEngineRun(TestCaseAddModel model, CancellationToken cancellationToken = default);
+        Task Run(Guid id, CancellationToken cancellationToken = default);
+        Task Stop(Guid id, CancellationToken cancellationToken = default);
+        Task<bool> IsEngineRun(Guid id, CancellationToken cancellationToken = default);
+        Task<string> GetMasterLog(Guid caseId, CancellationToken cancellationToken = default);
+        Task<string> GetSlaveLog(Guid caseId, Guid slaveHostId, CancellationToken cancellationToken = default);
         Task<TestCaseSlaveHost> AddSlaveHost(TestCaseSlaveHostAddModel slaveHost, CancellationToken cancellationToken = default);
         IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(Guid caseId, CancellationToken cancellationToken = default);
         Task DeleteSlaveHost(Guid slaveHostID, CancellationToken cancellationToken = default);

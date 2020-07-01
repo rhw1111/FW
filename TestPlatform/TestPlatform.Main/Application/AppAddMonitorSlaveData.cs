@@ -46,10 +46,10 @@ namespace FW.TestPlatform.Main.Application
             {
                 influxDBRecord = new InfluxDBRecord();
                 influxDBRecord.MeasurementName = InfluxDBParameters.SlaveMeasurementName;
-                influxDBRecord.Timestamp = ConvertToTimeStamp(model.Time);
+                //influxDBRecord.Timestamp = ConvertToTimeStamp(model.Time);
                 influxDBRecord.Tags.Add("CaseID", model.CaseID);
                 influxDBRecord.Tags.Add("SlaveID", model.SlaveID);
-                influxDBRecord.Tags.Add("Time", model.Time);
+                influxDBRecord.Tags.Add("TotalTime", model.Time);
                 influxDBRecord.Fields.Add("QPS", model.QPS);                            
                 influxDBRecordList.Add(influxDBRecord);                
             }

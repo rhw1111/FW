@@ -90,5 +90,17 @@ namespace FW.TestPlatform.Main
         /// 找不到指定名称的InfluxDB数据源配置
         /// </summary>
         NotFoundInfluxDBEndpoint = 325710202,
+        /// <summary>
+        /// 已经存在指定名称的测试用例
+        /// </summary>
+        ExistTestCaseByName = 325710203,
+        /// <summary>
+        /// 找不到指定Id的测试历史用例
+        /// </summary>
+        NotFoundTestCaseHistoryById = 325710204,
+        /// <summary>
+        /// 已经存在指定名称的从测试主机
+        /// </summary>
+        ExistTestCaseSlaveName = 325710205,
     }
 }
