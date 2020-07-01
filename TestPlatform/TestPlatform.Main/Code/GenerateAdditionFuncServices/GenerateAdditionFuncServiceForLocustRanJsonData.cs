@@ -21,7 +21,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("");
             sbCode.AppendLine("    if data is not None and type(data).__name__ == \"dict\":");
             sbCode.AppendLine("        return data[name]");
-            sbCode.AppendLine("    elif len(data) > 0:");
+            sbCode.AppendLine("    elif data is not None and len(data) > 0:");
             sbCode.AppendLine("        index = random.randint(0, len(data) - 1)");
             sbCode.AppendLine("        row = data[index]");
             sbCode.AppendLine("");
