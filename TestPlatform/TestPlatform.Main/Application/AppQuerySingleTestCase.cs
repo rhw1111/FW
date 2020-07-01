@@ -73,7 +73,9 @@ namespace FW.TestPlatform.Main.Application
                 Owner = queryResult.Owner,
                 MasterHost = queryResult.MasterHost,
                 Status = queryResult.Status,
-                EngineType = queryResult.EngineType
+                EngineType = queryResult.EngineType,
+                CreateTime = queryResult.CreateTime.ToCurrentUserTimeZone(),
+                ModifyTime = queryResult.ModifyTime.ToCurrentUserTimeZone()
             };
         }
     }

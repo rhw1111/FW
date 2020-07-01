@@ -247,10 +247,10 @@ namespace FW.TestPlatform.Main.Entities
             await _imp.Delete(this);
         }
 
-        public async Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default)
-        {
-            await _imp.DeleteMultiple(list, cancellationToken);
-        }
+        //public async Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default)
+        //{
+        //    await _imp.DeleteMultiple(list, cancellationToken);
+        //}
 
         public async Task Run(CancellationToken cancellationToken = default)
         {
@@ -284,6 +284,10 @@ namespace FW.TestPlatform.Main.Entities
         {
             await _imp.UpdateSlaveHost(this, slaveHost, cancellationToken);
         }
+        public async Task<TestCaseSlaveHost?> GetSlaveHost(Guid slaveHostId, CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetSlaveHost(this, slaveHostId, cancellationToken);
+        }
         public async Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default)
         {
             return await _imp.GetHistories(caseID, page, pageSize, cancellationToken);
@@ -307,7 +311,7 @@ namespace FW.TestPlatform.Main.Entities
     {
         Task Add(TestCase tCase, CancellationToken cancellationToken = default);
         Task Delete(TestCase tCase, CancellationToken cancellationToken = default);
-        Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default);
+        //Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default);
         Task Update(TestCase tCase, CancellationToken cancellationToken = default);
         Task AddSlaveHost(TestCase tCase,TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default);
         Task DeleteSlaveHost(TestCase tCase,Guid slaveHostID, CancellationToken cancellationToken = default);
@@ -431,18 +435,18 @@ namespace FW.TestPlatform.Main.Entities
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
             }
-            var testCase = await _testCaseStore.QueryByID(slaveHost.TestCaseID, cancellationToken);
-            if (testCase == null)
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TestPlatformTextCodes.NotFoundTestCaseByID,
-                    DefaultFormatting = "找不到Id为{0}的测试用例",
-                    ReplaceParameters = new List<object>() { slaveHost.TestCaseID.ToString() }
-                };
+            //var testCase = await _testCaseStore.QueryByID(slaveHost.TestCaseID, cancellationToken);
+            //if (testCase == null)
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TestPlatformTextCodes.NotFoundTestCaseByID,
+            //        DefaultFormatting = "找不到Id为{0}的测试用例",
+            //        ReplaceParameters = new List<object>() { slaveHost.TestCaseID.ToString() }
+            //    };
 
-                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
-            }
+            //    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
+            //}
             Guid? newId = await _testCaseSlaveHostStore.QueryByNameNoLock(slaveHost.SlaveName, cancellationToken);
             if(newId != null)
             {
@@ -455,30 +459,28 @@ namespace FW.TestPlatform.Main.Entities
 
                 throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseSlaveName, fragment, 1, 0);
             }
-            slaveHost.TestCaseID = tCase.ID;
+            //slaveHost.TestCaseID = tCase.ID;
             await _testCaseSlaveHostStore.Add(slaveHost, cancellationToken);
         }
 
         public async Task Delete(TestCase tCase, CancellationToken cancellationToken = default)
         {
-            var testCase = await _testCaseStore.QueryByID(tCase.ID, cancellationToken);
-            if (testCase == null)
+            if (tCase.Status != TestCaseStatus.NoRun)
             {
                 var fragment = new TextFragment()
                 {
-                    Code = TestPlatformTextCodes.NotFoundTestCaseByID,
-                    DefaultFormatting = "找不到Id为{0}的测试用例",
-                    ReplaceParameters = new List<object>() { tCase.ID.ToString() }
+                    Code = TestPlatformTextCodes.StatusErrorOnTestCaseDelete,
+                    DefaultFormatting = "只能在状态{0}的时候允许删除测试案例，当前测试案例{1}的状态为{2}",
+                    ReplaceParameters = new List<object>() { TestCaseStatus.NoRun.ToString(), tCase.ID.ToString(), tCase.Status.ToString() }
                 };
-
-                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
+                throw new UtilityException((int)TestPlatformErrorCodes.StatusErrorOnTestCaseDelete, fragment, 1, 0);
             }
             await _testCaseStore.Delete(tCase.ID, cancellationToken);
         }
-        public async Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default)
-        {
-            await _testCaseStore.DeleteMutiple(list, cancellationToken);
-        }
+        //public async Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default)
+        //{
+        //    await _testCaseStore.DeleteMutiple(list, cancellationToken);
+        //}
 
         public async Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
         {
@@ -687,7 +689,6 @@ namespace FW.TestPlatform.Main.Entities
                 throw new UtilityException((int)TestPlatformErrorCodes.StatusErrorOnTestCaseUpdate, fragment, 1, 0);
 
             }
-
             var handleService = getHandleService(tCase.EngineType);
             var host = await _testHostRepository.QueryByID(tCase.MasterHostID, cancellationToken);
             if (host == null)
@@ -701,18 +702,6 @@ namespace FW.TestPlatform.Main.Entities
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
             }
-            var testCase = await _testCaseStore.QueryByID(tCase.ID,cancellationToken);
-            if (testCase == null)
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TestPlatformTextCodes.NotFoundTestHostByID,
-                    DefaultFormatting = "找不到Id为{0}的测试用例",
-                    ReplaceParameters = new List<object>() { tCase.ID.ToString() }
-                };
-
-                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
-            }
             await _testCaseStore.Update(tCase, cancellationToken);
         }
 
@@ -723,18 +712,18 @@ namespace FW.TestPlatform.Main.Entities
 
         public async Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
-            var testCase = await _testCaseStore.QueryByID(tCase.ID, cancellationToken);
-            if (testCase == null)
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TestPlatformTextCodes.NotFoundTestCaseByID,
-                    DefaultFormatting = "找不到Id为{0}的测试用例",
-                    ReplaceParameters = new List<object>() { tCase.ID.ToString() }
-                };
-                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
-            }
-            if (testCase.Status != TestCaseStatus.NoRun)
+            //var testCase = await _testCaseStore.QueryByID(tCase.ID, cancellationToken);
+            //if (testCase == null)
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TestPlatformTextCodes.NotFoundTestCaseByID,
+            //        DefaultFormatting = "找不到Id为{0}的测试用例",
+            //        ReplaceParameters = new List<object>() { tCase.ID.ToString() }
+            //    };
+            //    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
+            //}
+            if (tCase.Status != TestCaseStatus.NoRun)
             {
                 var fragment = new TextFragment()
                 {

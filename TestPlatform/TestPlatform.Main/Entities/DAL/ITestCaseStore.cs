@@ -16,7 +16,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
         Task Update(TestCase tCase, CancellationToken cancellationToken = default);
         Task UpdateStatus(Guid id,TestCaseStatus status, CancellationToken cancellationToken = default);
         Task Delete(Guid id, CancellationToken cancellationToken = default);
-        Task DeleteMutiple(List<TestCase> list, CancellationToken cancellationToken = default);
+        Task DeleteMutiple(List<Guid> ids, CancellationToken cancellationToken = default);
         Task<QueryResult<TestCase>> QueryByPage(string matchName,int page,int pageSize, CancellationToken cancellationToken = default);
         Task<TestCase?> QueryByID(Guid id, CancellationToken cancellationToken = default);
 

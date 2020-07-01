@@ -65,31 +65,27 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _appDeleteTestCaseHistory = appDeleteTestCaseHistory;
             _appDeleteSlaveHost = appDeleteSlaveHost;
         }
-
-        [HttpGet("getbypage")]
+        //查询增加修改执行TestCase
+        [HttpGet("querybypage")]
         public async Task<QueryResult<TestCaseViewData>> GetByPage(string matchName,int page)
         {
             return await _appQueryTestCase.Do(matchName, page, _pageSize);
         }
-
-        [HttpGet("getcase")]
-        public async Task<TestCaseViewData?> GetCase(Guid id)
+        [HttpGet("testcase")]
+        public async Task<TestCaseViewData> GetCase(Guid id)
         {
             return await _appQuerySingleTestCase.Do(id);
         }
-
         [HttpPost("add")]
         public async Task<TestCaseViewData> Add(TestCaseAddModel model)
         {
             return await _appAddTestCase.Do(model);
         }
-
         [HttpPut("update")]
-        public async Task Update(TestCaseAddModel model)
+        public async Task<TestCaseViewData> Update(TestCaseUpdateModel model)
         {
-            await _appUpdateTestCase.Do(model);
+            return await _appUpdateTestCase.Do(model);
         }
-
         [HttpDelete("delete")]
         public async Task Delete(Guid id)
         {
@@ -100,8 +96,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         public async Task DeleteMultiple(List<Guid> list)
         {
            await _appDeleteMultipleTestCase.Do(list);
-        }
-        
+        }      
         [HttpPost("run")]
         public async Task Run(Guid caseId)
         {
@@ -112,55 +107,64 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         {
             await _appStopTestCase.Do(caseId);
         }
-        [HttpPost("CheckTestStatus")]
+        [HttpPost("checkstatus")]
         public async Task<bool> CheckTestStatus(Guid caseId)
         {
             return await _appCheckTestCaseStatus.Do(caseId);
         }
-        [HttpPost("GetMasterLog")]
+
+        //获取主机或者从机Log
+        [HttpGet("getmasterlog")]
         public async Task<string> GetMasterLog(Guid caseId)
         {
              return await _appQueryMasterLog.Do(caseId);
         }
-        [HttpPost("GetSlaveLog")]
+        [HttpGet("getslavelog")]
         public async Task<string> GetSlaveLog(Guid caseId, Guid slaveHostId)
         {
             return await _appQuerySlaveLog.Do(caseId, slaveHostId);
         }
+
+        //查询增加修改删除SlaveHost
+        [HttpGet("queryslavehosts")]
+        public async Task<List<TestCaseSlaveHostViewData>> GetAllSlaveHosts(Guid caseId)
+        {
+            return await _appQuerySlaveHost.Do(caseId);
+        }
         [HttpPost("addslavehost")]
-        public async Task<TestCaseSlaveHost> AddSlaveHost(TestCaseSlaveHostAddModel slaveHost)
+        public async Task<TestCaseSlaveHostViewData> AddSlaveHost(TestCaseSlaveHostAddModel slaveHost)
         {
             return await _appAddSlaveHost.Do(slaveHost);
         }
-        [HttpGet("GetAllSlaveHosts")]
-        public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(Guid caseId)
+        [HttpPut("updateslavehost")]
+        public async Task<TestCaseSlaveHostViewData> UpdateSlaveHost(TestCaseSlaveHostUpdateModel slaveHost)
         {
-            return _appQuerySlaveHost.Do(caseId);
+            return await _appUpdateSlaveHost.Do(slaveHost);
         }
-        [HttpPut("UpdateSlaveHost")]
-        public async Task UpdateSlaveHost(TestCaseSlaveHostAddModel slaveHost)
+               
+        [HttpDelete("deleteslavehost")]
+        public async Task DeleteSlaveHost(Guid caseId,Guid id)
         {
-            await _appUpdateSlaveHost.Do(slaveHost);
+            await _appDeleteSlaveHost.Do(caseId, id);
         }
-        [HttpGet("GetHistories")]
-        public async Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize)
+
+        //查询修改删除History
+        [HttpGet("histories")]
+        public async Task<QueryResult<TestCaseHistoryViewData>> GetHistories(Guid caseID, int page, int pageSize)
         {
             return await _appQueryTestCaseHistory.Do(caseID, page, pageSize);
         }
-        [HttpDelete("DeleteHistory")]
-        public async Task DeleteHistory(Guid id)
-        {
-            await _appDeleteTestCaseHistory.Do(id);
-        }
-        [HttpDelete("DeleteSlaveHost")]
-        public async Task DeleteSlaveHost(Guid id)
-        {
-            await _appDeleteSlaveHost.Do(id);
-        }
-        [HttpGet("GetHistory")]
-        public async Task<TestCaseHistoryViewModel> GetHistory(Guid caseId, Guid historyId)
+
+        [HttpGet("history")]
+        public async Task<TestCaseHistoryViewData> GetHistory(Guid caseId, Guid historyId)
         {
             return await _appQuerySingleTestCaseHistory.Do(caseId, historyId);
+        }
+
+        [HttpDelete("deletehistory")]
+        public async Task DeleteHistory(Guid caseId, Guid id)
+        {
+            await _appDeleteTestCaseHistory.Do(caseId, id);
         }
 
         //[HttpGet("gethosts")]

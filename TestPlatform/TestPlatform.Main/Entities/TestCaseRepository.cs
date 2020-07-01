@@ -43,5 +43,10 @@ namespace FW.TestPlatform.Main.Entities
         {
             return await _testCaseStore.QueryByPage(page, pageSize, cancellationToken);
         }
+
+        public async Task DeleteMutiple(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            await _testCaseStore.DeleteMutiple(ids, cancellationToken);
+        }
     }
 }

@@ -12,6 +12,6 @@ namespace FW.TestPlatform.Main.Application
     public interface IAppQueryTestCaseHistory
     {
         
-        Task<QueryResult<TestCaseHistory>> Do(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default);
+        Task<QueryResult<TestCaseHistoryViewData>> Do(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default);
     }
 }

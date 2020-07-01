@@ -66,7 +66,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
             });
         }
 
-        public async Task DeleteMutiple(List<TestCase> list, CancellationToken cancellationToken = default)
+        public async Task DeleteMutiple(List<Guid> ids, CancellationToken cancellationToken = default)
         {
             await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
             {
@@ -75,6 +75,12 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     if (transaction != null)
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    List<TestCase> list = new List<TestCase>();
+                    foreach(Guid id in ids)
+                    {
+                        var deleteObj = new TestCase() { ID = id };
+                        list.Add(deleteObj);
                     }
                     dbContext.TestCases.AttachRange(list.ToArray());
                     dbContext.TestCases.RemoveRange(list.ToArray());
@@ -141,10 +147,12 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         }
 
 
-                        result = await (from item in dbContext.TestCases
+                        var testCase = await (from item in dbContext.TestCases
                                         where item.Name == name
                                         orderby EF.Property<long>(item, "Sequence")
-                                        select item.ID).FirstOrDefaultAsync();
+                                        select item).FirstOrDefaultAsync();
+                        if (testCase != null)
+                            result = testCase.ID;
                     }
                 });
 

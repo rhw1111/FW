@@ -15,19 +15,15 @@ namespace FW.TestPlatform.Main.Application
     [Injection(InterfaceType = typeof(IAppDeleteMultipleTestCase), Scope = InjectionScope.Singleton)]
     public class AppDeleteMultipleTestCase : IAppDeleteMultipleTestCase
     {
+        private readonly ITestCaseRepository _testCaseRepository;
+        public AppDeleteMultipleTestCase(ITestCaseRepository testCaseRepository)
+        {
+            _testCaseRepository = testCaseRepository;
+        }
+
         public async Task Do(List<Guid> list, CancellationToken cancellationToken = default)
         {
-            TestCase source = new TestCase();
-            List<TestCase> array = new List<TestCase>();
-            foreach (Guid id in list)
-            {
-                TestCase tCase = new TestCase()
-                {
-                    ID = id
-                };
-                array.Add(tCase);
-            }
-            await source.DeleteMultiple(array.ToList(), cancellationToken);
+            await _testCaseRepository.DeleteMutiple(list, cancellationToken);
         }
 
     }

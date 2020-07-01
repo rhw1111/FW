@@ -11,7 +11,6 @@ namespace FW.TestPlatform.Main.Application
 {
     public interface IAppQuerySlaveHost
     {
-        IAsyncEnumerable<TestCaseSlaveHost> Do(Guid caseId, CancellationToken cancellationToken = default);
-        
+        Task<List<TestCaseSlaveHostViewData>> Do(Guid caseId, CancellationToken cancellationToken = default); 
     }
 }

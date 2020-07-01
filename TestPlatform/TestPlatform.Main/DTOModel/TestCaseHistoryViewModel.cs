@@ -10,7 +10,7 @@ namespace FW.TestPlatform.Main.DTOModel
     /// 监控数据汇总表
     /// </summary>
     [DataContract]
-    public class TestCaseHistoryViewModel : TestCaseHistorySummyAddModel
+    public class TestCaseHistoryViewData : TestCaseHistorySummyAddModel
     {
         /// <summary>
         /// 测试案例ID

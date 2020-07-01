@@ -8,20 +8,35 @@ using MSLibrary.DI;
 using FW.TestPlatform.Main.DTOModel;
 using FW.TestPlatform.Main.Entities;
 using MSLibrary.Serializer;
+using MSLibrary.LanguageTranslate;
 
 namespace FW.TestPlatform.Main.Application
 {
     [Injection(InterfaceType = typeof(IAppQuerySingleTestCaseHistory), Scope = InjectionScope.Singleton)]
     public class AppQuerySingleTestCaseHistory : IAppQuerySingleTestCaseHistory
     {
-        public async Task<TestCaseHistoryViewModel> Do(Guid caseId, Guid historyId, CancellationToken cancellationToken = default)
+        private readonly ITestCaseRepository _testCaseRepository;
+        public AppQuerySingleTestCaseHistory(ITestCaseRepository testCaseRepository)
         {
-            TestCaseHistoryViewModel viewHistory = new TestCaseHistoryViewModel();
-            TestCase source = new TestCase()
+            _testCaseRepository = testCaseRepository;
+        }
+
+        public async Task<TestCaseHistoryViewData> Do(Guid caseId, Guid historyId, CancellationToken cancellationToken = default)
+        {
+            TestCaseHistoryViewData viewHistory = new TestCaseHistoryViewData();
+            var queryResult = await _testCaseRepository.QueryByID(caseId, cancellationToken);
+            if (queryResult == null)
             {
-                ID = caseId
-            };
-            var history = await source.GetHistory(historyId, cancellationToken);
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestCaseByID,
+                    DefaultFormatting = "找不到ID为{0}的测试案例",
+                    ReplaceParameters = new List<object>() { caseId.ToString() }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
+            }
+            var history = await queryResult.GetHistory(historyId, cancellationToken);
             if (history != null)
             {
                 TestCaseHistorySummyAddModel addModel = JsonSerializerHelper.Deserialize<TestCaseHistorySummyAddModel>(history.Summary);

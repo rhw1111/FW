@@ -63,7 +63,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
 
-                    var deleteObj = new TestCaseHistory() { ID = id };
+                    var deleteObj = new TestCaseHistory() { ID = id};
                     dbContext.TestCaseHistories.Attach(deleteObj);
                     dbContext.TestCaseHistories.Remove(deleteObj);
 

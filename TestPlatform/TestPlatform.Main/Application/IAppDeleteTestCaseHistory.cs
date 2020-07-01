@@ -11,6 +11,6 @@ namespace FW.TestPlatform.Main.Application
 {
     public interface IAppDeleteTestCaseHistory
     {
-        Task Do(Guid historyID, CancellationToken cancellationToken = default);
+        Task Do(Guid caseId, Guid historyID, CancellationToken cancellationToken = default);
     }
 }

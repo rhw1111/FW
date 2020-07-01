@@ -12,6 +12,6 @@ namespace FW.TestPlatform.Main.Application
     public interface IAppDeleteSlaveHost
     {
         
-        Task Do(Guid slaveHostID, CancellationToken cancellationToken = default);
+        Task Do(Guid caseId, Guid slaveHostID, CancellationToken cancellationToken = default);
     }
 }

@@ -9,25 +9,53 @@ using FW.TestPlatform.Main.DTOModel;
 using FW.TestPlatform.Main.Entities;
 using FW.TestPlatform.Main.Configuration;
 using System.Linq;
+using MSLibrary.LanguageTranslate;
 
 namespace FW.TestPlatform.Main.Application
 {
     [Injection(InterfaceType = typeof(IAppUpdateTestCase), Scope = InjectionScope.Singleton)]
     public class AppUpdateTestCase : IAppUpdateTestCase
     {
-        public async Task Do(TestCaseAddModel model, CancellationToken cancellationToken = default)
+        private readonly ITestCaseRepository _testCaseRepository;
+        public AppUpdateTestCase(ITestCaseRepository testCaseRepository)
         {
-            TestCase source = new TestCase()
+            _testCaseRepository = testCaseRepository;
+        }
+
+        public async Task<TestCaseViewData> Do(TestCaseUpdateModel model, CancellationToken cancellationToken = default)
+        {
+            var source = await _testCaseRepository.QueryByID(model.ID, cancellationToken);
+            if (source == null)
             {
-                ID = model.ID,
-                Name = model.Name,
-                OwnerID = model.OwnerID,
-                EngineType = model.EngineType,
-                MasterHostID = model.MasterHostID,
-                Configuration = model.Configuration,
-                Status = model.Status
-            };
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestCaseByID,
+                    DefaultFormatting = "找不到ID为{0}的测试案例",
+                    ReplaceParameters = new List<object>() { model.ID.ToString() }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
+            }
+            source.Name = model.Name;
+            //queryResult.OwnerID = model.OwnerID;
+            source.EngineType = model.EngineType;
+            source.MasterHostID = model.MasterHostID;
+            source.Configuration = model.Configuration;
+            source.ModifyTime = DateTime.UtcNow;
             await source.Update(cancellationToken);
+
+            return new TestCaseViewData()
+            {
+                ID = source.ID,
+                EngineType = source.EngineType,
+                Configuration = source.Configuration,
+                OwnerID = source.OwnerID,
+                Name = source.Name,
+                Status = source.Status,
+                MasterHostID = source.MasterHostID,
+                CreateTime = source.CreateTime.ToCurrentUserTimeZone(),
+                ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
+            };
         }
 
     }
