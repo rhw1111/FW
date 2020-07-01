@@ -10,24 +10,8 @@ namespace FW.TestPlatform.Main.DTOModel
     /// 测试数据源新建模型
     /// </summary>
     [DataContract]
-    public class TestCaseAddModel:ModelBase
+    public class TestCaseAddModel: ModelBase
     {
-        /// <summary>
-        /// Id
-        /// </summary>
-        [DataMember]
-        public Guid ID
-        {
-            get
-            {
-
-                return GetAttribute<Guid>(nameof(ID));
-            }
-            set
-            {
-                SetAttribute<Guid>(nameof(ID), value);
-            }
-        }
         /// <summary>
         /// 名称
         /// </summary>
@@ -80,6 +64,7 @@ namespace FW.TestPlatform.Main.DTOModel
         /// <summary>
         /// Master主机ID
         /// </summary>
+        [DataMember]
         public Guid MasterHostID
         {
             get
@@ -95,6 +80,7 @@ namespace FW.TestPlatform.Main.DTOModel
         /// <summary>
         /// 状态
         /// </summary>
+        [DataMember]
         public TestCaseStatus Status
         {
             get
@@ -110,6 +96,7 @@ namespace FW.TestPlatform.Main.DTOModel
         /// <summary>
         /// 所有者ID
         /// </summary>
+        [DataMember]
         public Guid OwnerID
         {
             get

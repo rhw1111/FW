@@ -12,9 +12,22 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
     [Injection(InterfaceType = typeof(GenerateAdditionFuncServiceForLocustIntRange), Scope = InjectionScope.Singleton)]
     public class GenerateAdditionFuncServiceForLocustIntRange : IGenerateAdditionFuncService
     {
-        public Task<string> Generate()
+        public async Task<string> Generate()
         {
-            throw new NotImplementedException();
+            StringBuilder sbCode = new StringBuilder();
+            sbCode.AppendLine("def IntRange(min, max):");
+            sbCode.AppendLine("    # print(\"IntRange\")");
+            sbCode.AppendLine("    import random");
+            sbCode.AppendLine("");
+            sbCode.AppendLine("    if min <= max:");
+            sbCode.AppendLine("        ran = random.randint(min, max)");
+            sbCode.AppendLine("");
+            sbCode.AppendLine("        return ran");
+            sbCode.AppendLine("    else:");
+            sbCode.AppendLine("        return min");
+            sbCode.AppendLine("");
+
+            return await Task.FromResult(sbCode.ToString());
         }
     }
 }

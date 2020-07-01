@@ -16,31 +16,18 @@ namespace FW.TestPlatform.CaseService.Controllers
     public class TestCaseHistoryController : ControllerBase
     {
         private readonly ILogger<TestCaseHistoryController> _logger;
-        private readonly IAppAddTestCase _appAddTestCase;
+        private readonly IAppAddTestCaseHistory _appAddTestCaseHistory;
 
-        public TestCaseHistoryController(ILogger<TestCaseHistoryController> logger,IAppAddTestCase appAddTestCase)
+        public TestCaseHistoryController(ILogger<TestCaseHistoryController> logger, IAppAddTestCaseHistory appAddTestCaseHistory)
         {
             _logger = logger;
-            _appAddTestCase = appAddTestCase;
+            _appAddTestCaseHistory = appAddTestCaseHistory;
         }
 
         [HttpPost("addhistory")]
-        public async Task AddHistory(dynamic data)
+        public async Task AddHistory(TestCaseHistorySummyAddModel model)
         {
-            try
-            {
-                TestCaseHistorySummyAddModel model = JsonSerializerHelper.Deserialize(data);
-
-                if (model != null)
-                {
-                    await _appAddTestCase.AddHistory(model);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
-            
+            await _appAddTestCaseHistory.Do(model);
         }
 
     }

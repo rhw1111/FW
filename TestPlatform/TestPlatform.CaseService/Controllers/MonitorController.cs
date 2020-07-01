@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FW.TestPlatform.Main;
 using FW.TestPlatform.Main.Application;
@@ -33,49 +34,19 @@ namespace FW.TestPlatform.CaseService.Controllers
         [HttpPost("createdatabase")]
         public async Task CreateDataBase()
         {
-            try
-            {
-                await _appCreateMonitorDB.Do();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
+            await _appCreateMonitorDB.Do();
         }
 
         [HttpPost("addmasterdata")]
-        public async Task AddMasterData(dynamic data)
+        public async Task AddMasterData(MonitorMasterDataAddModel model)
         {
-            try
-            {
-                MonitorMasterDataAddModel model = JsonSerializerHelper.Deserialize(data);
-
-                if (model != null)
-                {
-                    await _appAddMonitorMasterData.Do(model);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
+            await _appAddMonitorMasterData.Do(model);
         }
 
         [HttpPost("addslavedata")]
-        public async Task AddSlaveData(dynamic data)
+        public async Task AddSlaveData(IList<MonitorSlaveDataAddModel> modelList)
         {
-            try
-            {
-                IList<MonitorSlaveDataAddModel> modelList = JsonSerializerHelper.Deserialize(data);
-                if (modelList != null)
-                {
-                    await _appAddMonitorSlaveData.Do(modelList);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
+            await _appAddMonitorSlaveData.Do(modelList);
         }
     }
 }

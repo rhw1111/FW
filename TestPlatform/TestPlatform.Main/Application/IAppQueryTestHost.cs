@@ -11,6 +11,6 @@ namespace FW.TestPlatform.Main.Application
 {
     public interface IAppQueryTestHost
     {
-        Task<QueryResult<TestHostViewData>> GetHosts(CancellationToken cancellationToken = default);
+        Task<List<TestHostViewData>> Do(CancellationToken cancellationToken = default);
     }
 }

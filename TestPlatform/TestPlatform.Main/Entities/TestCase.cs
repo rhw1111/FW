@@ -11,6 +11,8 @@ using MSLibrary.Transaction;
 using FW.TestPlatform.Main.Entities.DAL;
 using FW.TestPlatform.Main.DTOModel;
 using MSLibrary.Serializer;
+using FW.TestPlatform.Main.Configuration;
+using System.Linq;
 
 namespace FW.TestPlatform.Main.Entities
 {
@@ -222,9 +224,9 @@ namespace FW.TestPlatform.Main.Entities
             await _imp.Add(this);
         }
 
-        public async Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default)
+        public async Task AddHistory(TestCaseHistory history, CancellationToken cancellationToken = default)
         {
-            await _imp.AddHistory(model, cancellationToken);
+            await _imp.AddHistory(this, history);
         }
 
         public async Task Update(CancellationToken cancellationToken = default)
@@ -246,6 +248,11 @@ namespace FW.TestPlatform.Main.Entities
             await _imp.Delete(this);
         }
 
+        //public async Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default)
+        //{
+        //    await _imp.DeleteMultiple(list, cancellationToken);
+        //}
+
         public async Task Run(CancellationToken cancellationToken = default)
         {
             await _imp.Run(this, cancellationToken);
@@ -258,17 +265,29 @@ namespace FW.TestPlatform.Main.Entities
         {
             return await _imp.IsEngineRun(this, cancellationToken);
         }
+        public async Task<string> GetMasterLog(CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetMasterLog(this, cancellationToken);
+        }
+        public async Task<string> GetSlaveLog(Guid slaveID, CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetSlaveLog(this, slaveID, cancellationToken);
+        }
         public async Task AddSlaveHost(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
             await _imp.AddSlaveHost(this, slaveHost, cancellationToken);
         }
         public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default)
         {
-            return _imp.GetAllSlaveHosts(tCase, cancellationToken);
+            return _imp.GetAllSlaveHosts(this, cancellationToken);
         }
         public async Task UpdateSlaveHost(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
             await _imp.UpdateSlaveHost(this, slaveHost, cancellationToken);
+        }
+        public async Task<TestCaseSlaveHost?> GetSlaveHost(Guid slaveHostId, CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetSlaveHost(this, slaveHostId, cancellationToken);
         }
         public async Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default)
         {
@@ -287,19 +306,28 @@ namespace FW.TestPlatform.Main.Entities
         {
             return await _imp.GetHistory(this, historyID, cancellationToken);
         }
+        public async Task DeleteSlaveHosts(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            await _imp.DeleteSlaveHosts(this, ids, cancellationToken);
+        }
+        public async Task DeleteHistories(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            await _imp.DeleteHistories(this, ids, cancellationToken);
+        }
     }
 
     public interface ITestCaseIMP
     {
         Task Add(TestCase tCase, CancellationToken cancellationToken = default);
         Task Delete(TestCase tCase, CancellationToken cancellationToken = default);
+        //Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default);
         Task Update(TestCase tCase, CancellationToken cancellationToken = default);
         Task AddSlaveHost(TestCase tCase,TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default);
         Task DeleteSlaveHost(TestCase tCase,Guid slaveHostID, CancellationToken cancellationToken = default);
         Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default);
         IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default);
         Task<TestCaseSlaveHost?> GetSlaveHost(TestCase tCase,Guid slaveHostID, CancellationToken cancellationToken = default);
-        Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default);
+        Task AddHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default);
         Task UpdateHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default);
         Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default);
         Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default);
@@ -309,6 +337,8 @@ namespace FW.TestPlatform.Main.Entities
         Task<bool> IsEngineRun(TestCase tCase, CancellationToken cancellationToken = default);
         Task<string> GetMasterLog(TestCase tCase, CancellationToken cancellationToken = default);
         Task<string> GetSlaveLog(TestCase tCase,Guid slaveID, CancellationToken cancellationToken = default);
+        Task DeleteSlaveHosts(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default);
+        Task DeleteHistories(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default);
     }
 
 
@@ -320,14 +350,16 @@ namespace FW.TestPlatform.Main.Entities
         private ITestCaseStore _testCaseStore;
         private ITestCaseSlaveHostStore _testCaseSlaveHostStore;
         private ITestHostRepository _testHostRepository;
-        private ITestCaseHistoryRepository _testCaseHistoryRepository;
+        private ITestCaseHistoryStore _testCaseHistoryStore;
+        private ISystemConfigurationService _systemConfigurationService;
 
-        public TestCaseIMP(ITestCaseStore testCaseStore, ITestCaseSlaveHostStore testCaseSlaveHostStore, ITestHostRepository testHostRepository, ITestCaseHistoryRepository testCaseHistoryRepository)
+        public TestCaseIMP(ITestCaseStore testCaseStore, ITestCaseSlaveHostStore testCaseSlaveHostStore, ITestHostRepository testHostRepository, ITestCaseHistoryStore testCaseHistoryStore, ISystemConfigurationService systemConfigurationService)
         {
             _testCaseStore = testCaseStore;
             _testCaseSlaveHostStore = testCaseSlaveHostStore;
             _testHostRepository = testHostRepository;
-            _testCaseHistoryRepository = testCaseHistoryRepository;
+            _testCaseHistoryStore = testCaseHistoryStore;
+            _systemConfigurationService = systemConfigurationService;
         }
 
         public async Task Add(TestCase tCase, CancellationToken cancellationToken = default)
@@ -342,10 +374,23 @@ namespace FW.TestPlatform.Main.Entities
                     DefaultFormatting = "找不到Id为{0}的测试主机",
                     ReplaceParameters = new List<object>() { tCase.MasterHostID.ToString() }
                 };
-
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
             }
+            //检查是否有名称重复的
+            var newId = await _testCaseStore.QueryByNameNoLock(tCase.Name, cancellationToken);
+            if (newId != null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.ExistTestCaseByName,
+                    DefaultFormatting = "已经存在名称为{0}的测试用例",
+                    ReplaceParameters = new List<object>() { tCase.Name }
+                };
 
+                throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseByName, fragment, 1, 0);
+
+            }
+            tCase.OwnerID = await _systemConfigurationService.GetDefaultUserIDAsync();
             await _testCaseStore.Add(tCase, cancellationToken);
         }
 
@@ -355,33 +400,16 @@ namespace FW.TestPlatform.Main.Entities
         //    await _testCaseHistoryRepository.Add(history, cancellationToken);
         //}
 
-        public async Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default)
+        public async Task AddHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default)
         {
             await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                TestCase? testCase = await _testCaseStore.QueryByID(model.CaseID);
-
-                if (testCase == null)
-                {
-                    var fragment = new TextFragment()
-                    {
-                        Code = TestPlatformTextCodes.NotFoundTestCaseByID,
-                        DefaultFormatting = "找不到ID为{0}的测试案例",
-                        ReplaceParameters = new List<object>() { model.CaseID }
-                    };
-
-                    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
-                }
 
                 //修改case状态为完成
-                await _testCaseStore.UpdateStatus(model.CaseID, TestCaseStatus.NoRun);
+                await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.NoRun);
 
-                //保存历史
-                TestCaseHistory history = new TestCaseHistory();
-                history.CaseID = model.CaseID;
-                //history.Case = testCase;                
-                history.Summary = JsonSerializerHelper.Serializer(model);
-                await _testCaseHistoryRepository.Add(history);
+               //插入历史数据
+                await _testCaseHistoryStore.Add(history);
 
                 scope.Complete();
             }
@@ -389,36 +417,82 @@ namespace FW.TestPlatform.Main.Entities
 
         public async Task AddSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
-            var host = await _testHostRepository.QueryByID(tCase.MasterHostID, cancellationToken);
+            var host = await _testHostRepository.QueryByID(slaveHost.HostID, cancellationToken);
             if (host == null)
             {
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.NotFoundTestHostByID,
                     DefaultFormatting = "找不到Id为{0}的测试主机",
-                    ReplaceParameters = new List<object>() { tCase.MasterHostID.ToString() }
+                    ReplaceParameters = new List<object>() { slaveHost.HostID.ToString() }
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
             }
-            slaveHost.TestCaseID = tCase.ID;
+            //var testCase = await _testCaseStore.QueryByID(slaveHost.TestCaseID, cancellationToken);
+            //if (testCase == null)
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TestPlatformTextCodes.NotFoundTestCaseByID,
+            //        DefaultFormatting = "找不到Id为{0}的测试用例",
+            //        ReplaceParameters = new List<object>() { slaveHost.TestCaseID.ToString() }
+            //    };
+
+            //    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
+            //}
+            Guid? newId = await _testCaseSlaveHostStore.QueryByNameNoLock(slaveHost.SlaveName, cancellationToken);
+            if(newId != null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.ExistTestCaseSlaveByName,
+                    DefaultFormatting = "已经存在名称为{0}的测试用例",
+                    ReplaceParameters = new List<object>() { tCase.Name }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseSlaveName, fragment, 1, 0);
+            }
+            //slaveHost.TestCaseID = tCase.ID;
             await _testCaseSlaveHostStore.Add(slaveHost, cancellationToken);
         }
 
         public async Task Delete(TestCase tCase, CancellationToken cancellationToken = default)
         {
+            if (tCase.Status != TestCaseStatus.NoRun)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.StatusErrorOnTestCaseDelete,
+                    DefaultFormatting = "只能在状态{0}的时候允许删除测试案例，当前测试案例{1}的状态为{2}",
+                    ReplaceParameters = new List<object>() { TestCaseStatus.NoRun.ToString(), tCase.ID.ToString(), tCase.Status.ToString() }
+                };
+                throw new UtilityException((int)TestPlatformErrorCodes.StatusErrorOnTestCaseDelete, fragment, 1, 0);
+            }
             await _testCaseStore.Delete(tCase.ID, cancellationToken);
         }
 
         public async Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
         {
-            await _testCaseHistoryRepository.Delete(historyID, cancellationToken);
+            TestCaseHistory? history = await _testCaseHistoryStore.QueryByCase(tCase.ID, historyID,cancellationToken);
+            if(history == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestCaseHistoryByID,
+                    DefaultFormatting = "找不到测试历史Id为{0}并且测试用例Id为{1}的历史",
+                    ReplaceParameters = new List<object>() { tCase.ID.ToString(),historyID.ToString() }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseHistoryById, fragment, 1, 0);
+            }
+            await _testCaseHistoryStore.Delete(historyID, cancellationToken);
         }
 
         public async Task DeleteSlaveHost(TestCase tCase, Guid slaveHostID, CancellationToken cancellationToken = default)
         {
-            var host = await _testCaseSlaveHostStore.QueryByCase(tCase.ID, slaveHostID, cancellationToken);
-            if (host==null)
+            var slaveHost = await _testCaseSlaveHostStore.QueryByCase(tCase.ID, slaveHostID, cancellationToken);
+            if (slaveHost == null)
             {
                 var fragment = new TextFragment()
                 {
@@ -429,7 +503,6 @@ namespace FW.TestPlatform.Main.Entities
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSlaveHostInCase, fragment, 1, 0);
             }
-
             if (tCase.Status != TestCaseStatus.NoRun)
             {
                 var fragment = new TextFragment()
@@ -438,13 +511,9 @@ namespace FW.TestPlatform.Main.Entities
                     DefaultFormatting = "只能在状态{0}的时候允许删除测试案例，当前测试案例{1}的状态为{2}",
                     ReplaceParameters = new List<object>() { TestCaseStatus.NoRun.ToString(), tCase.ID.ToString(), tCase.Status.ToString() }
                 };
-
                 throw new UtilityException((int)TestPlatformErrorCodes.StatusErrorOnTestCaseDelete, fragment, 1, 0);
-
             }
-
-
-            await _testCaseSlaveHostStore.Delete(host.ID, cancellationToken);    
+            await _testCaseSlaveHostStore.Delete(slaveHost.ID, cancellationToken);    
         }
 
         public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default)
@@ -454,13 +523,24 @@ namespace FW.TestPlatform.Main.Entities
 
         public async Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default)
         {
-            return await _testCaseHistoryRepository.QueryByPage(caseID, page, pageSize, cancellationToken);
+            return await _testCaseHistoryStore.QueryByPage(caseID, page, pageSize, cancellationToken);
         }
 
         public async Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default)
         {
-            TestCaseHistory? testHistory;
-            testHistory = await _testCaseHistoryRepository.QueryByID(tCase.ID, historyID, cancellationToken);
+            TestCaseHistory? testHistory;          
+            testHistory = await _testCaseHistoryStore.QueryByCase(tCase.ID, historyID, cancellationToken);
+            if(testHistory == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestCaseHistoryByID,
+                    DefaultFormatting = "找不到测试历史Id为{0}并且测试用例Id为{1}的历史",
+                    ReplaceParameters = new List<object>() { tCase.ID.ToString(), historyID.ToString() }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseHistoryById, fragment, 1, 0);
+            }
             return testHistory;
         }
 
@@ -599,7 +679,6 @@ namespace FW.TestPlatform.Main.Entities
                 throw new UtilityException((int)TestPlatformErrorCodes.StatusErrorOnTestCaseUpdate, fragment, 1, 0);
 
             }
-
             var handleService = getHandleService(tCase.EngineType);
             var host = await _testHostRepository.QueryByID(tCase.MasterHostID, cancellationToken);
             if (host == null)
@@ -613,7 +692,6 @@ namespace FW.TestPlatform.Main.Entities
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
             }
-
             await _testCaseStore.Update(tCase, cancellationToken);
         }
 
@@ -624,7 +702,17 @@ namespace FW.TestPlatform.Main.Entities
 
         public async Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
-
+            //var testCase = await _testCaseStore.QueryByID(tCase.ID, cancellationToken);
+            //if (testCase == null)
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TestPlatformTextCodes.NotFoundTestCaseByID,
+            //        DefaultFormatting = "找不到Id为{0}的测试用例",
+            //        ReplaceParameters = new List<object>() { tCase.ID.ToString() }
+            //    };
+            //    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
+            //}
             if (tCase.Status != TestCaseStatus.NoRun)
             {
                 var fragment = new TextFragment()
@@ -633,9 +721,7 @@ namespace FW.TestPlatform.Main.Entities
                     DefaultFormatting = "只能在状态{0}的时候修改测试案例，当前测试案例{1}的状态为{2}",
                     ReplaceParameters = new List<object>() { TestCaseStatus.NoRun.ToString(), tCase.ID.ToString(), tCase.Status.ToString() }
                 };
-
                 throw new UtilityException((int)TestPlatformErrorCodes.StatusErrorOnTestCaseUpdate, fragment, 1, 0);
-
             }
 
             var host = await _testHostRepository.QueryByID(slaveHost.HostID, cancellationToken);
@@ -653,6 +739,39 @@ namespace FW.TestPlatform.Main.Entities
 
             slaveHost.TestCaseID = tCase.ID;
             await _testCaseSlaveHostStore.Update(slaveHost, cancellationToken);
+        }
+
+        public async Task DeleteSlaveHosts(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            List<TestCaseSlaveHost> slaveHosts = await _testCaseSlaveHostStore.QueryByCaseIdAndSlaveHostIds(tCase.ID, ids, cancellationToken);
+            if (slaveHosts.Count == 0 || slaveHosts.Count != ids.Count)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestHostByID,
+                    DefaultFormatting = "批量删除异常, 不能找到所有测试用例Id为{0}的测试从机Id为{1}",
+                    ReplaceParameters = new List<object>() { tCase.ID.ToString(), string.Join(",", ids.ToArray()) }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
+            }
+            await _testCaseSlaveHostStore.DeleteSlaveHosts(ids, cancellationToken);
+        }
+        public async Task DeleteHistories(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            List<TestCaseHistory> histories = await _testCaseHistoryStore.QueryByCaseIdAndHistoryIds(tCase.ID, ids, cancellationToken);
+            if (histories.Count == 0 || histories.Count != ids.Count)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestCaseHistoryByID,
+                    DefaultFormatting = "批量删除异常, 不能找到所有测试用例Id为{0}的测试从机Id为{1}",
+                    ReplaceParameters = new List<object>() { tCase.ID.ToString(), string.Join(",", ids.ToArray()) }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseHistoryById, fragment, 1, 0);
+            }
+            await _testCaseSlaveHostStore.DeleteSlaveHosts(ids, cancellationToken);
         }
 
         private ITestCaseHandleService getHandleService(string engineType)

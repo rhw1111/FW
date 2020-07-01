@@ -8,6 +8,7 @@ using MSLibrary.DI;
 using MSLibrary.CommandLine.SSH;
 using FW.TestPlatform.Main.Entities.DAL;
 using MSLibrary.Transaction;
+using Microsoft.Extensions.Azure;
 
 namespace FW.TestPlatform.Main.Entities
 {
@@ -125,7 +126,7 @@ namespace FW.TestPlatform.Main.Entities
             }
         }
 
-        public async Task<QueryResult<TestHost>> GetHosts(CancellationToken cancellationToken = default)
+        public async Task<List<TestHost>> GetHosts(CancellationToken cancellationToken = default)
         {
             return await _imp.GetHosts(cancellationToken);
         }
@@ -199,9 +200,15 @@ namespace FW.TestPlatform.Main.Entities
                 }
             }
         }
-        public async Task<QueryResult<TestHost>> GetHosts(CancellationToken cancellationToken = default)
+        public async Task<List<TestHost>> GetHosts(CancellationToken cancellationToken = default)
         {
-            return await _testHostStore.GetHosts(cancellationToken);
+            List<TestHost> hostList = new List<TestHost>();
+            var result = _testHostStore.GetHosts(cancellationToken);
+            await foreach(var item in result)
+            {
+                hostList.Add(item);
+            }
+            return hostList;
         }
     }
 
@@ -210,6 +217,6 @@ namespace FW.TestPlatform.Main.Entities
         Task Add(TestHost host, CancellationToken cancellationToken = default);
         Task Update(TestHost host, CancellationToken cancellationToken = default);
         Task Delete(TestHost host, CancellationToken cancellationToken = default);
-        Task<QueryResult<TestHost>> GetHosts(CancellationToken cancellationToken = default);
+        Task<List<TestHost>> GetHosts(CancellationToken cancellationToken = default);
     }
 }

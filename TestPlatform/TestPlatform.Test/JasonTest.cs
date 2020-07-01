@@ -77,11 +77,11 @@ namespace TestPlatform.Test
         {
             //await QueryByCaseID("c7a290e6-eddd-4126-abc9-5e129718e0fc");
             //await AddTestCase();
-            //await AddTestCaseHistory();
+            await AddTestCaseHistory();
             //await CreateMonitorDB();
             //await AddMasterData();
 
-            await AddSlaveData();
+            //await AddSlaveData();
         }
 
         private async Task CreateMonitorDB()
@@ -98,19 +98,30 @@ namespace TestPlatform.Test
 
             IAppAddMonitorMasterData test = DIContainerContainer.Get<IAppAddMonitorMasterData>();
 
-            MonitorMasterDataAddModel model = new MonitorMasterDataAddModel();
+            MonitorMasterDataAddModel model = null;
 
-            model.CaseID = "c7a290e6-eddd-4126-abc9-5e129718e0fc";
-            model.ConnectCount = "100";
-            model.ConnectFailCount = "100";
-            model.MaxDuration = "100";
-            model.MinDurartion = "100";
-            model.ReqCount = "100";
-            model.ReqFailCount = "100";
-            model.AvgDuration = "100";
+            Random rondom = new Random();
 
+            int runCount = 1000;
+            int i = 0;
 
-            await test.Do(model);
+            while (i <= runCount)
+            {
+                model = new MonitorMasterDataAddModel();
+                i++;
+                model.CaseID = "c7a290e6-eddd-4126-abc9-5e129718e0fc";
+                model.ConnectCount = rondom.Next(0, 20000).ToString();
+                model.ConnectFailCount = rondom.Next(0, 100).ToString();
+                model.ReqCount = rondom.Next(0, 20000).ToString();
+                model.ReqFailCount = rondom.Next(0, 100).ToString();
+                model.AvgDuration = rondom.Next(0, 8).ToString();
+                model.MaxDuration = rondom.Next(0, 10).ToString();
+                model.MinDurartion = rondom.Next(0, 5).ToString();
+
+                await test.Do(model);
+
+                Thread.Sleep(2000);
+            }
         }
 
         private async Task AddSlaveData()
@@ -121,27 +132,57 @@ namespace TestPlatform.Test
             IList<MonitorSlaveDataAddModel> modelList = new List<MonitorSlaveDataAddModel>();
             MonitorSlaveDataAddModel model = new MonitorSlaveDataAddModel();
 
-            model.CaseID = "c7a290e6-eddd-4126-abc9-5e129718e0fc";
-            model.QPS = "100";
-            model.Time = "20200623151201";
-            model.SlaveID = "aaaaa";
-            modelList.Add(model);
+            //model.CaseID = "c7a290e6-eddd-4126-abc9-5e129718e0fc";
+            //model.QPS = "100";
+            //model.Time = "20200623151201";
+            //model.SlaveID = "aaaaa";
+            //modelList.Add(model);
 
-            model = new MonitorSlaveDataAddModel();
-            model.CaseID = "c7a290e6-eddd-4126-abc9-5e129718e0fc";
-            model.QPS = "100";
-            model.Time = "20200623151301";
-            model.SlaveID = "aaaaa";
-            modelList.Add(model);
+            //model = new MonitorSlaveDataAddModel();
+            //model.CaseID = "c7a290e6-eddd-4126-abc9-5e129718e0fc";
+            //model.QPS = "100";
+            //model.Time = "20200623151301";
+            //model.SlaveID = "aaaaa";
+            //modelList.Add(model);
 
-            model = new MonitorSlaveDataAddModel();
-            model.CaseID = "c7a290e6-eddd-4126-abc9-5e129718e0fc";
-            model.QPS = "100";
-            model.Time = "20200623161201";
-            model.SlaveID = "aaaaa";
-            modelList.Add(model);
+            //model = new MonitorSlaveDataAddModel();
+            //model.CaseID = "c7a290e6-eddd-4126-abc9-5e129718e0fc";
+            //model.QPS = "100";
+            //model.Time = "20200623161201";
+            //model.SlaveID = "aaaaa";
+            //modelList.Add(model);
 
-            await test.Do(modelList);
+            Random rondom = new Random();
+
+            DateTime dt = DateTime.UtcNow;
+
+            int runCount = 50;
+            int i = 0;
+
+            while (i <= runCount)
+            {
+                i++;
+                modelList = new List<MonitorSlaveDataAddModel>();
+                model = new MonitorSlaveDataAddModel();
+
+                model.CaseID = "c7a290e6-eddd-4126-abc9-5e129718e0fc";
+                model.QPS = rondom.Next(10000, 30000).ToString();
+                model.Time = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+                model.SlaveID = "Slave-" + i.ToString();
+                modelList.Add(model); 
+                await test.Do(modelList);
+                Thread.Sleep(1000);
+
+            }
+
+            
+        }
+
+        private long ConvertToTimeStamp(string time)
+        {
+            DateTime dtTime = DateTime.ParseExact(time, "yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+            TimeSpan ts = dtTime - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            return Convert.ToInt64(ts.TotalSeconds);
         }
 
         private async Task AddTestCase()
@@ -175,13 +216,22 @@ namespace TestPlatform.Test
         private async Task AddTestCaseHistory()
         {
 
-            IAppAddTestCase test = DIContainerContainer.Get<IAppAddTestCase>();
+            IAppAddTestCaseHistory test = DIContainerContainer.Get<IAppAddTestCaseHistory>();
 
             TestCaseHistorySummyAddModel model = new TestCaseHistorySummyAddModel();
             model.CaseID = Guid.Parse("d4fdc4e2-4efd-4a1c-8372-5a6eca74e381");
             model.ConnectCount = 100;
+            model.AvgDuration = 100;
+            model.AvgQPS = 100;
+            model.ConnectFailCount = 100;
+            model.MaxDuration = 100;
+            model.MaxQPS = 100;
+            model.MinDurartion = 100;
+            model.MinQPS = 100;
+            model.ReqCount = 100;
+            model.ReqFailCount = 100;
 
-            await test.AddHistory(model);
+            await test.Do(model);
         }
 
     }

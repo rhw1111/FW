@@ -173,6 +173,12 @@ namespace MSLibrary.Template
             Regex regex = new Regex(@"(?<!\\),");
             var arrayParamaters=regex.Split(strParameters);
 
+            // 去空格
+            for (int i = 0; i < arrayParamaters.Length; i++)
+            {
+                arrayParamaters[i] = arrayParamaters[i].Trim();
+            }
+
             var parameter = await _labelParameterRepository.QueryByName(strLabelName);
             parameter.Extensions.Add(LabelExecuteParameters, arrayParamaters);
 

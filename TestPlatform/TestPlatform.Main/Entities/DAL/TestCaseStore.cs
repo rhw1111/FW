@@ -35,18 +35,14 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-
                     if (source.ID == Guid.Empty)
                     {
                         source.ID = Guid.NewGuid();
                     }
-
-                    source.CreateTime = DateTime.UtcNow;
-                    source.ModifyTime = DateTime.UtcNow;
-
-                    await dbContext.TestCases.AddAsync(source, cancellationToken);
-
-                    await dbContext.SaveChangesAsync(cancellationToken);
+                    //source.CreateTime = DateTime.UtcNow;
+                    //source.ModifyTime = DateTime.UtcNow;
+                    var entity = await dbContext.TestCases.AddAsync(source, cancellationToken);
+                    var result = await dbContext.SaveChangesAsync(cancellationToken);
                 }
             });
 
@@ -62,11 +58,32 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-
                     var deleteObj = new TestCase() { ID = id };
                     dbContext.TestCases.Attach(deleteObj);
                     dbContext.TestCases.Remove(deleteObj);
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
+        }
 
+        public async Task DeleteMutiple(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    List<TestCase> list = new List<TestCase>();
+                    foreach(Guid id in ids)
+                    {
+                        var deleteObj = new TestCase() { ID = id };
+                        list.Add(deleteObj);
+                    }
+                    dbContext.TestCases.AttachRange(list.ToArray());
+                    dbContext.TestCases.RemoveRange(list.ToArray());
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }
             });
@@ -83,11 +100,9 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-
-
                     result = await (from item in dbContext.TestCases
                                     where item.ID == id
-                                    select item).Include(u => u.MasterHost).Include(u => u.MasterHost.SSHEndpoint).FirstOrDefaultAsync();
+                                    select item).Include(u => u.MasterHost).ThenInclude(u => u.SSHEndpoint).FirstOrDefaultAsync();
                 }
             });
 
@@ -132,10 +147,12 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         }
 
 
-                        result = await (from item in dbContext.TestCases
+                        var testCase = await (from item in dbContext.TestCases
                                         where item.Name == name
-                                        orderby EF.Property<long>(item, "Sequence")
-                                        select item.ID).FirstOrDefaultAsync();
+                                        orderby EF.Property<long>(item, "Sequence") descending
+                                        select item).FirstOrDefaultAsync();
+                        if (testCase != null)
+                            result = testCase.ID;
                     }
                 });
 
@@ -184,7 +201,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
 
-                    var strLike = $"{matchName.ToSqlLike()}%";
+                    var strLike = $"%{matchName.ToSqlLike()}%";
                     var count = await (from item in dbContext.TestCases
                                        where EF.Functions.Like(item.Name, strLike)
                                        select item.ID).CountAsync();
@@ -200,8 +217,39 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     var datas = await (from item in dbContext.TestCases
                                        join idItem in ids
                                   on item.ID equals idItem
-                                       orderby item.CreateTime descending
+                                       orderby EF.Property<long>(item, "Sequence") descending
                                        select item).ToListAsync();
+
+                    result.Results.AddRange(datas);
+                }
+            });
+
+            return result;
+        }
+
+        public async Task<QueryResult<TestCase>> QueryByPage(int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            QueryResult<TestCase> result = new QueryResult<TestCase>()
+            {
+                CurrentPage = page
+            };
+
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    var count = await (from item in dbContext.TestCases
+                                       select item.ID).CountAsync();
+
+                    result.TotalCount = count;
+
+                    var datas = await (from item in dbContext.TestCases
+                                       orderby EF.Property<long>(item, "Sequence") descending
+                               select item).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
                     result.Results.AddRange(datas);
                 }

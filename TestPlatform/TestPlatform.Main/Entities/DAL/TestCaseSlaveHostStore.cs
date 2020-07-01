@@ -91,14 +91,15 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     var entry = dbContext.Entry(source);
                     foreach (var item in entry.Properties)
                     {
-                        entry.Property(item.Metadata.Name).IsModified = true;
+                        if (item.Metadata.Name != "ID")
+                            entry.Property(item.Metadata.Name).IsModified = true;
                     }
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }
             });
         }
 
-        public async Task<TestCaseSlaveHost?> QueryByCase(Guid caseId,Guid slaveId, CancellationToken cancellationToken = default)
+        public async Task<TestCaseSlaveHost?> QueryByCase(Guid caseId, Guid slaveId, CancellationToken cancellationToken = default)
         {
             TestCaseSlaveHost? result = null;
             await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
@@ -112,7 +113,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
 
                     result = await (from item in dbContext.TestCaseSlaveHosts
-                                    where item.ID == slaveId
+                                    where item.ID == slaveId && item.TestCaseID == caseId
                                     select item).FirstOrDefaultAsync();
                 }
             });
@@ -124,9 +125,9 @@ namespace FW.TestPlatform.Main.Entities.DAL
         {
 
             AsyncInteration<TestCaseSlaveHost> interation = new AsyncInteration<TestCaseSlaveHost>(
-                async(index)=>
+                async (index) =>
                 {
-                    List<TestCaseSlaveHost>? datas = null ;
+                    List<TestCaseSlaveHost>? datas = null;
                     await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
                     {
                         await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
@@ -143,10 +144,10 @@ namespace FW.TestPlatform.Main.Entities.DAL
                                                 ).Skip((index) * 500).Take(500);
 
                             datas = await (from item in dbContext.TestCaseSlaveHosts
-                                               join idItem in ids
-                                          on item.ID equals idItem
-                                               orderby EF.Property<long>(item, "Sequence")
-                                               select item).ToListAsync();                    
+                                           join idItem in ids
+                                      on item.ID equals idItem
+                                           orderby EF.Property<long>(item, "Sequence")
+                                           select item).Include(u => u.Host).ThenInclude(u => u.SSHEndpoint).ToListAsync();
                         }
                     });
 
@@ -167,38 +168,85 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-
-
                     result = await (from item in dbContext.TestCaseSlaveHosts
                                     where item.ID == id
-                                    select item).FirstOrDefaultAsync();
+                                    select item).Include(entity => entity.TestCase).Include(entity => entity.Host).FirstOrDefaultAsync();
                 }
             });
 
             return result;
         }
+        public async Task<Guid?> QueryByNameNoLock(string name, CancellationToken cancellationToken = default)
+        {
+            Guid? result = null;
+            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.RequiresNew, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted, Timeout = new TimeSpan(0, 0, 30) }))
+            {
 
-        //public async Task<TestCase?> QueryByName(string name, CancellationToken cancellationToken = default)
-        //{
-        //    TestCase? result = null;
-        //    await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
-        //    {
-        //        await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
-        //        {
-        //            if (transaction != null)
-        //            {
-        //                await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
-        //            }
+                await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+                {
+                    await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                    {
+                        if (transaction != null)
+                        {
+                            await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                        }
 
+                        var dataSourceItem = await (from item in dbContext.TestCaseSlaveHosts
+                                                    where item.SlaveName == name
+                                                    orderby EF.Property<long>(item, "Sequence")
+                                                    select item).FirstOrDefaultAsync();
+                        if (dataSourceItem != null)
+                            result = dataSourceItem.ID;
+                    }
+                });
 
-        //            result = await (from item in dbContext.TestCases
-        //                            where item.Name == name
-        //                            select item).FirstOrDefaultAsync();
-        //        }
-        //    });
+                scope.Complete();
+            }
+            return result;
+        }
 
-        //    return result;
-        //}
+        public async Task DeleteSlaveHosts(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    List<TestCaseSlaveHost> list = new List<TestCaseSlaveHost>();
+                    foreach (Guid id in ids)
+                    {
+                        var deleteObj = new TestCaseSlaveHost() { ID = id };
+                        list.Add(deleteObj);
+                    }
+                    dbContext.TestCaseSlaveHosts.AttachRange(list.ToArray());
+                    dbContext.TestCaseSlaveHosts.RemoveRange(list.ToArray());
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
+        }
 
+        public async Task<List<TestCaseSlaveHost>> QueryByCaseIdAndSlaveHostIds(Guid caseId, List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            List<TestCaseSlaveHost> result = new List<TestCaseSlaveHost>();
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    result = await (from item in dbContext.TestCaseSlaveHosts
+                                   where item.TestCaseID == caseId && ids.Contains(item.ID)
+                                   select item).ToListAsync();
+                }
+            });
+
+            return result;
+        }
     }
 }

@@ -58,10 +58,11 @@ CREATE TABLE IF NOT EXISTS `systemconfiguration` (
 /*!40000 ALTER TABLE `systemconfiguration` DISABLE KEYS */;
 REPLACE INTO `systemconfiguration` (`id`, `name`, `content`, `createtime`, `modifytime`, `sequence`) VALUES
 	('94e0b048-af6e-11ea-8e6a-0242ac110002', 'DefaultUserID', '"46f8bcca-af6e-11ea-8e6a-0242ac110002"', '2020-06-16 01:13:26', '2020-06-16 01:13:26', 1),
-	('3e552936-af6f-11ea-8e6a-0242ac110002', 'TestPlatform.Portal.Api_CrosOrigin', '["http://localhost:8080/"]', '2020-06-16 01:18:11', '2020-06-16 01:18:11', 2),
+	('3e552936-af6f-11ea-8e6a-0242ac110002', 'TestPlatform.Portal.Api_CrosOrigin', '["http://52.188.14.158:8080/","http://localhost:8080/"]', '2020-06-16 01:18:11', '2020-06-16 01:18:11', 2),
 	('efa02231-af6f-11ea-8e6a-0242ac110002', 'LogExcludePaths', '[]', '2020-06-16 01:23:08', '2020-06-16 01:23:08', 3),
 	('057d6ca4-af70-11ea-8e6a-0242ac110002', 'OutputStreamReplaceExcludePaths', '[]', '2020-06-16 01:23:45', '2020-06-16 01:23:45', 4),
-	('f48e95ab-b836-11ea-bed4-025041000001', 'CaseServiceBaseAddress', '"http://127.17.0.1:8082/"', '2020-06-27 13:23:45', '2020-06-27 13:23:45', 5);
+	('f48e95ab-b836-11ea-bed4-025041000001', 'CaseServiceBaseAddress', '"http://127.17.0.1:8082/"', '2020-06-27 13:23:45', '2020-06-27 13:23:45', 5),
+	('d4fdc4e2-4efd-4a1c-8372-5a6eca74e381', 'TestPlatform.CaseService_CrosOrigin', '["http://52.188.14.158:8082/","http://localhost:8082/"]', '2020-06-27 13:23:45', '2020-06-27 13:23:45', 6);
 /*!40000 ALTER TABLE `systemconfiguration` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `influxdbendpoint`;
@@ -79,7 +80,7 @@ CREATE TABLE `influxdbendpoint` (
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-REPLACE INTO `influxdbendpoint` (`id`, `name`, `address`, `isauth`, `username`, `password`, `createtime`, `modifytime`) VALUES ('c7a290e6-eddd-4126-abc9-5e129718e0fc', 'EndpointName', 'http://localhost:8086/', b'1', 'admin', 'admin', UTC_TIMESTAMP(),UTC_TIMESTAMP());
+REPLACE INTO `influxdbendpoint` (`id`, `name`, `address`, `isauth`, `username`, `password`, `createtime`, `modifytime`) VALUES ('c7a290e6-eddd-4126-abc9-5e129718e0fc', 'EndpointName', 'http://172.17.0.1:8086', b'0', 'admin', 'admin', UTC_TIMESTAMP(),UTC_TIMESTAMP());
 
 -- 导出 tpmain 的数据库结构
 CREATE DATABASE IF NOT EXISTS `tpmain` /*!40100 DEFAULT CHARACTER SET utf8 */ /*!80016 DEFAULT ENCRYPTION='N' */;

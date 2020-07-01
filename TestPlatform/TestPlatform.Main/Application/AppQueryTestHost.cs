@@ -20,24 +20,24 @@ namespace FW.TestPlatform.Main.Application
             _testHostRepository = testHostRepository;
         }
 
-        public async Task<QueryResult<TestHostViewData>> GetHosts(CancellationToken cancellationToken = default)
+        public async Task<List<TestHostViewData>> Do(CancellationToken cancellationToken = default)
         {
-            QueryResult<TestHostViewData> result = new QueryResult<TestHostViewData>();
-            var queryResult = await _testHostRepository.GetHosts(cancellationToken);
-            foreach (var item in queryResult.Results)
+            List<TestHostViewData> result = new List<TestHostViewData>();
+            var queryResult = _testHostRepository.GetHosts(cancellationToken);
+            await foreach (var item in queryResult)
             {
-                result.Results.Add(
+                result.Add(
                     new TestHostViewData()
                     {
                         ID = item.ID,
                         Address = item.Address,
                         SSHEndpoint = item.SSHEndpoint,
+                        SSHEndpointID = item.SSHEndpointID,
                         CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
                         ModifyTime = item.ModifyTime.ToCurrentUserTimeZone()
                     }
                     );
             }
-
             return result;
         }
     }

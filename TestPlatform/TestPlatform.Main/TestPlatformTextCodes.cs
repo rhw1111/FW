@@ -153,5 +153,33 @@ namespace FW.TestPlatform.Main
         /// {0}：名称
         /// </summary>
         public const string NotFoundInfluxDBEndpoint = "NotFoundInfluxDBEndpoint";
+
+        /// <summary>
+        /// 已经存在指定名称的测试用例
+        /// 格式为“已经存在名称为{0}的测试用例”
+        /// {0}：名称
+        /// </summary>
+        public const string ExistTestCaseByName = "ExistTestCaseByName";
+
+        /// <summary>
+        /// 找不到指定Id的测试历史
+        /// 格式为“找不到测试历史Id为{0}并且测试用例Id为{1}的历史”
+        /// {0}：名称
+        /// </summary>
+        public const string NotFoundTestCaseHistoryByID = "NotFoundTestCaseHistoryByID";
+
+        /// <summary>
+        /// 已经存在指定名称的从测试主机
+        /// 格式为“已经存在名称为{0}的从测试主机”
+        /// {0}：名称
+        /// </summary>
+        public const string ExistTestCaseSlaveByName = "ExistTestCaseSlaveByName";
+
+        /// <summary>
+        /// 找不到指定Id的测试数据源
+        /// 格式为“找不到测试数据源Id为{0}的测试数据源”
+        /// {0}：名称
+        /// </summary>
+        public const string NotFoundTestCaseDataSourceByID = "NotFoundTestCaseDataSourceByID";
     }
 }

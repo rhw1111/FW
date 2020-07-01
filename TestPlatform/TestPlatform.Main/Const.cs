@@ -209,6 +209,24 @@ namespace FW.TestPlatform.Main
         public const string ConnectInit = "connectinit";
         public const string SendInit = "sendinit";
         public const string SendData = "senddata";
+        public const string HostName = "hostname";
+        public const string CurConnectID = "curconnectid";
+        public const string CurConnect = "curconnect";
+        public const string DataSource = "datasource";
+        public const string NameOnceJsonDataInvoke = "nameoncejsondatainvoke";
+        public const string TcpRRInvoke = "tcprrinvoke";
+        public const string TcpRRWithConnectInvoke = "tcprrwithconnectinvoke";
+        public const string GetJsonRowDataInvoke = "getjsonrowdatainvoke";
+        public const string GetNameSerialNoInvoke = "getnameserialnoinvoke";
+        public const string NumberFill = "numberfill";
+        public const string IntRange = "intrange";
+        public const string DecimalRange = "decimalrange";
+        public const string RanJsonData = "ranjsondata";
+        public const string DesSecurity = "dessecurity";
+        public const string VarKV = "varkv";
+        public const string CurrConnectKV = "currconnectkv";
+        public const string CaseID = "caseid";
+        public const string CaseServiceBaseAddress = "caseservicebaseaddress";
     }
 
     /// <summary>
@@ -238,4 +256,11 @@ namespace FW.TestPlatform.Main
         public const string DesSecurity = "DesSecurity";
     }
 
+    /// <summary>
+    /// SSHEndpoint类型
+    /// </summary>
+    public static class SSHEndpointTypes
+    {
+        public const string Default = "Default";
+    }
 }

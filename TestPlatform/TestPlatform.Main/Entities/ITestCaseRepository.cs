@@ -13,5 +13,7 @@ namespace FW.TestPlatform.Main.Entities
         Task<TestCase?> QueryByName(string name, CancellationToken cancellationToken = default);
         Task<IList<TestCase>> QueryByNames(IList<string> names, CancellationToken cancellationToken = default);
         Task<QueryResult<TestCase>> QueryByPage(string matchName, int page, int pageSize, CancellationToken cancellationToken = default);
+        Task<QueryResult<TestCase>> QueryByPage(int page, int pageSize, CancellationToken cancellationToken = default);
+        Task DeleteMutiple(List<Guid> ids, CancellationToken cancellationToken = default);
     }
 }

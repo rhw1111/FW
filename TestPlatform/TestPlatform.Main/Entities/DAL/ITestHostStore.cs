@@ -14,6 +14,6 @@ namespace FW.TestPlatform.Main.Entities.DAL
         Task Delete(Guid id, CancellationToken cancellationToken = default);
         Task<TestHost> QueryByID(Guid id, CancellationToken cancellationToken = default);
         Task<QueryResult<TestHost>> QueryByPage(string matchAddress, int page, int pageSize, CancellationToken cancellationToken = default);
-        Task<QueryResult<TestHost>> GetHosts(CancellationToken cancellationToken = default);
+        IAsyncEnumerable<TestHost> GetHosts(CancellationToken cancellationToken = default);
     }
 }
