@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MSLibrary;
 using FW.TestPlatform.Main.DTOModel;
 using FW.TestPlatform.Main.Entities;
+using MSLibrary;
 
 namespace FW.TestPlatform.Main.Application
 {
-    public interface IAppQueryTestHost
+    public interface IAppQueryTestCaseHistory
     {
-        Task<List<TestHostViewData>> Do(CancellationToken cancellationToken = default);
+        
+        Task<QueryResult<TestCaseHistory>> Do(Guid caseID, int page, int pageSize, CancellationToken cancellationToken = default);
     }
 }

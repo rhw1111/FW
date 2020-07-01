@@ -26,9 +26,23 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppDeleteTestCase _appDeleteTestCase;
         private readonly IAppDeleteMultipleTestCase _appDeleteMultipleTestCase;
         private readonly IAppQuerySingleTestCase _appQuerySingleTestCase;
-
+        private readonly IAppRunTestCase _appRunTestCase;
+        private readonly IAppStopTestCase _appStopTestCase;
+        private readonly IAppCheckTestCaseStatus _appCheckTestCaseStatus;
+        private readonly IAppAddSlaveHost _appAddSlaveHost;
+        //private readonly IAppAddTestCaseHistory _appAddTestCaseHistory;
+        private readonly IAppQueryMasterLog _appQueryMasterLog;
+        private readonly IAppQuerySlaveLog _appQuerySlaveLog;
+        private readonly IAppQuerySlaveHost _appQuerySlaveHost;
+        private readonly IAppQueryTestCaseHistory _appQueryTestCaseHistory;
+        private readonly IAppQuerySingleTestCaseHistory _appQuerySingleTestCaseHistory;
+        private readonly IAppUpdateSlaveHost _appUpdateSlaveHost;
+        private readonly IAppDeleteTestCaseHistory _appDeleteTestCaseHistory;
+        private readonly IAppDeleteSlaveHost _appDeleteSlaveHost;
         public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQueryTestHost appQueryTestHost, IAppExecuteTestCase appExecuteTestCase, IAppQuerySingleTestCase appQuerySingleTestCase, IAppUpdateTestCase appUpdateTestCase,
-            IAppDeleteMultipleTestCase appDeleteMultipleTestCase, IAppDeleteTestCase appDeleteTestCase)
+            IAppDeleteMultipleTestCase appDeleteMultipleTestCase, IAppDeleteTestCase appDeleteTestCase, IAppRunTestCase appRunTestCase, IAppStopTestCase appStopTestCase, IAppCheckTestCaseStatus appCheckTestCaseStatus, IAppAddSlaveHost appAddSlaveHost,
+            IAppQueryMasterLog appQueryMasterLog, IAppQuerySlaveLog appQuerySlaveLog, IAppQuerySlaveHost appQuerySlaveHost, IAppQueryTestCaseHistory appQueryTestCaseHistory, IAppQuerySingleTestCaseHistory appQuerySingleTestCaseHistory, IAppUpdateSlaveHost appUpdateSlaveHost,
+            IAppDeleteTestCaseHistory appDeleteTestCaseHistory, IAppDeleteSlaveHost appDeleteSlaveHost)
         {
             _appQueryTestCase = appQueryTestCase;
             _appAddTestCase = appAddTestCase;
@@ -38,6 +52,18 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _appDeleteTestCase = appDeleteTestCase;
             _appDeleteMultipleTestCase = appDeleteMultipleTestCase;
             _appQuerySingleTestCase = appQuerySingleTestCase;
+            _appRunTestCase = appRunTestCase;
+            _appStopTestCase = appStopTestCase;
+            _appCheckTestCaseStatus = appCheckTestCaseStatus;
+            _appAddSlaveHost = appAddSlaveHost;
+            _appQueryMasterLog = appQueryMasterLog;
+            _appQuerySlaveLog = appQuerySlaveLog;
+            _appQuerySlaveHost = appQuerySlaveHost;
+            _appQueryTestCaseHistory = appQueryTestCaseHistory;
+            _appQuerySingleTestCaseHistory = appQuerySingleTestCaseHistory;
+            _appUpdateSlaveHost = appUpdateSlaveHost;
+            _appDeleteTestCaseHistory = appDeleteTestCaseHistory;
+            _appDeleteSlaveHost = appDeleteSlaveHost;
         }
 
         [HttpGet("getbypage")]
@@ -45,12 +71,6 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         {
             return await _appQueryTestCase.Do(matchName, page, _pageSize);
         }
-
-        //[HttpGet("getbypagesize")]
-        //public async Task<QueryResult<TestCaseViewData>> GetByPage(int page, int pageSize)
-        //{
-        //    return await _appQueryTestCase.Do(page, pageSize);
-        //}
 
         [HttpGet("getcase")]
         public async Task<TestCaseViewData?> GetCase(Guid id)
@@ -73,107 +93,88 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         [HttpDelete("delete")]
         public async Task Delete(Guid id)
         {
-            try
-            {
-                //TestCase source = new TestCase()
-                //{
-                //    ID = id
-                //};
-                await _appDeleteTestCase.Do(id);
-            }
-            catch(Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            await _appDeleteTestCase.Do(id);
         }
+
         [HttpDelete("deletemultiple")]
         public async Task DeleteMultiple(List<Guid> list)
         {
-            try
-            {
-                //List<TestCaseAddModel> list = new List<TestCaseAddModel>();
-                await _appDeleteMultipleTestCase.Do(list);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+           await _appDeleteMultipleTestCase.Do(list);
         }
-
-        [HttpGet("gethosts")]
-        public async Task<List<TestHostViewData>> GetHosts()
-        {
-            try
-            {
-                //RequestResult<QueryResult<TestHostViewData>> requestRel = new RequestResult<QueryResult<TestHostViewData>>();
-                
-                List<TestHostViewData> result = await _appQueryTestHost.GetHosts();
-                return result;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+        
         [HttpPost("run")]
         public async Task Run(Guid caseId)
         {
-            await _appExecuteTestCase.Run(caseId);
+            await _appRunTestCase.Do(caseId);
         }
         [HttpPost("stop")]
         public async Task Stop(Guid caseId)
         {
-            await _appExecuteTestCase.Stop(caseId);
+            await _appStopTestCase.Do(caseId);
         }
         [HttpPost("CheckTestStatus")]
         public async Task<bool> CheckTestStatus(Guid caseId)
         {
-            return await _appExecuteTestCase.IsEngineRun(caseId);
+            return await _appCheckTestCaseStatus.Do(caseId);
         }
         [HttpPost("GetMasterLog")]
         public async Task<string> GetMasterLog(Guid caseId)
         {
-             return await _appExecuteTestCase.GetMasterLog(caseId);
+             return await _appQueryMasterLog.Do(caseId);
         }
         [HttpPost("GetSlaveLog")]
         public async Task<string> GetSlaveLog(Guid caseId, Guid slaveHostId)
         {
-            return await _appExecuteTestCase.GetSlaveLog(caseId, slaveHostId);
+            return await _appQuerySlaveLog.Do(caseId, slaveHostId);
         }
         [HttpPost("addslavehost")]
         public async Task<TestCaseSlaveHost> AddSlaveHost(TestCaseSlaveHostAddModel slaveHost)
         {
-            return await _appExecuteTestCase.AddSlaveHost(slaveHost);
+            return await _appAddSlaveHost.Do(slaveHost);
         }
         [HttpGet("GetAllSlaveHosts")]
         public IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(Guid caseId)
         {
-            return _appExecuteTestCase.GetAllSlaveHosts(caseId);
+            return _appQuerySlaveHost.Do(caseId);
         }
         [HttpPut("UpdateSlaveHost")]
         public async Task UpdateSlaveHost(TestCaseSlaveHostAddModel slaveHost)
         {
-            await _appExecuteTestCase.UpdateSlaveHost(slaveHost);
+            await _appUpdateSlaveHost.Do(slaveHost);
         }
         [HttpGet("GetHistories")]
         public async Task<QueryResult<TestCaseHistory>> GetHistories(Guid caseID, int page, int pageSize)
         {
-            return await _appExecuteTestCase.GetHistories(caseID, page, pageSize);
+            return await _appQueryTestCaseHistory.Do(caseID, page, pageSize);
         }
         [HttpDelete("DeleteHistory")]
         public async Task DeleteHistory(Guid id)
         {
-            await _appExecuteTestCase.DeleteHistory(id);
+            await _appDeleteTestCaseHistory.Do(id);
         }
         [HttpDelete("DeleteSlaveHost")]
         public async Task DeleteSlaveHost(Guid id)
         {
-            await _appExecuteTestCase.DeleteSlaveHost(id);
+            await _appDeleteSlaveHost.Do(id);
         }
         [HttpGet("GetHistory")]
-        public async Task<TestCaseHistory?> GetHistory(Guid id)
+        public async Task<TestCaseHistoryViewModel> GetHistory(Guid caseId, Guid historyId)
         {
-            return await _appExecuteTestCase.GetHistory(id);
+            return await _appQuerySingleTestCaseHistory.Do(caseId, historyId);
         }
+
+        //[HttpGet("gethosts")]
+        //public async Task<List<TestHostViewData>> GetHosts()
+        //{
+        //    try
+        //    {
+        //        List<TestHostViewData> result = await _appQueryTestHost.Do();
+        //        return result;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception(ex.Message);
+        //    }
+        //}
     }
 }
