@@ -107,7 +107,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         {
             await _appStopTestCase.Do(caseId);
         }
-        [HttpPost("checkstatus")]
+        [HttpGet("checkstatus")]
         public async Task<bool> CheckTestStatus(Guid caseId)
         {
             return await _appCheckTestCaseStatus.Do(caseId);
@@ -162,9 +162,9 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         }
 
         [HttpDelete("deletehistory")]
-        public async Task DeleteHistory(Guid caseId, Guid id)
+        public async Task DeleteHistory(Guid caseId, Guid historyId)
         {
-            await _appDeleteTestCaseHistory.Do(caseId, id);
+            await _appDeleteTestCaseHistory.Do(caseId, historyId);
         }
 
         //[HttpGet("gethosts")]

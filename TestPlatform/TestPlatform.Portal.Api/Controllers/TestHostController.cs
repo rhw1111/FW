@@ -23,7 +23,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _appQueryTestHost = appQueryTestHost;
         }
 
-        [HttpGet("QueryAll")]
+        [HttpGet("queryall")]
         public async Task<List<TestHostViewData>> QueryAll()
         {
             return await _appQueryTestHost.Do();
