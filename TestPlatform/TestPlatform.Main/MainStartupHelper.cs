@@ -114,6 +114,8 @@ using FW.TestPlatform.Main.Code;
 using FW.TestPlatform.Main.Code.GetSeparatorServices;
 using FW.TestPlatform.Main.Code.GenerateDataVarDeclareServices;
 using FW.TestPlatform.Main.Code.GenerateAdditionFuncServices;
+using MSLibrary.CommandLine.SSH;
+using MSLibrary.CommandLine.SSH.SSHEndpointServices;
 
 namespace FW.TestPlatform.Main
 {
@@ -267,7 +269,7 @@ namespace FW.TestPlatform.Main
 
             DBTransactionHelper.DBConnGenerates[DBTypes.MySql] = new DBConnGenerateForMySql();
 
-
+            SSHEndpointIMP.SSHEndpointServiceFactories[SSHEndpointTypes.Default] = DIContainerContainer.Get<SSHEndpointServiceForDefaultFactory>();
 
             TestCaseIMP.HandleServiceFactories[EngineTypes.Http] = DIContainerContainer.Get<TestCaseHandleServiceForHttpFactory>();
             TestCaseIMP.HandleServiceFactories[EngineTypes.Tcp] = DIContainerContainer.Get<TestCaseHandleServiceForTcpFactory>();

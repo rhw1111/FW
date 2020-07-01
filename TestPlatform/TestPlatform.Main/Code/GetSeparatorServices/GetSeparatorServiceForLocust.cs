@@ -12,7 +12,7 @@ namespace FW.TestPlatform.Main.Code.GetSeparatorServices
     {
         public async Task<string> GetFuncSeparator()
         {
-            string result = $"\r\n";
+            string result = $"\n";
 
             return await Task.FromResult(result);
         }
