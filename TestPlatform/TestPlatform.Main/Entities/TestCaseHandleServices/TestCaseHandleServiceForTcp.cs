@@ -182,7 +182,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             strCode = strCode.Replace("{Address}", configuration.Address);
             strCode = strCode.Replace("{Port}", configuration.Port.ToString());
             strCode = strCode.Replace("{CaseID}", tCase.ID.ToString());
-            strCode = strCode.Replace("{RequestBody}", configuration.RequestBody);
             strCode = strCode.Replace("{ResponseSeparator}", configuration.ResponseSeparator);
             strCode = strCode.Replace("{CaseServiceBaseAddress}", caseServiceBaseAddress);
 
@@ -192,6 +191,23 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             //获取测试用例的主测试机，上传测试代码
             using (var textStream=new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}", "Master"))))
             {
+                #region Test Code
+#if DEBUG
+                //string testFilePath = @"E:\Downloads\script.py";
+
+                //if (File.Exists(testFilePath))
+                //{
+                //    File.Delete(testFilePath);
+                //}
+
+                //using (FileStream fileStream = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.Write))
+                //{
+                //    BinaryWriter w = new BinaryWriter(fileStream);
+                //    w.Write(textStream.ToArray());
+                //}
+#endif
+                #endregion
+
                 await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{_testFilePath}{string.Format(_testFileName,string.Empty)}", cancellationToken);
                 textStream.Close();
             }

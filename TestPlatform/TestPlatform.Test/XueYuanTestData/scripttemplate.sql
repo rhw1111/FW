@@ -3,8 +3,6 @@ SELECT * FROM tpmain.scripttemplate;
 INSERT INTO tpmain.scripttemplate
 VALUES('9adb8033-f28a-43a1-b396-0f36307b213b', 'LocustTcp', '', now(), now(), '1');
 
-USE tpmain;
-
 UPDATE tpmain.scripttemplate
 SET content = '# !/usr/bin/env python3
 # -*- coding:utf-8 -*-
@@ -75,57 +73,16 @@ is_save_interval = 10
 # 发送的数据包是否加密
 is_security_data = True
 # 秘钥，密钥的长度必须是16的倍数
-key = "tjjtgjzs########"
+key = "tjjtgjzsrfghju@4"
 
 all_locusts_spawned = Semaphore()
 lock = threading.Lock()
 
 
-{$additionfunc()}
+{$additionfunc(0)}
 
 
-{$datavardeclareinit()}
-
-
-class EncryptDate():
-    def __init__(self, key):
-        self.key = key
-        self.mode = DES3.MODE_CBC
-        self.iv = b"12345678"
-        self.length = DES3.block_size
-
-    def pad(self, s):
-        return s + (self.length - len(s) % self.length) * chr(self.length - len(s) % self.length)
-
-    # 定义 padding 即 填充 为PKCS7
-    def unpad(self, s):
-        return s[0:-ord(s[-1])]
-
-    # DES3的加密模式为CBC
-    def encrypt(self, text):
-        text = self.pad(text)
-        cryptor = DES3.new(self.key, self.mode, self.iv)
-        # self.iv 为 IV 即偏移量
-        x = len(text) % 8
-
-        if x != 0:
-            text = text + "\0" * (8 - x)  # 不满16，32，64位补0
-        
-        self.ciphertext = cryptor.encrypt(text)
-        return base64.standard_b64encode(self.ciphertext).decode("utf-8")
-
-    def decrypt(self, text):
-        cryptor = DES3.new(self.key, self.mode, self.iv)
-        de_text = base64.standard_b64decode(text)
-        plain_text = cryptor.decrypt(de_text)
-        st = str(plain_text.decode("utf-8")).rstrip("\0")
-        out = self.unpad(st)
-        return out
-        # 上面注释内容解密如果运行报错，就注释掉试试
-        # return plain_text
-
-
-ed = EncryptDate(key)
+{$datavardeclareinit(0)}
 
 
 class TcpSocketClient(socket.socket):
@@ -211,11 +168,9 @@ class TcpTestUser(User):
     worker_report_time = datetime.datetime.now()
 
     # 自定义变量集合
-    currconnectkv = [
-        {
-            "name": ""
-        }
-    ]
+    currconnectkv = {
+        "name": ""
+    }
 
     stats_tcps = {
         "stats_tcps": []
@@ -234,13 +189,12 @@ class TcpTestUser(User):
         self.client = TcpSocketClient(socket.AF_INET, socket.SOCK_STREAM)
 
     def get_package(self):
-        request_body = {RequestBody}
-        self.send_data = request_body
-
-        {$sendinit()}
-
+        self.request_body = {$senddata()}
+        self.senddata = self.request_body
         package = self.senddata
         package = json.dumps(package)
+
+        {$sendinit(8)}
 
         return package
 
@@ -262,7 +216,7 @@ class TcpTestUser(User):
 
     def login(self):
         # Login
-        {$connectinit()}
+        {$connectinit(8)}
 
         return True
 
@@ -636,7 +590,7 @@ class TcpTestUser(User):
                     float(round(pandas_stats_tcps_currents_name["fail_s"].max(), 6)))          
 
         pandas_stats_tcps_currents = pandas.read_json(json.dumps(TcpTestUser.stats_tcps_currents["stats_tcps_currents"]), "records")
-        print(pandas_stats_tcps_currents)
+        # print(pandas_stats_tcps_currents)
 
         return True
 
@@ -750,14 +704,14 @@ class TcpTestUser(User):
     def save_data(stats_tcps, stats_tcps_currents, stats_tcps_totals):
         # print("save_data")
 
-        pandas_stats_tcps = pandas.read_json(json.dumps(stats_tcps["stats_tcps"]), "records")
-        print(pandas_stats_tcps)
+        # pandas_stats_tcps = pandas.read_json(json.dumps(stats_tcps["stats_tcps"]), "records")
+        # print(pandas_stats_tcps)
 
-        pandas_stats_tcps_currents = pandas.read_json(json.dumps(stats_tcps_currents["stats_tcps_currents"]), "records")
-        print(pandas_stats_tcps_currents)
+        # pandas_stats_tcps_currents = pandas.read_json(json.dumps(stats_tcps_currents["stats_tcps_currents"]), "records")
+        # print(pandas_stats_tcps_currents)
 
-        pandas_stats_tcps_totals = pandas.read_json(json.dumps(stats_tcps_totals["stats_tcps_totals"]), "records")
-        print(pandas_stats_tcps_totals)
+        # pandas_stats_tcps_totals = pandas.read_json(json.dumps(stats_tcps_totals["stats_tcps_totals"]), "records")
+        # print(pandas_stats_tcps_totals)
 
         TcpTestUser.add_master_data(stats_tcps, stats_tcps_currents, stats_tcps_totals)
         TcpTestUser.add_history_data(TcpTestUser.stats_tcps, TcpTestUser.stats_tcps_currents, TcpTestUser.stats_tcps_totals)        
@@ -1101,6 +1055,7 @@ class TcpTestUser(User):
             "")
 
         self.reset_data()
+
 '
 WHERE id = '9adb8033-f28a-43a1-b396-0f36307b213b';
 

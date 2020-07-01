@@ -18,14 +18,16 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("def NameOnceJsonData(data):");
             sbCode.AppendLine("    # print(\"NameOnceJsonData\")");
             sbCode.AppendLine("    import random");
-            sbCode.AppendLine("    ");
+            sbCode.AppendLine("");
+            sbCode.AppendLine("    if data is not None and type(data).__name__ == \"dict\":");
+            sbCode.AppendLine("        return data");
             sbCode.AppendLine("    if data is not None and len(data) > 0:");
             sbCode.AppendLine("        index = random.randint(0, len(data) - 1)");
             sbCode.AppendLine("        row = data[index]");
             sbCode.AppendLine("        del data[index]");
-            sbCode.AppendLine("        ");
+            sbCode.AppendLine("");
             sbCode.AppendLine("        return row");
-            sbCode.AppendLine("    ");
+            sbCode.AppendLine("");
             sbCode.AppendLine("    return None");
             sbCode.AppendLine("");
 
