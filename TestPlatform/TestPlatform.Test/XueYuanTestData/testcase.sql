@@ -16,7 +16,7 @@ SET configuration = '{
     "Address": "127.0.0.1",
     "Port": 12345,
     "ResponseSeparator": "</package>",    
-    "RequestBody": "{\'UserName\': self.user_id, \'UserToken\': self.user_token, \'a\': \'a\'}",
+    "RequestBody": "{\'UserName\': {$currconnectkv(\'user_id\')}, \'UserToken\': {$currconnectkv(\'user_token\')}, \'a\': \'a\'}",
     "DataSourceVars": [
         {
             "Name": "user_account_list",
@@ -32,28 +32,32 @@ SET configuration = '{
                 "Content": "{$nameoncejsondatainvoke({$datasource(user_account_list)})}"
             },
             {
-                "Name": "self.user_id",
+                "Name": "{$currconnectkv(\'user_id\')}",
                 "Content": "{$varkv(json_user_account,\'UserName\')}"
             },
             {
-                "Name": "self.user_password",
+                "Name": "{$currconnectkv(\'user_password\')}",
                 "Content": "{$varkv(json_user_account,\'Password\')}"
             },
             {
                 "Name": "login_send_data",
-                "Content": "{\'UserName\': self.user_id, \'UserToken\': self.user_password, \'a\': \'a\'}"
+                "Content": "{\'UserName\': {$currconnectkv(\'user_id\')}, \'PassWord\': {$currconnectkv(\'user_password\')}, \'a\': \'a\'}"
             },
             {
-                "Name": "self.user_token",
+                "Name": "{$currconnectkv(\'user_token\')}",
                 "Content": "{$tcprrwithconnectinvoke({$curconnect()},json.dumps(login_send_data),\'.*\')}"
+            },
+            {
+                "Name": "self.user_id",
+                "Content": "{$varkv(json_user_account,\'UserName\')}"
             }
         ]
     },
     "SendInit": {
         "VarSettings": [
             {
-                "Name": "{$SendData()}",
-                "Content": "{$dessecurity({$SendData()},\'abcdefghjhijklmn\')}"
+                "Name": "package",
+                "Content": "{$dessecurity(package,\'abcdefghjhijklmn\')}"
             }
         ]
     }

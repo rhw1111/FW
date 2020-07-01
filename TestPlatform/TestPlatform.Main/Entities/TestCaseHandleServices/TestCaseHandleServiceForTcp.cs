@@ -182,7 +182,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             strCode = strCode.Replace("{Address}", configuration.Address);
             strCode = strCode.Replace("{Port}", configuration.Port.ToString());
             strCode = strCode.Replace("{CaseID}", tCase.ID.ToString());
-            strCode = strCode.Replace("{RequestBody}", configuration.RequestBody);
             strCode = strCode.Replace("{ResponseSeparator}", configuration.ResponseSeparator);
             strCode = strCode.Replace("{CaseServiceBaseAddress}", caseServiceBaseAddress);
 
@@ -192,6 +191,23 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             //获取测试用例的主测试机，上传测试代码
             using (var textStream=new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}", "Master"))))
             {
+                #region Test Code
+#if DEBUG
+                //string testFilePath = @"E:\Downloads\script.py";
+
+                //if (File.Exists(testFilePath))
+                //{
+                //    File.Delete(testFilePath);
+                //}
+
+                //using (FileStream fileStream = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.Write))
+                //{
+                //    BinaryWriter w = new BinaryWriter(fileStream);
+                //    w.Write(textStream.ToArray());
+                //}
+#endif
+                #endregion
+
                 await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{_testFilePath}{string.Format(_testFileName,string.Empty)}", cancellationToken);
                 textStream.Close();
             }
@@ -244,7 +260,8 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                },
                async (preResult)=>
                {
-                   return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName,string.Empty)} --master --expect-slaves={slaveCount.ToString()} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{string.Format(_testLogFileName,string.Empty)} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
+                   //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName,string.Empty)} --master --expect-slaves={slaveCount.ToString()} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{string.Format(_testLogFileName,string.Empty)} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
+                   return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName,string.Empty)} --logfile {_testFilePath}{string.Format(_testLogFileName,string.Empty)} --master --headless --expect-workers {slaveCount.ToString()} -t {configuration.Duration.ToString()} -u {configuration.UserCount.ToString()} -r {configuration.PerSecondUserCount.ToString()} &");
                }
             };
             await tCase.MasterHost.SSHEndpoint.ExecuteCommandBatch(commands, cancellationToken);
@@ -267,7 +284,8 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     slaveCommands.Add(
                         async (preResult) =>
                         {
-                            return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")} --slave --master-host={tCase.MasterHost.Address} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{string.Format(_testLogFileName, "_slave")} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
+                            //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")} --slave --master-host={tCase.MasterHost.Address} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{string.Format(_testLogFileName, "_slave")} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
+                            return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")} --logfile {_testFilePath}{string.Format(_testLogFileName, "_slave")} --worker --headless --master-host {tCase.MasterHost.Address} -t {  configuration.Duration.ToString()} -u {configuration.UserCount.ToString()} -r {configuration.PerSecondUserCount.ToString()} &");
                         }
                    );                  
                 }

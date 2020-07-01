@@ -223,9 +223,9 @@ namespace FW.TestPlatform.Main.Entities
             await _imp.Add(this);
         }
 
-        public async Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default)
+        public async Task AddHistory(TestCaseHistory history, CancellationToken cancellationToken = default)
         {
-            await _imp.AddHistory(model, cancellationToken);
+            await _imp.AddHistory(this, history);
         }
 
         public async Task Update(CancellationToken cancellationToken = default)
@@ -318,7 +318,7 @@ namespace FW.TestPlatform.Main.Entities
         Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default);
         IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default);
         Task<TestCaseSlaveHost?> GetSlaveHost(TestCase tCase,Guid slaveHostID, CancellationToken cancellationToken = default);
-        Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default);
+        Task AddHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default);
         Task UpdateHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default);
         Task DeleteHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default);
         Task<TestCaseHistory?> GetHistory(TestCase tCase, Guid historyID, CancellationToken cancellationToken = default);
@@ -389,32 +389,15 @@ namespace FW.TestPlatform.Main.Entities
         //    await _testCaseHistoryRepository.Add(history, cancellationToken);
         //}
 
-        public async Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default)
+        public async Task AddHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default)
         {
             await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                TestCase? testCase = await _testCaseStore.QueryByID(model.CaseID);
-
-                if (testCase == null)
-                {
-                    var fragment = new TextFragment()
-                    {
-                        Code = TestPlatformTextCodes.NotFoundTestCaseByID,
-                        DefaultFormatting = "找不到ID为{0}的测试案例",
-                        ReplaceParameters = new List<object>() { model.CaseID }
-                    };
-
-                    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
-                }
 
                 //修改case状态为完成
-                await _testCaseStore.UpdateStatus(model.CaseID, TestCaseStatus.NoRun);
+                await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.NoRun);
 
-                //保存历史
-                TestCaseHistory history = new TestCaseHistory();
-                history.CaseID = model.CaseID;
-                //history.Case = testCase;                
-                history.Summary = JsonSerializerHelper.Serializer(model);
+               //插入历史数据
                 await _testCaseHistoryStore.Add(history);
 
                 scope.Complete();

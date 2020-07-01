@@ -9,6 +9,7 @@ using MSLibrary.LanguageTranslate;
 using FW.TestPlatform.Main.Code;
 using FW.TestPlatform.Main.Entities;
 using FW.TestPlatform.Main.Entities.TestCaseHandleServices;
+using System.Text.RegularExpressions;
 
 namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 {
@@ -60,16 +61,52 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             var dataSourceVars = (List<ConfigurationDataForDataSourceVar>)objDataSourceVars;
 
-
             StringBuilder strCode = new StringBuilder();
             var separatorService = _getSeparatorServiceSelector.Choose(engineType).Create();
             var strFuncSeparator = await separatorService.GetFuncSeparator();
-        
+
+            if (parameters.Length < 1)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.LabelParameterCountError,
+                    DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
+                    ReplaceParameters = new List<object>() { "{$datavardeclareinit(space)}", 1, parameters.Length }
+                };
+
+                throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
+            }
+
+            Regex regex = new Regex(@"^(\-|\+)?\d+$");
+
+            if (!regex.IsMatch(parameters[0]))
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.LabelParameterTypeError,
+                    DefaultFormatting = "标签{0}要求的参数{1}应为{2}，参数类型错误",
+                    ReplaceParameters = new List<object>() { "{$datavardeclareinit(space)}", "space", "Int" }
+                };
+
+                throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
+            }
+
+            string strSpace = this.RepeatString(" ", int.Parse(parameters[0]));
+            bool isFirstLine = true;
+
             foreach (var item in dataSourceVars)
             {
+                if (!isFirstLine)
+                {
+                    strCode.Append(strSpace);
+                }
+
                 var funService = _generateDataVarDeclareServiceFactorySelector.Choose($"{engineType}-{item.Type}").Create();
-                strCode.Append(await funService.Generate(item.Name, item.Data));
+                string strTemp = await funService.Generate(item.Name, item.Data);
+                strTemp = strTemp.Replace(strFuncSeparator, strFuncSeparator + strSpace);
+                strCode.Append(strTemp);
                 strCode.Append(strFuncSeparator);
+                isFirstLine = false;
             }
 
             return strCode.ToString();
@@ -78,6 +115,19 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
         public async Task<bool> IsIndividual()
         {
             return await Task.FromResult(false);
+        }
+
+        public string RepeatString(string str, int n)
+        {
+            char[] arr = str.ToCharArray();
+            char[] arrDest = new char[arr.Length * n];
+
+            for (int i = 0; i < n; i++)
+            {
+                Buffer.BlockCopy(arr, 0, arrDest, i * arr.Length * 2, arr.Length * 2);
+            }
+
+            return new string(arrDest);
         }
     }
 }

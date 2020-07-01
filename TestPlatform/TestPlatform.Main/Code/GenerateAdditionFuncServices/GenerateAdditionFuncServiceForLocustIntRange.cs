@@ -18,10 +18,10 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("def IntRange(min, max):");
             sbCode.AppendLine("    # print(\"IntRange\")");
             sbCode.AppendLine("    import random");
-            sbCode.AppendLine("    ");
+            sbCode.AppendLine("");
             sbCode.AppendLine("    if min <= max:");
             sbCode.AppendLine("        ran = random.randint(min, max)");
-            sbCode.AppendLine("        ");
+            sbCode.AppendLine("");
             sbCode.AppendLine("        return ran");
             sbCode.AppendLine("    else:");
             sbCode.AppendLine("        return min");
