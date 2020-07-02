@@ -261,4 +261,11 @@ namespace FW.TestPlatform.Main
         public const string DesSecurity = "DesSecurity";
     }
 
+    /// <summary>
+    /// SSHEndpoint类型
+    /// </summary>
+    public static class SSHEndpointTypes
+    {
+        public const string Default = "Default";
+    }
 }

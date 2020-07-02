@@ -10,101 +10,103 @@ namespace FW.TestPlatform.Main.DTOModel
     /// 测试数据源新建模型
     /// </summary>
     [DataContract]
-    public class TestCaseSlaveHostAddModel: ModelBase
+    public class TestCaseAddModel: ModelBase
     {
         /// <summary>
-        /// Id
+        /// 名称
         /// </summary>
         [DataMember]
-        public Guid ID
+        public string Name
         {
             get
             {
 
-                return GetAttribute<Guid>(nameof(ID));
+                return GetAttribute<string>(nameof(Name));
             }
             set
             {
-                SetAttribute<Guid>(nameof(ID), value);
-            }
-        }
-        /// <summary>
-        /// 所属主机ID
-        /// </summary>
-        public Guid HostID
-        {
-            get
-            {
-
-                return GetAttribute<Guid>(nameof(HostID));
-            }
-            set
-            {
-                SetAttribute<Guid>(nameof(HostID), value);
-            }
-        }
-        /// <summary>
-        /// 所属测试用例ID
-        /// </summary>
-        public Guid TestCaseID
-        {
-            get
-            {
-
-                return GetAttribute<Guid>(nameof(TestCaseID));
-            }
-            set
-            {
-                SetAttribute<Guid>(nameof(TestCaseID), value);
+                SetAttribute<string>(nameof(Name), value);
             }
         }
 
         /// <summary>
-        /// 测试机名称
-        /// 通过该名称与副本Index，来区分每个Slave
+        /// 测试引擎类型
         /// </summary>
-        public string SlaveName
+        [DataMember]
+        public string EngineType
         {
             get
             {
 
-                return GetAttribute<string>(nameof(SlaveName));
+                return GetAttribute<string>(nameof(EngineType));
             }
             set
             {
-                SetAttribute<string>(nameof(SlaveName), value);
+                SetAttribute<string>(nameof(EngineType), value);
             }
         }
 
         /// <summary>
-        /// 在该主机上使用的副本数量
+        /// 测试配置
         /// </summary>
-        public int Count
+        [DataMember]
+        public string Configuration
         {
             get
             {
-
-                return GetAttribute<int>(nameof(Count));
+                return GetAttribute<string>(nameof(Configuration));
             }
             set
             {
-                SetAttribute<int>(nameof(Count), value);
+                SetAttribute<string>(nameof(Configuration), value);
+            }
+        }
+        /// <summary>
+        /// Master主机ID
+        /// </summary>
+        [DataMember]
+        public Guid MasterHostID
+        {
+            get
+            {
+                return GetAttribute<Guid>(nameof(MasterHostID));
+            }
+            set
+            {
+                SetAttribute<Guid>(nameof(MasterHostID), value);
             }
         }
 
         /// <summary>
-        /// 附加信息
+        /// 状态
         /// </summary>
-        public string ExtensionInfo
+        [DataMember]
+        public TestCaseStatus Status
         {
             get
             {
 
-                return GetAttribute<string>(nameof(ExtensionInfo));
+                return GetAttribute<TestCaseStatus>(nameof(Status));
             }
             set
             {
-                SetAttribute<string>(nameof(ExtensionInfo), value);
+                SetAttribute<TestCaseStatus>(nameof(Status), value);
+            }
+        }
+        /// <summary>
+        /// 所有者ID
+        /// </summary>
+        [DataMember]
+        public Guid OwnerID
+        {
+            get
+            {
+
+                return GetAttribute<Guid>(nameof(OwnerID));
+            }
+            set
+            {
+                SetAttribute<Guid>(nameof(OwnerID), value);
             }
         }
     }

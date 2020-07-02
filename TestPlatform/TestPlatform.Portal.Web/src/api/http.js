@@ -1,5 +1,5 @@
 import Axios from 'axios'
-//import { Loading, Message } from 'element-ui'
+import Vue from 'vue'
 import HTTP_STATUS from './HttpStatus'
 import router from '../router/index.js'
 import HTTP_LOCATION from "./HttpLocation"
@@ -8,28 +8,9 @@ let loadingInstance = null;
 Axios.defaults.baseURL = HTTP_LOCATION;
 Axios.interceptors.request.use(
   config => {
-    if (config.url === '/file/uploadFiles') {
-      config.headers = {
-        'Content-Type': 'multipart/form-data'
-      }
-    } else {
-      config.headers = {
-        'Content-Type': 'application/json',
-        //'Authorization': 'Bearer ' + token,
-      }
-    }
-    const temp = config.data || config.params
-    // 是否开启loading
-    if (config.url !== '/cart/cartCount') {
-      //let isLoading = true
-      // if (temp && Object.keys(temp).indexOf('isLoading') !== -1) {
-      //   isLoading = temp['isLoading']
-      //   delete temp.isLoading
-      // }
-      // isLoading &&
-      //   (loadingInstance = Loading.service({
-      //     fullscreen: true
-      //   }))
+    config.headers = {
+      'Content-Type': 'application/json',
+      //'Authorization': 'Bearer ' + token,
     }
     return config
   },
@@ -45,21 +26,12 @@ Axios.interceptors.response.use(
       loadingInstance = null
     }
     if (status === 200) {
-      if (
-        (request && request.responseType === 'blob') ||
-        (config && config.responseType === 'blob')
-      ) {
-        return {
-          data,
-          headers
-        }
-      }
       if (data.code === 200 || data.code === '200') {
         return {
           success: true,
           code: 200,
-          message: data.message || '成功',
-          data: data.data
+          //message: data.message || '成功',
+          data: data
         }
       } else if (data.code === 401 || data.code === '401') {
         router.push({
@@ -68,35 +40,30 @@ Axios.interceptors.response.use(
             pageType: 'login'
           }
         })
-      } else if (config.url.includes('token/checkIAMToken')) {
-        return data
       } else {
         return {
-          success: false,
-          code: data.code,
-          message: data.message || '失败',
-          data: data.data
+          data
         }
       }
     } else {
       return {
-        success: false,
-        code: data.code,
-        message: data.message || '失败',
-        data: data.data
+        data
       }
     }
   },
   err => {
     let errMsg = '网络错误'
     if (err.response && err.response.status === 500) {
-      if (err.response.data.message && err.response.data.message !== 'No message available') {
-        // Message({
-        //   showClose: true,
-        //   message: err.response.data.message,
-        //   type: 'error',
-        //   duration: 1000
-        // })
+      if (err.response.data.Message) {
+        Vue.prototype.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: err.response.data.Message,
+          color: 'red',
+        })
+        setTimeout(() => {
+          Vue.prototype.$q.loading.hide()
+        }, 2000)
       }
     } else if (err.response && err.response.status) {
       errMsg = HTTP_STATUS[err.response.status] // 返回各种状态的状态码
@@ -132,7 +99,21 @@ export const post = (url, payload) => {
     })
 }
 export const del = (url, payload) => {
-  return Axios.delete(url, payload)
+  console.log(url, payload)
+  return Axios.delete(url, { data: payload })
+    .then(res => {
+      return Promise.resolve(res)
+    })
+    .catch(err => {
+      if (loadingInstance) {
+        loadingInstance.close()
+        loadingInstance = null
+      }
+      return Promise.reject(err)
+    })
+}
+export const put = (url, payload) => {
+  return Axios.put(url, payload)
     .then(res => {
       return Promise.resolve(res)
     })

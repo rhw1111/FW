@@ -102,5 +102,9 @@ namespace FW.TestPlatform.Main
         /// 已经存在指定名称的从测试主机
         /// </summary>
         ExistTestCaseSlaveName = 325710205,
+        /// <summary>
+        /// 找不到指定Id的测试案例
+        /// </summary>
+        NotFoundTestCaseDataSourceByID = 325710206
     }
 }

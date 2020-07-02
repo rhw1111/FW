@@ -19,7 +19,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    # print(\"NumberFill\")");
             sbCode.AppendLine("    str_number = str(number)");
             sbCode.AppendLine("    result = \"\"");
-            sbCode.AppendLine("    ");
+            sbCode.AppendLine("");
             sbCode.AppendLine("    if direct == 0:");
             sbCode.AppendLine("        result = str_number.zfill(length)");
             sbCode.AppendLine("    elif direct == 1:");

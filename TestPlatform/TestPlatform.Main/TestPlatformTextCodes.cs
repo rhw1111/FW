@@ -174,5 +174,12 @@ namespace FW.TestPlatform.Main
         /// {0}：名称
         /// </summary>
         public const string ExistTestCaseSlaveByName = "ExistTestCaseSlaveByName";
+
+        /// <summary>
+        /// 找不到指定Id的测试数据源
+        /// 格式为“找不到测试数据源Id为{0}的测试数据源”
+        /// {0}：名称
+        /// </summary>
+        public const string NotFoundTestCaseDataSourceByID = "NotFoundTestCaseDataSourceByID";
     }
 }

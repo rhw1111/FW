@@ -38,5 +38,10 @@ namespace FW.TestPlatform.Main.Entities
         {
             return await _testDataSourceStore.QueryByPage(matchName, page, pageSize, cancellationToken);
         }
+
+        public async Task DeleteMutipleTestDataSource(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            await _testDataSourceStore.DeleteMutiple(ids, cancellationToken);
+        }
     }
 }

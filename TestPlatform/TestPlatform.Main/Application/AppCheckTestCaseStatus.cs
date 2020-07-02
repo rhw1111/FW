@@ -7,21 +7,35 @@ using MSLibrary;
 using MSLibrary.DI;
 using FW.TestPlatform.Main.DTOModel;
 using FW.TestPlatform.Main.Entities;
+using MSLibrary.LanguageTranslate;
 
 namespace FW.TestPlatform.Main.Application
 {
     [Injection(InterfaceType = typeof(IAppCheckTestCaseStatus), Scope = InjectionScope.Singleton)]
     public class AppCheckTestCaseStatus : IAppCheckTestCaseStatus
     {
-        
+        private readonly ITestCaseRepository _testCaseRepository;
+        public AppCheckTestCaseStatus(ITestCaseRepository testCaseRepository)
+        {
+            _testCaseRepository = testCaseRepository;
+        }
+
         public async Task<bool> Do(Guid caseId, CancellationToken cancellationToken = default)
         {
             bool result= false;
-            TestCase source = new TestCase()
+            var testCase = await _testCaseRepository.QueryByID(caseId, cancellationToken);
+            if (testCase == null)
             {
-                ID = caseId
-            };
-            await source.IsEngineRun(cancellationToken);
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestCaseByID,
+                    DefaultFormatting = "找不到ID为{0}的测试案例",
+                    ReplaceParameters = new List<object>() { caseId.ToString() }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
+            }
+            await testCase.IsEngineRun(cancellationToken);
             return result;
         }
        

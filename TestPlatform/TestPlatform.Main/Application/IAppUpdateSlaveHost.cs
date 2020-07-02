@@ -11,6 +11,6 @@ namespace FW.TestPlatform.Main.Application
 {
     public interface IAppUpdateSlaveHost
     {
-        Task Do(TestCaseSlaveHostAddModel slaveHost, CancellationToken cancellationToken = default);
+        Task<TestCaseSlaveHostViewData> Do(TestCaseSlaveHostUpdateModel slaveHost, CancellationToken cancellationToken = default);
     }
 }

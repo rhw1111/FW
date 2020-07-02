@@ -63,7 +63,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
 
-                    var deleteObj = new TestCaseHistory() { ID = id };
+                    var deleteObj = new TestCaseHistory() { ID = id};
                     dbContext.TestCaseHistories.Attach(deleteObj);
                     dbContext.TestCaseHistories.Remove(deleteObj);
 
@@ -145,6 +145,50 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     result.Results.AddRange(datas);
                 }
             });
+            return result;
+        }
+
+        public async Task DeleteHistories(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    List<TestCaseHistory> list = new List<TestCaseHistory>();
+                    foreach (Guid id in ids)
+                    {
+                        var deleteObj = new TestCaseHistory() { ID = id };
+                        list.Add(deleteObj);
+                    }
+                    dbContext.TestCaseHistories.AttachRange(list.ToArray());
+                    dbContext.TestCaseHistories.RemoveRange(list.ToArray());
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
+        }
+
+        public async Task<List<TestCaseHistory>> QueryByCaseIdAndHistoryIds(Guid caseId, List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            List<TestCaseHistory> result = new List<TestCaseHistory>();
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    result = await (from item in dbContext.TestCaseHistories
+                                    where item.CaseID == caseId && ids.Contains(item.ID)
+                                    select item).ToListAsync();
+                }
+            });
+
             return result;
         }
     }

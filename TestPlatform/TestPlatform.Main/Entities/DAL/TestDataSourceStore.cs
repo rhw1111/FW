@@ -188,7 +188,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
 
-                    var strLike = $"{matchName.ToSqlLike()}%";
+                    var strLike = $"%{matchName.ToSqlLike()}%";
                     var count = await (from item in dbContext.TestDataSources
                                     where EF.Functions.Like(item.Name, strLike)
                                     select item.ID).CountAsync();
@@ -197,7 +197,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
                     var ids= (from item in dbContext.TestDataSources
                                         where EF.Functions.Like(item.Name, strLike)  
-                                        orderby item.CreateTime descending
+                                        orderby EF.Property<long>(item,"Sequence") descending
                                         select item.ID                                 
                                         ).Skip((page-1)*pageSize).Take(pageSize);
 
@@ -237,6 +237,29 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         await dbContext.SaveChangesAsync(cancellationToken);
                     }
                 });
+        }
+
+        public async Task DeleteMutiple(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    List<TestDataSource> list = new List<TestDataSource>();
+                    foreach (Guid id in ids)
+                    {
+                        var deleteObj = new TestDataSource() { ID = id };
+                        list.Add(deleteObj);
+                    }
+                    dbContext.TestDataSources.AttachRange(list.ToArray());
+                    dbContext.TestDataSources.RemoveRange(list.ToArray());
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
         }
     }
 }

@@ -12,7 +12,7 @@ namespace FW.TestPlatform.Main.Application
     public interface IAppAddSlaveHost
     {
        
-        Task<TestCaseSlaveHost> Do(TestCaseSlaveHostAddModel slaveHost, CancellationToken cancellationToken = default);
+        Task<TestCaseSlaveHostViewData> Do(TestCaseSlaveHostAddModel slaveHost, CancellationToken cancellationToken = default);
         
     }
 }

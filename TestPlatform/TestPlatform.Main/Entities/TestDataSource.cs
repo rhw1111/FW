@@ -200,24 +200,22 @@ namespace FW.TestPlatform.Main.Entities
                 throw new UtilityException((int)TestPlatformErrorCodes.ExistTestDataSourceByName, fragment, 1, 0);
 
             }
-
             await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
             {
                 await _testDataSourceStore.Add(source, cancellationToken);
                 //检查是否有名称重复的
-                //newId = await _testDataSourceStore.QueryByNameNoLock(source.Name, cancellationToken);
-                //if (source.ID!= newId)
-                //{
-                //    var fragment = new TextFragment()
-                //    {
-                //        Code = TestPlatformTextCodes.ExistTestDataSourceByName,
-                //        DefaultFormatting = "已经存在名称为{0}的测试数据源",
-                //        ReplaceParameters = new List<object>() { source.Name }
-                //    };
+                newId = await _testDataSourceStore.QueryByNameNoLock(source.Name, cancellationToken);
+                if (source.ID != newId)
+                {
+                    var fragment = new TextFragment()
+                    {
+                        Code = TestPlatformTextCodes.ExistTestDataSourceByName,
+                        DefaultFormatting = "已经存在名称为{0}的测试数据源",
+                        ReplaceParameters = new List<object>() { source.Name }
+                    };
 
-                //    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestDataSourceByName, fragment, 1, 0);
-
-                //}
+                    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestDataSourceByName, fragment, 1, 0);
+                }
                 scope.Complete();
             }
         }
@@ -259,7 +257,6 @@ namespace FW.TestPlatform.Main.Entities
                 //    };
 
                 //    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestDataSourceByName, fragment, 1, 0);
-
                 //}
                 scope.Complete();
             }
