@@ -447,8 +447,8 @@ namespace FW.TestPlatform.Main.Entities
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.ExistTestCaseSlaveByName,
-                    DefaultFormatting = "已经存在名称为{0}的测试用例",
-                    ReplaceParameters = new List<object>() { tCase.Name }
+                    DefaultFormatting = "已经存在名称为{0}的主测试从机",
+                    ReplaceParameters = new List<object>() { slaveHost.SlaveName }
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseSlaveName, fragment, 1, 0);

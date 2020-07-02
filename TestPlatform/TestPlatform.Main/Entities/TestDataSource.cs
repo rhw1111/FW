@@ -246,18 +246,18 @@ namespace FW.TestPlatform.Main.Entities
             {
                 await _testDataSourceStore.Update(source, cancellationToken);
                 //检查是否有名称重复的
-                newId = await _testDataSourceStore.QueryByNameNoLock(source.Name, cancellationToken);
-                if (source.ID != newId)
-                {
-                    var fragment = new TextFragment()
-                    {
-                        Code = TestPlatformTextCodes.ExistTestDataSourceByName,
-                        DefaultFormatting = "已经存在名称为{0}的测试数据源",
-                        ReplaceParameters = new List<object>() { source.Name }
-                    };
+                //newId = await _testDataSourceStore.QueryByNameNoLock(source.Name, cancellationToken);
+                //if (source.ID != newId)
+                //{
+                //    var fragment = new TextFragment()
+                //    {
+                //        Code = TestPlatformTextCodes.ExistTestDataSourceByName,
+                //        DefaultFormatting = "已经存在名称为{0}的测试数据源",
+                //        ReplaceParameters = new List<object>() { source.Name }
+                //    };
 
-                    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestDataSourceByName, fragment, 1, 0);
-                }
+                //    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestDataSourceByName, fragment, 1, 0);
+                //}
                 scope.Complete();
             }
 
