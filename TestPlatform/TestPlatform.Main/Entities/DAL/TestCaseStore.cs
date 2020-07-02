@@ -39,8 +39,8 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         source.ID = Guid.NewGuid();
                     }
-                    //source.CreateTime = DateTime.UtcNow;
-                    //source.ModifyTime = DateTime.UtcNow;
+                    source.CreateTime = DateTime.UtcNow;
+                    source.ModifyTime = DateTime.UtcNow;
                     var entity = await dbContext.TestCases.AddAsync(source, cancellationToken);
                     var result = await dbContext.SaveChangesAsync(cancellationToken);
                 }

@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using FW.TestPlatform.Main.Application;
 using FW.TestPlatform.Main.DTOModel;
 using MSLibrary;
-using FW.TestPlatform.Main.Entities;
-using MSLibrary.Security.RequestController;
 
 namespace FW.TestPlatform.Portal.Api.Controllers
 {
@@ -64,7 +62,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         }
         //查询增加修改执行TestCase
         [HttpGet("querybypage")]
-        public async Task<QueryResult<TestCaseViewData>> GetByPage(string? matchName,int page, int? pageSize)
+        public async Task<QueryResult<TestCaseListViewData>> GetByPage(string? matchName,int page, int? pageSize)
         {
             if(matchName == null)
             {

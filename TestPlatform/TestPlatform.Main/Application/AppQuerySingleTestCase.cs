@@ -25,37 +25,6 @@ namespace FW.TestPlatform.Main.Application
             _testCaseRepository = testCaseRepository;
             _systemConfigurationService = systemConfigurationService;
         }
-
-        //public async Task<QueryResult<TestCaseViewData>> Do(string matchName, int page, int pageSize, CancellationToken cancellationToken = default)
-        //{
-        //    QueryResult<TestCaseViewData> result = new QueryResult<TestCaseViewData>();
-        //    var queryResult=await _testCaseRepository.QueryByPage(matchName, page, pageSize, cancellationToken);
-
-        //    result.CurrentPage = queryResult.CurrentPage;
-        //    result.TotalCount = queryResult.TotalCount;
-
-        //    foreach(var item in queryResult.Results)
-        //    {
-        //        result.Results.Add(
-        //            new TestCaseViewData()
-        //            {
-        //                ID = item.ID,
-        //                Name = item.Name,
-        //                EngineType = item.EngineType,
-        //                Configuration = item.Configuration,
-        //                Status = item.Status,
-        //                MasterHostID = item.MasterHostID,
-        //                MasterHost = item.MasterHost,
-        //                Owner = item.Owner,
-        //                OwnerID = item.OwnerID,
-        //                CreateTime = item.CreateTime,
-        //                ModifyTime= item.ModifyTime
-        //            }
-        //            );
-        //    }
-
-        //    return result;
-        //}
         public async Task<TestCaseViewData> Do(Guid id, CancellationToken cancellationToken = default)
         {
             var queryResult = await _testCaseRepository.QueryByID(id, cancellationToken);
@@ -82,6 +51,8 @@ namespace FW.TestPlatform.Main.Application
                 Configuration = queryResult.Configuration,
                 Status = queryResult.Status,
                 EngineType = queryResult.EngineType,
+                MasterHostID = queryResult.MasterHostID,
+                MasterHostAddress = queryResult.MasterHost.Address,
                 CreateTime = queryResult.CreateTime.ToCurrentUserTimeZone()
             };
         }

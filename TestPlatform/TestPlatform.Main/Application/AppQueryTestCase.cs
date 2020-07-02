@@ -20,9 +20,9 @@ namespace FW.TestPlatform.Main.Application
             _testCaseRepository = testCaseRepository;
         }
 
-        public async Task<QueryResult<TestCaseViewData>> Do(string matchName, int page, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<QueryResult<TestCaseListViewData>> Do(string matchName, int page, int pageSize, CancellationToken cancellationToken = default)
         {
-            QueryResult<TestCaseViewData> result = new QueryResult<TestCaseViewData>();
+            QueryResult<TestCaseListViewData> result = new QueryResult<TestCaseListViewData>();
             var queryResult=await _testCaseRepository.QueryByPage(matchName, page, pageSize, cancellationToken);
 
             result.CurrentPage = queryResult.CurrentPage;
@@ -31,14 +31,12 @@ namespace FW.TestPlatform.Main.Application
             foreach(var item in queryResult.Results)
             {
                 result.Results.Add(
-                    new TestCaseViewData()
+                    new TestCaseListViewData()
                     {
                         ID = item.ID,
                         Name = item.Name,
                         EngineType = item.EngineType,
                         Configuration = item.Configuration,
-                        Status = item.Status,
-                        MasterHostID = item.MasterHostID,
                         CreateTime = item.CreateTime
                     }
                     );
