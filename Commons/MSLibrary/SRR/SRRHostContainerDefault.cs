@@ -27,7 +27,7 @@ namespace MSLibrary.SRR
                 throw new UtilityException((int)Errors.NotFoundSRRHostServiceInContainerByName, fragment);
             }
 
-            return service;
+            return await Task.FromResult(service);
         }
 
         public ISRRHostContainer Register(string name, Action<ISRRHostConfiguration> configure)

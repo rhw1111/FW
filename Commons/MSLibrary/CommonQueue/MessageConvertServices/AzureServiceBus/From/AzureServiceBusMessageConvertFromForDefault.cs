@@ -14,7 +14,7 @@ namespace MSLibrary.CommonQueue.MessageConvertServices.AzureServiceBus.From
         public async Task<CommonMessage> From(Message message)
         {
             var data=UTF8Encoding.UTF8.GetString(message.Body);
-            return JsonSerializerHelper.Deserialize<CommonMessage>(data);
+            return await Task.FromResult(JsonSerializerHelper.Deserialize<CommonMessage>(data));
         }
     }
 }

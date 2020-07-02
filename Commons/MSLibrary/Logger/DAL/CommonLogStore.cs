@@ -591,7 +591,7 @@ namespace MSLibrary.Logger.DAL
                 })
                 {
                     SqlParameter parameter;
-                    int length;
+                   
 
                     command.CommandText = string.Format(@"SELECT @count = COUNT(*)
                                                     FROM [dbo].[CommonLog_Local]

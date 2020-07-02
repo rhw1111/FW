@@ -6,8 +6,6 @@ using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using MSLibrary.DI;
 using MSLibrary.Security.Jwt.DAL;

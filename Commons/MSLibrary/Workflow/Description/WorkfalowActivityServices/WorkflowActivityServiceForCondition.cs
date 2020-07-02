@@ -19,7 +19,7 @@ namespace MSLibrary.Workflow.Description.WorkfalowActivityServices
         public override async Task<IList<object>> GenerateInputParameters(string configuration, IWorkflowContext context)
         {
             var conditionConfiguration=JsonSerializerHelper.Deserialize<ActivityConfiguration>(configuration);
-            return new List<object>() { conditionConfiguration };
+            return await Task.FromResult(new List<object>() { conditionConfiguration });
         }
 
 

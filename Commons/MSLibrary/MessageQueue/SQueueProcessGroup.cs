@@ -298,7 +298,7 @@ namespace MSLibrary.MessageQueue
         /// <returns></returns>
         public async Task<ISQueueProcessGroupExecuteResult> Execute(SQueueProcessGroup group)
         {
-            bool errorLogRecord = false;
+        
             //声明一个轮询配置列表，队列的执行通过轮询处理帮助器管理，保证只有一个主控线程被占用
             List<PollingConfiguration> pollingConfigurations = new List<PollingConfiguration>();
 
@@ -453,6 +453,7 @@ namespace MSLibrary.MessageQueue
             var pollingResult=PollingHelper.Polling(pollingConfigurations,
                 async(ex)=>
                 {
+                    await Task.CompletedTask;
                     LoggerHelper.LogError(ErrorLoggerCategoryName,
                         $"PollingHelper Execute Error,ErrorMessage:{ex.Message},StackTrace:{ex.StackTrace}");
                 }

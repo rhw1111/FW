@@ -141,7 +141,7 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
         ///内部缓存容器
         ///提供线程同步处理方法
         /// </summary>
-        private class CacheContainer
+        private class CacheContainer:IDisposable
         {
             private LocalSemaphore _lock = new LocalSemaphore(1, 1);
             /// <summary>
@@ -168,6 +168,11 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
                          action();
                     }
                     );
+            }
+
+            public void Dispose()
+            {
+                _lock.Dispose();
             }
 
             ~CacheContainer()

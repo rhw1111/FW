@@ -7,6 +7,7 @@ using System.IO;
 using MSLibrary;
 using MSLibrary.DI;
 using MSLibrary.LanguageTranslate;
+using MSLibrary.Template;
 
 namespace MSLibrary.CommandLine.SSH
 {
@@ -232,42 +233,48 @@ namespace MSLibrary.CommandLine.SSH
     [Injection(InterfaceType = typeof(ISSHEndpointIMP), Scope = InjectionScope.Transient)]
     public class SSHEndpointIMP : ISSHEndpointIMP
     {
+        /// <summary>
+        /// 文本替换服务
+        /// 如果该属性赋值，则configuration中的内容将首先使用该服务来替换占位符
+        /// </summary>
+        public static ITextReplaceService? TextReplaceService { set; get; }
+
         public static IDictionary<string, IFactory<ISSHEndpointService>> SSHEndpointServiceFactories { get; } = new Dictionary<string, IFactory<ISSHEndpointService>>();
 
         public async Task DownloadFile(SSHEndpoint endpoint, Func<Stream, Task> action, string path, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            await service.DownloadFile(endpoint.Configuration,action,path, cancellationToken);
+            await service.DownloadFile(await getContent(endpoint.Configuration),action,path, cancellationToken);
         }
 
         public async Task<string> ExecuteCommand(SSHEndpoint endpoint, string command, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            return await service.ExecuteCommand(endpoint.Configuration, command, cancellationToken);
+            return await service.ExecuteCommand(await getContent(endpoint.Configuration), command, cancellationToken);
         }
 
         public async Task<string> ExecuteCommandBatch(SSHEndpoint endpoint, IList<Func<string?, Task<string>>> commondGenerators, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            return await service.ExecuteCommandBatch(endpoint.Configuration, commondGenerators, cancellationToken);
+            return await service.ExecuteCommandBatch(await getContent(endpoint.Configuration), commondGenerators, cancellationToken);
         }
 
         public async Task UploadFile(SSHEndpoint endpoint, Stream stream, string path, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            await service.UploadFile(endpoint.Configuration, stream,path, cancellationToken);
+            await service.UploadFile(await getContent(endpoint.Configuration), stream,path, cancellationToken);
         }
 
         public async Task UploadFileBatch(SSHEndpoint endpoint, IList<(Stream, string)> uploadFileInfos, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            await service.UploadFileBatch(endpoint.Configuration, uploadFileInfos, cancellationToken);
+            await service.UploadFileBatch(await getContent(endpoint.Configuration), uploadFileInfos, cancellationToken);
         }
 
         public async Task UploadFile(SSHEndpoint endpoint, Func<ISSHEndpointUploadFileService, Task> action, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            await service.UploadFile(endpoint.Configuration, action, cancellationToken);
+            await service.UploadFile(await getContent(endpoint.Configuration), action, cancellationToken);
         }
 
         private ISSHEndpointService getService(string type)
@@ -290,7 +297,19 @@ namespace MSLibrary.CommandLine.SSH
         public async Task ExecuteCommand(SSHEndpoint endpoint, Func<ISSHEndpointCommandService, Task> action, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            await service.ExecuteCommand(endpoint.Configuration, action, cancellationToken);
+            await service.ExecuteCommand(await getContent(endpoint.Configuration), action, cancellationToken);
+        }
+
+        private async Task<string> getContent(string content)
+        {
+            if (TextReplaceService != null)
+            {
+                return await TextReplaceService.Replace(content);
+            }
+            else
+            {
+                return content;
+            }
         }
     }
 

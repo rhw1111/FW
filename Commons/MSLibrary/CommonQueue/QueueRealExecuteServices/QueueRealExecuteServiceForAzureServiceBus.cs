@@ -60,103 +60,156 @@ namespace MSLibrary.CommonQueue.QueueRealExecuteServices
             var consumeConfiguration = JsonSerializerHelper.Deserialize<ConsumeQueueRealExecuteServiceForAzureServiceBusConfiguration>(configuration);
 
             List<SubscriptionClient> clients = new List<SubscriptionClient>();
+            List<MessageReceiver> dlqReceivers = new List<MessageReceiver>();
 
             Dictionary<string, DateTime> loggerDatetimes = new Dictionary<string, DateTime>();
 
-            foreach (var item in consumeConfiguration.Items)
+            try
             {
-                var newClient = new SubscriptionClient(consumeConfiguration.ConnectionString, item.Topic, consumeConfiguration.Subscription);
-
-                //EntityNameHelper.FormatDeadLetterPath
-
-                  var tempItem = item;
-                loggerDatetimes[item.Topic] = DateTime.UtcNow;
-                var messageHandlerOptions = new MessageHandlerOptions(async (args) =>
+                foreach (var item in consumeConfiguration.Items)
                 {
-              
-                    if ((DateTime.UtcNow - loggerDatetimes[tempItem.Topic]).TotalSeconds > 300)
+                    var newClient = new SubscriptionClient(consumeConfiguration.ConnectionString, item.Topic, consumeConfiguration.Subscription);
+
+                    //EntityNameHelper.FormatDeadLetterPath
+
+                    var tempItem = item;
+                    loggerDatetimes[item.Topic] = DateTime.UtcNow;
+                    var messageHandlerOptions = new MessageHandlerOptions(async (args) =>
                     {
-                        loggerDatetimes[tempItem.Topic] = DateTime.UtcNow;
-                        LoggerHelper.LogError(ConsumeErrorLoggerCategoryName, $"Message:{args.Exception.Message},stack:{args.Exception.StackTrace},Endpoint: {args.ExceptionReceivedContext.Endpoint},Entity Path: {args.ExceptionReceivedContext.EntityPath},Executing Action: {args.ExceptionReceivedContext.Action}");
-                    }
 
-                    await Task.CompletedTask;
-                })
-                {
-                    MaxConcurrentCalls = 1,
-                    MaxAutoRenewDuration = new TimeSpan(2, 0, 0),
-                    AutoComplete = false
-                };
-
-
-                newClient.RegisterMessageHandler(async (azureMessage, cancellation) =>
-                {
-                   
-                    bool catchError = true;
-                    var fromService = getAzureServiceBusMessageConvertFromService(tempItem.ConvertFromServiceName);
-                    var message = await fromService.From(azureMessage);
-                    if (message != null)
-                    {
-                    
-                        //如果执行出错，根据MaxRetry重试，达到最大重试值后，移到死信队列
-                        MessageHandleResult? handleResult = null;
-                        int retry = 0;
-                        while(true)
+                        if ((DateTime.UtcNow - loggerDatetimes[tempItem.Topic]).TotalSeconds > 300)
                         {
-                            try
-                            {
-                                handleResult=await messageHandle(message);
-                                break;
-                            }
-                            catch (Exception ex)
-                            {
-                                if (ex is UtilityException || retry >= consumeConfiguration.MaxRetry)
-                                {
-
-                                    var strError = ex.ToStackTraceString();
-                                    
-
-                                    if (strError.Length > 5000)
-                                    {
-                                        strError = strError.Remove(4999, strError.Length - 5000);
-                                    }
-
-                              
-                                    //移到死信队列
-                                    await newClient.DeadLetterAsync(azureMessage.SystemProperties.LockToken, strError);
-                                    break;
-                                }
-                                else
-                                {
-                                    retry++;
-                                    await Task.Delay(100);
-                                }
-                            }
+                            loggerDatetimes[tempItem.Topic] = DateTime.UtcNow;
+                            LoggerHelper.LogError(ConsumeErrorLoggerCategoryName, $"Message:{args.Exception.Message},stack:{args.Exception.StackTrace},Endpoint: {args.ExceptionReceivedContext.Endpoint},Entity Path: {args.ExceptionReceivedContext.EntityPath},Executing Action: {args.ExceptionReceivedContext.Action}");
                         }
 
+                        await Task.CompletedTask;
+                    })
+                    {
+                        MaxConcurrentCalls = 1,
+                        MaxAutoRenewDuration = new TimeSpan(2, 0, 0),
+                        AutoComplete = false
+                    };
 
-                        if (handleResult== MessageHandleResult.Complete)
+                    //注册执行消息
+                    newClient.RegisterMessageHandler(async (azureMessage, cancellation) =>
+                    {
+
+
+                        var fromService = getAzureServiceBusMessageConvertFromService(tempItem.ConvertFromServiceName);
+                        var message = await fromService.From(azureMessage);
+                        if (message != null)
                         {
-                            await newClient.CompleteAsync(azureMessage.SystemProperties.LockToken);
+
+                        //如果执行出错，根据MaxRetry重试，达到最大重试值后，延迟执行
+                        MessageHandleResult? handleResult = null;
+                            int retry = 0;
+                            while (true)
+                            {
+                                try
+                                {
+                                    handleResult = await messageHandle(message);
+                                    break;
+                                }
+                                catch (Exception ex)
+                                {
+                                    if (ex is UtilityException || retry >= consumeConfiguration.MaxRetry)
+                                    {
+
+                                        var strError = ex.ToStackTraceString();
+
+
+                                        if (strError.Length > 5000)
+                                        {
+                                            strError = strError.Remove(4999, strError.Length - 5000);
+                                        }
+
+
+                                    //移到死信队列
+                                    //await newClient.DeadLetterAsync(azureMessage.SystemProperties.LockToken, strError);
+
+                                    //延迟执行
+                                    await delayMessage(azureMessage, newClient, strError, true, tempItem.Topic);
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        retry++;
+                                        await Task.Delay(100);
+                                    }
+                                }
+                            }
+
+
+                            if (handleResult == MessageHandleResult.Complete)
+                            {
+                                await newClient.CompleteAsync(azureMessage.SystemProperties.LockToken);
+                            }
+                            else
+                            {
+                                await delayMessage(azureMessage, newClient, string.Empty, false, tempItem.Topic);
+                            }
+
                         }
                         else
                         {
-                            await delayMessage(azureMessage, newClient, string.Empty, false, tempItem.Topic);
+                            await newClient.CompleteAsync(azureMessage.SystemProperties.LockToken);
                         }
 
-                    }
-                    else
-                    {
-                        await newClient.CompleteAsync(azureMessage.SystemProperties.LockToken);
-                    }
 
 
+                    }, messageHandlerOptions);
+                    clients.Add(newClient);
 
-                },messageHandlerOptions);
-                clients.Add(newClient);
+                    //处理死信队列
+                    //遇到死信消息，延迟一分钟重新送回Topic
+                    var dlqReceiver = new MessageReceiver(consumeConfiguration.ConnectionString, EntityNameHelper.FormatDeadLetterPath($"{item.Topic}/Subscriptions/{consumeConfiguration.Subscription}"), ReceiveMode.PeekLock);
+
+                    dlqReceiver.RegisterMessageHandler(
+                            async (message, cancellationToken1) =>
+                            {
+
+                                var resubmitMessage = message.Clone();
+                                resubmitMessage.ScheduledEnqueueTimeUtc = DateTime.UtcNow.AddSeconds(180);
+                                var topicClient = new TopicClient(consumeConfiguration.ConnectionString, item.Topic, null);
+
+                                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                                {
+                                    await topicClient.SendAsync(resubmitMessage);
+                                    await dlqReceiver.CompleteAsync(message.SystemProperties.LockToken);
+
+                                    ts.Complete();
+                                }
+                            },
+                            messageHandlerOptions
+                            );
+
+                    dlqReceivers.Add(dlqReceiver);
+                }
+            }
+            catch
+            {
+                List<Task> tasks = new List<Task>();
+
+                foreach (var item in clients)
+                {
+                    tasks.Add(item.CloseAsync());
+                }
+
+                foreach (var item in dlqReceivers)
+                {
+                    tasks.Add(item.CloseAsync());
+                }
+
+                foreach (var item in tasks)
+                {
+                    await item;
+                }
+
+                throw;
             }
 
-            CommonQueueEndpointConsumeControllerForServiceBus controller = new CommonQueueEndpointConsumeControllerForServiceBus(clients);
+            CommonQueueEndpointConsumeControllerForServiceBus controller = new CommonQueueEndpointConsumeControllerForServiceBus(clients, dlqReceivers);
 
             return await Task.FromResult(controller);
         }
@@ -312,10 +365,12 @@ namespace MSLibrary.CommonQueue.QueueRealExecuteServices
     public class CommonQueueEndpointConsumeControllerForServiceBus : ICommonQueueEndpointConsumeController
     {
         private List<SubscriptionClient> _clients;
+        private List<MessageReceiver> _dlqReceivers;
 
-        public CommonQueueEndpointConsumeControllerForServiceBus(List<SubscriptionClient> clients)
+        public CommonQueueEndpointConsumeControllerForServiceBus(List<SubscriptionClient> clients, List<MessageReceiver> dlqReceivers)
         {
             _clients = clients;
+            _dlqReceivers = dlqReceivers;
         }
 
         public async Task Stop()
@@ -327,7 +382,12 @@ namespace MSLibrary.CommonQueue.QueueRealExecuteServices
                 tasks.Add(item.CloseAsync());
             }
 
-            foreach(var item in tasks)
+            foreach (var item in _dlqReceivers)
+            {
+                tasks.Add(item.CloseAsync());
+            }
+
+            foreach (var item in tasks)
             {
                 await item;
             }

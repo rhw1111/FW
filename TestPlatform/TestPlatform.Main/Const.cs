@@ -60,6 +60,11 @@ namespace FW.TestPlatform.Main
         /// {0}为应用程序名称
         /// </summary>
         public const string ApplicationCrosOrigin = "{0}_CrosOrigin";
+        /// <summary>
+        /// 测试监控地址
+        /// {0}为TestCase.EngineType
+        /// </summary>
+        public const string TestMonitorAddress="{0}_TestMonitorAddress";
         public const string CaseServiceBaseAddress = "CaseServiceBaseAddress";
     }
 

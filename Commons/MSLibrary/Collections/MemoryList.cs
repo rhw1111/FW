@@ -8,7 +8,6 @@ namespace MSLibrary.Collections
 {
     public class MemoryList<T>
     {
-        private int _perSzie=100;
         private List<Item<T>> _datas = new List<Item<T>>();
       
 
@@ -240,9 +239,9 @@ namespace MSLibrary.Collections
 
 
 
-        private class Item<T>
+        private class Item<V>
         {
-            public Memory<T> Data
+            public Memory<V> Data
             {
                 get;set;
             }

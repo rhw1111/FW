@@ -176,7 +176,7 @@ namespace MSLibrary.Distribute
             await service.Lock(appLock.Configuration, lockName,expireMillisecond,maxLockMillisecond, action);
         }
 
-        public async void LockSync(ApplicationLock appLock, string lockName, int expireMillisecond, int maxLockMillisecond, Action action)
+        public void LockSync(ApplicationLock appLock, string lockName, int expireMillisecond, int maxLockMillisecond, Action action)
         {
             var service = getService(appLock.Type);
             service.LockSync(appLock.Configuration, lockName,expireMillisecond,maxLockMillisecond, action);
