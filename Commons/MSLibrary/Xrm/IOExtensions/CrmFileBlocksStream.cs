@@ -28,6 +28,7 @@ namespace MSLibrary.Xrm.IOExtensions
 
         public CrmFileBlocksStream(string entityName,Guid entityID, string fileAttributeName, long fileSize, ICrmService crmService, Guid? proxyUserId)
         {
+            _entityName = entityName;
             _entityID = entityID;
             _fileAttributeName = fileAttributeName;
             _entityID = entityID;

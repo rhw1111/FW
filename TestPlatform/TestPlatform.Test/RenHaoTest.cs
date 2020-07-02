@@ -30,6 +30,8 @@ namespace TestPlatform.Test
         [SetUp]
         public void Setup()
         {
+
+
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
             //设置编码，解决中文问题
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);

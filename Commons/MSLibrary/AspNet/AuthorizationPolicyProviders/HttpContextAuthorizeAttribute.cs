@@ -12,11 +12,11 @@ namespace MSLibrary.AspNet.AuthorizationPolicyProviders
     /// 基于Http上下文的授权特性
     /// 使用该特性，表明Policy需要从HttpcContext中获取
     /// </summary>
-    public class HttpContextAuthorizeAttribute: AuthorizeAttribute
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+    public class HttpContextAuthorizeAttribute : AuthorizeAttribute
     {
         public const string _prefix = "#HttpContext_";
 
-        //public HttpContextAuthorizeAttribute(Type type) => Type = type;
 
         public Type Type
         {
@@ -27,13 +27,26 @@ namespace MSLibrary.AspNet.AuthorizationPolicyProviders
             }
             set
             {
+                if (value == null)
+                {
+                    var fragment = new TextFragment()
+                    {
+                        Code = TextCodes.ValueNotAllowNull,
+                        DefaultFormatting = "值不能为null，发生位置为{0}",
+                        ReplaceParameters = new List<object>() { $"{this.GetType().FullName}.Type" }
+                    };
+
+                    throw new UtilityException((int)Errors.ValueNotAllowNull, fragment, 1, 0);
+                }
+
+
                 if (!value.IsAssignableFrom(typeof(IHttpContextPolicyResolveService)))
                 {
                     var fragment = new TextFragment()
                     {
                         Code = TextCodes.TypeNotImplimentInterface,
                         DefaultFormatting = "类型{0}没有实现接口{1}",
-                        ReplaceParameters = new List<object>() { value.FullName, typeof(IHttpContextPolicyResolveService).FullName}
+                        ReplaceParameters = new List<object>() { value.FullName, typeof(IHttpContextPolicyResolveService).FullName }
                     };
 
                     throw new UtilityException((int)Errors.TypeNotImplimentInterface, fragment, 1, 0);

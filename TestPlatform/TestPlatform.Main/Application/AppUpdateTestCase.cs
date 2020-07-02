@@ -49,12 +49,10 @@ namespace FW.TestPlatform.Main.Application
                 ID = source.ID,
                 EngineType = source.EngineType,
                 Configuration = source.Configuration,
-                OwnerID = source.OwnerID,
                 Name = source.Name,
                 Status = source.Status,
                 MasterHostID = source.MasterHostID,
-                CreateTime = source.CreateTime.ToCurrentUserTimeZone(),
-                ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
+                CreateTime = source.CreateTime.ToCurrentUserTimeZone()
             };
         }
 

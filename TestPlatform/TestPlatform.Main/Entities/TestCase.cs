@@ -447,8 +447,8 @@ namespace FW.TestPlatform.Main.Entities
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.ExistTestCaseSlaveByName,
-                    DefaultFormatting = "已经存在名称为{0}的测试用例",
-                    ReplaceParameters = new List<object>() { tCase.Name }
+                    DefaultFormatting = "已经存在名称为{0}的主测试从机",
+                    ReplaceParameters = new List<object>() { slaveHost.SlaveName }
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseSlaveName, fragment, 1, 0);
@@ -641,7 +641,7 @@ namespace FW.TestPlatform.Main.Entities
                 scope.Complete();
             }
 
-            await handleService.Run(tCase, cancellationToken);
+            //await handleService.Run(tCase, cancellationToken);
         }
 
         public async Task Stop(TestCase tCase, CancellationToken cancellationToken = default)
@@ -660,7 +660,7 @@ namespace FW.TestPlatform.Main.Entities
 
             var handleService = getHandleService(tCase.EngineType);
 
-            await handleService.Stop(tCase, cancellationToken);
+            //await handleService.Stop(tCase, cancellationToken);
 
             await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.Stop, cancellationToken);
         }

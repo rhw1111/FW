@@ -1139,6 +1139,8 @@ namespace MSLibrary.Ali
             var client = getOssClient(endpoint);
             //DeleteObjectsRequest request = new DeleteObjectsRequest(endpoint.Bucket, new List<string>() { filePath });
             client.DeleteObject(endpoint.Bucket, filePath);
+            await Task.CompletedTask;
+
         }
 
         public async Task<ObjectMetadata> GetMetadata(OSSEndpoint endpoint, string filePath)
@@ -1496,6 +1498,7 @@ namespace MSLibrary.Ali
 
             var strPolicy = client.GeneratePostPolicy(DateTime.UtcNow.AddMinutes(20), conds);
 
+            await Task.CompletedTask;
             return strPolicy;
         }
 
@@ -1564,6 +1567,7 @@ namespace MSLibrary.Ali
             await storgeInfo.GetDetailAll(0, async (detail) =>
             {
                 details.Add((detail));
+                await Task.CompletedTask;
             });
 
             //获取分片复制扩展信息

@@ -30,7 +30,7 @@ namespace MSLibrary.CommonQueue
         }
 
         /// <summary>
-        /// 消息名称
+        /// 消息类型名称
         /// </summary>
         public string Name
         {

@@ -37,10 +37,8 @@ namespace FW.TestPlatform.Main.Application
                 Configuration = source.Configuration,
                 Name = source.Name,
                 Status = source.Status,
-                OwnerID = source.OwnerID,
                 MasterHostID = source.MasterHostID,
-                CreateTime = source.CreateTime.ToCurrentUserTimeZone(),
-                ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
+                CreateTime = source.CreateTime.ToCurrentUserTimeZone()
             };
             return result;
         }

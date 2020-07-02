@@ -27,7 +27,7 @@ namespace FW.TestPlatform.Main.AspNet.Middleware.Application
 
         public async Task<object> Convert(HttpContext context)
         {
-            string strRequestBody = null;
+            string? strRequestBody = null;
             //尝试获取请求内容和响应内容
             if (context.Request != null && context.Request.Body != null && context.Request.Body.CanRead)
             {

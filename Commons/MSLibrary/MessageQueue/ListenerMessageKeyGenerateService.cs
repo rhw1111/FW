@@ -15,7 +15,7 @@ namespace MSLibrary.MessageQueue
     {
         public async Task<string> Generate(string originalMessageKey, SMessageTypeListener listener)
         {
-            return $"{listener.QueueGroupName}-{originalMessageKey}";
+            return await Task.FromResult($"{listener.QueueGroupName}-{originalMessageKey}");
         }
     }
 }

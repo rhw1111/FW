@@ -52,7 +52,6 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             {
 
                 sshClient.Connect();
-
                 result = await sshClient.RunCommand(command).ExecuteAsync();
 
                 sshClient.Disconnect();
