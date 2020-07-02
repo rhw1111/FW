@@ -1,31 +1,39 @@
 <template>
-  <q-dialog v-model="fixed">
+  <q-dialog v-model="fixed"
+            persistent>
     <q-card>
       <q-card-section>
-        <div class="text-h6">Terms of Agreement</div>
+        <div class="text-h6">Master Host List</div>
       </q-card-section>
 
       <q-separator />
       <div class="new_input">
-        <q-input v-model="text"
-                 label="Name" />
-        <q-input v-model="text"
-                 label="EngineType" />
-        <q-input v-model="text"
-                 label="EngineType" />
+        <q-item tag="label"
+                v-for="(val,ind) in masterHostList"
+                :key="ind"
+                v-ripple>
+          <q-item-section avatar>
+            <q-radio v-model="selectIndex"
+                     :val="ind"
+                     color="teal" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{val.address}}</q-item-label>
+          </q-item-section>
+        </q-item>
       </div>
 
       <q-separator />
 
       <q-card-actions align="right">
         <q-btn flat
-               label="Decline"
+               label="取消"
                color="primary"
-               v-close-popup />
+               @click="cancel" />
         <q-btn flat
-               label="Accept"
+               label="添加"
                color="primary"
-               v-close-popup />
+               @click="confirm" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -33,8 +41,26 @@
 
 <script>
 export default {
-  props: ['fixed'],
-  name: 'lookUp'
+  props: ['fixed', 'masterHostList', 'masterSelectIndex'],
+  name: 'lookUp',
+  data () {
+    return {
+      selectIndex: -1,
+    }
+  },
+  watch: {
+    masterSelectIndex (val) {
+      this.selectIndex = val;
+    }
+  },
+  methods: {
+    confirm () {
+      this.$emit('addMasterHost', this.selectIndex)
+    },
+    cancel () {
+      this.$emit('cancelMasterHost')
+    }
+  }
 }
 </script>
 

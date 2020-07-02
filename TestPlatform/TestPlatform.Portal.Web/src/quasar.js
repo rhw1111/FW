@@ -32,9 +32,20 @@ import {
   QCheckbox,
   QInput,
   QRadio,
+  QOptionGroup,
+  QMarkupTable,
+  QTable,
+  QTh,
+  QTr,
+  QTd,
+  QPagination,
+  QBadge,
   // 事件
   Ripple,
   ClosePopup,
+  Loading,
+  Dialog,
+  Notify,
 } from 'quasar'
 
 Vue.use(Quasar, {
@@ -66,11 +77,22 @@ Vue.use(Quasar, {
     QCheckbox,
     QInput,
     QRadio,
+    QOptionGroup,
+    QMarkupTable,
+    QTable,
+    QTh,
+    QTr,
+    QTd,
+    QPagination,
+    QBadge,
   },
   directives: {
     Ripple,
     ClosePopup,
   },
   plugins: {
+    Loading,
+    Dialog,
+    Notify
   }
 })
