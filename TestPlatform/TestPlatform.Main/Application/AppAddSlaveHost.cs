@@ -40,9 +40,7 @@ namespace FW.TestPlatform.Main.Application
                 ExtensionInfo = slaveHost.ExtensionInfo,
                 HostID = slaveHost.HostID,
                 TestCaseID = slaveHost.TestCaseID,
-                Count = slaveHost.Count,
-                CreateTime = DateTime.UtcNow,
-                ModifyTime = DateTime.UtcNow
+                Count = slaveHost.Count
             };
             await queryResult.AddSlaveHost(testCaseSlaveHost, cancellationToken);
             return new TestCaseSlaveHostViewData() {

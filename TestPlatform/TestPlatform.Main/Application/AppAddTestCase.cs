@@ -24,9 +24,7 @@ namespace FW.TestPlatform.Main.Application
                 EngineType = model.EngineType,
                 MasterHostID = model.MasterHostID,
                 Configuration = model.Configuration,
-                Status = TestCaseStatus.NoRun,
-                CreateTime = DateTime.UtcNow,
-                ModifyTime = DateTime.UtcNow
+                Status = TestCaseStatus.NoRun
             };               
             await source.Add();
 
