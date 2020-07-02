@@ -39,11 +39,7 @@ namespace FW.TestPlatform.Main.Application
                         Configuration = item.Configuration,
                         Status = item.Status,
                         MasterHostID = item.MasterHostID,
-                        MasterHost = item.MasterHost,
-                        Owner = item.Owner,
-                        OwnerID = item.OwnerID,
-                        CreateTime = item.CreateTime,
-                        ModifyTime= item.ModifyTime
+                        CreateTime = item.CreateTime
                     }
                     );
             }

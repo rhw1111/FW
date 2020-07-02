@@ -70,12 +70,9 @@ namespace FW.TestPlatform.Main.Application
                 ID = queryResult.ID,
                 Name = queryResult.Name,
                 Configuration = queryResult.Configuration,
-                Owner = queryResult.Owner,
-                MasterHost = queryResult.MasterHost,
                 Status = queryResult.Status,
                 EngineType = queryResult.EngineType,
-                CreateTime = queryResult.CreateTime.ToCurrentUserTimeZone(),
-                ModifyTime = queryResult.ModifyTime.ToCurrentUserTimeZone()
+                CreateTime = queryResult.CreateTime.ToCurrentUserTimeZone()
             };
         }
     }

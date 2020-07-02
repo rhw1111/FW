@@ -20,17 +20,13 @@ namespace FW.TestPlatform.Portal.Api.Controllers
 
         private readonly IAppQueryTestCase _appQueryTestCase;
         private readonly IAppAddTestCase _appAddTestCase;
-        private readonly IAppQueryTestHost _appQueryTestHost;
-        private readonly IAppExecuteTestCase _appExecuteTestCase;
         private readonly IAppUpdateTestCase _appUpdateTestCase;
         private readonly IAppDeleteTestCase _appDeleteTestCase;
-        private readonly IAppDeleteMultipleTestCase _appDeleteMultipleTestCase;
         private readonly IAppQuerySingleTestCase _appQuerySingleTestCase;
         private readonly IAppRunTestCase _appRunTestCase;
         private readonly IAppStopTestCase _appStopTestCase;
         private readonly IAppCheckTestCaseStatus _appCheckTestCaseStatus;
         private readonly IAppAddSlaveHost _appAddSlaveHost;
-        //private readonly IAppAddTestCaseHistory _appAddTestCaseHistory;
         private readonly IAppQueryMasterLog _appQueryMasterLog;
         private readonly IAppQuerySlaveLog _appQuerySlaveLog;
         private readonly IAppQuerySlaveHost _appQuerySlaveHost;
@@ -41,18 +37,15 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppDeleteSlaveHost _appDeleteSlaveHost;
         private readonly IAppDeleteSlaveHosts _appDeleteSlaveHosts;
         private readonly IAppDeleteHistories _appDeleteHistories;
-        public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQueryTestHost appQueryTestHost, IAppExecuteTestCase appExecuteTestCase, IAppQuerySingleTestCase appQuerySingleTestCase, IAppUpdateTestCase appUpdateTestCase,
-            IAppDeleteMultipleTestCase appDeleteMultipleTestCase, IAppDeleteTestCase appDeleteTestCase, IAppRunTestCase appRunTestCase, IAppStopTestCase appStopTestCase, IAppCheckTestCaseStatus appCheckTestCaseStatus, IAppAddSlaveHost appAddSlaveHost,
+        public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQuerySingleTestCase appQuerySingleTestCase, IAppUpdateTestCase appUpdateTestCase,
+            IAppDeleteTestCase appDeleteTestCase, IAppRunTestCase appRunTestCase, IAppStopTestCase appStopTestCase, IAppCheckTestCaseStatus appCheckTestCaseStatus, IAppAddSlaveHost appAddSlaveHost,
             IAppQueryMasterLog appQueryMasterLog, IAppQuerySlaveLog appQuerySlaveLog, IAppQuerySlaveHost appQuerySlaveHost, IAppQueryTestCaseHistory appQueryTestCaseHistory, IAppQuerySingleTestCaseHistory appQuerySingleTestCaseHistory, IAppUpdateSlaveHost appUpdateSlaveHost,
             IAppDeleteTestCaseHistory appDeleteTestCaseHistory, IAppDeleteSlaveHost appDeleteSlaveHost, IAppDeleteHistories appDeleteHistories, IAppDeleteSlaveHosts appDeleteSlaveHosts)
         {
             _appQueryTestCase = appQueryTestCase;
             _appAddTestCase = appAddTestCase;
-            _appQueryTestHost = appQueryTestHost;
-            _appExecuteTestCase = appExecuteTestCase;
             _appUpdateTestCase = appUpdateTestCase;
             _appDeleteTestCase = appDeleteTestCase;
-            _appDeleteMultipleTestCase = appDeleteMultipleTestCase;
             _appQuerySingleTestCase = appQuerySingleTestCase;
             _appRunTestCase = appRunTestCase;
             _appStopTestCase = appStopTestCase;
@@ -190,19 +183,5 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         {
             await _appDeleteHistories.Do(model.CaseID, model.IDS);
         }
-
-        //[HttpGet("gethosts")]
-        //public async Task<List<TestHostViewData>> GetHosts()
-        //{
-        //    try
-        //    {
-        //        List<TestHostViewData> result = await _appQueryTestHost.Do();
-        //        return result;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
     }
 }

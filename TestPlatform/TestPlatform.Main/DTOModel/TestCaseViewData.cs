@@ -13,8 +13,6 @@ namespace FW.TestPlatform.Main.DTOModel
     [DataContract]
     public class TestCaseViewData:ModelBase
     {
-
-
         /// <summary>
         /// Id
         /// </summary>
@@ -95,17 +93,6 @@ namespace FW.TestPlatform.Main.DTOModel
             }
         }
 
-        public TestHost MasterHost
-        {
-            get
-            {
-                return GetAttribute<TestHost>(nameof(MasterHost));
-            }
-            set
-            {
-                SetAttribute<TestHost>(nameof(MasterHost),value);
-            }
-        }
         /// <summary>
         /// 状态
         /// </summary>
@@ -121,37 +108,6 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<TestCaseStatus>(nameof(Status), value);
             }
         }
-        /// <summary>
-        /// 所有者ID
-        /// </summary>
-        public Guid OwnerID
-        {
-            get
-            {
-
-                return GetAttribute<Guid>(nameof(OwnerID));
-            }
-            set
-            {
-                SetAttribute<Guid>(nameof(OwnerID), value);
-            }
-        }
-        /// <summary>
-        /// 所有者
-        /// </summary>
-        public User Owner
-        {
-            get
-            {
-
-                return GetAttribute<User>(nameof(Owner));
-            }
-            set
-            {
-                SetAttribute<User>(nameof(Owner), value);
-            }
-        }
-
 
         /// <summary>
         /// 创建时间
@@ -166,24 +122,6 @@ namespace FW.TestPlatform.Main.DTOModel
             set
             {
                 SetAttribute<DateTime>(nameof(CreateTime), value);
-            }
-        }
-
-
-
-        /// <summary>
-        /// 修改时间
-        /// </summary>
-        [DataMember]
-        public DateTime ModifyTime
-        {
-            get
-            {
-                return GetAttribute<DateTime>(nameof(ModifyTime));
-            }
-            set
-            {
-                SetAttribute<DateTime>(nameof(ModifyTime), value);
             }
         }
     }

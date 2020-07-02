@@ -641,7 +641,7 @@ namespace FW.TestPlatform.Main.Entities
                 scope.Complete();
             }
 
-            await handleService.Run(tCase, cancellationToken);
+            //await handleService.Run(tCase, cancellationToken);
         }
 
         public async Task Stop(TestCase tCase, CancellationToken cancellationToken = default)
@@ -660,7 +660,7 @@ namespace FW.TestPlatform.Main.Entities
 
             var handleService = getHandleService(tCase.EngineType);
 
-            await handleService.Stop(tCase, cancellationToken);
+            //await handleService.Stop(tCase, cancellationToken);
 
             await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.Stop, cancellationToken);
         }
