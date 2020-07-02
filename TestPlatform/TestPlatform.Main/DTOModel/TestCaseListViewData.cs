@@ -11,7 +11,7 @@ namespace FW.TestPlatform.Main.DTOModel
     /// 测试数据源视图数据
     /// </summary>
     [DataContract]
-    public class TestCaseViewData:ModelBase
+    public class TestCaseListViewData:ModelBase
     {
         /// <summary>
         /// Id
@@ -62,7 +62,6 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<string>(nameof(EngineType), value);
             }
         }
-
         /// <summary>
         /// 测试配置
         /// </summary>
@@ -78,70 +77,6 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<string>(nameof(Configuration), value);
             }
         }
-        /// <summary>
-        /// 实时监控地址
-        /// </summary>
-        [DataMember]
-        public string MonitorUrl
-        {
-            get
-            {
-                return GetAttribute<string>(nameof(MonitorUrl));
-            }
-            set
-            {
-                SetAttribute<string>(nameof(MonitorUrl), value);
-            }
-        }
-        /// <summary>
-        /// Master主机ID
-        /// </summary>
-        [DataMember]
-        public Guid MasterHostID
-        {
-            get
-            {
-                return GetAttribute<Guid>(nameof(MasterHostID));
-            }
-            set
-            {
-                SetAttribute<Guid>(nameof(MasterHostID),value);
-            }
-        }
-
-        /// <summary>
-        /// Master主机Address
-        /// </summary>
-        [DataMember]
-        public string MasterHostAddress
-        {
-            get
-            {
-                return GetAttribute<string>(nameof(MasterHostAddress));
-            }
-            set
-            {
-                SetAttribute<string>(nameof(MasterHostAddress), value);
-            }
-        }
-
-        /// <summary>
-        /// 状态
-        /// </summary>
-        [DataMember]
-        public TestCaseStatus Status
-        {
-            get
-            {
-
-                return GetAttribute<TestCaseStatus>(nameof(Status));
-            }
-            set
-            {
-                SetAttribute<TestCaseStatus>(nameof(Status), value);
-            }
-        }
-
         /// <summary>
         /// 创建时间
         /// </summary>
