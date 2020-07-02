@@ -12,7 +12,7 @@ namespace FW.TestPlatform.Main.Application
     public interface IAppCheckTestCaseStatus
     {
         
-        Task<bool> Do(Guid id, CancellationToken cancellationToken = default);
+        Task<TestCaseStatus> Do(Guid id, CancellationToken cancellationToken = default);
         
     }
 }

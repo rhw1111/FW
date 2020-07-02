@@ -771,7 +771,7 @@ namespace FW.TestPlatform.Main.Entities
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseHistoryById, fragment, 1, 0);
             }
-            await _testCaseSlaveHostStore.DeleteSlaveHosts(ids, cancellationToken);
+            await _testCaseHistoryStore.DeleteHistories(ids, cancellationToken);
         }
 
         private ITestCaseHandleService getHandleService(string engineType)
