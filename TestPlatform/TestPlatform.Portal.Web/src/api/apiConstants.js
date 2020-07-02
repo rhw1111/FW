@@ -29,5 +29,7 @@ const apiConstants = {
 
   deleteHistoryArr: 'api/testcase/deletehistories',//批量删除历史记录
 
+  getTestDataSource: 'api/testdatasource/querybypage',//获得TestDataSource
+
 }
 export default apiConstants

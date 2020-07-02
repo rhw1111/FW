@@ -531,7 +531,7 @@ export default {
             CaseID: this.detailData.id,
             IDS: delIdArr
           }
-          Apis.deleteSlaveHostArr(para).then(() => {
+          Apis.deleteHistoryArr(para).then(() => {
             this.getHistoryList();
           })
         }
