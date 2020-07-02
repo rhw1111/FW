@@ -61,7 +61,7 @@ REPLACE INTO `systemconfiguration` (`id`, `name`, `content`, `createtime`, `modi
 	('3e552936-af6f-11ea-8e6a-0242ac110002', 'TestPlatform.Portal.Api_CrosOrigin', '["http://52.188.14.158:8080/","http://localhost:8080/"]', '2020-06-16 01:18:11', '2020-06-16 01:18:11', 2),
 	('efa02231-af6f-11ea-8e6a-0242ac110002', 'LogExcludePaths', '[]', '2020-06-16 01:23:08', '2020-06-16 01:23:08', 3),
 	('057d6ca4-af70-11ea-8e6a-0242ac110002', 'OutputStreamReplaceExcludePaths', '[]', '2020-06-16 01:23:45', '2020-06-16 01:23:45', 4),
-	('f48e95ab-b836-11ea-bed4-025041000001', 'CaseServiceBaseAddress', '"http://127.17.0.1:8082/"', '2020-06-27 13:23:45', '2020-06-27 13:23:45', 5),
+	('f48e95ab-b836-11ea-bed4-025041000001', 'CaseServiceBaseAddress', '"http://52.188.14.158:8082/"', '2020-06-27 13:23:45', '2020-06-27 13:23:45', 5),
 	('d4fdc4e2-4efd-4a1c-8372-5a6eca74e381', 'TestPlatform.CaseService_CrosOrigin', '["http://52.188.14.158:8082/","http://localhost:8082/"]', '2020-06-27 13:23:45', '2020-06-27 13:23:45', 6);
 /*!40000 ALTER TABLE `systemconfiguration` ENABLE KEYS */;
 

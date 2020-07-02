@@ -24,6 +24,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         private const string _testFilePath = "/usr/testfile/";
         private const string _testFileName = "script{0}.py";
         private const string _testLogFileName = "log{0}";
+        private const string _testOutFileName = "out{0}";
         private const int _maxLogSize = 1024 * 1024;
 
         private readonly ITestDataSourceRepository _testDataSourceRepository;
@@ -222,7 +223,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 async (item) =>
                 {
                     //先删除文件夹内现有的所有文件
-                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{_testLogFileName}*", cancellationToken);
+                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{string.Format(_testFileName, "_*")}", cancellationToken);
 
                     //为该Slave测试机下的每个Slave上传文件
 
@@ -261,7 +262,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                async (preResult)=>
                {
                    //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName,string.Empty)} --master --expect-slaves={slaveCount.ToString()} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{string.Format(_testLogFileName,string.Empty)} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
-                   return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName,string.Empty)} --logfile {_testFilePath}{string.Format(_testLogFileName,string.Empty)} --master --headless --expect-workers {slaveCount.ToString()} -t {configuration.Duration.ToString()} -u {configuration.UserCount.ToString()} -r {configuration.PerSecondUserCount.ToString()} &");
+                   return await Task.FromResult($"/home/TPUser/anaconda3/bin/locust -f {_testFilePath}{string.Format(_testFileName,string.Empty)} --logfile {_testFilePath}{string.Format(_testLogFileName,string.Empty)} --master --headless --expect-workers {slaveCount.ToString()} -t {configuration.Duration.ToString()} -u {configuration.UserCount.ToString()} -r {configuration.PerSecondUserCount.ToString()} > {_testFilePath}{string.Format(_testOutFileName,string.Empty)} 2>&1 &");
                }
             };
             await tCase.MasterHost.SSHEndpoint.ExecuteCommandBatch(commands, cancellationToken);
@@ -273,19 +274,21 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     {
                         async (preResult)=>
                         {
-                            return await Task.FromResult($"rm -rf {_testFilePath}{string.Format(_testLogFileName, "_slave")}");
+                            return await Task.FromResult($"rm -rf {_testFilePath}{string.Format(_testLogFileName, "_slave_*")}");
                         }
                     };
 
 
                 //await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{string.Format(_testLogFileName, "_slave")}", cancellationToken);
-                for (var index=0;index<= item.Count-1;index++)
+                for (var index = 0;index <= item.Count - 1;index++)
                 {
+                    var innerIndex = index;
                     slaveCommands.Add(
                         async (preResult) =>
                         {
                             //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")} --slave --master-host={tCase.MasterHost.Address} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{string.Format(_testLogFileName, "_slave")} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
-                            return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")} --logfile {_testFilePath}{string.Format(_testLogFileName, "_slave")} --worker --headless --master-host {tCase.MasterHost.Address} -t {  configuration.Duration.ToString()} -u {configuration.UserCount.ToString()} -r {configuration.PerSecondUserCount.ToString()} &");
+                            return await Task.FromResult($"/home/TPUser/anaconda3/bin/locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --logfile {_testFilePath}{string.Format(_testLogFileName, $"_slave")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {_testFilePath}{string.Format(_testOutFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
+                            //return await Task.FromResult($"/home/TPUser/anaconda3/bin/locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --logfile {_testFilePath}{string.Format(_testLogFileName, $"_slave")} --worker --headless --master-host 127.0.0.1 --master-port 5557 > {_testFilePath}{string.Format(_testOutFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
                         }
                    );                  
                 }
