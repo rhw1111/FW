@@ -45,9 +45,7 @@ namespace FW.TestPlatform.Main.Application
                     HostID = item.HostID,
                     Count = item.Count,
                     ExtensionInfo = item.ExtensionInfo,
-                    SlaveName = item.SlaveName,
-                    CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
-                    ModifyTime = item.ModifyTime.ToCurrentUserTimeZone()
+                    SlaveName = item.SlaveName
                 });
             }
             return list;

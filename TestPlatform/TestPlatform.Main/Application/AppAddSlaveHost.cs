@@ -52,8 +52,7 @@ namespace FW.TestPlatform.Main.Application
                 HostID = testCaseSlaveHost.HostID,
                 TestCaseID = testCaseSlaveHost.TestCaseID,
                 Count = testCaseSlaveHost.Count,
-                CreateTime = testCaseSlaveHost.CreateTime.ToCurrentUserTimeZone(),
-                ModifyTime = testCaseSlaveHost.ModifyTime.ToCurrentUserTimeZone()
+                CreateTime = testCaseSlaveHost.CreateTime.ToCurrentUserTimeZone()
             };
         }
         
