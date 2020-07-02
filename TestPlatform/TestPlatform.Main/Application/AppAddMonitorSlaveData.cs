@@ -46,7 +46,7 @@ namespace FW.TestPlatform.Main.Application
             {
                 influxDBRecord = new InfluxDBRecord();
                 influxDBRecord.MeasurementName = InfluxDBParameters.SlaveMeasurementName;
-                //influxDBRecord.Timestamp = ConvertToTimeStamp(model.Time);
+                influxDBRecord.Timestamp = ConvertToTimeStamp(model.Time);
                 influxDBRecord.Tags.Add("CaseID", model.CaseID);
                 influxDBRecord.Tags.Add("SlaveID", model.SlaveID);
                 influxDBRecord.Tags.Add("TotalTime", model.Time);
@@ -58,7 +58,7 @@ namespace FW.TestPlatform.Main.Application
         }
 
         /// <summary>
-        /// 时间转成时间戳
+        /// 时间转成纳秒级时间戳，否者influx中time有问题
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
@@ -66,7 +66,7 @@ namespace FW.TestPlatform.Main.Application
         {
             DateTime dtTime = DateTime.ParseExact(time,"yyyyMMddHHmmss", CultureInfo.InvariantCulture);
             TimeSpan ts = dtTime - new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            return Convert.ToInt64(ts.TotalSeconds);
+            return Convert.ToInt64(ts.TotalMilliseconds.ToString().PadRight(19, '0'));
         }
     }
 }
