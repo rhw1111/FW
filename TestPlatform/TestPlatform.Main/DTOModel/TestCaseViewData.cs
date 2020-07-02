@@ -79,6 +79,21 @@ namespace FW.TestPlatform.Main.DTOModel
             }
         }
         /// <summary>
+        /// 实时监控地址
+        /// </summary>
+        [DataMember]
+        public string MonitorUrl
+        {
+            get
+            {
+                return GetAttribute<string>(nameof(MonitorUrl));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(MonitorUrl), value);
+            }
+        }
+        /// <summary>
         /// Master主机ID
         /// </summary>
         [DataMember]

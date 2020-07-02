@@ -77,11 +77,11 @@ namespace TestPlatform.Test
         {
             //await QueryByCaseID("c7a290e6-eddd-4126-abc9-5e129718e0fc");
             //await AddTestCase();
-            await AddTestCaseHistory();
+           // await AddTestCaseHistory();
             //await CreateMonitorDB();
             //await AddMasterData();
 
-            //await AddSlaveData();
+            await AddSlaveData();
         }
 
         private async Task CreateMonitorDB()
@@ -156,7 +156,7 @@ namespace TestPlatform.Test
 
             DateTime dt = DateTime.UtcNow;
 
-            int runCount = 50;
+            int runCount = 500;
             int i = 0;
 
             while (i <= runCount)
@@ -167,7 +167,7 @@ namespace TestPlatform.Test
 
                 model.CaseID = "c7a290e6-eddd-4126-abc9-5e129718e0fc";
                 model.QPS = rondom.Next(10000, 30000).ToString();
-                model.Time = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+                model.Time = dt.AddSeconds(0-i).ToString("yyyyMMddHHmmss");
                 model.SlaveID = "Slave-" + i.ToString();
                 modelList.Add(model); 
                 await test.Do(modelList);

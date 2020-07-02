@@ -1,13 +1,16 @@
-﻿using FW.TestPlatform.Main.DTOModel;
-using MSLibrary;
+﻿using MSLibrary;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MSLibrary;
 using MSLibrary.DI;
 using FW.TestPlatform.Main.Entities;
 using MSLibrary.LanguageTranslate;
+using FW.TestPlatform.Main.Configuration;
+using FW.TestPlatform.Main.DTOModel;
+
 
 namespace FW.TestPlatform.Main.Application
 {
@@ -15,10 +18,12 @@ namespace FW.TestPlatform.Main.Application
     public class AppQuerySingleTestCase : IAppQuerySingleTestCase
     {
         private readonly ITestCaseRepository _testCaseRepository;
+        private readonly ISystemConfigurationService _systemConfigurationService;
 
-        public AppQuerySingleTestCase(ITestCaseRepository testCaseRepository)
+        public AppQuerySingleTestCase(ITestCaseRepository testCaseRepository, ISystemConfigurationService systemConfigurationService)
         {
             _testCaseRepository = testCaseRepository;
+            _systemConfigurationService = systemConfigurationService;
         }
         public async Task<TestCaseViewData> Do(Guid id, CancellationToken cancellationToken = default)
         {
@@ -34,10 +39,15 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
             }
+
+            var monitorAddress=await _systemConfigurationService.GetMonitorAddressAsync(queryResult.EngineType, cancellationToken);
+
+
             return new TestCaseViewData()
             {
                 ID = queryResult.ID,
                 Name = queryResult.Name,
+                MonitorUrl=$"{monitorAddress}&var-CaseID={queryResult.ID.ToString().ToUrlEncode()}&from=now&refresh=3s",
                 Configuration = queryResult.Configuration,
                 Status = queryResult.Status,
                 EngineType = queryResult.EngineType,
