@@ -128,7 +128,7 @@ namespace MSLibrary.Workflow.Description
         {
             //跟踪活动
             context.CurrentActivity = activity.ID;
-            context.TraceService.Trace(context.ResourceType, context.ResourceInfo, context.UserInfo, context.CurrentDescription, context.CurrentNode, context.CurrentAction, context.CurrentBlock, context.CurrentActivity, string.Empty);
+            await context.TraceService.Trace(context.ResourceType, context.ResourceInfo, context.UserInfo, context.CurrentDescription, context.CurrentNode, context.CurrentAction, context.CurrentBlock, context.CurrentActivity, string.Empty);
 
             List<object> inputParameters = new List<object>();          
             //获取输入参数

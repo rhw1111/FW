@@ -340,8 +340,9 @@ namespace MSLibrary.MessageQueue.DAL.SMessageStores
             return message;
         }
 
-        public async Task<SMessage> QueryByOriginalID(SQueue queue, Guid originalMessageID, Guid listenerID)
+        public Task<SMessage> QueryByOriginalID(SQueue queue, Guid originalMessageID, Guid listenerID)
         {
+
             throw new NotImplementedException();
         }
 

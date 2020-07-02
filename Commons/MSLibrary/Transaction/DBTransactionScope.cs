@@ -159,13 +159,10 @@ namespace MSLibrary.Transaction
 
         public DBTransactionScope(TransactionScopeOption scopeOption, TransactionOptions transactionOptions, Action rollbackAction = null)
         {
-            if (_transactionScope.Value != null)
-            {
-                _preTransactionScope = _transactionScope.Value.Value;
-            }
 
             if (_transactionScope.Value != null)
             {
+                _preTransactionScope = _transactionScope.Value.Value;
                 _transactionScope.Value.Value = this;
             }
             else
@@ -180,13 +177,10 @@ namespace MSLibrary.Transaction
                 _preConnections = _connections.Value.Value;
             }
 
-            if (_transactionInfo.Value != null)
-            {
-                _preTransactionInfo = _transactionInfo.Value.Value;
-            }
 
             if (_transactionInfo.Value != null)
             {
+                _preTransactionInfo = _transactionInfo.Value.Value;
                 _transactionInfo.Value.Value = new TransactionInfo() { ID = Guid.NewGuid(), ScopeOption = scopeOption, TransactionOptions = transactionOptions };
             }
             else
@@ -199,63 +193,9 @@ namespace MSLibrary.Transaction
             _transactionOptions = _transactionInfo.Value.Value.TransactionOptions;
 
 
+            initInTransactionInfo(transactionOptions);
 
-            if (_preTransactionInfo == null)
-            {
-                _needCreateNewTransaction = true;
-            }
-            else
-            {
-                if (_preTransactionInfo.TransactionOptions.IsolationLevel != transactionOptions.IsolationLevel)
-                {
-                    _needCreateNewTransaction = true;
-                }
-                else
-                {
-                    _needCreateNewTransaction = false;
-                }
-            }
-
-            if (_inTransaction.Value==null || !_inTransaction.Value.Value)
-            {
-                _needClearTransactionScope = true;
-            }
-
-            if (_inTransaction.Value != null)
-            {
-                _inTransaction.Value.Value = true;
-            }
-            else
-            {
-                _inTransaction.Value = new WrapperObject<bool>(true);
-            }
-
-            //如果是范围是新事务或者忽略，则_needClose=true
-            if (scopeOption == TransactionScopeOption.RequiresNew || scopeOption == TransactionScopeOption.Suppress)
-            {
-                _needClose = true;
-                _connections.Value =new WrapperObject<Dictionary<string, DBConnectionContainer>>(new Dictionary<string, DBConnectionContainer>());
-                if (scopeOption == TransactionScopeOption.Suppress)
-                {
-                    _inTransaction.Value.Value =false;
-                }
-
-            }
-            else if (scopeOption == TransactionScopeOption.Required && _preConnections == null)
-            {
-                //如果是Required，并且_preConnections为空，则_needClose=true
-                _connections.Value =new WrapperObject<Dictionary<string, DBConnectionContainer>>(new Dictionary<string, DBConnectionContainer>());
-                _needClose = true;
-            }
-            else
-            {
-                if (_connections.Value == null)
-                {
-                    _connections.Value =new WrapperObject<Dictionary<string, DBConnectionContainer>>(new Dictionary<string, DBConnectionContainer>());
-                }
-                _needClose = false;
-
-            }
+            initScope(scopeOption);
         }
 
         /// <summary>
@@ -685,7 +625,68 @@ namespace MSLibrary.Transaction
             }
         }
 
+        private void initScope(TransactionScopeOption scopeOption)
+        {
+            //如果是范围是新事务或者忽略，则_needClose=true
+            if (scopeOption == TransactionScopeOption.RequiresNew || scopeOption == TransactionScopeOption.Suppress)
+            {
+                _needClose = true;
+                _connections.Value = new WrapperObject<Dictionary<string, DBConnectionContainer>>(new Dictionary<string, DBConnectionContainer>());
+                if (scopeOption == TransactionScopeOption.Suppress)
+                {
+                    _inTransaction.Value.Value = false;
+                }
 
+            }
+            else if (scopeOption == TransactionScopeOption.Required && _preConnections == null)
+            {
+                //如果是Required，并且_preConnections为空，则_needClose=true
+                _connections.Value = new WrapperObject<Dictionary<string, DBConnectionContainer>>(new Dictionary<string, DBConnectionContainer>());
+                _needClose = true;
+            }
+            else
+            {
+                if (_connections.Value == null)
+                {
+                    _connections.Value = new WrapperObject<Dictionary<string, DBConnectionContainer>>(new Dictionary<string, DBConnectionContainer>());
+                }
+                _needClose = false;
+
+            }
+        }
+
+        private void initInTransactionInfo(TransactionOptions transactionOptions)
+        {
+            if (_preTransactionInfo == null)
+            {
+                _needCreateNewTransaction = true;
+            }
+            else
+            {
+                if (_preTransactionInfo.TransactionOptions.IsolationLevel != transactionOptions.IsolationLevel)
+                {
+                    _needCreateNewTransaction = true;
+                }
+                else
+                {
+                    _needCreateNewTransaction = false;
+                }
+            }
+
+            if (_inTransaction.Value == null || !_inTransaction.Value.Value)
+            {
+                _needClearTransactionScope = true;
+            }
+
+            if (_inTransaction.Value != null)
+            {
+                _inTransaction.Value.Value = true;
+            }
+            else
+            {
+                _inTransaction.Value = new WrapperObject<bool>(true);
+            }
+        }
     }
 
 

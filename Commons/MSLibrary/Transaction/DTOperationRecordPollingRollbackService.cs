@@ -140,6 +140,7 @@ namespace MSLibrary.Transaction
                 null,
                 async(ex)=>
                 {
+                    await Task.CompletedTask;
                     LoggerHelper.LogError(ErrorLoggerCategoryName,$"DTOperationRecordPollingRollbackService Execute Error,ErrorMessage:{ex.Message},StackTrace:{ex.StackTrace}");
                 }
                 );

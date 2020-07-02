@@ -66,6 +66,12 @@ namespace MSLibrary
         /// </summary>
         public const string TypeNotRequire = "TypeNotRequire";
         /// <summary>
+        /// 值不能为null
+        /// 格式为“值不能为null，发生位置为{0}”
+        /// {0}：发生的位置
+        /// </summary>
+        public const string ValueNotAllowNull = "ValueNotAllowNull";
+        /// <summary>
         /// 在httpheader中找不到WhitelistAuthorization
         /// 格式为“在http头中没有找到WhitelistAuthorization”
         /// </summary>

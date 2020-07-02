@@ -119,7 +119,7 @@ namespace MSLibrary.SRR
                 {
                     try
                     {
-                        item.Finally(filterContext);
+                       await item.Finally(filterContext);
                         await item.Finally(filterContext);
                     }
                     catch(Exception ex)

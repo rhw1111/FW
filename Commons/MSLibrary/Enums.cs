@@ -49,6 +49,10 @@ namespace MSLibrary
         /// 指定类型不是所需要的类型
         /// </summary>
         TypeNotRequire = 314710011,
+        /// <summary>
+        /// 值不允许为null
+        /// </summary>
+        ValueNotAllowNull= 314710012,
 
         /// <summary>
         /// 在Crm服务令牌生成服务中找不到指定名称的参数
