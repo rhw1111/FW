@@ -94,6 +94,21 @@ namespace FW.TestPlatform.Main.DTOModel
         }
 
         /// <summary>
+        /// Master主机Address
+        /// </summary>
+        public string MasterHostAddress
+        {
+            get
+            {
+                return GetAttribute<string>(nameof(MasterHostAddress));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(MasterHostAddress), value);
+            }
+        }
+
+        /// <summary>
         /// 状态
         /// </summary>
         public TestCaseStatus Status
