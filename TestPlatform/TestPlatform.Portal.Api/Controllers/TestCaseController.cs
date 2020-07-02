@@ -7,9 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using FW.TestPlatform.Main.Application;
 using FW.TestPlatform.Main.DTOModel;
 using MSLibrary;
-using FW.TestPlatform.Main.Entities;
-using MSLibrary.Security.RequestController;
-using FW.TestPlatform.Main;
 
 namespace FW.TestPlatform.Portal.Api.Controllers
 {
@@ -114,7 +111,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             await _appStopTestCase.Do(caseId);
         }
         [HttpGet("checkstatus")]
-        public async Task<TestCaseStatus> CheckTestStatus(Guid caseId)
+        public async Task<bool> CheckTestStatus(Guid caseId)
         {
             return await _appCheckTestCaseStatus.Do(caseId);
         }

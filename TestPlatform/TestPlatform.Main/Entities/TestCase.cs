@@ -660,7 +660,7 @@ namespace FW.TestPlatform.Main.Entities
 
             var handleService = getHandleService(tCase.EngineType);
 
-            //await handleService.Stop(tCase, cancellationToken);
+            await handleService.Stop(tCase, cancellationToken);
 
             await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.Stop, cancellationToken);
         }
