@@ -86,7 +86,7 @@ namespace MSLibrary.Oauth.ADFS
                     var tokenParams = BuildTokenParams(clientId, code, resource, redirectUri);
                     using (var response2 = await httpClient.PostAsync(tokenUrl, new FormUrlEncodedContent(tokenParams)))
                     {
-                        if (!response.IsSuccessStatusCode)
+                        if (!response2.IsSuccessStatusCode)
                         {
                             var strContent = await response2.Content.ReadAsStringAsync();
                             var postData = await (new FormUrlEncodedContent(tokenParams)).ReadAsStringAsync();

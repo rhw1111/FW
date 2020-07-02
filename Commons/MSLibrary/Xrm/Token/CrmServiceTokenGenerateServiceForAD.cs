@@ -65,7 +65,7 @@ namespace MSLibrary.Xrm.Token
             string domain = parameters[CrmServiceTokenGenerateServiceParameterNames.Domain].ToString();
 
             string basicToken = $"{userName}@{domain}:{password}";
-            return $"Basic {basicToken.Base64Encode()}";
+            return await Task.FromResult($"Basic {basicToken.Base64Encode()}");
         }
     }
 }

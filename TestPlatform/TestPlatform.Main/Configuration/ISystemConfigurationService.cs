@@ -36,6 +36,20 @@ namespace FW.TestPlatform.Main.Configuration
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<string> GetCaseServiceBaseAddressAsync(CancellationToken cancellationToken = default);
+        /// <summary>
+        /// 获取指定引擎类型的监控地址
+        /// </summary>
+        /// <param name="enginType"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        string GetMonitorAddress(string enginType, CancellationToken cancellationToken = default);
+        /// <summary>
+        /// 获取指定引擎类型的监控地址（异步）
+        /// </summary>
+        /// <param name="enginType"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<string> GetMonitorAddressAsync(string enginType, CancellationToken cancellationToken = default);
 
     }
 }

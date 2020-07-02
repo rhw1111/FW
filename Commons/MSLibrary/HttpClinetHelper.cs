@@ -848,7 +848,7 @@ namespace MSLibrary
             
 
 
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T)))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -906,7 +906,7 @@ namespace MSLibrary
             StringContent httpContent = null;
 
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -974,7 +974,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -1043,7 +1043,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -1124,7 +1124,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -1181,7 +1181,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -1247,7 +1247,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -1316,7 +1316,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -1747,7 +1747,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -1804,7 +1804,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -1871,7 +1871,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -1940,7 +1940,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -2019,7 +2019,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -2076,7 +2076,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -2143,7 +2143,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -2213,7 +2213,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -2291,7 +2291,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -2354,7 +2354,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -2425,7 +2425,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -2499,7 +2499,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -2584,7 +2584,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -2647,7 +2647,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -2718,7 +2718,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -2792,7 +2792,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -4056,7 +4056,7 @@ namespace MSLibrary
             StringContent httpContent = null;
 
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -4116,7 +4116,7 @@ namespace MSLibrary
             StringContent httpContent = null;
 
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -4186,7 +4186,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -4255,7 +4255,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -4336,7 +4336,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -4395,7 +4395,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -4463,7 +4463,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -4532,7 +4532,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -4969,7 +4969,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -5028,7 +5028,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -5097,7 +5097,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -5166,7 +5166,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -5245,7 +5245,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -5304,7 +5304,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -5373,7 +5373,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -5443,7 +5443,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -5521,7 +5521,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -5586,7 +5586,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -5659,7 +5659,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -5733,7 +5733,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -5818,7 +5818,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -5883,7 +5883,7 @@ namespace MSLibrary
             HttpResponseMessage response = null;
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -5955,7 +5955,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");
@@ -6029,7 +6029,7 @@ namespace MSLibrary
         {
             StringContent httpContent = null;
             string json = string.Empty;
-            if (typeof(T).IsValueType || (!typeof(T).IsValueType && data != null))
+            if (typeof(T).IsValueType || (!typeof(T).IsValueType && !EqualityComparer<T>.Default.Equals(data, default(T))))
             {
                 json = JsonSerializerHelper.Serializer(data);
                 httpContent = new StringContent(json, new UTF8Encoding(), "application/json");

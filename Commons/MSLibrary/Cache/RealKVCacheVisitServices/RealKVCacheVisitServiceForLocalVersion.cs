@@ -345,7 +345,7 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
         ///内部缓存容器
         ///提供线程同步处理方法
         /// </summary>
-        private class CacheContainer
+        private class CacheContainer:IDisposable
         {
             private LocalSemaphore _lock = new LocalSemaphore(1, 1);
             /// <summary>
@@ -361,6 +361,11 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
             /// 最后访问版本服务的时间
             /// </summary>
             public DateTime LatestVersionTime { get; set; }
+
+            public void Dispose()
+            {
+                _lock.Dispose();
+            }
 
             public async Task SyncOperate(Func<Task> action)
             {
@@ -380,6 +385,11 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
                        action();
                    }
                    );
+            }
+
+            ~CacheContainer()
+            {
+                _lock.Dispose();
             }
         }
         /// <summary>

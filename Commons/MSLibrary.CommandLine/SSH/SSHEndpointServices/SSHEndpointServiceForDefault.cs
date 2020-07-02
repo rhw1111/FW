@@ -52,8 +52,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             {
 
                 sshClient.Connect();
-
-                result = await sshClient.RunCommand(command).ExecuteAsync();
+                result = await sshClient.CreateCommand(command).ExecuteAsync();
 
                 sshClient.Disconnect();
             }
@@ -93,7 +92,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                 foreach (var item in commondGenerators)
                 {
                     var command = await item(result);
-                    result = await sshClient.RunCommand(command).ExecuteAsync();
+                    result = await sshClient.CreateCommand(command).ExecuteAsync();
                 }
 
                 sshClient.Disconnect();
@@ -188,7 +187,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
         }
         public async Task<string> Do(string command)
         {
-            return await _sshClient.RunCommand(command).ExecuteAsync();
+            return await _sshClient.CreateCommand(command).ExecuteAsync();
         }
     }
 }

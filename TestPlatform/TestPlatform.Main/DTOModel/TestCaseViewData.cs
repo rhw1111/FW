@@ -13,8 +13,6 @@ namespace FW.TestPlatform.Main.DTOModel
     [DataContract]
     public class TestCaseViewData:ModelBase
     {
-
-
         /// <summary>
         /// Id
         /// </summary>
@@ -81,6 +79,21 @@ namespace FW.TestPlatform.Main.DTOModel
             }
         }
         /// <summary>
+        /// 实时监控地址
+        /// </summary>
+        [DataMember]
+        public string MonitorUrl
+        {
+            get
+            {
+                return GetAttribute<string>(nameof(MonitorUrl));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(MonitorUrl), value);
+            }
+        }
+        /// <summary>
         /// Master主机ID
         /// </summary>
         public Guid MasterHostID
@@ -95,17 +108,21 @@ namespace FW.TestPlatform.Main.DTOModel
             }
         }
 
-        public TestHost MasterHost
+        /// <summary>
+        /// Master主机Address
+        /// </summary>
+        public string MasterHostAddress
         {
             get
             {
-                return GetAttribute<TestHost>(nameof(MasterHost));
+                return GetAttribute<string>(nameof(MasterHostAddress));
             }
             set
             {
-                SetAttribute<TestHost>(nameof(MasterHost),value);
+                SetAttribute<string>(nameof(MasterHostAddress), value);
             }
         }
+
         /// <summary>
         /// 状态
         /// </summary>
@@ -121,37 +138,6 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<TestCaseStatus>(nameof(Status), value);
             }
         }
-        /// <summary>
-        /// 所有者ID
-        /// </summary>
-        public Guid OwnerID
-        {
-            get
-            {
-
-                return GetAttribute<Guid>(nameof(OwnerID));
-            }
-            set
-            {
-                SetAttribute<Guid>(nameof(OwnerID), value);
-            }
-        }
-        /// <summary>
-        /// 所有者
-        /// </summary>
-        public User Owner
-        {
-            get
-            {
-
-                return GetAttribute<User>(nameof(Owner));
-            }
-            set
-            {
-                SetAttribute<User>(nameof(Owner), value);
-            }
-        }
-
 
         /// <summary>
         /// 创建时间
@@ -166,24 +152,6 @@ namespace FW.TestPlatform.Main.DTOModel
             set
             {
                 SetAttribute<DateTime>(nameof(CreateTime), value);
-            }
-        }
-
-
-
-        /// <summary>
-        /// 修改时间
-        /// </summary>
-        [DataMember]
-        public DateTime ModifyTime
-        {
-            get
-            {
-                return GetAttribute<DateTime>(nameof(ModifyTime));
-            }
-            set
-            {
-                SetAttribute<DateTime>(nameof(ModifyTime), value);
             }
         }
     }

@@ -64,7 +64,7 @@ namespace MSLibrary.Compression
             string result = string.Empty;
             byte[] b = Encoding.Unicode.GetBytes(text);
             using (MemoryStream to = new MemoryStream())
-            using (ZipOutputStream zip = new ZipOutputStream(to))
+            await using (ZipOutputStream zip = new ZipOutputStream(to))
             {
                 ZipEntry entry = new ZipEntry("ToBase64String");
                 entry.IsUnicodeText = true;
@@ -88,7 +88,7 @@ namespace MSLibrary.Compression
             byte[] b = Convert.FromBase64String(compressionText);
             using (MemoryStream from = new MemoryStream(b))
             using (ZipInputStream zip = new ZipInputStream(from))
-            using (MemoryStream to = new MemoryStream())
+            await using (MemoryStream to = new MemoryStream())
             {
                 ZipEntry entry = zip.GetNextEntry();
                 entry.IsUnicodeText = true;

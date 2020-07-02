@@ -140,7 +140,7 @@ namespace MSLibrary.Context.DAL
         {
             EnvironmentClaimGenerator generator = null;
 
-            DBTransactionHelper.SqlTransactionWork(DBTypes.SqlServer, true, false, _contextConnectionFactory.CreateReadForContext(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, true, false, _contextConnectionFactory.CreateReadForContext(), async (conn, transaction) =>
             {
                 SqlTransaction sqlTran = null;
                 if (transaction != null)
@@ -190,7 +190,7 @@ namespace MSLibrary.Context.DAL
         {
             EnvironmentClaimGenerator generator = null;
 
-            DBTransactionHelper.SqlTransactionWork(DBTypes.SqlServer, true, false, _contextConnectionFactory.CreateReadForContext(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, true, false, _contextConnectionFactory.CreateReadForContext(), async (conn, transaction) =>
             {
                 SqlTransaction sqlTran = null;
                 if (transaction != null)

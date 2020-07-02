@@ -459,9 +459,15 @@ namespace MSLibrary.MessageQueue.DAL.SMessageStores
                         Connection = (SqlConnection)conn,
                         CommandType = CommandType.Text,
                         Transaction = sqlTran,
-                        CommandText = string.Format(@"select {0} from {1} order by [createtime]
-                                                     offset ( @pagesize * (@page - 1 )) rows 
-		                                             fetch next @pagesize rows only", StoreHelper.GetSMessageSelectFields(string.Empty), queue.Name)
+                        CommandText = string.Format(@"select {0} from {1} as m
+                                                      join
+                                                        (
+                                                        select sequence from {1} order by sequence
+                                                        offset ( @pagesize * (@page - 1 )) rows 
+                                                        fetch next @pagesize rows only
+                                                        ) as t
+                                                      on m.sequence=t.sequence
+                                                      order by m.sequence", StoreHelper.GetSMessageSelectFields(string.Empty), queue.Name)
                     })
                     {
 
@@ -727,10 +733,15 @@ namespace MSLibrary.MessageQueue.DAL.SMessageStores
 				                           set @currentpage=1
 			                           end
 	
-                                    select {0} from {1}
-                                    order by [createtime]
-		                            offset (@pagesize * (@currentpage - 1)) rows 
-		                            fetch next @pagesize rows only;", StoreHelper.GetSMessageSelectFields(string.Empty), queue.Name)
+                                    select {0} from {1} as m
+                                    join
+                                    (
+                                        select sequence from {1} order by sequence
+                                        offset ( @pagesize * (@page - 1 )) rows 
+                                        fetch next @pagesize rows only
+                                    ) as t
+                                    on m.sequence=t.sequence
+                                    order by m.sequence;", StoreHelper.GetSMessageSelectFields(string.Empty), queue.Name)
                 })
                 {
 

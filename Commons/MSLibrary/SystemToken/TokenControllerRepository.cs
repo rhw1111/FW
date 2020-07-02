@@ -16,7 +16,7 @@ namespace MSLibrary.SystemToken
         {
             if (Controllers.TryGetValue(name,out TokenController controller))
             {
-                return controller;
+                return await Task.FromResult(controller);
             }
 
             return null;

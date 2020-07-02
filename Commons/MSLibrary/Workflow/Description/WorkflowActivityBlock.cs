@@ -93,7 +93,7 @@ namespace MSLibrary.Workflow.Description
             //跟踪活动
             context.CurrentBlock = block.ID;
             context.CurrentActivity = Guid.Empty;
-            context.TraceService.Trace(context.ResourceType, context.ResourceInfo, context.UserInfo, context.CurrentDescription, context.CurrentNode, context.CurrentAction, context.CurrentBlock, context.CurrentActivity, string.Empty);
+            await context.TraceService.Trace(context.ResourceType, context.ResourceInfo, context.UserInfo, context.CurrentDescription, context.CurrentNode, context.CurrentAction, context.CurrentBlock, context.CurrentActivity, string.Empty);
 
             WorkflowGoToResult result = null;
             //顺序执行所有的活动
