@@ -100,7 +100,7 @@ export const post = (url, payload) => {
 }
 export const del = (url, payload) => {
   console.log(url, payload)
-  return Axios.delete(url, { data: payload })
+  return Axios.delete(url, payload.delArr ? { data: payload.delArr } : { data: payload })
     .then(res => {
       return Promise.resolve(res)
     })

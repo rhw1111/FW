@@ -31,5 +31,20 @@ const apiConstants = {
 
   getTestDataSource: 'api/testdatasource/querybypage',//获得TestDataSource
 
+  postCreateTestDataSource: 'api/testdatasource/add', //创建TestDataSource
+
+  deleteTestDataSource: 'api/testdatasource/delete',//单个删除TestDataSource
+
+  deleteTestDataSourceArr: 'api/testdatasource/deletemultiple',//批量删除TestDataSource
+
+  getTestDataSourceDetail: 'api/testdatasource/testdatasource',//获得TestDataSource详情数据
+
+  putTestDataSource: 'api/testdatasource/update',//更新TestDataSource
+
+  postTestCaseRun: 'api/testcase/run',//TestCase运行
+
+  postTestCaseStop: 'api/testcase/stop',//TestCaseStop停止
+
+  getMasterLog: 'api/testdatasource/getmasterlog',//查看master日志
 }
 export default apiConstants

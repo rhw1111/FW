@@ -36,6 +36,7 @@ const action = ({
     } else if (postfix) {
       postfix && (api = `${api}/${postfix}`)
     }
+    console.log(payload)
     return del(api, {
       ...payload,
     }, responseType)
@@ -46,6 +47,11 @@ const action = ({
     }, responseType)
   }
   if (apiName.includes('post')) {
+    if (postfix && id) {
+      api = `${api}/${postfix}/${id}`
+    } else if (postfix) {
+      postfix && (api = `${api}/${postfix}`)
+    }
     return post(api, {
       ...payload
     }, responseType)
@@ -166,6 +172,76 @@ export const getTestDataSource = payload =>
     apiName: 'getTestDataSource',
     payload
   })
+
+//创建TestDataSource
+export const postCreateTestDataSource = payload =>
+  action({
+    apiName: 'postCreateTestDataSource',
+    payload
+  })
+
+//单个删除TestDataSource
+export const deleteTestDataSource = postfix =>
+  action({
+    apiName: 'deleteTestDataSource',
+    postfix
+  })
+
+//批量删除TestDataSource
+export const deleteTestDataSourceArr = payload =>
+  action({
+    apiName: 'deleteTestDataSourceArr',
+    payload
+  })
+
+//获得TestDataSource详情
+export const getTestDataSourceDetail = payload =>
+  action({
+    apiName: 'getTestDataSourceDetail',
+    payload: payload
+  })
+
+//更新TestDataSource
+export const putTestDataSource = payload =>
+  action({
+    apiName: 'putTestDataSource',
+    payload
+  })
+
+//TestCase运行
+export const postTestCaseRun = postfix =>
+  action({
+    apiName: 'postTestCaseRun',
+    postfix
+  })
+
+//TestCase停止
+export const postTestCaseStop = postfix =>
+  action({
+    apiName: 'postTestCaseStop',
+    postfix
+  })
+
+//查看master日志
+export const getMasterLog = payload =>
+  action({
+    apiName: 'getMasterLog',
+    payload
+  })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

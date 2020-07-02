@@ -2,9 +2,11 @@
   <div class="TestDataSource">
     <!-- TestDataSource列表 -->
     <div class="q-pa-md">
-      <q-table title="TestCase列表"
+      <q-table title="TestDataSource列表"
                :data="TestDataSourceList"
                :columns="columns"
+               selection="multiple"
+               :selected.sync="selected"
                row-key="id"
                @row-dblclick="toDetail"
                :rows-per-page-options=[0]>
@@ -14,22 +16,19 @@
                  color="primary"
                  label="新 增"
                  @click="openCreate" />
+          <q-btn class="btn"
+                 style="background: #FF0000; color: white"
+                 label="删 除"
+                 @click="deleteTestDataSource" />
         </template>
         <template v-slot:bottom
                   class="row">
           <q-pagination v-model="pagination.page"
                         :max="pagination.rowsNumber"
                         :input="true"
+                        @input="switchPage"
                         class="col offset-md-10">
           </q-pagination>
-        </template>
-        <template v-slot:body-cell-id="props">
-          <q-td class="text-right"
-                :props="props">
-            <q-btn class="btn"
-                   style="background: #FF0000; color: white"
-                   label="删 除" />
-          </q-td>
         </template>
       </q-table>
     </div>
@@ -51,7 +50,7 @@
                 <span style="font-size:14px">Name:</span>
               </template>
             </q-input>
-            <q-input v-model="type"
+            <q-input v-model="Type"
                      :dense="false"
                      class="col"
                      style="margin-left:50px;">
@@ -61,7 +60,7 @@
             </q-input>
           </div>
           <div class="row">
-            <q-input v-model="data"
+            <q-input v-model="Data"
                      :dense="false"
                      class="col-xs-12"
                      type="textarea"
@@ -92,6 +91,7 @@
 
 <script>
 import * as Apis from "@/api/index"
+import Axios from 'axios'
 export default {
   name: 'TestDataSource',
   data () {
@@ -100,10 +100,10 @@ export default {
       TestDataSourceList: [], //TestDataSource列表
 
       Name: '',
-      type: '',
-      data: '',
+      Type: '',
+      Data: '',
 
-      selected: [],   //表格选择
+      selected: [],//批量选择
       //表格配置
       columns: [
         {
@@ -116,7 +116,6 @@ export default {
         },
         { name: 'type', align: 'left', label: 'Type', field: 'type', },
         { name: 'data', label: 'Data', align: 'left', field: 'data', },
-        { name: 'id', label: '', align: 'left', field: 'id', },
       ],
       //分页配置
       pagination: {
@@ -130,32 +129,119 @@ export default {
   },
   methods: {
     //获得TestDataSource列表
-    getTestDataSource () {
+    getTestDataSource (page) {
+      this.$q.loading.show()
       let para = {
         matchName: '',
-        page: 1,
+        page: page || 1,
         pageSize: 50
       }
       Apis.getTestDataSource(para).then((res) => {
         console.log(res)
+        this.pagination.page = page || 1;
+        this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
         this.TestDataSourceList = res.data.results;
+        this.$q.loading.hide();
       })
     },
     //打开
     openCreate () {
-
+      this.Name = '';
+      this.Type = '';
+      this.Data = '';
+      this.createFixed = true;
     },
     //跳转到详情
-    toDetail () {
-
+    toDetail (env, row) {
+      this.$router.push({
+        name: 'TestDataSourceDetail',
+        query: {
+          id: row.id
+        }
+      })
+    },
+    //页码切换
+    switchPage (value) {
+      this.getTestDataSource(value)
     },
     //新建TestDataSource
     newCreate () {
-
+      let para = {
+        Name: this.Name,
+        Type: this.Type,
+        Data: this.Data,
+      }
+      if (this.Name && this.Type && this.Data) {
+        this.$q.loading.show()
+        Apis.postCreateTestDataSource(para).then(() => {
+          this.getTestDataSource();
+          this.createFixed = false;
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '创建成功',
+            color: 'secondary',
+          })
+        })
+      } else {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '请填写完整信息',
+          color: 'red',
+        })
+      }
     },
     //取消新建TestDataSource
     newCancel () {
-
+      this.createFixed = false;
+    },
+    //删除TestDataSource
+    deleteTestDataSource () {
+      if (this.selected.length == 0) {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '请选择您要删除的TestDataSource',
+          color: 'red',
+        })
+        return;
+      }
+      this.$q.dialog({
+        title: '提示',
+        message: '您确定要删除当前选择的TestDataSource吗',
+        persistent: true,
+        ok: {
+          push: true,
+          label: '确定'
+        },
+        cancel: {
+          push: true,
+          label: '取消'
+        },
+      }).onOk(() => {
+        if (this.selected.length == 1) {
+          //单个删除TestDataSource
+          this.$q.loading.show()
+          let para = `?id=${this.selected[0].id}`;
+          Apis.deleteTestDataSource(para).then(() => {
+            this.getTestDataSource();
+          })
+        } else if (this.selected.length > 1) {
+          //批量删除TestDataSource
+          this.$q.loading.show()
+          let delArr = [];
+          for (let i = 0; i < this.selected.length; i++) {
+            delArr.push(this.selected[i].id)
+          }
+          let para = {
+            delArr: delArr
+          };
+          Apis.deleteTestDataSourceArr(para).then(() => {
+            this.getTestDataSource();
+          })
+        }
+      })
     }
   }
 }
@@ -180,6 +266,28 @@ export default {
   }
   .q-pa-md {
     margin-top: 40px;
+  }
+}
+</style>
+<style lang="scss">
+.new_input {
+  width: 100%;
+  padding: 10px 30px;
+  .row {
+    margin-bottom: 10px;
+  }
+}
+.q-pa-md {
+  .btn {
+    margin-right: 10px;
+  }
+}
+.q-textarea .q-field__native {
+  resize: none;
+}
+@media (min-width: 600px) {
+  .q-dialog__inner--minimized > div {
+    max-width: 700px;
   }
 }
 </style>
