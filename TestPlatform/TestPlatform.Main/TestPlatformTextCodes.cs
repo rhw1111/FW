@@ -164,7 +164,7 @@ namespace FW.TestPlatform.Main
         /// <summary>
         /// 找不到指定Id的测试历史
         /// 格式为“找不到测试历史Id为{0}并且测试用例Id为{1}的历史”
-        /// {0}：名称
+        /// {0}：Id
         /// </summary>
         public const string NotFoundTestCaseHistoryByID = "NotFoundTestCaseHistoryByID";
 
@@ -178,7 +178,7 @@ namespace FW.TestPlatform.Main
         /// <summary>
         /// 找不到指定Id的测试数据源
         /// 格式为“找不到测试数据源Id为{0}的测试数据源”
-        /// {0}：名称
+        /// {0}：Id
         /// </summary>
         public const string NotFoundTestCaseDataSourceByID = "NotFoundTestCaseDataSourceByID";
     }

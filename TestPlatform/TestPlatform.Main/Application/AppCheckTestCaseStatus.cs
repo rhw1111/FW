@@ -35,7 +35,7 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
             }
-            await testCase.IsEngineRun(cancellationToken);
+            result = await testCase.IsEngineRun(cancellationToken);
             return result;
         }
        

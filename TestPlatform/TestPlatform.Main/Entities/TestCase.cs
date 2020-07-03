@@ -582,7 +582,7 @@ namespace FW.TestPlatform.Main.Entities
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSlaveHostInCase, fragment, 1, 0);
             }
-
+            //开始运行获取log的程序
             var handleService = getHandleService(tCase.EngineType);
             return await handleService.GetSlaveLog(slaveHost.Host, cancellationToken);
         }

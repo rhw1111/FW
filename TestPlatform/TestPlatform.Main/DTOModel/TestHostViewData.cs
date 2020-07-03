@@ -63,52 +63,5 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<Guid>(nameof(SSHEndpointID), value);
             }
         }
-
-        /// <summary>
-        /// SSH终结点
-        /// </summary>
-        public SSHEndpoint SSHEndpoint
-        {
-            get
-            {
-
-                return GetAttribute<SSHEndpoint>(nameof(SSHEndpoint));
-            }
-            set
-            {
-                SetAttribute<SSHEndpoint>(nameof(SSHEndpoint), value);
-            }
-        }
-
-        /// <summary>
-        /// 创建时间
-        /// </summary>
-        public DateTime CreateTime
-        {
-            get
-            {
-                return GetAttribute<DateTime>(nameof(CreateTime));
-            }
-            set
-            {
-                SetAttribute<DateTime>(nameof(CreateTime), value);
-            }
-        }
-
-
-        /// <summary>
-        /// 修改时间
-        /// </summary>
-        public DateTime ModifyTime
-        {
-            get
-            {
-                return GetAttribute<DateTime>(nameof(ModifyTime));
-            }
-            set
-            {
-                SetAttribute<DateTime>(nameof(ModifyTime), value);
-            }
-        }
     }
 }
