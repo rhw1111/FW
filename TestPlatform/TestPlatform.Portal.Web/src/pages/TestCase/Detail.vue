@@ -586,17 +586,24 @@ export default {
     },
     //查看状态
     lookStatus () {
-      this.this.$q.dialog({
-        title: 'Alert',
-        message: 'Some message'
+      Apis.getCheckStatus({ caseId: this.$route.query.id }).then((res) => {
+        console.log(res)
       })
+      // this.this.$q.dialog({
+      //   title: 'Alert',
+      //   message: 'Some message'
+      // })
     },
     //查看master日志
     lookMasterLog () {
       Apis.getMasterLog({ caseId: this.$route.query.id }).then((res) => {
         console.log(res)
       })
-    }
+    },
+    //查看Slave日志
+    lookSlaveLog () {
+
+    },
   }
 }
 </script>
