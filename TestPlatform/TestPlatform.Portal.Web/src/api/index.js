@@ -229,6 +229,25 @@ export const getMasterLog = payload =>
     payload
   })
 
+//查看Slave日志
+export const getSlaveLog = payload =>
+  action({
+    apiName: 'getSlaveLog',
+    payload
+  })
+
+//查看CheckStatus日志
+export const getCheckStatus = payload =>
+  action({
+    apiName: 'getCheckStatus',
+    payload
+  })
+
+
+
+
+
+
 
 
 

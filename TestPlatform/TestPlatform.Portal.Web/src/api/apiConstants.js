@@ -29,6 +29,16 @@ const apiConstants = {
 
   deleteHistoryArr: 'api/testcase/deletehistories',//批量删除历史记录
 
+  postTestCaseRun: 'api/testcase/run',//TestCase运行
+
+  postTestCaseStop: 'api/testcase/stop',//TestCaseStop停止
+
+  getMasterLog: 'api/testcase/getmasterlog',//查看master日志
+
+  getSlaveLog: 'api/testcase/getslavelog',//查看Slave日志
+
+  getCheckStatus: 'api/testcase/checkstatus',//查看状态
+
   getTestDataSource: 'api/testdatasource/querybypage',//获得TestDataSource
 
   postCreateTestDataSource: 'api/testdatasource/add', //创建TestDataSource
@@ -41,10 +51,5 @@ const apiConstants = {
 
   putTestDataSource: 'api/testdatasource/update',//更新TestDataSource
 
-  postTestCaseRun: 'api/testcase/run',//TestCase运行
-
-  postTestCaseStop: 'api/testcase/stop',//TestCaseStop停止
-
-  getMasterLog: 'api/testdatasource/getmasterlog',//查看master日志
 }
 export default apiConstants
