@@ -40,9 +40,7 @@ namespace FW.TestPlatform.Main.Application
                 ExtensionInfo = slaveHost.ExtensionInfo,
                 HostID = slaveHost.HostID,
                 TestCaseID = slaveHost.TestCaseID,
-                Count = slaveHost.Count,
-                CreateTime = DateTime.UtcNow,
-                ModifyTime = DateTime.UtcNow
+                Count = slaveHost.Count
             };
             await queryResult.AddSlaveHost(testCaseSlaveHost, cancellationToken);
             return new TestCaseSlaveHostViewData() {
@@ -52,8 +50,7 @@ namespace FW.TestPlatform.Main.Application
                 HostID = testCaseSlaveHost.HostID,
                 TestCaseID = testCaseSlaveHost.TestCaseID,
                 Count = testCaseSlaveHost.Count,
-                CreateTime = testCaseSlaveHost.CreateTime.ToCurrentUserTimeZone(),
-                ModifyTime = testCaseSlaveHost.ModifyTime.ToCurrentUserTimeZone()
+                CreateTime = testCaseSlaveHost.CreateTime.ToCurrentUserTimeZone()
             };
         }
         

@@ -35,11 +35,11 @@ export default new Router({
           path: '/TestDataSource',
           name: 'TestDataSource',
           component: () => import('@/pages/TestDataSource/index.vue'),
-          children: [{
-            path: '/TestDataSource/Detail',
-            name: 'TestDataSourceDetail',
-            component: () => import('@/pages/TestDataSource/Detail.vue'),
-          }]
+        },
+        {
+          path: '/TestDataSource/Detail',
+          name: 'TestDataSourceDetail',
+          component: () => import('@/pages/TestDataSource/Detail.vue'),
         }
       ]
     },

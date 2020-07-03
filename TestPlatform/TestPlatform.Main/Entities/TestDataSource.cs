@@ -229,7 +229,7 @@ namespace FW.TestPlatform.Main.Entities
         {
             //检查是否有名称重复的
             var newId = await _testDataSourceStore.QueryByNameNoLock(source.Name, cancellationToken);
-            if (source.ID != newId)
+            if (newId != null && source.ID != newId)
             {
                 var fragment = new TextFragment()
                 {

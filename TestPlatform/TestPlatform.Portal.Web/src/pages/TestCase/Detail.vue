@@ -12,27 +12,40 @@
       <q-btn class="btn"
              color="primary"
              label="保 存"
+             :disable="detailData.status!=1?false:true"
              @click="putTestCase" />
       <q-btn class="btn"
              style="background: #FF0000; color: white"
              label="删 除"
+             :disable="detailData.status!=1?false:true"
              @click="deleteTestCase" />
       <q-btn class="btn"
              color="primary"
-             label="运 行" />
+             label="运 行"
+             :disable="detailData.status!=1?false:true"
+             @click="run" />
       <q-btn class="btn"
              color="primary"
-             label="停 止" />
+             label="停 止"
+             :disable='detailData.status==1?false:true'
+             @click="stop" />
       <q-btn class="btn"
              color="primary"
-             label="查 看 状 态" />
+             label="查 看 状 态"
+             @click="lookStatus" />
       <q-btn class="btn"
              color="primary"
-             label="查 看 Master 日 志" />
+             label="查 看 Master 日 志"
+             @click="lookMasterLog" />
       <q-btn class="btn"
              color="primary"
              label="查 看 Slave 日 志" />
+      <q-btn class="btn"
+             color="primary"
+             label="查 看 monitorUrl" />
     </div>
+    <div class="mask"
+         v-if="detailData.status==1"></div>
     <!-- TestCase字段 -->
     <div class="q-pa-md row">
 
@@ -277,8 +290,8 @@ export default {
       this.$q.loading.show()
       Apis.getTestCaseDetail({ id: this.$route.query.id }).then((res) => {
         console.log(res)
-        this.masterHostSelect = res.data.masterHost.address;
-        this.MasterHostID = res.data.masterHost.id;
+        this.masterHostSelect = res.data.masterHostAddress;
+        this.MasterHostID = res.data.masterHostID;
         this.detailData = res.data;
         this.Name = res.data.name;
         this.Configuration = res.data.configuration;
@@ -302,7 +315,7 @@ export default {
         console.log(res)
         this.masterHostList = res.data;
         for (let i = 0; i < res.data.length; i++) {
-          if (res.data[i].id == this.detailData.masterHost.id) {
+          if (res.data[i].id == this.detailData.masterHostID) {
             this.masterSelectIndex = i;
             break;
           }
@@ -412,13 +425,13 @@ export default {
     //新建从机
     newCreate () {
       let para = {
-        "HostID": this.detailData.masterHost.id,
+        "HostID": this.detailData.masterHostID,
         "TestCaseID": this.detailData.id,
         "SlaveName": this.SlaveHostName,
         "Count": Number(this.SlaveCount),
         "ExtensionInfo": this.SlaveExtensionInfo
       }
-      if (this.detailData.id && this.SlaveHostName && this.SlaveCount && this.SlaveExtensionInfo && this.detailData.masterHost.id) {
+      if (this.detailData.id && this.SlaveHostName && this.SlaveCount && this.SlaveExtensionInfo && this.detailData.masterHostID) {
         this.$q.loading.show()
         Apis.postCreateSlaveHost(para).then((res) => {
           console.log(res)
@@ -531,7 +544,7 @@ export default {
             CaseID: this.detailData.id,
             IDS: delIdArr
           }
-          Apis.deleteSlaveHostArr(para).then(() => {
+          Apis.deleteHistoryArr(para).then(() => {
             this.getHistoryList();
           })
         }
@@ -552,6 +565,37 @@ export default {
           caseId: row.caseID
         }
       })
+    },
+    //运行
+    run () {
+      this.$q.loading.show()
+      let para = `?caseId=${this.$route.query.id}`
+      Apis.postTestCaseRun(para).then((res) => {
+        console.log(res)
+        this.getTestCaseDetail()
+      })
+    },
+    //停止
+    stop () {
+      this.$q.loading.show()
+      let para = `?caseId=${this.$route.query.id}`
+      Apis.postTestCaseStop(para).then((res) => {
+        console.log(res)
+        this.getTestCaseDetail()
+      })
+    },
+    //查看状态
+    lookStatus () {
+      this.this.$q.dialog({
+        title: 'Alert',
+        message: 'Some message'
+      })
+    },
+    //查看master日志
+    lookMasterLog () {
+      Apis.getMasterLog({ caseId: this.$route.query.id }).then((res) => {
+        console.log(res)
+      })
     }
   }
 }
@@ -559,12 +603,20 @@ export default {
 
 <style lang="scss" scoped>
 .detail {
+  position: relative;
   width: 100%;
   overflow: hidden;
+  .mask {
+    position: absolute;
+    left: 0;
+    top: 60px;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+  }
   .detail_header {
     padding: 10px 16px 5px;
     width: 100%;
-    z-index: 10;
     box-sizing: border-box;
     background: #ffffff;
     .btn {

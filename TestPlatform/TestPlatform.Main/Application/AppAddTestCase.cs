@@ -24,9 +24,7 @@ namespace FW.TestPlatform.Main.Application
                 EngineType = model.EngineType,
                 MasterHostID = model.MasterHostID,
                 Configuration = model.Configuration,
-                Status = TestCaseStatus.NoRun,
-                CreateTime = DateTime.UtcNow,
-                ModifyTime = DateTime.UtcNow
+                Status = TestCaseStatus.NoRun
             };               
             await source.Add();
 
@@ -42,78 +40,5 @@ namespace FW.TestPlatform.Main.Application
             };
             return result;
         }
-
-        //public async Task<TestCaseViewData> Update(TestCaseAddModel model, CancellationToken cancellationToken = default)
-        //{
-        //    TestCaseViewData result;
-        //    try
-        //    {
-        //        TestCase source = new TestCase()
-        //        {
-        //            ID = model.ID,
-        //            Name = model.Name,
-        //            OwnerID = model.OwnerID,
-        //            EngineType = model.EngineType,
-        //            MasterHostID = model.MasterHostID,
-        //            Configuration = model.Configuration,
-        //            Status = model.Status
-        //        };
-        //        await source.Update(cancellationToken);
-
-        //        result = new TestCaseViewData()
-        //        {
-        //            EngineType = source.EngineType,
-        //            Configuration = source.Configuration,
-        //            Name = source.Name,
-        //            ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-
-
-        //    return result;
-        //}
-
-        //public async Task<TestCaseViewData> Delete(TestCase model, CancellationToken cancellationToken = default)
-        //{
-        //    TestCase source = new TestCase()
-        //    {
-        //        ID = model.ID
-        //    };
-        //    await source.Delete(cancellationToken);
-        //    TestCaseViewData viewData = new TestCaseViewData
-        //    {
-        //        ID = model.ID
-        //    };
-        //    return viewData;
-        //}
-
-        //public async Task DeleteMutiple(List<TestCaseAddModel> list, CancellationToken cancellationToken = default)
-        //{
-        //    TestCase source = new TestCase();
-        //    List<TestCase> array = new List<TestCase>();
-        //    foreach (TestCaseAddModel item in list)
-        //    {
-        //        TestCase tCase = new TestCase()
-        //        {
-        //            ID = item.ID
-        //        };
-        //        array.Add(tCase);
-        //    }
-        //    await source.DeleteMultiple(array.ToList(), cancellationToken);
-        //}
-
-        //public async Task AddHistory(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default)
-        //{
-        //    TestCase source = new TestCase()
-        //    {
-        //        ID = model.CaseID
-        //    };
-
-        //    await source.AddHistory(model);
-        //}
     }
 }

@@ -63,7 +63,6 @@ namespace FW.TestPlatform.Main.Application
                 Count = tCaseSlaveHost.Count,
                 ExtensionInfo = tCaseSlaveHost.ExtensionInfo,
                 SlaveName = tCaseSlaveHost.SlaveName,
-                ModifyTime = tCaseSlaveHost.ModifyTime.ToCurrentUserTimeZone(),
                 CreateTime = tCaseSlaveHost.CreateTime.ToCurrentUserTimeZone()
             };
         }

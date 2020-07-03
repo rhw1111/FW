@@ -96,6 +96,7 @@ namespace FW.TestPlatform.Main.DTOModel
         /// <summary>
         /// Master主机ID
         /// </summary>
+        [DataMember]
         public Guid MasterHostID
         {
             get
@@ -111,6 +112,7 @@ namespace FW.TestPlatform.Main.DTOModel
         /// <summary>
         /// Master主机Address
         /// </summary>
+        [DataMember]
         public string MasterHostAddress
         {
             get
@@ -126,6 +128,7 @@ namespace FW.TestPlatform.Main.DTOModel
         /// <summary>
         /// 状态
         /// </summary>
+        [DataMember]
         public TestCaseStatus Status
         {
             get
