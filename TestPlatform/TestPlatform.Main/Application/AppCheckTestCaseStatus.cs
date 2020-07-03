@@ -22,7 +22,6 @@ namespace FW.TestPlatform.Main.Application
 
         public async Task<bool> Do(Guid caseId, CancellationToken cancellationToken = default)
         {
-            bool result= false;
             var testCase = await _testCaseRepository.QueryByID(caseId, cancellationToken);
             if (testCase == null)
             {
@@ -35,8 +34,7 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
             }
-            result = await testCase.IsEngineRun(cancellationToken);
-            return result;
+            return await testCase.IsEngineRun(cancellationToken);
         }
        
     }
