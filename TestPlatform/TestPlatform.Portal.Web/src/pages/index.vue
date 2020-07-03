@@ -5,14 +5,14 @@
       <q-header elevated
                 class="bg-primary text-white"
                 height-hint="98">
-        <q-toolbar>
+        <!--  <q-toolbar>
           <q-toolbar-title>
-            <!-- <q-avatar>
+            <q-avatar>
               <img src="https://cdn.quasar.dev/logo/svg/quasar-logo.svg">
-            </q-avatar> -->
+            </q-avatar> 
             test
           </q-toolbar-title>
-        </q-toolbar>
+        </q-toolbar>-->
 
         <q-tabs align="left">
           <q-route-tab to="/TestCase"
