@@ -61,7 +61,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     var realSize=await fileStream.ReadAsync(memoryBytes);
                     result=UTF8Encoding.UTF8.GetString(memoryBytes.Slice(0, realSize).Span);
                 },
-                $"{_testFilePath}.{string.Format(_testLogFileName,string.Empty)}",
+                $"{_testFilePath}{string.Format(_testLogFileName,string.Empty)}",
                 cancellationToken
                 );
             return result;
@@ -81,7 +81,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     var realSize = await fileStream.ReadAsync(memoryBytes);
                     result = UTF8Encoding.UTF8.GetString(memoryBytes.Slice(0, realSize).Span);
                 },
-                $"{_testFilePath}.{string.Format(_testLogFileName,"_slave")}",
+                $"{_testFilePath}{string.Format(_testLogFileName,"_slave")}",
                 cancellationToken
                 );
             return result;

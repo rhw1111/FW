@@ -114,7 +114,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
                     result = await (from item in dbContext.TestCaseSlaveHosts
                                     where item.ID == slaveId && item.TestCaseID == caseId
-                                    select item).FirstOrDefaultAsync();
+                                    select item).Include(entity => entity.Host).ThenInclude(entity => entity.SSHEndpoint).FirstOrDefaultAsync();
                 }
             });
 
