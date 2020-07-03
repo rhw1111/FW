@@ -39,10 +39,12 @@
              @click="lookMasterLog" />
       <q-btn class="btn"
              color="primary"
-             label="查 看 Slave 日 志" />
+             label="查 看 Slave 日 志"
+             @click="lookSlaveLog" />
       <q-btn class="btn"
              color="primary"
-             label="查 看 monitorUrl" />
+             label="查 看 monitorUrl"
+             @click="lookMonitorUrl" />
     </div>
     <div class="mask"
          v-if="detailData.status==1"></div>
@@ -586,24 +588,65 @@ export default {
     },
     //查看状态
     lookStatus () {
+      this.$q.loading.show()
       Apis.getCheckStatus({ caseId: this.$route.query.id }).then((res) => {
-        console.log(res)
+        this.$q.dialog({
+          title: '提示',
+          message: res.data ? '当前TestCase正在运行' : '当前TestCase为停止状态'
+        })
+        this.$q.loading.hide()
       })
-      // this.this.$q.dialog({
-      //   title: 'Alert',
-      //   message: 'Some message'
-      // })
     },
     //查看master日志
     lookMasterLog () {
+      this.$q.loading.show()
       Apis.getMasterLog({ caseId: this.$route.query.id }).then((res) => {
-        console.log(res)
+        this.$q.loading.hide()
+        this.$q.dialog({
+          title: '提示',
+          message: res.data
+        })
       })
     },
     //查看Slave日志
     lookSlaveLog () {
-
+      if (this.SlaveHostSelected.length == 0) {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '请选择SlaveHost',
+          color: 'red',
+        })
+      } else if (this.SlaveHostSelected.length == 1) {
+        //选择单个slavehost
+        this.$q.loading.show()
+        let para = {
+          caseId: this.$route.query.id,
+          slaveHostId: this.SlaveHostSelected[0].id
+        }
+        Apis.getSlaveLog(para).then((res) => {
+          this.$q.loading.hide()
+          this.$q.dialog({
+            title: '提示',
+            message: res.data
+          })
+        })
+      } else if (this.SlaveHostSelected.length > 1) {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '只能选择一个SlaveHost',
+          color: 'red',
+        })
+      }
     },
+    //查看MonitorUrl
+    lookMonitorUrl () {
+      this.$q.dialog({
+        title: '提示',
+        message: this.detailData.monitorUrl
+      })
+    }
   }
 }
 </script>

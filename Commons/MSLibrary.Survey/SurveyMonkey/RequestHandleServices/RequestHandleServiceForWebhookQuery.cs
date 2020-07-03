@@ -18,24 +18,20 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
     [Injection(InterfaceType = typeof(RequestHandleServiceForWebhookQuery), Scope = InjectionScope.Singleton)]
     public class RequestHandleServiceForWebhookQuery : ISurveyMonkeyRequestHandleService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientFactoryWrapper _httpClientFactory;
 
-        public RequestHandleServiceForWebhookQuery(IHttpClientFactory httpClientFactory)
+        public RequestHandleServiceForWebhookQuery(IHttpClientFactoryWrapper httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
+        public async Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, string type, string configuration, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
         {
             var realRequest = (WebhookQueryRequest)request;
 
             using (var httpClient = _httpClientFactory.CreateClient())
             {
                 await authHandler(httpClient);
-
-
-
-
                 using (var response = await httpClient.GetAsync($"{realRequest.Address}/{realRequest.Version}/webhooks?page={realRequest.Page.ToString()}&per_page={realRequest.PageSize.ToString()}"))
                 {
                     if (!response.IsSuccessStatusCode)

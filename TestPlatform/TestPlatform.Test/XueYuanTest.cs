@@ -230,5 +230,25 @@ namespace TestPlatform.Test
 
             Assert.Pass();
         }
+
+        //[Test]
+        public async Task TestTestCaseStop()
+        {
+            TestCase testCase = new TestCase()
+            {
+                ID = new Guid("cae64c27-8e87-4a38-b94a-32a47a7eea63"),
+            };
+
+            var testCaseStore = DIContainerContainer.Get<ITestCaseStore>();
+            var testCaseRunner = await testCaseStore.QueryByID(testCase.ID);
+
+            if (testCaseRunner != null)
+            {
+                await testCaseRunner.Stop();
+            }
+
+            Assert.Pass();
+        }
+
     }
 }

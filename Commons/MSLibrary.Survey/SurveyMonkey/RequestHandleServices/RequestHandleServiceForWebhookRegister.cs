@@ -17,13 +17,13 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
     [Injection(InterfaceType = typeof(RequestHandleServiceForWebhookRegister), Scope = InjectionScope.Singleton)]
     public class RequestHandleServiceForWebhookRegister : ISurveyMonkeyRequestHandleService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientFactoryWrapper _httpClientFactory;
 
-        public RequestHandleServiceForWebhookRegister(IHttpClientFactory httpClientFactory)
+        public RequestHandleServiceForWebhookRegister(IHttpClientFactoryWrapper httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
-        public async Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
+        public async Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, string type, string configuration, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
         {
             var realRequest = (WebhookRegisterRequest)request;
 

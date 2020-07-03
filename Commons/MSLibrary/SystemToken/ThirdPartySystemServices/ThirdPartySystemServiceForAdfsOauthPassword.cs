@@ -30,10 +30,10 @@ namespace MSLibrary.SystemToken.ThirdPartySystemServices
     [Injection(InterfaceType = typeof(ThirdPartySystemServiceForAdfsOauthPassword), Scope = InjectionScope.Singleton)]
     public class ThirdPartySystemServiceForAdfsOauthPassword : IThirdPartySystemService
     {
-        private IHttpClientFactory _httpClinetFactory;
+        private IHttpClientFactoryWrapper _httpClinetFactory;
         private ISecurityService _securityService;
 
-        public ThirdPartySystemServiceForAdfsOauthPassword(IHttpClientFactory httpClinetFactory, ISecurityService securityService)
+        public ThirdPartySystemServiceForAdfsOauthPassword(IHttpClientFactoryWrapper httpClinetFactory, ISecurityService securityService)
         {
             _httpClinetFactory = httpClinetFactory;
             _securityService = securityService;

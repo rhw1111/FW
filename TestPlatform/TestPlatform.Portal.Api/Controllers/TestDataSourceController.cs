@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Cors;
 using FW.TestPlatform.Main.Application;
 using FW.TestPlatform.Main.DTOModel;
 using MSLibrary;
@@ -12,6 +13,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
 {
     [Route("api/testdatasource")]
     [ApiController]
+    [EnableCors]
     public class TestDataSourceController : ControllerBase
     {
         private const int _pageSize = 50;

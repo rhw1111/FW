@@ -23,9 +23,9 @@ namespace MSLibrary.Survey.SurveyMonkey.HttpAuthHandleServices
     {
         private readonly static IDictionary<string, SharePool<AccessTokenContainer>> _accessTokenContainers = new Dictionary<string, SharePool<AccessTokenContainer>>();
 
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientFactoryWrapper _httpClientFactory;
 
-        public SurveyMonkeyHttpAuthHandleServiceForOAuth(IHttpClientFactory httpClientFactory)
+        public SurveyMonkeyHttpAuthHandleServiceForOAuth(IHttpClientFactoryWrapper httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
@@ -40,14 +40,14 @@ namespace MSLibrary.Survey.SurveyMonkey.HttpAuthHandleServices
             return errorMessage;
         }
 
-        private async Task<string> getAccessToken(string address, string authConfiguration, CancellationToken cancellationToken = default)
+        private async Task<string> getAccessToken(string address, string configuration, CancellationToken cancellationToken = default)
         {
-            var configuration = JsonSerializerHelper.Deserialize<AuthConfiguration>(authConfiguration);
+            var authConfiguration = JsonSerializerHelper.Deserialize<AuthConfiguration>(configuration);
 
             using (var httpClient=_httpClientFactory.CreateClient())
             {
 
-                var response=await httpClient.GetAsync($"{address}/oauth/authorize?response_type={configuration.ResponseType.ToUrlEncode()}&client_id={configuration.ClientID.ToUrlEncode()}&redirect_uri={configuration.RedirectUri.ToUrlEncode()}", cancellationToken);
+                var response=await httpClient.GetAsync($"{address}/oauth/authorize?response_type={authConfiguration.ResponseType.ToUrlEncode()}&client_id={authConfiguration.ClientID.ToUrlEncode()}&redirect_uri={authConfiguration.RedirectUri.ToUrlEncode()}", cancellationToken);
                 if (!response.IsSuccessStatusCode)
                 {
                     var fragment = new TextFragment()
@@ -104,10 +104,10 @@ namespace MSLibrary.Survey.SurveyMonkey.HttpAuthHandleServices
 
                 Dictionary<string, string> paramerets = new Dictionary<string, string>()
                 {
-                    { "client_secret",configuration.ClientSecret},
+                    { "client_secret",authConfiguration.ClientSecret},
                     { "code",codeValue[0]},
-                    {"redirect_uri",configuration.RedirectUri },
-                    { "client_id",configuration.ClientID},
+                    {"redirect_uri",authConfiguration.RedirectUri },
+                    { "client_id",authConfiguration.ClientID},
                     { "grant_type","authorization_code"}
                 };
                 using (var response2 = await httpClient.PostAsync($"{address}/oauth/token", new FormUrlEncodedContent(paramerets)))

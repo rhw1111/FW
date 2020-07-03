@@ -44,12 +44,12 @@ namespace MSLibrary.Xrm
     [Injection(InterfaceType = typeof(CrmService), Scope = InjectionScope.Transient)]
     public class CrmService : ICrmService
     {
-        private IHttpClientFactory _httpClientFactory;
+        private IHttpClientFactoryWrapper _httpClientFactory;
         private ICrmServiceTokenGenerateServiceSelector _crmServiceTokenGenerateServiceSelector;
         private ICrmMessageHandleSelector _crmMessageHandleSelector;
         private ICrmMessageResponseHandle _crmMessageResponseHandle;
 
-        public CrmService(IHttpClientFactory httpClientFactory,ICrmServiceTokenGenerateServiceSelector crmServiceTokenGenerateServiceSelector,ICrmMessageHandleSelector crmMessageHandleSelector, ICrmMessageResponseHandle crmMessageResponseHandle)
+        public CrmService(IHttpClientFactoryWrapper httpClientFactory,ICrmServiceTokenGenerateServiceSelector crmServiceTokenGenerateServiceSelector,ICrmMessageHandleSelector crmMessageHandleSelector, ICrmMessageResponseHandle crmMessageResponseHandle)
         {
             _httpClientFactory = httpClientFactory;
             _crmServiceTokenGenerateServiceSelector = crmServiceTokenGenerateServiceSelector;
