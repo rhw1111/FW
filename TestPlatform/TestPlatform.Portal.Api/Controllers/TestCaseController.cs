@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using FW.TestPlatform.Main.Application;
 using FW.TestPlatform.Main.DTOModel;
@@ -12,6 +13,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
 {
     [Route("api/testcase")]
     [ApiController]
+    [EnableCors]
     public class TestCaseController : ControllerBase
     {
         private const int _pageSize = 50;
@@ -74,21 +76,25 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             }
             return await _appQueryTestCase.Do(matchName, page, (int)pageSize);
         }
+
         [HttpGet("testcase")]
         public async Task<TestCaseViewData> GetCase(Guid id)
         {
             return await _appQuerySingleTestCase.Do(id);
         }
+
         [HttpPost("add")]
         public async Task<TestCaseViewData> Add(TestCaseAddModel model)
         {
             return await _appAddTestCase.Do(model);
         }
+
         [HttpPut("update")]
         public async Task<TestCaseViewData> Update(TestCaseUpdateModel model)
         {
             return await _appUpdateTestCase.Do(model);
         }
+
         [HttpDelete("delete")]
         public async Task Delete(Guid id)
         {
@@ -99,17 +105,20 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         //public async Task DeleteMultiple(List<Guid> list)
         //{
         //   await _appDeleteMultipleTestCase.Do(list);
-        //}      
+        //}   
+
         [HttpPost("run")]
         public async Task Run(Guid caseId)
         {
             await _appRunTestCase.Do(caseId);
         }
+
         [HttpPost("stop")]
         public async Task Stop(Guid caseId)
         {
             await _appStopTestCase.Do(caseId);
         }
+
         [HttpGet("checkstatus")]
         public async Task<bool> CheckTestStatus(Guid caseId)
         {
@@ -122,6 +131,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         {
              return await _appQueryMasterLog.Do(caseId);
         }
+
         [HttpGet("getslavelog")]
         public async Task<string> GetSlaveLog(Guid caseId, Guid slaveHostId)
         {
@@ -129,22 +139,25 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         }
 
         //查询增加修改删除SlaveHost
+        [EnableCors]
         [HttpGet("queryslavehosts")]
         public async Task<List<TestCaseSlaveHostViewData>> GetAllSlaveHosts(Guid caseId)
         {
             return await _appQuerySlaveHost.Do(caseId);
         }
+
         [HttpPost("addslavehost")]
         public async Task<TestCaseSlaveHostViewData> AddSlaveHost(TestCaseSlaveHostAddModel slaveHost)
         {
             return await _appAddSlaveHost.Do(slaveHost);
         }
+
         [HttpPut("updateslavehost")]
         public async Task<TestCaseSlaveHostViewData> UpdateSlaveHost(TestCaseSlaveHostUpdateModel slaveHost)
         {
             return await _appUpdateSlaveHost.Do(slaveHost);
         }
-               
+
         [HttpDelete("deleteslavehost")]
         public async Task DeleteSlaveHost(Guid caseId,Guid id)
         {
