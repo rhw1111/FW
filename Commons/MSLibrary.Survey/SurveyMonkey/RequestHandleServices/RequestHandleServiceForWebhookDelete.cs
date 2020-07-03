@@ -15,12 +15,12 @@ using MSLibrary.Survey.SurveyMonkey.Message;
 
 namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
 {
-    [Injection(InterfaceType = typeof(RequestHandleServiceForWebhookQuery), Scope = InjectionScope.Singleton)]
-    public class RequestHandleServiceForWebhookQuery : ISurveyMonkeyRequestHandleService
+    [Injection(InterfaceType = typeof(RequestHandleServiceForWebhookDelete), Scope = InjectionScope.Singleton)]
+    public class RequestHandleServiceForWebhookDelete : ISurveyMonkeyRequestHandleService
     {
         private readonly IHttpClientFactoryWrapper _httpClientFactory;
 
-        public RequestHandleServiceForWebhookQuery(IHttpClientFactoryWrapper httpClientFactory)
+        public RequestHandleServiceForWebhookDelete(IHttpClientFactoryWrapper httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
@@ -32,7 +32,11 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
             using (var httpClient = _httpClientFactory.CreateClient())
             {
                 await authHandler(httpClient);
-                using (var response = await httpClient.GetAsync($"{realRequest.Address}/{realRequest.Version}/webhooks?page={realRequest.Page.ToString()}&per_page={realRequest.PageSize.ToString()}"))
+
+
+
+
+                using (var response = await httpClient.DeleteAsync($"{realRequest.Address}/{realRequest.Version}/webhooks?page={realRequest.Page.ToString()}&per_page={realRequest.PageSize.ToString()}"))
                 {
                     if (!response.IsSuccessStatusCode)
                     {
@@ -46,22 +50,8 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
                         throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyRequestHandleError, fragment, 1, 0);
                     }
 
-                    var json = await response.Content.ReadAsStringAsync();
-                    var result = JsonSerializerHelper.Deserialize<QueryResult>(json);
-
-                    List<WebhookRegisterItem> items = (from item in result.Data
-                                                      select new WebhookRegisterItem()
-                                                      {
-                                                           ID=item.ID,
-                                                            Name=item.Name,
-                                                             Href=item.Href
-                                                      }).ToList();
-
-                    
-
-                    return new WebhookQueryResponse
+                    return new WebhookDeleteResponse
                     {
-                         RegisterItems= items
                     };
                 }
 
@@ -76,28 +66,6 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
                 errorMessage = response.ReasonPhrase;
             }
             return errorMessage;
-        }
-
-
-        [DataContract]
-        private class QueryResult
-        {
-            [DataMember]
-            public List<RegisterItem> Data
-            {
-                get; set;
-            } = null!;
-        }
-
-        [DataContract]
-        private class RegisterItem
-        {
-            [DataMember]
-            public string ID { get; set; } = null!;
-            [DataMember]
-            public string Name { get; set; } = null!;
-            [DataMember]
-            public string Href { get; set; } = null!;
         }
     }
 }

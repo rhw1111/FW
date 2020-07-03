@@ -7,12 +7,22 @@ services:
         dockerfile: Dockerfile-PortalApi
     ports:
       - "8081:80"
+    ulimits:
+        nproc: 65535
+        nofile:
+            soft: 65535
+            hard: 65535
   caseservice:
     build:
         context: DockerFiles
         dockerfile: Dockerfile-CaseService
     ports:
       - "8082:80"
+    ulimits:
+        nproc: 65535
+        nofile:
+            soft: 65535
+            hard: 65535
   portalweb:
     build:
         context: DockerFiles

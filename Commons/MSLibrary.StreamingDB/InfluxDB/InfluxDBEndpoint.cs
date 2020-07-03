@@ -207,9 +207,9 @@ namespace MSLibrary.StreamingDB.InfluxDB
         /// </summary>
         public static ITextReplaceService? TextReplaceService { set; get; }
 
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientFactoryWrapper _httpClientFactory;
 
-        public InfluxDBEndpointIMP(IHttpClientFactory httpClientFactory)
+        public InfluxDBEndpointIMP(IHttpClientFactoryWrapper httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
