@@ -68,7 +68,7 @@ UPDATE tpmain.testcase
 SET configuration = '{
     "UserCount": 10000,
     "PerSecondUserCount": 100,
-    "Duration": 600,
+    "Duration": 300,
     "ReadyTime": 0,
     "Address": "127.0.0.1",
     "Port": 12345,
