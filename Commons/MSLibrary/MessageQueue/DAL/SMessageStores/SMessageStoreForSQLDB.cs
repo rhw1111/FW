@@ -467,7 +467,7 @@ namespace MSLibrary.MessageQueue.DAL.SMessageStores
                                                         fetch next @pagesize rows only
                                                         ) as t
                                                       on m.sequence=t.sequence
-                                                      order by m.sequence", StoreHelper.GetSMessageSelectFields(string.Empty), queue.Name)
+                                                      order by m.sequence", StoreHelper.GetSMessageSelectFields("m"), queue.Name)
                     })
                     {
 
@@ -494,7 +494,7 @@ namespace MSLibrary.MessageQueue.DAL.SMessageStores
                             while (await reader.ReadAsync())
                             {
                                 var message = new SMessage();
-                                StoreHelper.SetSMessageSelectFields(message, reader, string.Empty);
+                                StoreHelper.SetSMessageSelectFields(message, reader, "m");
                                 message.Extensions[_queueName] = queue;
                                 messageList.Add(message);
                             }
@@ -741,7 +741,7 @@ namespace MSLibrary.MessageQueue.DAL.SMessageStores
                                         fetch next @pagesize rows only
                                     ) as t
                                     on m.sequence=t.sequence
-                                    order by m.sequence;", StoreHelper.GetSMessageSelectFields(string.Empty), queue.Name)
+                                    order by m.sequence;", StoreHelper.GetSMessageSelectFields("m"), queue.Name)
                 })
                 {
 
@@ -779,7 +779,7 @@ namespace MSLibrary.MessageQueue.DAL.SMessageStores
                         while (await reader.ReadAsync())
                         {
                             var message = new SMessage();
-                            StoreHelper.SetSMessageSelectFields(message, reader, string.Empty);
+                            StoreHelper.SetSMessageSelectFields(message, reader, "m");
                             message.Extensions[_queueName] = queue;
                             result.Results.Add(message);
                         }

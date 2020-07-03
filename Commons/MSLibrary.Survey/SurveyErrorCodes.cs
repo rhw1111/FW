@@ -16,5 +16,10 @@ namespace MSLibrary.Survey
         /// SurveyMonkey鉴权错误
         /// </summary>
         SurveyMonkeyAuthError = 315000310,
+
+        /// <summary>
+        /// SurveyMonkey请求处理错误
+        /// </summary>
+        SurveyMonkeyRequestHandleError = 315000311,
     }
 }

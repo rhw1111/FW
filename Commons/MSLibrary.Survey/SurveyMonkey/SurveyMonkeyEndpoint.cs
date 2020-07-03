@@ -8,6 +8,7 @@ using MSLibrary;
 using MSLibrary.DI;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.Template;
+using Microsoft.Azure.Amqp.Framing;
 
 namespace MSLibrary.Survey.SurveyMonkey
 {
@@ -90,6 +91,22 @@ namespace MSLibrary.Survey.SurveyMonkey
             set
             {
                 SetAttribute<string>(nameof(Address), value);
+            }
+        }
+
+        /// <summary>
+        /// 版本号
+        /// </summary>
+        public string Vesion
+        {
+            get
+            {
+
+                return GetAttribute<string>(nameof(Vesion));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(Vesion), value);
             }
         }
 
@@ -233,6 +250,8 @@ namespace MSLibrary.Survey.SurveyMonkey
                 throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyMonkeyRequestHandleServiceByType, fragment, 1, 0);
             }
 
+            request.Address = endpoint.Address;
+            request.Version = endpoint.Vesion;
             return await requestServiceFactory.Create().Execute(
                 async(httpClinet)=>
                 {

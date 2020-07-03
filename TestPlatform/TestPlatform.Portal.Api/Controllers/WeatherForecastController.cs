@@ -23,6 +23,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _logger = logger;
         }
 
+        
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
@@ -34,6 +35,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
                 Summary = Summaries[rng.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+
+        [HttpHead]
+        public async Task Do()
+        {
+            await Task.CompletedTask;
         }
     }
 }

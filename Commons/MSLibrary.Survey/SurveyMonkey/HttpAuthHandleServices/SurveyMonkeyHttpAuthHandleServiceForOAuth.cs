@@ -12,9 +12,8 @@ using MSLibrary.DI;
 using MSLibrary.Collections;
 using MSLibrary.Serializer;
 using MSLibrary.LanguageTranslate;
-using Quartz.Impl.Triggers;
 
-namespace MSLibrary.Survey.SurveyMonkey.SurveyMonkeyHttpAuthHandleServices
+namespace MSLibrary.Survey.SurveyMonkey.HttpAuthHandleServices
 {
     /// <summary>
     /// 基于OAuth的Http鉴权
@@ -54,7 +53,7 @@ namespace MSLibrary.Survey.SurveyMonkey.SurveyMonkeyHttpAuthHandleServices
                     var fragment = new TextFragment()
                     {
                         Code = SurveyTextCodes.SurveyMonkeyAuthError,
-                        DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}”",
+                        DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}",
                         ReplaceParameters = new List<object>() { address, getResponseError (response) }
                     };
 
@@ -67,7 +66,7 @@ namespace MSLibrary.Survey.SurveyMonkey.SurveyMonkeyHttpAuthHandleServices
                     var fragment = new TextFragment()
                     {
                         Code = SurveyTextCodes.SurveyMonkeyAuthError,
-                        DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}”",
+                        DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}",
                         ReplaceParameters = new List<object>() { address, "Not Found Redirect Location in Response" }
                     };
 
@@ -96,7 +95,7 @@ namespace MSLibrary.Survey.SurveyMonkey.SurveyMonkeyHttpAuthHandleServices
                     var fragment = new TextFragment()
                     {
                         Code = SurveyTextCodes.SurveyMonkeyAuthError,
-                        DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}”",
+                        DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}",
                         ReplaceParameters = new List<object>() { address, $"Error:{error},ErrorDescription:{errorDescription}" }
                     };
 
@@ -118,7 +117,7 @@ namespace MSLibrary.Survey.SurveyMonkey.SurveyMonkeyHttpAuthHandleServices
                         var fragment = new TextFragment()
                         {
                             Code = SurveyTextCodes.SurveyMonkeyAuthError,
-                            DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}”",
+                            DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}",
                             ReplaceParameters = new List<object>() { address, getResponseError(response) }
                         };
 

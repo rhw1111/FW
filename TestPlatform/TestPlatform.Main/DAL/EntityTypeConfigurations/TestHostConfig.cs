@@ -18,7 +18,9 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
             builder.HasOne((entity) => entity.SSHEndpoint).WithMany().HasForeignKey(entity => entity.SSHEndpointID);
             builder.Property((entity) => entity.CreateTime).HasColumnType("datetime").Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             builder.Property((entity) => entity.ModifyTime).HasColumnType("datetime");
-            builder.Property<long>("Sequence").HasColumnName("sequence").HasColumnType("bigint").Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+            var sequenceProperty = builder.Property<long>("Sequence").HasColumnName("sequence").HasColumnType("bigint").Metadata;
+            sequenceProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+            sequenceProperty.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
         }
     }
 }

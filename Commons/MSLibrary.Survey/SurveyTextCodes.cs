@@ -27,5 +27,12 @@ namespace MSLibrary.Survey
         /// {1}：错误信息
         /// </summary>
         public static string SurveyMonkeyAuthError = "SurveyMonkeyAuthError";
+        /// <summary>
+        /// SurveyMonkey请求处理错误
+        /// 格式为“SurveyMonkey终结点{0}请求处理错误，错误信息为{1}”
+        /// {0}：终结点名称
+        /// {1}：错误信息
+        /// </summary>
+        public static string SurveyMonkeyRequestHandleError = "SurveyMonkeyRequestHandleError";
     }
 }

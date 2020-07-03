@@ -13,5 +13,13 @@ namespace MSLibrary.Survey.SurveyMonkey
         /// 请求类型
         /// </summary>
         public string Type { get; set; } = null!;
+        /// <summary>
+        /// 服务地址
+        /// </summary>
+       public string Address { get; internal set; } = null!;
+        /// <summary>
+        /// 版本号
+        /// </summary>
+        public string Version { get; internal set; } = null!;
     }
 }
