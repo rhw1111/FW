@@ -25,7 +25,7 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, string type, string configuration, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
+        public async Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, Func<SurveyMonkeyRequest, Task<SurveyMonkeyResponse>> requestHandler, string type, string configuration, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
         {
             var realRequest = (WebhookQueryRequest)request;
 
@@ -61,7 +61,10 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
 
                     return new WebhookQueryResponse
                     {
-                         RegisterItems= items
+                        Page = result.Page,
+                        PageSzie = result.PageSzie,
+                        Total = result.Total,
+                        RegisterItems = items
                     };
                 }
 
@@ -78,11 +81,16 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
             return errorMessage;
         }
 
-
         [DataContract]
         private class QueryResult
         {
-            [DataMember]
+            [DataMember(Name = "page")]
+            public int Page { get; set; }
+            [DataMember(Name = "per_page")]
+            public int PageSzie { get; set; }
+            [DataMember(Name = "total")]
+            public int Total { get; set; }
+            [DataMember(Name ="data")]
             public List<RegisterItem> Data
             {
                 get; set;
@@ -92,11 +100,11 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
         [DataContract]
         private class RegisterItem
         {
-            [DataMember]
+            [DataMember(Name = "id")]
             public string ID { get; set; } = null!;
-            [DataMember]
+            [DataMember(Name = "name")]
             public string Name { get; set; } = null!;
-            [DataMember]
+            [DataMember(Name = "href")]
             public string Href { get; set; } = null!;
         }
     }

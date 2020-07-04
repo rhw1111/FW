@@ -26,7 +26,7 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, string type, string configuration, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
+        public async Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, Func<SurveyMonkeyRequest, Task<SurveyMonkeyResponse>> requestHandler, string type, string configuration, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
         {
             var realRequest = (WebhookQuerySingleRequest)request;
 

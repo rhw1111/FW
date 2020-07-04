@@ -202,7 +202,7 @@ namespace MSLibrary.Survey.SurveyMonkey
         /// <param name="request"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<SurveyMonkeyResponse> Execute(Func<HttpClient,Task> authHandler,string type,string configuration, SurveyMonkeyRequest request, CancellationToken cancellationToken = default);
+        Task<SurveyMonkeyResponse> Execute(Func<HttpClient,Task> authHandler,Func<SurveyMonkeyRequest,Task<SurveyMonkeyResponse>> requestHandler,string type,string configuration, SurveyMonkeyRequest request, CancellationToken cancellationToken = default);
     }
 
     [Injection(InterfaceType = typeof(ISurveyMonkeyEndpointIMP), Scope = InjectionScope.Transient)]
@@ -227,7 +227,7 @@ namespace MSLibrary.Survey.SurveyMonkey
        
         public async Task<SurveyMonkeyResponse> Execute(SurveyMonkeyEndpoint endpoint, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
         {
-            if (SurveyMonkeyHttpAuthHandleServiceFactories.TryGetValue(endpoint.Type,out IFactory<ISurveyMonkeyHttpAuthHandleService>? authServiceFactory))
+            if (!SurveyMonkeyHttpAuthHandleServiceFactories.TryGetValue(endpoint.Type,out IFactory<ISurveyMonkeyHttpAuthHandleService>? authServiceFactory))
             {
                 var fragment = new TextFragment()
                 {
@@ -238,7 +238,7 @@ namespace MSLibrary.Survey.SurveyMonkey
                 throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyMonkeyHttpAuthHandleServiceByType, fragment, 1, 0);
             }
 
-            if (SurveyMonkeyRequestHandleServiceFactories.TryGetValue(request.Type, out IFactory<ISurveyMonkeyRequestHandleService>? requestServiceFactory))
+            if (!SurveyMonkeyRequestHandleServiceFactories.TryGetValue(request.Type, out IFactory<ISurveyMonkeyRequestHandleService>? requestServiceFactory))
             {
                 var fragment = new TextFragment()
                 {
@@ -248,13 +248,18 @@ namespace MSLibrary.Survey.SurveyMonkey
                 };
                 throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyMonkeyRequestHandleServiceByType, fragment, 1, 0);
             }
-
+           
             request.Address = endpoint.Address;
             request.Version = endpoint.Vesion;
             return await requestServiceFactory.Create().Execute(
                 async(httpClinet)=>
                 {
                     await authServiceFactory.Create().Handle(httpClinet, endpoint.Address, await getContent(endpoint.Configuration), cancellationToken);
+                }
+                ,
+                async(r)=>
+                {
+                    return await Execute(endpoint, r, cancellationToken);
                 }
                 ,
                 endpoint.Type
