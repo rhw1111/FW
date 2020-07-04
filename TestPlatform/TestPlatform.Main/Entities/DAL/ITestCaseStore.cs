@@ -26,5 +26,6 @@ namespace FW.TestPlatform.Main.Entities.DAL
         Task<Guid?> QueryByNameNoLock(string name, CancellationToken cancellationToken = default);
         Task<IList<TestCase>> QueryByNames(IList<string> names, CancellationToken cancellationToken = default);
         Task<QueryResult<TestCase>> QueryByPage(int page, int pageSize, CancellationToken cancellationToken = default);
+        Task<TestCaseStatus?> QueryStatusByID(Guid id, CancellationToken cancellationToken = default);
     }
 }

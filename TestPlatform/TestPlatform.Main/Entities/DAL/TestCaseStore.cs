@@ -109,6 +109,28 @@ namespace FW.TestPlatform.Main.Entities.DAL
             return result;
         }
 
+        public async Task<TestCaseStatus?> QueryStatusByID(Guid id, CancellationToken cancellationToken = default)
+        {
+            TestCaseStatus? result = null;
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    TestCase testCase = await (from item in dbContext.TestCases
+                                    where item.ID == id
+                                    select item).FirstOrDefaultAsync();
+                    if (testCase != null)
+                        result = testCase.Status;
+                }
+            });
+
+            return result;
+        }
+
         public async Task<TestCase?> QueryByName(string name, CancellationToken cancellationToken = default)
         {
             TestCase? result = null;
