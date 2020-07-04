@@ -44,91 +44,117 @@ namespace MSLibrary.Survey.SurveyMonkey.HttpAuthHandleServices
         {
             var authConfiguration = JsonSerializerHelper.Deserialize<AuthConfiguration>(configuration);
 
-            using (var httpClient=_httpClientFactory.CreateClient())
-            {
+            return await Task.FromResult(authConfiguration.AccessToken);
+            //using (var httpClient=_httpClientFactory.CreateClient("A"))
+            //{
+               
+            //    var response=await httpClient.GetAsync($"{address}/oauth/authorize?response_type=code&client_id={authConfiguration.ClientID.ToUrlEncode()}&redirect_uri={authConfiguration.RedirectUri.ToUrlEncode()}", cancellationToken);
+            //    /*if (!response.IsSuccessStatusCode)
+            //    {
+            //        var fragment = new TextFragment()
+            //        {
+            //            Code = SurveyTextCodes.SurveyMonkeyAuthError,
+            //            DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}",
+            //            ReplaceParameters = new List<object>() { address, getResponseError (response) }
+            //        };
 
-                var response=await httpClient.GetAsync($"{address}/oauth/authorize?response_type={authConfiguration.ResponseType.ToUrlEncode()}&client_id={authConfiguration.ClientID.ToUrlEncode()}&redirect_uri={authConfiguration.RedirectUri.ToUrlEncode()}", cancellationToken);
-                if (!response.IsSuccessStatusCode)
-                {
-                    var fragment = new TextFragment()
-                    {
-                        Code = SurveyTextCodes.SurveyMonkeyAuthError,
-                        DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}",
-                        ReplaceParameters = new List<object>() { address, getResponseError (response) }
-                    };
+            //        throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyAuthError, fragment, 1, 0);
+            //    }*/
 
-                    throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyAuthError, fragment, 1, 0);
-                }
+            //    if (response.Headers.Location == null)
+            //    {
+            //        var fragment = new TextFragment()
+            //        {
+            //            Code = SurveyTextCodes.SurveyMonkeyAuthError,
+            //            DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}",
+            //            ReplaceParameters = new List<object>() { address, "Not Found Redirect Location in Response" }
+            //        };
+
+            //        throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyAuthError, fragment, 1, 0);
+            //    }
 
 
-                if (response.Headers.Location == null)
-                {
-                    var fragment = new TextFragment()
-                    {
-                        Code = SurveyTextCodes.SurveyMonkeyAuthError,
-                        DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}",
-                        ReplaceParameters = new List<object>() { address, "Not Found Redirect Location in Response" }
-                    };
+            //    response = await httpClient.GetAsync(response.Headers.Location, cancellationToken);
+            //    /*if (!response.IsSuccessStatusCode)
+            //    {
+            //        var fragment = new TextFragment()
+            //        {
+            //            Code = SurveyTextCodes.SurveyMonkeyAuthError,
+            //            DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}",
+            //            ReplaceParameters = new List<object>() { address, getResponseError(response) }
+            //        };
 
-                    throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyAuthError, fragment, 1, 0);
-                }
+            //        throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyAuthError, fragment, 1, 0);
+            //    }*/
 
-              
-                var query = response.Headers.Location.Query;
-                var col = QueryHelpers.ParseQuery(query);
+            //    if (response.Headers.Location == null)
+            //    {
+            //        var fragment = new TextFragment()
+            //        {
+            //            Code = SurveyTextCodes.SurveyMonkeyAuthError,
+            //            DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}",
+            //            ReplaceParameters = new List<object>() { address, "Not Found Redirect Location in Response" }
+            //        };
+
+            //        throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyAuthError, fragment, 1, 0);
+            //    }
+
+
+            //    var query = response.Headers.Location.Query;
+            //    var col = QueryHelpers.ParseQuery(query);
             
-                if (!col.TryGetValue("code", out StringValues codeValue))
-                {
-                    string error = string.Empty;
-                    string errorDescription = string.Empty;
+            //    if (!col.TryGetValue("code", out StringValues codeValue))
+            //    {
+            //        string error = string.Empty;
+            //        string errorDescription = string.Empty;
 
-                    if (col.TryGetValue("error", out StringValues errorValue))
-                    {
-                        error = errorValue[0];
-                    }
+            //        if (col.TryGetValue("error", out StringValues errorValue))
+            //        {
+            //            error = errorValue[0];
+            //        }
 
-                    if (col.TryGetValue("error_description", out StringValues errorDescriptionValue))
-                    {
-                        errorDescription = errorDescriptionValue[0];
-                    }
+            //        if (col.TryGetValue("error_description", out StringValues errorDescriptionValue))
+            //        {
+            //            errorDescription = errorDescriptionValue[0];
+            //        }
 
-                    var fragment = new TextFragment()
-                    {
-                        Code = SurveyTextCodes.SurveyMonkeyAuthError,
-                        DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}",
-                        ReplaceParameters = new List<object>() { address, $"Error:{error},ErrorDescription:{errorDescription}" }
-                    };
+            //        var fragment = new TextFragment()
+            //        {
+            //            Code = SurveyTextCodes.SurveyMonkeyAuthError,
+            //            DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}",
+            //            ReplaceParameters = new List<object>() { address, $"Error:{error},ErrorDescription:{errorDescription}" }
+            //        };
 
-                    throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyAuthError, fragment, 1, 0);
-                }
+            //        throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyAuthError, fragment, 1, 0);
+            //    }
 
-                Dictionary<string, string> paramerets = new Dictionary<string, string>()
-                {
-                    { "client_secret",authConfiguration.ClientSecret},
-                    { "code",codeValue[0]},
-                    {"redirect_uri",authConfiguration.RedirectUri },
-                    { "client_id",authConfiguration.ClientID},
-                    { "grant_type","authorization_code"}
-                };
-                using (var response2 = await httpClient.PostAsync($"{address}/oauth/token", new FormUrlEncodedContent(paramerets)))
-                {
-                    if (!response2.IsSuccessStatusCode)
-                    {
-                        var fragment = new TextFragment()
-                        {
-                            Code = SurveyTextCodes.SurveyMonkeyAuthError,
-                            DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}",
-                            ReplaceParameters = new List<object>() { address, getResponseError(response) }
-                        };
+            //    Dictionary<string, string> paramerets = new Dictionary<string, string>()
+            //    {
+            //        { "client_secret",authConfiguration.ClientSecret},
+            //        { "code",codeValue[0]},
+            //        {"redirect_uri",authConfiguration.RedirectUri },
+            //        { "client_id",authConfiguration.ClientID},
+            //        { "grant_type","authorization_code"}
+            //    };
+            //    using (var response2 = await httpClient.PostAsync($"{address}/oauth/token", new FormUrlEncodedContent(paramerets)))
+            //    {
+            //        if (!response2.IsSuccessStatusCode)
+            //        {
+            //            var fragment = new TextFragment()
+            //            {
+            //                Code = SurveyTextCodes.SurveyMonkeyAuthError,
+            //                DefaultFormatting = "SurveyMonkey终结点{0}鉴权错误，错误信息为{1}",
+            //                ReplaceParameters = new List<object>() { address, getResponseError(response) }
+            //            };
 
-                        throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyAuthError, fragment, 1, 0);
-                    }
+            //            throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyAuthError, fragment, 1, 0);
+            //        }
 
-                    var json = await response2.Content.ReadAsStringAsync();
-                    var authResult = JsonSerializerHelper.Deserialize<AuthResult>(json);
-                    return authResult.AccessToken;
-                }
-            }
+            //        var json = await response2.Content.ReadAsStringAsync();
+            //        var authResult = JsonSerializerHelper.Deserialize<AuthResult>(json);
+            //        return authResult.AccessToken;
+            //    }
+            //}
         }
 
         public async Task Handle(HttpClient httpClient, string address, string authConfiguration, CancellationToken cancellationToken = default)
@@ -186,13 +212,11 @@ namespace MSLibrary.Survey.SurveyMonkey.HttpAuthHandleServices
         private class AuthConfiguration
         {
             [DataMember]
-            public string ResponseType { get; set; } = null!;
-            [DataMember]
             public string ClientID { get; set; } = null!;
             [DataMember]
             public string ClientSecret { get; set; } = null!;
             [DataMember]
-            public string RedirectUri { get; set; } = null!;
+            public string AccessToken { get; set; } = null!;
         }
 
         [DataContract]

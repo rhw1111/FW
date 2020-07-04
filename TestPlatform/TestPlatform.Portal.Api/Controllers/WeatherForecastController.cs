@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MSLibrary.Logger;
+using FW.TestPlatform.Main;
 
 namespace FW.TestPlatform.Portal.Api.Controllers
 {
@@ -40,6 +42,15 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         [HttpHead]
         public async Task Do()
         {
+            await Task.CompletedTask;
+        }
+
+        [HttpPost]
+        public async Task Post()
+        {
+            var apiKey=HttpContext.Request.Headers["Sm-Apikey"][0];
+            var signature = HttpContext.Request.Headers["Sm-Signature"][0];
+            LoggerHelper.LogError(LoggerCategoryNames.TestPlatform_Portal_Api, $"Sm-Apikey:{apiKey},Sm-Signature:{signature}");
             await Task.CompletedTask;
         }
     }

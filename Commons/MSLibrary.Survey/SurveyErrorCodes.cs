@@ -21,5 +21,13 @@ namespace MSLibrary.Survey
         /// SurveyMonkey请求处理错误
         /// </summary>
         SurveyMonkeyRequestHandleError = 315000311,
+        /// <summary>
+        /// SurveyMonkey的Webhook回调验证失败
+        /// </summary>
+        SurveyMonkeyWebhookCallbackValidateError = 315000320,
+        /// <summary>
+        /// 找不到指定类型的Webhook回调验证服务
+        /// </summary>
+        NotFoundWebhookCallbackValidationServiceByType = 315000321,
     }
 }

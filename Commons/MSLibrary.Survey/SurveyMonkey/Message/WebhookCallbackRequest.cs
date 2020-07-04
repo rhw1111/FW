@@ -7,6 +7,11 @@ namespace MSLibrary.Survey.SurveyMonkey.Message
 {
     public class WebhookCallbackRequest:SurveyMonkeyRequest
     {
+        public WebhookCallbackRequest() : base(SurveyMonkeyRequestTypes.WebhookCallback)
+        {
+
+        }
+
         public string SmApikey { get; set; } = null!;
         public string SmSignature { get; set; } = null!;
 

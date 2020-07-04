@@ -23,7 +23,7 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
         {
             _httpClientFactory = httpClientFactory;
         }
-        public async Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, string type, string configuration, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
+        public async Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, Func<SurveyMonkeyRequest, Task<SurveyMonkeyResponse>> requestHandler, string type, string configuration, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
         {
             var realRequest = (WebhookRegisterRequest)request;
 
@@ -31,7 +31,7 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
             {
                 await authHandler(httpClient);
 
-
+             
                 var body = new WebhookRegisterSetting()
                 {
                     Name = realRequest.Name,
@@ -41,7 +41,7 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
                     SubscriptionUrl = realRequest.SubscriptionUrl
                 };
 
-                using (var response = await httpClient.PostAsync($"{realRequest.Address}/{realRequest.Version}/webhooks", new StringContent(JsonSerializerHelper.Serializer(body))))
+                using (var response = await httpClient.PostAsync($"{realRequest.Address}/{realRequest.Version}/webhooks", new StringContent(JsonSerializerHelper.Serializer(body), new UTF8Encoding(), "application/json")))
                 {
                     if (!response.IsSuccessStatusCode)
                     {

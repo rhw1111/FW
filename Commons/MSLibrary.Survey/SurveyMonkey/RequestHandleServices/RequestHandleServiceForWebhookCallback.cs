@@ -13,20 +13,54 @@ using MSLibrary.DI;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.Serializer;
 using MSLibrary.Survey.SurveyMonkey.Message;
+using MSLibrary.Security;
 
 namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
 {
     [Injection(InterfaceType = typeof(RequestHandleServiceForWebhookCallback), Scope = InjectionScope.Singleton)]
     public class RequestHandleServiceForWebhookCallback : ISurveyMonkeyRequestHandleService
     {
+        public static IDictionary<string, IFactory<IWebhookCallbackValidationService>> WebhookCallbackValidationServiceFactories { get; } = new Dictionary<string, IFactory<IWebhookCallbackValidationService>>()
+        {
+            { SurveyMonkeyTypes.OAuth,DIContainerContainer.Get<WebhookCallbackValidationServiceDefalutFactory>()}
+        };
+        
         public RequestHandleServiceForWebhookCallback()
         {
 
         }
 
-        public Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, string type, string configuration, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
+        public async Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, Func<SurveyMonkeyRequest, Task<SurveyMonkeyResponse>> requestHandler, string type, string configuration, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            if (!WebhookCallbackValidationServiceFactories.TryGetValue(type,out IFactory<IWebhookCallbackValidationService> validateServiceFactory))
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = SurveyTextCodes.NotFoundWebhookCallbackValidationServiceByType,
+                    DefaultFormatting = "找不到类型为{0}的Webhook回调验证服务，发生位置为{1}",
+                    ReplaceParameters = new List<object>() { type,$"{typeof(RequestHandleServiceForWebhookCallback).FullName}.WebhookCallbackValidationServiceFactories" }
+                };
+
+                throw new UtilityException((int)SurveyErrorCodes.NotFoundWebhookCallbackValidationServiceByType, fragment, 1, 0);
+            }
+
+            var realRequest = (WebhookCallbackRequest)request;
+            await validateServiceFactory.Create().Validate(realRequest, configuration, cancellationToken);
+
+            var body = JsonSerializerHelper.Deserialize<Response>(realRequest.Body);
+
+            return new WebhookCallbackResponse()
+            {
+                EventID = body.EventID,
+                EventDatetime = body.EventDatetime,
+                EventType = body.EventType,
+                FilterID = body.FilterID,
+                FilterType = body.FilterType,
+                Name = body.Name,
+                ObjectID = body.ObjectID,
+                ObjectType = body.ObjectType,
+                Resources = body.Resources
+            };
         }
 
         private async Task<string> getResponseError(HttpResponseMessage response)
@@ -61,6 +95,65 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
             public DateTime EventDatetime { get; set; }
             [DataMember(Name = "resources")]
             public JObject Resources { get; set; } = null!;
+        }
+    }
+
+
+    public interface IWebhookCallbackValidationService
+    {
+        Task Validate(WebhookCallbackRequest request,string configuration, CancellationToken cancellationToken = default);
+    }
+
+    [Injection(InterfaceType = typeof(WebhookCallbackValidationServiceDefalut), Scope = InjectionScope.Singleton)]
+    public class WebhookCallbackValidationServiceDefalut : IWebhookCallbackValidationService
+    {
+        private readonly ISecurityService _securityService;
+
+        public WebhookCallbackValidationServiceDefalut(ISecurityService securityService)
+        {
+            _securityService = securityService;
+        }
+        public async Task Validate(WebhookCallbackRequest request, string configuration, CancellationToken cancellationToken = default)
+        {
+            var configurationObj = JsonSerializerHelper.Deserialize<Configuration>(configuration);
+            //验证SmApikey
+            if (!_securityService.VerifySignByKey(request.Body, request.SmSignature, configurationObj.ClientSecret))
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = SurveyTextCodes.SurveyMonkeyWebhookCallbackValidateError,
+                    DefaultFormatting = "SurveyMonkey的Webhook回调验证失败，错误信息为{0}",
+                    ReplaceParameters = new List<object>() { "signature valiate fail" }
+                };
+
+                throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyWebhookCallbackValidateError, fragment, 1, 0);
+            }
+
+            await Task.CompletedTask;
+        }
+
+        [DataContract]
+        private class Configuration
+        {
+            [DataMember]
+            public string ClientID { get; set; } = null!;
+            [DataMember]
+            public string ClientSecret { get; set; } = null!;
+        }
+    }
+
+    [Injection(InterfaceType = typeof(WebhookCallbackValidationServiceDefalutFactory), Scope = InjectionScope.Singleton)]
+    public class WebhookCallbackValidationServiceDefalutFactory : IFactory<IWebhookCallbackValidationService>
+    {
+        private readonly WebhookCallbackValidationServiceDefalut _webhookCallbackValidationServiceDefalut;
+
+        public WebhookCallbackValidationServiceDefalutFactory(WebhookCallbackValidationServiceDefalut webhookCallbackValidationServiceDefalut)
+        {
+            _webhookCallbackValidationServiceDefalut = webhookCallbackValidationServiceDefalut;
+        }
+        public IWebhookCallbackValidationService Create()
+        {
+            return _webhookCallbackValidationServiceDefalut;
         }
     }
 }

@@ -21,6 +21,11 @@ using FW.TestPlatform.Main;
 using FW.TestPlatform.Main.Configuration;
 using FW.TestPlatform.Main.Entities;
 using FW.TestPlatform.Main.Entities.DAL;
+using MSLibrary.Survey.SurveyMonkey;
+using MSLibrary.Survey;
+using MSLibrary.Survey.SurveyMonkey.Message;
+using MSLibrary.Survey.SurveyMonkey.HttpAuthHandleServices;
+using MSLibrary.Survey.SurveyMonkey.RequestHandleServices;
 
 namespace TestPlatform.Test
 {
@@ -59,6 +64,16 @@ namespace TestPlatform.Test
 
             //初始化静态设置
             MainStartupHelper.InitStaticInfo();
+
+            SurveyMonkeyEndpointIMP.SurveyMonkeyHttpAuthHandleServiceFactories[SurveyMonkeyTypes.OAuth] = DIContainerContainer.Get<SurveyMonkeyHttpAuthHandleServiceForOAuthFactory>();
+            
+            SurveyMonkeyEndpointIMP.SurveyMonkeyRequestHandleServiceFactories[SurveyMonkeyRequestTypes.SurveyResponseQuery]= DIContainerContainer.Get<RequestHandleServiceForSurveyResponseQueryFactory>();
+            SurveyMonkeyEndpointIMP.SurveyMonkeyRequestHandleServiceFactories[SurveyMonkeyRequestTypes.SurveyResponseQuerySingle] = DIContainerContainer.Get<RequestHandleServiceForSurveyResponseQuerySingleFactory>();
+            SurveyMonkeyEndpointIMP.SurveyMonkeyRequestHandleServiceFactories[SurveyMonkeyRequestTypes.WebhookCallback] = DIContainerContainer.Get<RequestHandleServiceForWebhookCallbackFactory>();
+            SurveyMonkeyEndpointIMP.SurveyMonkeyRequestHandleServiceFactories[SurveyMonkeyRequestTypes.WebhookDelete] = DIContainerContainer.Get<RequestHandleServiceForWebhookDeleteFactory>();
+            SurveyMonkeyEndpointIMP.SurveyMonkeyRequestHandleServiceFactories[SurveyMonkeyRequestTypes.WebhookQuery] = DIContainerContainer.Get<RequestHandleServiceForWebhookQueryFactory>();
+            SurveyMonkeyEndpointIMP.SurveyMonkeyRequestHandleServiceFactories[SurveyMonkeyRequestTypes.WebhookQuerySingle] = DIContainerContainer.Get<RequestHandleServiceForWebhookQuerySingleFactory>();
+            SurveyMonkeyEndpointIMP.SurveyMonkeyRequestHandleServiceFactories[SurveyMonkeyRequestTypes.WebhookRegister] = DIContainerContainer.Get<RequestHandleServiceForWebhookRegisterFactory>();
 
 
             //配置日志工厂
@@ -105,6 +120,44 @@ namespace TestPlatform.Test
             var aa=DBTransactionScope.InScope();
 
                 Assert.Pass();
+        }
+
+        [Test]
+        public async Task TestForSurveyMonkey()
+        {
+            SurveyMonkeyEndpoint endpoint = new SurveyMonkeyEndpoint()
+            {
+                ID = Guid.NewGuid(),
+                Name = "0uozfpinTjyfYWhb0eR7EA",
+                Address = "https://api.surveymonkey.com",
+                Type = SurveyMonkeyTypes.OAuth,
+                Vesion = "v3",
+                Configuration = @"{
+                                        ""ClientID"":""0uozfpinTjyfYWhb0eR7EA"",
+                                        ""ClientSecret"":""279529081356860839199098816144866363827"",
+                                        ""AccessToken"":""9PuO701uc8gOEoQmmC8kHKYtzSd6cxw5LliPuTg46D0DNUUOkDLYXcvyerwYw2tLb2KtAm0xocHoeF7r6W2l-3TG1TfyyD-DkBl5QR6RFFJDORisHD7V7MLDPef69p2j""
+                                  }",
+                CreateTime = DateTime.UtcNow,
+                ModifyTime = DateTime.UtcNow
+            };
+
+            /*WebhookQueryRequest request = new WebhookQueryRequest()
+            {
+                Page = 1,
+                PageSize = 10
+            };*/
+
+            WebhookRegisterRequest request = new WebhookRegisterRequest()
+            {
+                EventType = "response_completed",
+                Name = "ResponseCompleted",
+                ObjectType = "survey",
+                ObjectIds = new List<string>() { "287291102" },
+                SubscriptionUrl = "http://52.188.14.158:8081/api/weatherforecast"
+               
+            };
+
+            var response=await endpoint.Execute(request);
         }
 
         private async Task Do1()

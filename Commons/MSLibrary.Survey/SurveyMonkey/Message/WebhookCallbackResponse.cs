@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MSLibrary.Survey.SurveyMonkey.Message
 {
-    public class WebhookCallbackResponse
+    public class WebhookCallbackResponse:SurveyMonkeyResponse
     {
         public string Name { get; set; } = null!;
         public string FilterType { get; set; } = null!;

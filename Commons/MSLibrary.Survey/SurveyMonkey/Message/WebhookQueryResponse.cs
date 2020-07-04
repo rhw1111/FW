@@ -6,6 +6,10 @@ namespace MSLibrary.Survey.SurveyMonkey.Message
 {
     public class WebhookQueryResponse: SurveyMonkeyResponse
     {
+        public int Page { get; set; }
+        public int PageSzie { get; set; }
+        public int Total { get; set; }
+
         public List<WebhookRegisterItem> RegisterItems
         {
             get; set;
