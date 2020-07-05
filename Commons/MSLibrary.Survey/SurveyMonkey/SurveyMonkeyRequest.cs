@@ -9,10 +9,14 @@ namespace MSLibrary.Survey.SurveyMonkey
     /// </summary>
     public class SurveyMonkeyRequest
     {
+        protected SurveyMonkeyRequest(string type)
+        {
+            Type = type;
+        }
         /// <summary>
         /// 请求类型
         /// </summary>
-        public string Type { get; set; } = null!;
+        public string Type { get; private set; } = null!;
         /// <summary>
         /// 服务地址
         /// </summary>

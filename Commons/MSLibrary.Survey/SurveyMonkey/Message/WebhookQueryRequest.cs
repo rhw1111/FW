@@ -6,6 +6,11 @@ namespace MSLibrary.Survey.SurveyMonkey.Message
 {
     public class WebhookQueryRequest:SurveyMonkeyRequest
     {
+        public WebhookQueryRequest() : base(SurveyMonkeyRequestTypes.WebhookQuery)
+        {
+
+        }
+
         public int Page
         {
             get; set;

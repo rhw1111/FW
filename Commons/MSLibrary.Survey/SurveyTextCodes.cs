@@ -34,5 +34,18 @@ namespace MSLibrary.Survey
         /// {1}：错误信息
         /// </summary>
         public static string SurveyMonkeyRequestHandleError = "SurveyMonkeyRequestHandleError";
+        /// <summary>
+        /// SurveyMonkey的Webhook回调验证失败
+        /// 格式为“SurveyMonkey的Webhook回调验证失败，错误信息为{0}”
+        /// {0}：错误信息
+        /// </summary>
+        public static string SurveyMonkeyWebhookCallbackValidateError = "SurveyMonkeyWebhookCallbackValidateError";
+        /// <summary>
+        /// 找不到指定类型的Webhook回调验证服务
+        /// 格式为“找不到类型为{0}的Webhook回调验证服务，发生位置为{1}”
+        /// {0}：类型
+        /// {1}：发生位置
+        /// </summary>
+        public static string NotFoundWebhookCallbackValidationServiceByType = "NotFoundWebhookCallbackValidationServiceByType";
     }
 }

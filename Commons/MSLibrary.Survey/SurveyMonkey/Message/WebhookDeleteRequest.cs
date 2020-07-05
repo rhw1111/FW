@@ -4,13 +4,12 @@ using System.Text;
 
 namespace MSLibrary.Survey.SurveyMonkey.Message
 {
-    public class WebhookQuerySingleRequest:SurveyMonkeyRequest
+    public class WebhookDeleteRequest : SurveyMonkeyRequest
     {
-        public WebhookQuerySingleRequest() : base(SurveyMonkeyRequestTypes.WebhookQuerySingle)
+        public WebhookDeleteRequest() : base(SurveyMonkeyRequestTypes.WebhookDelete)
         {
 
         }
-
         public string ID { get; set; } = null!;
     }
 }

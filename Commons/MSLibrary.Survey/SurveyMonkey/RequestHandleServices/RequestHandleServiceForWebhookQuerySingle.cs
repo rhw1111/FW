@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
+using MSLibrary;
 using MSLibrary.DI;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.Serializer;
@@ -18,9 +19,51 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
     [Injection(InterfaceType = typeof(RequestHandleServiceForWebhookQuerySingle), Scope = InjectionScope.Singleton)]
     public class RequestHandleServiceForWebhookQuerySingle : ISurveyMonkeyRequestHandleService
     {
-        public async Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
+        private readonly IHttpClientFactoryWrapper _httpClientFactory;
+
+        public RequestHandleServiceForWebhookQuerySingle(IHttpClientFactoryWrapper httpClientFactory)
         {
-            throw new NotImplementedException();
+            _httpClientFactory = httpClientFactory;
+        }
+
+        public async Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, Func<SurveyMonkeyRequest, Task<SurveyMonkeyResponse>> requestHandler, string type, string configuration, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
+        {
+            var realRequest = (WebhookQuerySingleRequest)request;
+
+            using (var httpClient = _httpClientFactory.CreateClient())
+            {
+                await authHandler(httpClient);
+
+                using (var response = await httpClient.GetAsync($"{realRequest.Address}/{realRequest.Version}/webhooks/{realRequest.ID.ToUrlEncode()}"))
+                {
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var fragment = new TextFragment()
+                        {
+                            Code = SurveyTextCodes.SurveyMonkeyRequestHandleError,
+                            DefaultFormatting = "SurveyMonkey终结点{0}请求处理错误，错误信息为{1}",
+                            ReplaceParameters = new List<object>() { realRequest.Address, getResponseError(response) }
+                        };
+
+                        throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyRequestHandleError, fragment, 1, 0);
+                    }
+
+                    var json = await response.Content.ReadAsStringAsync();
+                    var result = JsonSerializerHelper.Deserialize<Register>(json);
+
+                    return new WebhookQuerySingleResponse
+                    {
+                        ID = result.ID,
+                        Name = result.Name,
+                        EventType = result.EventType,
+                        Href = result.Href,
+                        ObjectType = result.ObjectType,
+                        ObjectIds = result.ObjectIds,
+                        SubscriptionUrl = result.SubscriptionUrl
+                    };
+                }
+
+            }
         }
 
         private async Task<string> getResponseError(HttpResponseMessage response)

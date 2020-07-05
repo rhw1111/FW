@@ -24,6 +24,11 @@ namespace FW.TestPlatform.Main.Entities
             return await _testCaseStore.QueryByID(id, cancellationToken);
         }
 
+        public async Task<TestCaseStatus?> QueryTestCaseStatusByID(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _testCaseStore.QueryStatusByID(id, cancellationToken);
+        }
+
         public async Task<TestCase?> QueryByName(string name, CancellationToken cancellationToken = default)
         {
             return await _testCaseStore.QueryByName(name, cancellationToken);

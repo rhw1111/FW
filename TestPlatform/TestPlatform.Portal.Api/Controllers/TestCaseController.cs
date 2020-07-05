@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using FW.TestPlatform.Main.Application;
 using FW.TestPlatform.Main.DTOModel;
 using MSLibrary;
+using FW.TestPlatform.Main;
 
 namespace FW.TestPlatform.Portal.Api.Controllers
 {
     [Route("api/testcase")]
     [ApiController]
+    [EnableCors]
     public class TestCaseController : ControllerBase
     {
         private const int _pageSize = 50;
@@ -35,10 +38,11 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppDeleteSlaveHost _appDeleteSlaveHost;
         private readonly IAppDeleteSlaveHosts _appDeleteSlaveHosts;
         private readonly IAppDeleteHistories _appDeleteHistories;
+        private readonly IAppQueryTestCaseStatus _appQueryTestCaseStatus;
         public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQuerySingleTestCase appQuerySingleTestCase, IAppUpdateTestCase appUpdateTestCase,
             IAppDeleteTestCase appDeleteTestCase, IAppRunTestCase appRunTestCase, IAppStopTestCase appStopTestCase, IAppCheckTestCaseStatus appCheckTestCaseStatus, IAppAddSlaveHost appAddSlaveHost,
             IAppQueryMasterLog appQueryMasterLog, IAppQuerySlaveLog appQuerySlaveLog, IAppQuerySlaveHost appQuerySlaveHost, IAppQueryTestCaseHistory appQueryTestCaseHistory, IAppQuerySingleTestCaseHistory appQuerySingleTestCaseHistory, IAppUpdateSlaveHost appUpdateSlaveHost,
-            IAppDeleteTestCaseHistory appDeleteTestCaseHistory, IAppDeleteSlaveHost appDeleteSlaveHost, IAppDeleteHistories appDeleteHistories, IAppDeleteSlaveHosts appDeleteSlaveHosts)
+            IAppDeleteTestCaseHistory appDeleteTestCaseHistory, IAppDeleteSlaveHost appDeleteSlaveHost, IAppDeleteHistories appDeleteHistories, IAppDeleteSlaveHosts appDeleteSlaveHosts, IAppQueryTestCaseStatus appQueryTestCaseStatus)
         {
             _appQueryTestCase = appQueryTestCase;
             _appAddTestCase = appAddTestCase;
@@ -59,6 +63,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _appDeleteSlaveHost = appDeleteSlaveHost;
             _appDeleteHistories = appDeleteHistories;
             _appDeleteSlaveHosts = appDeleteSlaveHosts;
+            _appQueryTestCaseStatus = appQueryTestCaseStatus;
         }
         //查询增加修改执行TestCase
         [HttpGet("querybypage")]
@@ -74,21 +79,25 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             }
             return await _appQueryTestCase.Do(matchName, page, (int)pageSize);
         }
+
         [HttpGet("testcase")]
         public async Task<TestCaseViewData> GetCase(Guid id)
         {
             return await _appQuerySingleTestCase.Do(id);
         }
+
         [HttpPost("add")]
         public async Task<TestCaseViewData> Add(TestCaseAddModel model)
         {
             return await _appAddTestCase.Do(model);
         }
+
         [HttpPut("update")]
         public async Task<TestCaseViewData> Update(TestCaseUpdateModel model)
         {
             return await _appUpdateTestCase.Do(model);
         }
+
         [HttpDelete("delete")]
         public async Task Delete(Guid id)
         {
@@ -99,21 +108,30 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         //public async Task DeleteMultiple(List<Guid> list)
         //{
         //   await _appDeleteMultipleTestCase.Do(list);
-        //}      
+        //}   
+
         [HttpPost("run")]
         public async Task Run(Guid caseId)
         {
             await _appRunTestCase.Do(caseId);
         }
+
         [HttpPost("stop")]
         public async Task Stop(Guid caseId)
         {
             await _appStopTestCase.Do(caseId);
         }
+
         [HttpGet("checkstatus")]
-        public async Task<bool> CheckTestStatus(Guid caseId)
+        public async Task<bool> CheckStatus(Guid caseId)
         {
             return await _appCheckTestCaseStatus.Do(caseId);
+        }
+
+        [HttpGet("querytestcasestatus")]
+        public async Task<TestCaseStatus> QueryTestCaseStatus(Guid caseId)
+        {
+            return await _appQueryTestCaseStatus.Do(caseId);
         }
 
         //获取主机或者从机Log
@@ -122,6 +140,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         {
              return await _appQueryMasterLog.Do(caseId);
         }
+
         [HttpGet("getslavelog")]
         public async Task<string> GetSlaveLog(Guid caseId, Guid slaveHostId)
         {
@@ -129,22 +148,25 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         }
 
         //查询增加修改删除SlaveHost
+        [EnableCors]
         [HttpGet("queryslavehosts")]
         public async Task<List<TestCaseSlaveHostViewData>> GetAllSlaveHosts(Guid caseId)
         {
             return await _appQuerySlaveHost.Do(caseId);
         }
+
         [HttpPost("addslavehost")]
         public async Task<TestCaseSlaveHostViewData> AddSlaveHost(TestCaseSlaveHostAddModel slaveHost)
         {
             return await _appAddSlaveHost.Do(slaveHost);
         }
+
         [HttpPut("updateslavehost")]
         public async Task<TestCaseSlaveHostViewData> UpdateSlaveHost(TestCaseSlaveHostUpdateModel slaveHost)
         {
             return await _appUpdateSlaveHost.Do(slaveHost);
         }
-               
+
         [HttpDelete("deleteslavehost")]
         public async Task DeleteSlaveHost(Guid caseId,Guid id)
         {

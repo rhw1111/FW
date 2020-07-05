@@ -209,6 +209,13 @@ namespace FW.TestPlatform.Main
         public static void InitDI(IServiceCollection serviceCollection, DISetting dISetting)
         {
             serviceCollection.AddHttpClient();
+            serviceCollection.AddHttpClient("A")               
+                    .ConfigurePrimaryHttpMessageHandler(() =>
+                        new HttpClientHandler()
+                        {
+                            AllowAutoRedirect = false
+                        }
+                    );
 
             DIContainerContainer.DIContainer = new DIContainerDefault(serviceCollection, serviceCollection.BuildServiceProvider());
             DIContainerInit.Init = new DIContainerInitDefault();

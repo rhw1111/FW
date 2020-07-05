@@ -52,7 +52,7 @@ namespace FW.TestPlatform.Portal.Api
 
             services.AddCors(options =>
             {
-                options.AddPolicy("any",
+                options.AddDefaultPolicy(
                 builder =>
                 {
                     builder.WithOrigins(crosOrgins).AllowAnyHeader().AllowAnyMethod();
@@ -79,7 +79,7 @@ namespace FW.TestPlatform.Portal.Api
             }
 
             app.UseRouting();
-
+            app.UseCors();
             app.UseDIWrapper(ContextTypes.DI, LoggerCategoryNames.DIWrapper);
             app.UseExceptionWrapper(LoggerCategoryNames.HttpRequest, applicationConfiguration.Debug);
             app.UserHttpExtensionContext(string.Empty, HttpExtensionContextHandleServiceNames.Internationalization, LoggerCategoryNames.ContextExtension);

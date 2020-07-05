@@ -7,35 +7,35 @@ using MSLibrary;
 using MSLibrary.DI;
 using FW.TestPlatform.Main.DTOModel;
 using FW.TestPlatform.Main.Entities;
+using FW.TestPlatform.Main.Configuration;
+using System.Linq;
 using MSLibrary.LanguageTranslate;
 
 namespace FW.TestPlatform.Main.Application
 {
-    [Injection(InterfaceType = typeof(IAppCheckTestCaseStatus), Scope = InjectionScope.Singleton)]
-    public class AppCheckTestCaseStatus : IAppCheckTestCaseStatus
+    [Injection(InterfaceType = typeof(IAppQueryTestCaseStatus), Scope = InjectionScope.Singleton)]
+    public class AppQueryTestCaseStatus : IAppQueryTestCaseStatus
     {
         private readonly ITestCaseRepository _testCaseRepository;
-        public AppCheckTestCaseStatus(ITestCaseRepository testCaseRepository)
+        public AppQueryTestCaseStatus(ITestCaseRepository testCaseRepository)
         {
             _testCaseRepository = testCaseRepository;
         }
-
-        public async Task<bool> Do(Guid caseId, CancellationToken cancellationToken = default)
+        public async Task<TestCaseStatus> Do(Guid id, CancellationToken cancellationToken = default)
         {
-            var testCase = await _testCaseRepository.QueryByID(caseId, cancellationToken);
-            if (testCase == null)
+            var queryResult = await _testCaseRepository.QueryTestCaseStatusByID(id, cancellationToken);
+            if (queryResult == null)
             {
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.NotFoundTestCaseByID,
                     DefaultFormatting = "找不到ID为{0}的测试案例",
-                    ReplaceParameters = new List<object>() { caseId.ToString() }
+                    ReplaceParameters = new List<object>() { id.ToString() }
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
             }
-            return await testCase.IsEngineRun(cancellationToken);
+            return (TestCaseStatus)queryResult;
         }
-       
     }
 }

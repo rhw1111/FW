@@ -662,7 +662,7 @@ namespace FW.TestPlatform.Main.Entities
 
             await handleService.Stop(tCase, cancellationToken);
 
-            await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.Stop, cancellationToken);
+            await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.NoRun, cancellationToken);
         }
 
         public async Task Update(TestCase tCase, CancellationToken cancellationToken = default)

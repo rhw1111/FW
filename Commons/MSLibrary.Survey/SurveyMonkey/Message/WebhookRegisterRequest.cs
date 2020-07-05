@@ -6,9 +6,9 @@ namespace MSLibrary.Survey.SurveyMonkey.Message
 {
     public class WebhookRegisterRequest:SurveyMonkeyRequest
     {
-        public WebhookRegisterRequest()
+        public WebhookRegisterRequest() : base(SurveyMonkeyRequestTypes.WebhookRegister)
         {
-            Type = SurveyMonkeyRequestTypes.WebhookRegister;
+
         }
 
         public string Name
