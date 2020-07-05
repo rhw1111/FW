@@ -91,7 +91,6 @@
 
 <script>
 import * as Apis from "@/api/index"
-import Axios from 'axios'
 export default {
   name: 'TestDataSource',
   data () {
@@ -270,6 +269,16 @@ export default {
 }
 </style>
 <style lang="scss">
+.q-table {
+  table-layout: fixed;
+  .cursor-pointer {
+    .text-left {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
 .new_input {
   width: 100%;
   padding: 10px 30px;

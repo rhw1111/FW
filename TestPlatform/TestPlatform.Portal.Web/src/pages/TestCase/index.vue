@@ -61,14 +61,19 @@
         </template>
       </q-table>
     </div>
-    <!--
-                主机选择框
-                -->
+    <!--  主机选择框  -->
     <lookUp :masterHostList="masterHostList"
+            :masterSelectIndex="masterHostIndex"
             :fixed="HostFixed"
             @addMasterHost='addMasterHost'
             @cancelMasterHost='cancelMasterHost'
             ref='lookUp' />
+    <!-- EngineType选择框 -->
+    <EngineTypeLookUp :fixed="EngineTypeFixed"
+                      :EngineTypeIndex="EngineTypeSelect"
+                      @cancelEngineType="cancelEngineType"
+                      @addEngineType="addEngineType"
+                      ref='TypelookUp' />
     <!-- 新增TestCase框 -->
     <q-dialog v-model="createFixed"
               persistent>
@@ -90,7 +95,9 @@
             <q-input v-model="EngineType"
                      :dense="false"
                      class="col"
-                     style="margin-left:50px;">
+                     style="margin-left:50px;"
+                     readonly
+                     @dblclick="openEngineType">
               <template v-slot:before>
                 <span style="font-size:14px">EngineType:</span>
               </template>
@@ -103,7 +110,7 @@
                      v-model="masterHostSelect"
                      @dblclick="masterHost">
               <template v-slot:before>
-                <span style="font-size:14px">主机:</span>
+                <span style="font-size:14px">MasterHost:</span>
               </template>
             </q-input>
             <!-- <q-input outlined
@@ -165,10 +172,12 @@
 <script>
 import * as Apis from "@/api/index"
 import lookUp from "@/components/lookUp.vue"
+import EngineTypeLookUp from "@/components/EngineTypeLookUp.vue"
 export default {
   name: 'TestCase',
   components: {
-    lookUp
+    lookUp,
+    EngineTypeLookUp
   },
   data () {
     return {
@@ -177,6 +186,12 @@ export default {
       TestCaseList: [],     //TeseCase列表
       masterHostList: [], //主机列表
       masterHostSelect: '', //主机选择
+      masterHostIndex: -1,//主机下标
+
+
+      EngineTypeFixed: false,//EngineTypeFlag
+      EngineTypeSelect: -1,//EngineType选择
+
 
       Name: '',           //Name
       Configuration: '',  //Configuration
@@ -278,6 +293,7 @@ export default {
       }
       this.masterHostSelect = this.masterHostList[value].address;
       this.MasterHostID = this.masterHostList[value].id;
+      this.masterHostIndex = value;
       this.createFixed = true;
       this.HostFixed = false;
     },
@@ -285,8 +301,33 @@ export default {
     cancelMasterHost () {
       this.createFixed = true;
       this.HostFixed = false;
-      this.$refs.lookUp.selectList = -1;
+      this.$refs.lookUp.selectIndex = this.masterHostIndex;
     },
+
+    // 打开EngineType框
+    openEngineType () {
+      this.EngineTypeFixed = true;
+      this.createFixed = false;
+    },
+    //添加EngineType
+    addEngineType (value, index) {
+      if (value == undefined) {
+        return false;
+      }
+      console.log(value, index)
+      this.EngineType = value[index];
+      this.EngineTypeSelect = index;
+      this.createFixed = true;
+      this.EngineTypeFixed = false;
+    },
+    //取消EngineType框
+    cancelEngineType () {
+      this.EngineTypeFixed = false;
+      this.createFixed = true;
+      this.$refs.TypelookUp.selectIndex = this.EngineTypeSelect;
+    },
+
+
     //新增弹窗取消按钮
     newCancel () {
       this.Name = '';
@@ -294,7 +335,8 @@ export default {
       this.EngineType = '';
       this.MasterHostID = '';
       this.masterHostSelect = '';
-      this.$refs.lookUp.selectList = -1;
+      this.$refs.lookUp.selectIndex = -1;
+      this.$refs.TypelookUp.selectIndex = -1;
       this.createFixed = false;
     },
     //新增弹窗创建按钮
@@ -354,6 +396,19 @@ export default {
 }
 </style>
 <style lang="scss">
+.q-table {
+  table-layout: fixed;
+  .cursor-pointer {
+    .text-left {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+.q-table--col-auto-width {
+  width: 75px;
+}
 .new_input {
   width: 100%;
   padding: 10px 30px;

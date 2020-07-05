@@ -7,27 +7,33 @@
             @addMasterHost='addMasterHost'
             @cancelMasterHost='cancelMasterHost'
             ref='lookUp' />
+    <!-- EngineType选择框 -->
+    <EngineTypeLookUp :fixed="EngineTypeFixed"
+                      :EngineTypeIndex="EngineTypeSelect"
+                      @cancelEngineType="cancelEngineType"
+                      @addEngineType="addEngineType"
+                      ref='TypelookUp' />
     <!-- button -->
     <div class="detail_header">
       <q-btn class="btn"
              color="primary"
              label="保 存"
-             :disable="detailData.status!=1?false:true"
+             :disable="isNoRun!=1?false:true"
              @click="putTestCase" />
       <q-btn class="btn"
              style="background: #FF0000; color: white"
              label="删 除"
-             :disable="detailData.status!=1?false:true"
+             :disable="isNoRun!=1?false:true"
              @click="deleteTestCase" />
       <q-btn class="btn"
              color="primary"
              label="运 行"
-             :disable="detailData.status!=1?false:true"
+             :disable="isNoRun!=1?false:true"
              @click="run" />
       <q-btn class="btn"
              color="primary"
              label="停 止"
-             :disable='detailData.status==1?false:true'
+             :disable='isNoRun==1?false:true'
              @click="stop" />
       <q-btn class="btn"
              color="primary"
@@ -46,8 +52,6 @@
              label="查 看 monitorUrl"
              @click="lookMonitorUrl" />
     </div>
-    <div class="mask"
-         v-if="detailData.status==1"></div>
     <!-- TestCase字段 -->
     <div class="q-pa-md row">
 
@@ -63,7 +67,9 @@
           <q-input v-model="EngineType"
                    :dense="false"
                    class="col"
-                   style="margin-left:50px;">
+                   readonly
+                   style="margin-left:50px;"
+                   @dblclick="openEngineType">
             <template v-slot:before>
               <span style="font-size:14px">EngineType:</span>
             </template>
@@ -75,7 +81,7 @@
                    v-model="masterHostSelect"
                    @dblclick="masterHost">
             <template v-slot:before>
-              <span style="font-size:14px">主机:</span>
+              <span style="font-size:14px">MasterHost:</span>
             </template>
           </q-input>
         </div>
@@ -158,14 +164,16 @@
                  @row-dblclick="toSlaveHostDetail"
                  :rows-per-page-options=[0]>
           <template v-slot:top-right>
-
-            <q-btn class="btn"
+            <q-btn class="
+                 btn"
                    color="primary"
                    label="新 增"
+                   :disable="isNoRun!=1?false:true"
                    @click="openSlaveHost" />
             <q-btn class="btn"
                    style="background: #FF0000; color: white"
                    label="删 除"
+                   :disable="isNoRun!=1?false:true"
                    @click="deleteSlaveHost" />
           </template>
           <template v-slot:bottom>
@@ -187,6 +195,7 @@
             <q-btn class="btn"
                    style="background: #FF0000; color: white"
                    label="删 除"
+                   :disable="isNoRun!=1?false:true"
                    @click="deleteHistory" />
           </template>
           <template v-slot:bottom>
@@ -207,14 +216,18 @@
 <script>
 import * as Apis from "@/api/index"
 import lookUp from "@/components/lookUp.vue"
+import EngineTypeLookUp from "@/components/EngineTypeLookUp.vue"
 export default {
   name: 'TestCaseDetail',
   components: {
-    lookUp
+    lookUp,
+    EngineTypeLookUp
   },
   data () {
     return {
       createFixed: false,//createslave Flag
+      isNoRun: 0,//判断是否在运行
+      timerOut: null, //定时器
       detailData: '',//详情数据
       data: [
         {
@@ -235,6 +248,10 @@ export default {
       masterHostList: [],//主机列表
       masterHostSelect: '',//主机已选择列表
       masterSelectIndex: '',  //主机已选择下标
+
+
+      EngineTypeFixed: false,//EngineTypeFlag
+      EngineTypeSelect: -1,//EngineType选择
 
       Name: '',           //Name
       Configuration: '',  //Configuration
@@ -259,7 +276,7 @@ export default {
           format: val => `${val}`,
         },
         { name: 'count', align: 'left', label: 'Count', field: 'count', },
-        { name: 'extensionInfo', label: 'ExtensionInfo', align: 'left', field: 'extensionInfo', },
+        { name: 'extensionInfo', label: 'ExtensionInfo', align: 'left', field: 'extensionInfo', style: 'width:100px;' },
       ],
 
 
@@ -285,6 +302,13 @@ export default {
   },
   mounted () {
     this.getTestCaseDetail();
+    this.timerOut = window.setInterval(() => {
+      setTimeout(this.getTestCaseStatus(), 0);
+    }, 3000);
+  },
+  beforeDestroy () {
+    clearInterval(this.timerOut);
+    this.timerOut = null;
   },
   methods: {
     //获得TestCase详情
@@ -298,9 +322,11 @@ export default {
         this.Name = res.data.name;
         this.Configuration = res.data.configuration;
         this.EngineType = res.data.engineType;
+        this.EngineTypeSelect = this.EngineType == 'Tcp' ? 1 : 0;
         this.getMasterHostList();
         this.getSlaveHostsList();
         this.getHistoryList();
+        this.getTestCaseStatus();
       })
     },
     //获得从机列表
@@ -340,6 +366,12 @@ export default {
         this.$q.loading.hide()
       })
     },
+    //查看TestCase是否运行
+    getTestCaseStatus () {
+      Apis.getTestCaseStatus({ caseId: this.$route.query.id }).then((res) => {
+        this.isNoRun = res.data;
+      })
+    },
 
 
     //双击主机
@@ -360,6 +392,26 @@ export default {
     cancelMasterHost () {
       this.HostFixed = false;
       this.$refs.lookUp.selectIndex = this.masterSelectIndex;
+    },
+
+    // 打开EngineType框
+    openEngineType () {
+      this.EngineTypeFixed = true;
+    },
+    //添加EngineType
+    addEngineType (value, index) {
+      if (value == undefined) {
+        return false;
+      }
+      console.log(value, index)
+      this.EngineType = value[index];
+      this.EngineTypeSelect = index;
+      this.EngineTypeFixed = false;
+    },
+    //取消EngineType框
+    cancelEngineType () {
+      this.EngineTypeFixed = false;
+      this.$refs.TypelookUp.selectIndex = this.EngineTypeSelect;
     },
 
 
@@ -457,8 +509,15 @@ export default {
     },
     //删除从机
     deleteSlaveHost () {
-      console.log(this.SlaveHostSelected, this.detailData)
-
+      if (this.SlaveHostSelected.length == 0) {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '请选择SlaveHost',
+          color: 'red',
+        })
+        return;
+      }
       this.$q.dialog({
         title: '提示',
         message: '您确定要删除当前选择的SalveHost吗',
@@ -501,6 +560,9 @@ export default {
     },
     //跳转从机详情
     toSlaveHostDetail (evt, row) {
+      if (this.isNoRun == 1) {
+        return;
+      }
       sessionStorage.setItem('SlaveHostDetailData', JSON.stringify(row))
       this.$router.push({
         name: 'SlaveHostDetail'
@@ -515,6 +577,15 @@ export default {
 
     //删除历史记录
     deleteHistory () {
+      if (this.HistorySelected.length == 0) {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '请选择History',
+          color: 'red',
+        })
+        return;
+      }
       this.$q.dialog({
         title: '提示',
         message: '您确定要删除当前选择的History吗',
@@ -559,6 +630,10 @@ export default {
     },
     //跳转到历史记录详情
     toHistoryDetail (evt, row) {
+      console.log(this.isNoRun)
+      if (this.isNoRun == 1) {
+        return;
+      }
       console.log(evt, row)
       this.$router.push({
         name: 'HistoryDetail',
@@ -682,6 +757,19 @@ export default {
 }
 </style>
 <style lang="scss">
+.q-table {
+  table-layout: fixed;
+  .cursor-pointer {
+    .text-left {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .q-table--col-auto-width {
+      width: 75px;
+    }
+  }
+}
 .new_input {
   width: 100%;
   padding: 10px 30px;

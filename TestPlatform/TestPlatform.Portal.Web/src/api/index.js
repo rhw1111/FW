@@ -244,6 +244,17 @@ export const getCheckStatus = payload =>
   })
 
 
+//查看TestCaseStatus状态
+export const getTestCaseStatus = payload =>
+  action({
+    apiName: 'getTestCaseStatus',
+    payload
+  })
+
+
+
+
+
 
 
 
