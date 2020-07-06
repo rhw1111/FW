@@ -127,7 +127,8 @@
             </q-input>
             <q-input v-model="SlaveCount"
                      :dense="false"
-                     class="col">
+                     class="col"
+                     @keyup="SlaveCount=SlaveCount.replace(/[^\d]/g,'')">
               <template v-slot:before>
                 <span style="font-size:14px">Count:</span>
               </template>
@@ -821,6 +822,9 @@ export default {
       width: 75px;
     }
   }
+}
+.q-table--col-auto-width {
+  width: 75px;
 }
 .new_input {
   width: 100%;

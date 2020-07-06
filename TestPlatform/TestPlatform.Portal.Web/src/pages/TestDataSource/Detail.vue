@@ -94,6 +94,12 @@ export default {
         Apis.putTestDataSource(para).then((res) => {
           console.log(res)
           this.getTestDataSourceDetail();
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '保存成功',
+            color: 'secondary',
+          })
         })
       } else {
         this.$q.notify({

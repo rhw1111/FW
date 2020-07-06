@@ -290,10 +290,10 @@ export default {
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .q-table--col-auto-width {
-      width: 75px;
-    }
   }
+}
+.q-table--col-auto-width {
+  width: 75px;
 }
 .new_input {
   width: 100%;
