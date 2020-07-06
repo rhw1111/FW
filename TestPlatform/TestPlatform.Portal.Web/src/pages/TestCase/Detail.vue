@@ -707,6 +707,12 @@ export default {
       Apis.postTestCaseRun(para).then((res) => {
         console.log(res)
         this.getTestCaseDetail()
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '运行成功',
+          color: 'secondary',
+        })
       })
     },
     //停止
@@ -716,6 +722,12 @@ export default {
       Apis.postTestCaseStop(para).then((res) => {
         console.log(res)
         this.getTestCaseDetail()
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '停止成功',
+          color: 'secondary',
+        })
       })
     },
     //查看状态
