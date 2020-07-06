@@ -7,6 +7,15 @@
             @addMasterHost='addMasterHost'
             @cancelMasterHost='cancelMasterHost'
             ref='lookUp' />
+    <!-- SlaveHost选择Host -->
+    <lookUp :masterHostList="masterHostList"
+            :masterSelectIndex='SlaveHostHostIndex'
+            :fixed="SlaveHostFixed"
+            @addMasterHost='addSlaveHostHost'
+            @cancelMasterHost='cancelSlaveHostHost'
+            ref='SlaveHostHostlookUp' />
+    <!-- 
+             -->
     <!-- EngineType选择框 -->
     <EngineTypeLookUp :fixed="EngineTypeFixed"
                       :EngineTypeIndex="EngineTypeSelect"
@@ -121,6 +130,15 @@
                      class="col">
               <template v-slot:before>
                 <span style="font-size:14px">Count:</span>
+              </template>
+            </q-input>
+            <q-input :dense="false"
+                     class="col"
+                     readonly
+                     v-model="SlaveHostHostSelect"
+                     @dblclick="dblSlaveHostHost">
+              <template v-slot:before>
+                <span style="font-size:14px">Host:</span>
               </template>
             </q-input>
           </div>
@@ -259,9 +277,16 @@ export default {
       MasterHostID: '',   //MasterHostID 主机ID
 
 
+      SlaveHostFixed: false,//从机Host LookUP Flag
+
       SlaveHostName: '',   //从机名称
       SlaveCount: '',      //从机数量
       SlaveExtensionInfo: '',   //从机拓展信息
+
+
+      SlaveHostHostId: '',   //SlaveHostHost ID
+      SlaveHostHostSelect: '',//主机已选择列表
+      SlaveHostHostIndex: -1,  //主机已选择下标
 
       SlaveHostList: [],       //从机列表
       SlaveHostSelected: [],   //从机表格选择
@@ -415,6 +440,31 @@ export default {
     },
 
 
+    //双击从机host
+    dblSlaveHostHost () {
+      this.createFixed = false;
+      this.SlaveHostFixed = true;
+    },
+    //添加从机Host
+    addSlaveHostHost (value) {
+      if (value == undefined) {
+        return false;
+      }
+      this.SlaveHostHostSelect = this.masterHostList[value].address;
+      this.SlaveHostHostId = this.masterHostList[value].id;
+      this.SlaveHostHostIndex = value;
+      this.SlaveHostFixed = false;
+      this.createFixed = true;
+      console.log(this.SlaveHostHostSelect, this.SlaveHostHostId, this.SlaveHostHostIndex)
+    },
+    //取消添加从机Host
+    cancelSlaveHostHost () {
+      this.SlaveHostFixed = false;
+      this.createFixed = true;
+      this.$refs.SlaveHostHostlookUp.selectIndex = this.SlaveHostHostIndex;
+    },
+
+
     //保存更新TestCase
     putTestCase () {
       let para = {
@@ -479,13 +529,13 @@ export default {
     //新建从机
     newCreate () {
       let para = {
-        "HostID": this.detailData.masterHostID,
+        "HostID": this.SlaveHostHostId,
         "TestCaseID": this.detailData.id,
         "SlaveName": this.SlaveHostName,
         "Count": Number(this.SlaveCount),
         "ExtensionInfo": this.SlaveExtensionInfo
       }
-      if (this.detailData.id && this.SlaveHostName && this.SlaveCount && this.SlaveExtensionInfo && this.detailData.masterHostID) {
+      if (this.detailData.id && this.SlaveHostName && this.SlaveCount && this.SlaveExtensionInfo && this.SlaveHostHostId) {
         this.$q.loading.show()
         Apis.postCreateSlaveHost(para).then((res) => {
           console.log(res)
@@ -506,6 +556,16 @@ export default {
           color: 'red',
         })
       }
+    },
+    //取消新建从机
+    newCancel () {
+      this.createFixed = false;
+      this.SlaveHostName = '';
+      this.SlaveCount = '';
+      this.SlaveExtensionInfo = '';
+      this.SlaveHostHostSelect = '';
+      this.SlaveHostHostId = '';
+      this.SlaveHostHostIndex = '';
     },
     //删除从机
     deleteSlaveHost () {
@@ -567,12 +627,6 @@ export default {
       this.$router.push({
         name: 'SlaveHostDetail'
       })
-    },
-    newCancel () {
-      this.createFixed = false;
-      this.SlaveHostName = '';
-      this.SlaveCount = '';
-      this.SlaveExtensionInfo = '';
     },
 
     //删除历史记录
