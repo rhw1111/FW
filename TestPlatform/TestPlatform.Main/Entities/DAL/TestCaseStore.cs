@@ -290,12 +290,13 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-
+                    Guid mHostGuid = source.MasterHostID;
                     source.ModifyTime = DateTime.UtcNow;
                     //source.CreateTime = DateTime.UtcNow;
                     dbContext.TestCases.Attach(source);
 
                     var entry = dbContext.Entry(source);
+                    source.MasterHostID = mHostGuid;
                     foreach (var item in entry.Properties)
                     {
                         if(item.Metadata.Name != "ID")
