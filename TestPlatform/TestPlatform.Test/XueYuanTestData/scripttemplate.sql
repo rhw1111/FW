@@ -704,14 +704,14 @@ class TcpTestUser(User):
     def save_data(stats_tcps, stats_tcps_currents, stats_tcps_totals):
         # print("save_data")
 
-        # pandas_stats_tcps = pandas.read_json(json.dumps(stats_tcps["stats_tcps"]), "records")
-        # print(pandas_stats_tcps)
+        pandas_stats_tcps = pandas.read_json(json.dumps(stats_tcps["stats_tcps"]), "records")
+        print(pandas_stats_tcps)
 
-        # pandas_stats_tcps_currents = pandas.read_json(json.dumps(stats_tcps_currents["stats_tcps_currents"]), "records")
-        # print(pandas_stats_tcps_currents)
+        pandas_stats_tcps_currents = pandas.read_json(json.dumps(stats_tcps_currents["stats_tcps_currents"]), "records")
+        print(pandas_stats_tcps_currents)
 
-        # pandas_stats_tcps_totals = pandas.read_json(json.dumps(stats_tcps_totals["stats_tcps_totals"]), "records")
-        # print(pandas_stats_tcps_totals)
+        pandas_stats_tcps_totals = pandas.read_json(json.dumps(stats_tcps_totals["stats_tcps_totals"]), "records")
+        print(pandas_stats_tcps_totals)
 
         TcpTestUser.add_master_data(stats_tcps, stats_tcps_currents, stats_tcps_totals)
 
