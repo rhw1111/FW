@@ -83,17 +83,26 @@ export default {
     },
     //更新TestDataSource
     putTestDataSource () {
-      this.$q.loading.show()
       let para = {
         ID: this.Id,
         Name: this.Name,
         Type: this.Type,
         Data: this.Data
       }
-      Apis.putTestDataSource(para).then((res) => {
-        console.log(res)
-        this.getTestDataSourceDetail();
-      })
+      if (this.Id && this.Name && this.Type && this.Data) {
+        this.$q.loading.show()
+        Apis.putTestDataSource(para).then((res) => {
+          console.log(res)
+          this.getTestDataSourceDetail();
+        })
+      } else {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '请填写完整信息',
+          color: 'red',
+        })
+      }
     },
     //删除TestDataSource
     deleteTestDataSource () {

@@ -129,6 +129,7 @@ export default {
       this.MasterHostID = this.masterHostList[value].id;
       this.masterSelectIndex = value;
       this.HostFixed = false;
+      console.log(this.masterHostSelect, this.MasterHostID, this.masterSelectIndex)
     },
     //取消主机选择
     cancelMasterHost () {
