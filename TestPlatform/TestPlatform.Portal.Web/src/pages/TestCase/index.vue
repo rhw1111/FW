@@ -55,7 +55,7 @@
               persistent>
       <q-card style="width:100%">
         <q-card-section>
-          <div class="text-h6">创建TestCase</div>
+          <div class="text-h6">创建测试用例</div>
         </q-card-section>
 
         <q-separator />
@@ -221,7 +221,7 @@ export default {
       console.log(value)
       this.$q.dialog({
         title: '提示',
-        message: '您确定要删除当前的TestCase吗',
+        message: '您确定要删除当前的测试用例吗',
         persistent: true,
         ok: {
           push: true,

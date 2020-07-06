@@ -185,7 +185,7 @@ export default {
     deleteSlaveHost () {
       this.$q.dialog({
         title: '提示',
-        message: '您确定要删除当前SalveHost吗',
+        message: '您确定要删除当前从主机吗',
         persistent: true,
         ok: {
           push: true,

@@ -73,7 +73,7 @@ export default {
     deleteHistory () {
       this.$q.dialog({
         title: '提示',
-        message: '您确定要删除当前的History吗',
+        message: '您确定要删除当前的历史记录吗',
         persistent: true,
         ok: {
           push: true,

@@ -504,7 +504,7 @@ export default {
     deleteTestCase () {
       this.$q.dialog({
         title: '提示',
-        message: '您确定要删除当前的TestCase吗',
+        message: '您确定要删除当前的测试用例吗',
         persistent: true,
         ok: {
           push: true,
@@ -576,14 +576,14 @@ export default {
         this.$q.notify({
           position: 'top',
           message: '提示',
-          caption: '请选择SlaveHost',
+          caption: '请选择从主机',
           color: 'red',
         })
         return;
       }
       this.$q.dialog({
         title: '提示',
-        message: '您确定要删除当前选择的SalveHost吗',
+        message: '您确定要删除当前选择的从主机吗',
         persistent: true,
         ok: {
           push: true,
@@ -638,14 +638,14 @@ export default {
         this.$q.notify({
           position: 'top',
           message: '提示',
-          caption: '请选择History',
+          caption: '请选择历史记录',
           color: 'red',
         })
         return;
       }
       this.$q.dialog({
         title: '提示',
-        message: '您确定要删除当前选择的History吗',
+        message: '您确定要删除当前选择的历史记录吗',
         persistent: true,
         ok: {
           push: true,
@@ -724,7 +724,7 @@ export default {
       Apis.getCheckStatus({ caseId: this.$route.query.id }).then((res) => {
         this.$q.dialog({
           title: '提示',
-          message: res.data ? '当前TestCase正在运行' : '当前TestCase为停止状态'
+          message: res.data ? '当前测试用例正在运行' : '当前测试用例为停止状态'
         })
         this.$q.loading.hide()
       })
@@ -746,7 +746,7 @@ export default {
         this.$q.notify({
           position: 'top',
           message: '提示',
-          caption: '请选择SlaveHost',
+          caption: '请选择从主机',
           color: 'red',
         })
       } else if (this.SlaveHostSelected.length == 1) {
@@ -767,7 +767,7 @@ export default {
         this.$q.notify({
           position: 'top',
           message: '提示',
-          caption: '只能选择一个SlaveHost',
+          caption: '只能选择一个从主机',
           color: 'red',
         })
       }

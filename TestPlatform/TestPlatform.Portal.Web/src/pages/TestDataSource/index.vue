@@ -38,7 +38,7 @@
               persistent>
       <q-card style="width:100%">
         <q-card-section>
-          <div class="text-h6">创建TestDataSource</div>
+          <div class="text-h6">创建测试数据源</div>
         </q-card-section>
 
         <q-separator />
@@ -203,14 +203,14 @@ export default {
         this.$q.notify({
           position: 'top',
           message: '提示',
-          caption: '请选择您要删除的TestDataSource',
+          caption: '请选择您要删除的测试数据源',
           color: 'red',
         })
         return;
       }
       this.$q.dialog({
         title: '提示',
-        message: '您确定要删除当前选择的TestDataSource吗',
+        message: '您确定要删除当前选择的测试数据源吗',
         persistent: true,
         ok: {
           push: true,
