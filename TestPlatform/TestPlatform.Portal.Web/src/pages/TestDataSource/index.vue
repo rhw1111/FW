@@ -266,6 +266,19 @@ export default {
   .q-pa-md {
     margin-top: 40px;
   }
+  .q-table {
+    table-layout: fixed;
+    .cursor-pointer {
+      .text-left {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .q-table--col-auto-width {
+        width: 75px;
+      }
+    }
+  }
 }
 </style>
 <style lang="scss">
@@ -276,6 +289,9 @@ export default {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+    .q-table--col-auto-width {
+      width: 75px;
     }
   }
 }

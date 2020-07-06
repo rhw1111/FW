@@ -511,9 +511,7 @@ export default {
         },
       }).onOk(() => {
         this.$q.loading.show()
-        let para = {
-          id: this.detailData.id
-        }
+        let para = `?id=${this.detailData.id}`
         Apis.deleteTestCase(para).then((res) => {
           console.log(res)
           this.$router.push({ name: 'TestCase' })

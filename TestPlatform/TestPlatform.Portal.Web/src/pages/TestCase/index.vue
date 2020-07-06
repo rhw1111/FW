@@ -404,6 +404,9 @@ export default {
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .q-table--col-auto-width {
+      width: 75px !important;
+    }
   }
 }
 .q-table--col-auto-width {

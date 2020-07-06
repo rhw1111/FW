@@ -196,10 +196,7 @@ export default {
         },
       }).onOk(() => {
         this.$q.loading.show()
-        let para = {
-          caseId: this.SlaveHostData.testCaseID,
-          id: this.SlaveHostData.id
-        }
+        let para = `?id=${this.SlaveHostData.id}&caseId=${this.SlaveHostData.testCaseID}`;
         Apis.deleteSlaveHost(para).then((res) => {
           console.log(res)
           this.$router.push({ name: 'TestCaseDetail', query: { id: this.SlaveHostData.testCaseID } })
