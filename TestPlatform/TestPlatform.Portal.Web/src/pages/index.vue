@@ -16,9 +16,9 @@
 
         <q-tabs align="left">
           <q-route-tab to="/TestCase"
-                       label="TestCase" />
+                       label="测试用例" />
           <q-route-tab to="/TestDataSource"
-                       label="TestDataSource" />
+                       label="测试数据源" />
         </q-tabs>
       </q-header>
 

@@ -18,7 +18,7 @@
                    :dense="false"
                    class="col">
             <template v-slot:before>
-              <span style="font-size:14px">Name:</span>
+              <span style="font-size:14px">名称:</span>
             </template>
           </q-input>
           <q-input v-model="Type"
@@ -26,7 +26,7 @@
                    class="col"
                    style="margin-left:50px;">
             <template v-slot:before>
-              <span style="font-size:14px">Type:</span>
+              <span style="font-size:14px">类型:</span>
             </template>
           </q-input>
         </div>
@@ -38,7 +38,7 @@
                    type="textarea"
                    outlined>
             <template v-slot:before>
-              <span style="font-size:14px">Data:</span>
+              <span style="font-size:14px">数据:</span>
             </template>
           </q-input>
         </div>

@@ -2,14 +2,15 @@
   <div class="TestDataSource">
     <!-- TestDataSource列表 -->
     <div class="q-pa-md">
-      <q-table title="TestDataSource列表"
+      <q-table title="测试数据源列表"
                :data="TestDataSourceList"
                :columns="columns"
                selection="multiple"
                :selected.sync="selected"
                row-key="id"
                @row-dblclick="toDetail"
-               :rows-per-page-options=[0]>
+               :rows-per-page-options=[0]
+               no-data-label="暂无数据更新">
 
         <template v-slot:top-right>
           <q-btn class="btn"
@@ -47,7 +48,7 @@
                      :dense="false"
                      class="col">
               <template v-slot:before>
-                <span style="font-size:14px">Name:</span>
+                <span style="font-size:14px">名称:</span>
               </template>
             </q-input>
             <q-input v-model="Type"
@@ -55,7 +56,7 @@
                      class="col"
                      style="margin-left:50px;">
               <template v-slot:before>
-                <span style="font-size:14px">Type:</span>
+                <span style="font-size:14px">类型:</span>
               </template>
             </q-input>
           </div>
@@ -66,7 +67,7 @@
                      type="textarea"
                      outlined>
               <template v-slot:before>
-                <span style="font-size:14px">Data:</span>
+                <span style="font-size:14px">数据:</span>
               </template>
             </q-input>
           </div>
@@ -108,13 +109,13 @@ export default {
         {
           name: 'name',
           required: true,
-          label: 'Name',
+          label: '名称',
           align: 'left',
           field: row => row.name,
           format: val => `${val}`,
         },
-        { name: 'type', align: 'left', label: 'Type', field: 'type', },
-        { name: 'data', label: 'Data', align: 'left', field: 'data', },
+        { name: 'type', align: 'left', label: '类型', field: 'type', },
+        { name: 'data', label: '数据', align: 'left', field: 'data', },
       ],
       //分页配置
       pagination: {

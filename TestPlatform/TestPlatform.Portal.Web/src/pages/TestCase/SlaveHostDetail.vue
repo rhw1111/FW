@@ -27,7 +27,7 @@
                    :dense="false"
                    class="col">
             <template v-slot:before>
-              <span style="font-size:14px">SlaveName:</span>
+              <span style="font-size:14px">从主机名称:</span>
             </template>
           </q-input>
           <q-input v-model="SlaveCount"
@@ -36,7 +36,7 @@
                    style="margin-left:50px;"
                    @keyup="SlaveCount=SlaveCount.replace(/[^\d]/g,'')">
             <template v-slot:before>
-              <span style="font-size:14px">Count:</span>
+              <span style="font-size:14px">数量:</span>
             </template>
           </q-input>
 
@@ -58,7 +58,7 @@
                    type="textarea"
                    outlined>
             <template v-slot:before>
-              <span style="font-size:14px">ExtensionInfo:</span>
+              <span style="font-size:14px">扩展信息:</span>
             </template>
           </q-input>
         </div>

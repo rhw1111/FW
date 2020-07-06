@@ -2,39 +2,15 @@
   <div class="TestCase">
     <!-- TestCase列表 -->
     <div class="q-pa-md">
-      <!-- <q-list bordered
-              separator>
-        <q-item clickable
-                v-ripple
-                v-for="(val,ind) in TestCaseList"
-                :key="ind"
-                tag="section"
-                @dblclick="toDetail(val.id)">
-          <q-item-section avatar>
-            <q-checkbox v-model="value"
-                        :val="val.id" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>{{val.name}}</q-item-label>
-            <q-item-label caption>{{val.configuration}}</q-item-label>
-            <q-item-label caption>{{val.engineType}}</q-item-label>
-          </q-item-section>
 
-        </q-item>
-
-      </q-list> -->
-
-      <q-table title="TestCase列表"
+      <q-table title="测试用例列表"
                :data="TestCaseList"
                :columns="columns"
                row-key="id"
                @row-dblclick="toDetail"
-               :rows-per-page-options=[0]>
-        <!-- 
-               selection="multiple"
-               :selected.sync="selected"
-               :pagination.sync="pagination"
-               :pagination-label="paginationLabel" -->
+               :rows-per-page-options=[0]
+               no-data-label="暂无数据更新">
+
         <template v-slot:top-right>
           <q-btn class="btn"
                  color="primary"
@@ -89,7 +65,7 @@
                      :dense="false"
                      class="col">
               <template v-slot:before>
-                <span style="font-size:14px">Name:</span>
+                <span style="font-size:14px">名称:</span>
               </template>
             </q-input>
             <q-input v-model="EngineType"
@@ -99,7 +75,7 @@
                      readonly
                      @dblclick="openEngineType">
               <template v-slot:before>
-                <span style="font-size:14px">EngineType:</span>
+                <span style="font-size:14px">引擎类型:</span>
               </template>
             </q-input>
           </div>
@@ -110,7 +86,7 @@
                      v-model="masterHostSelect"
                      @dblclick="masterHost">
               <template v-slot:before>
-                <span style="font-size:14px">MasterHost:</span>
+                <span style="font-size:14px">主机:</span>
               </template>
             </q-input>
             <!-- <q-input outlined
@@ -129,26 +105,10 @@
                      type="textarea"
                      outlined>
               <template v-slot:before>
-                <span style="font-size:14px">Configuration:</span>
+                <span style="font-size:14px">配置:</span>
               </template>
             </q-input>
           </div>
-          <!-- <q-input v-model="Name"
-                   label="Name" />
-          <q-input v-model="EngineType"
-                   label="EngineType" />
-          <q-input v-model="Configuration"
-                   label="Configuration" />
-          <div class="q-pa-md row">
-            <q-input outlined
-                     readonly
-                     v-model="masterHostSelect"
-                     label="主机："
-                     stack-label
-                     :dense="false"
-                     class="col-xs-12 col-sm-4 col-xl-4"
-                     @dblclick="masterHost" />
-          </div> -->
         </div>
 
         <q-separator />
@@ -204,13 +164,13 @@ export default {
         {
           name: 'name',
           required: true,
-          label: 'Name',
+          label: '名称',
           align: 'left',
           field: row => row.name,
           format: val => `${val}`,
         },
-        { name: 'engineType', align: 'left', label: 'EngineType', field: 'engineType', },
-        { name: 'configuration', label: 'Configuration', align: 'left', field: 'configuration', },
+        { name: 'engineType', align: 'left', label: '引擎类型', field: 'engineType', },
+        { name: 'configuration', label: '配置', align: 'left', field: 'configuration', },
         { name: 'id', label: '', align: 'left', field: 'id', },
       ],
       //分页配置

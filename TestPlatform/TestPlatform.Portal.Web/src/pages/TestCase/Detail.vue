@@ -50,15 +50,15 @@
              @click="lookStatus" />
       <q-btn class="btn"
              color="primary"
-             label="查 看 Master 日 志"
+             label="查 看 主 机 日 志"
              @click="lookMasterLog" />
       <q-btn class="btn"
              color="primary"
-             label="查 看 Slave 日 志"
+             label="查 看 从 主 机 日 志"
              @click="lookSlaveLog" />
       <q-btn class="btn"
              color="primary"
-             label="查 看 monitorUrl"
+             label="查 看 监 测 地 址"
              @click="lookMonitorUrl" />
     </div>
     <!-- TestCase字段 -->
@@ -70,7 +70,7 @@
                    :dense="false"
                    class="col">
             <template v-slot:before>
-              <span style="font-size:14px">Name:</span>
+              <span style="font-size:14px">名称:</span>
             </template>
           </q-input>
           <q-input v-model="EngineType"
@@ -80,7 +80,7 @@
                    style="margin-left:50px;"
                    @dblclick="openEngineType">
             <template v-slot:before>
-              <span style="font-size:14px">EngineType:</span>
+              <span style="font-size:14px">引擎类型:</span>
             </template>
           </q-input>
 
@@ -90,7 +90,7 @@
                    v-model="masterHostSelect"
                    @dblclick="masterHost">
             <template v-slot:before>
-              <span style="font-size:14px">MasterHost:</span>
+              <span style="font-size:14px">主机:</span>
             </template>
           </q-input>
         </div>
@@ -101,7 +101,7 @@
                    type="textarea"
                    outlined>
             <template v-slot:before>
-              <span style="font-size:14px">Configuration:</span>
+              <span style="font-size:14px">配置:</span>
             </template>
           </q-input>
         </div>
@@ -112,7 +112,7 @@
               persistent>
       <q-card style="width:100%">
         <q-card-section>
-          <div class="text-h6">创建SlaveHost</div>
+          <div class="text-h6">创建从主机</div>
         </q-card-section>
 
         <q-separator />
@@ -122,7 +122,7 @@
                      :dense="false"
                      class="col">
               <template v-slot:before>
-                <span style="font-size:14px">SlaveHostName:</span>
+                <span style="font-size:14px">名称:</span>
               </template>
             </q-input>
             <q-input v-model="SlaveCount"
@@ -130,7 +130,7 @@
                      class="col"
                      @keyup="SlaveCount=SlaveCount.replace(/[^\d]/g,'')">
               <template v-slot:before>
-                <span style="font-size:14px">Count:</span>
+                <span style="font-size:14px">数量:</span>
               </template>
             </q-input>
             <q-input :dense="false"
@@ -139,7 +139,7 @@
                      v-model="SlaveHostHostSelect"
                      @dblclick="dblSlaveHostHost">
               <template v-slot:before>
-                <span style="font-size:14px">Host:</span>
+                <span style="font-size:14px">主机:</span>
               </template>
             </q-input>
           </div>
@@ -150,7 +150,7 @@
                      type="textarea"
                      outlined>
               <template v-slot:before>
-                <span style="font-size:14px">ExtensionInfo:</span>
+                <span style="font-size:14px">扩展信息:</span>
               </template>
             </q-input>
           </div>
@@ -174,14 +174,15 @@
       <!-- 从机列表 -->
       <q-list bordered
               class="col-xs-12 col-sm-6 col-xl-6">
-        <q-table title="SalveHost列表"
+        <q-table title="从主机列表"
                  :data="SlaveHostList"
                  :columns="columns"
                  row-key="id"
                  selection="multiple"
                  :selected.sync="SlaveHostSelected"
                  @row-dblclick="toSlaveHostDetail"
-                 :rows-per-page-options=[0]>
+                 :rows-per-page-options=[0]
+                 no-data-label="暂无数据更新">
           <template v-slot:top-right>
             <q-btn class="
                  btn"
@@ -202,14 +203,15 @@
       <!-- 历史记录列表 -->
       <q-list bordered
               class="col-xs-12 col-sm-6 col-xl-6">
-        <q-table title="History列表"
+        <q-table title="历史记录列表"
                  :data="HistoryList"
                  :columns="HistoryColumns"
                  row-key="id"
                  selection="multiple"
                  :selected.sync="HistorySelected"
                  @row-dblclick="toHistoryDetail"
-                 :rows-per-page-options=[0]>
+                 :rows-per-page-options=[0]
+                 no-data-label="暂无数据更新">
           <template v-slot:top-right>
             <q-btn class="btn"
                    style="background: #FF0000; color: white"
@@ -296,13 +298,13 @@ export default {
         {
           name: 'slaveName',
           required: true,
-          label: 'SlaveName',
+          label: '名称',
           align: 'left',
           field: row => row.slaveName,
           format: val => `${val}`,
         },
-        { name: 'count', align: 'left', label: 'Count', field: 'count', },
-        { name: 'extensionInfo', label: 'ExtensionInfo', align: 'left', field: 'extensionInfo', style: 'width:100px;' },
+        { name: 'count', align: 'left', label: '数量', field: 'count', },
+        { name: 'extensionInfo', label: '扩展信息', align: 'left', field: 'extensionInfo', style: 'width:100px;' },
       ],
 
 
@@ -313,7 +315,7 @@ export default {
         {
           name: 'createTime',
           required: true,
-          label: 'CreateTime',
+          label: '创建时间',
           align: 'left',
           field: row => row.createTime,
           format: val => `${val}`,

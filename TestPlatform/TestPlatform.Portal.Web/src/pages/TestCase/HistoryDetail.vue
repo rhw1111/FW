@@ -15,7 +15,7 @@
                    class="col"
                    readonly>
             <template v-slot:before>
-              <span style="font-size:14px">Createtime:</span>
+              <span style="font-size:14px">创建时间:</span>
             </template>
           </q-input>
         </div>
@@ -28,7 +28,7 @@
                    outlined
                    readonly>
             <template v-slot:before>
-              <span style="font-size:14px">Summary:</span>
+              <span style="font-size:14px">总结:</span>
             </template>
           </q-input>
         </div>
