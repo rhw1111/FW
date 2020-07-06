@@ -84,11 +84,11 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-
+                    Guid slaveHostGuid = source.HostID;
                     source.ModifyTime = DateTime.UtcNow;
                     dbContext.TestCaseSlaveHosts.Attach(source);
-
                     var entry = dbContext.Entry(source);
+                    source.HostID = slaveHostGuid;
                     foreach (var item in entry.Properties)
                     {
                         if (item.Metadata.Name != "ID")
