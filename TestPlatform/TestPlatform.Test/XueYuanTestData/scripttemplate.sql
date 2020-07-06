@@ -714,20 +714,22 @@ class TcpTestUser(User):
         # print(pandas_stats_tcps_totals)
 
         TcpTestUser.add_master_data(stats_tcps, stats_tcps_currents, stats_tcps_totals)
-        TcpTestUser.add_history_data(TcpTestUser.stats_tcps, TcpTestUser.stats_tcps_currents, TcpTestUser.stats_tcps_totals)        
 
     def add_master_data(stats_tcps, stats_tcps_currents, stats_tcps_totals):
         # print("add_master_data")
 
+        if len(stats_tcps_totals["stats_tcps_totals"]) == 0:
+            return
+
         master_data = {}
         master_data["CaseID"] = ""
-        master_data["ConnectCount"] = ""
-        master_data["ConnectFailCount"] = ""
-        master_data["ReqCount"] = ""
-        master_data["ReqFailCount"] = ""
-        master_data["MaxDuration"] = ""
-        master_data["MinDurartion"] = ""
-        master_data["AvgDuration"] = ""
+        master_data["ConnectCount"] = "0"
+        master_data["ConnectFailCount"] = "0"
+        master_data["ReqCount"] = "0"
+        master_data["ReqFailCount"] = "0"
+        master_data["MaxDuration"] = "0.0"
+        master_data["MinDurartion"] = "0.0"
+        master_data["AvgDuration"] = "0.0"
 
         for row in stats_tcps_currents["stats_tcps_currents"]:
             if row["name"] == "connect":
@@ -751,17 +753,23 @@ class TcpTestUser(User):
             elif row["name"] == "recv":
                 a = 1
 
+        if master_data["CaseID"] == "":
+            return
+
         # print(master_data)
         TcpTestUser.post_api("api/monitor/addmasterdata", master_data)
 
     def add_worker_data(stats_tcps, stats_tcps_currents, stats_tcps_totals):
         # print("add_worker_data")
 
+        if len(stats_tcps_currents["stats_tcps_currents"]) == 0:
+            return
+
         worker_data_data = {}
         worker_data_data["CaseID"] = ""
         worker_data_data["SlaveID"] = ""
-        worker_data_data["QPS"] = ""
-        worker_data_data["Time"] = ""
+        worker_data_data["QPS"] = "0.0"
+        worker_data_data["Time"] = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
         for row in stats_tcps_currents["stats_tcps_currents"]:
             if row["name"] == "connect":
@@ -777,33 +785,41 @@ class TcpTestUser(User):
         worker_data = []
         worker_data.append(worker_data_data)
 
+        if len(worker_data) == 0:
+            return
+        elif worker_data[0]["CaseID"] == "":
+            return
+
         # print(worker_data)
         TcpTestUser.post_api("api/monitor/addslavedata", worker_data)
 
     def add_history_data(stats_tcps, stats_tcps_currents, stats_tcps_totals):
         # print("add_history_data")
 
+        if len(stats_tcps_totals["stats_tcps_totals"]) == 0:
+            return
+
         history_data = {}
         history_data["CaseID"] = ""
-        history_data["ConnectCount"] = ""
-        history_data["ConnectFailCount"] = ""
-        history_data["ReqCount"] = ""
-        history_data["ReqFailCount"] = ""
-        history_data["MaxQPS"] = ""
-        history_data["MinQPS"] = ""
-        history_data["AvgQPS"] = ""
-        history_data["MaxDuration"] = ""
-        history_data["MinDurartion"] = ""
-        history_data["AvgDuration"] = ""
+        history_data["ConnectCount"] = 0
+        history_data["ConnectFailCount"] = 0
+        history_data["ReqCount"] = 0
+        history_data["ReqFailCount"] = 0
+        history_data["MaxQPS"] = 0.0
+        history_data["MinQPS"] = 0.0
+        history_data["AvgQPS"] = 0.0
+        history_data["MaxDuration"] = 0.0
+        history_data["MinDurartion"] = 0.0
+        history_data["AvgDuration"] = 0.0
 
         for row in stats_tcps_totals["stats_tcps_totals"]:
             if row["name"] == "connect":
                 history_data["CaseID"] = row["case_id"]
-                history_data["ConnectCount"] = row["count_num"]
-                history_data["ConnectFailCount"] = row["fail_num"]
+                history_data["ConnectCount"] = int(row["count_num"])
+                history_data["ConnectFailCount"] = int(row["fail_num"])
             elif row["name"] == "send":
-                history_data["ReqCount"] = row["count_num"]
-                history_data["ReqFailCount"] = row["fail_num"]
+                history_data["ReqCount"] = int(row["count_num"])
+                history_data["ReqFailCount"] = int(row["fail_num"])
                 history_data["MaxDuration"] = row["max_time"]
                 history_data["MinDurartion"] = row["min_time"]
                 history_data["AvgDuration"] = row["avg_time"]
@@ -813,8 +829,11 @@ class TcpTestUser(User):
             elif row["name"] == "recv":
                 a = 1
 
+        if history_data["CaseID"] == "":
+            return
+
         # print(history_data)
-        TcpTestUser.post_api("api/monitor/addhistory", history_data)
+        TcpTestUser.post_api("api/report/addhistory", history_data)
 
     def post_api(path, data):
         # print("post_api")
@@ -1055,7 +1074,6 @@ class TcpTestUser(User):
             "")
 
         self.reset_data()
-
 '
 WHERE id = '9adb8033-f28a-43a1-b396-0f36307b213b';
 
