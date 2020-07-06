@@ -140,6 +140,7 @@ export default {
         this.pagination.page = page || 1;
         this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
         this.TestDataSourceList = res.data.results;
+        this.selected = [];
         this.$q.loading.hide();
       })
     },

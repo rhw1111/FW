@@ -33,7 +33,8 @@
           <q-input v-model="SlaveCount"
                    :dense="false"
                    class="col"
-                   style="margin-left:50px;">
+                   style="margin-left:50px;"
+                   @keyup="SlaveCount=SlaveCount.replace(/[^\d]/g,'')">
             <template v-slot:before>
               <span style="font-size:14px">Count:</span>
             </template>

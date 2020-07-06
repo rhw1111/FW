@@ -360,6 +360,7 @@ export default {
       Apis.getSlaveHostsList({ caseId: this.$route.query.id }).then((res) => {
         console.log(res)
         this.SlaveHostList = res.data;
+        this.SlaveHostSelected = [];
         this.$q.loading.hide()
       })
     },
@@ -389,6 +390,7 @@ export default {
         this.pagination.page = page || 1;
         this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
         this.HistoryList = res.data.results;
+        this.HistorySelected = [];
         this.$q.loading.hide()
       })
     },
@@ -544,7 +546,7 @@ export default {
             caption: '创建成功',
             color: 'secondary',
           })
-          this.createFixed = false;
+          this.newCancel();
           this.getSlaveHostsList();
         })
       } else {

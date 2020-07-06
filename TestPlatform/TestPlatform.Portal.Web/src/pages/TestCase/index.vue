@@ -359,6 +359,13 @@ export default {
             caption: '创建成功',
             color: 'secondary',
           })
+          this.Name = '';
+          this.Configuration = '';
+          this.EngineType = '';
+          this.MasterHostID = '';
+          this.masterHostSelect = '';
+          this.$refs.lookUp.selectIndex = -1;
+          this.$refs.TypelookUp.selectIndex = -1;
         })
       } else {
         this.$q.notify({
