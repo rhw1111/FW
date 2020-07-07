@@ -3,7 +3,7 @@
             persistent>
     <q-card>
       <q-card-section>
-        <div class="text-h6">Master Host List</div>
+        <div class="text-h6">主机列表</div>
       </q-card-section>
 
       <q-separator />
