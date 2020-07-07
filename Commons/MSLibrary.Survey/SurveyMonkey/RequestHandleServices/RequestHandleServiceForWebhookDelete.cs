@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -27,7 +28,7 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
 
         public async Task<SurveyMonkeyResponse> Execute(Func<HttpClient, Task> authHandler, Func<SurveyMonkeyRequest, Task<SurveyMonkeyResponse>> requestHandler, string type, string configuration, SurveyMonkeyRequest request, CancellationToken cancellationToken = default)
         {
-            var realRequest = (WebhookQueryRequest)request;
+            var realRequest = (WebhookDeleteRequest)request;
 
             using (var httpClient = _httpClientFactory.CreateClient())
             {
@@ -36,11 +37,25 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
 
 
 
-                using (var response = await httpClient.DeleteAsync($"{realRequest.Address}/{realRequest.Version}/webhooks?page={realRequest.Page.ToString()}&per_page={realRequest.PageSize.ToString()}"))
+                using (var response = await httpClient.DeleteAsync($"{realRequest.Address}/{realRequest.Version}/webhooks/{realRequest.ID.ToUrlEncode()}",cancellationToken))
                 {
                     if (!response.IsSuccessStatusCode)
                     {
-                        var fragment = new TextFragment()
+                        TextFragment fragment;
+                        if (response.StatusCode == HttpStatusCode.NotFound)
+                        {
+                            fragment = new TextFragment()
+                            {
+                                Code = SurveyTextCodes.NotFoundSurveyMonkeyWebhookByID,
+                                DefaultFormatting = "找不到指定ID为{0}的Webhook注册",
+                                ReplaceParameters = new List<object>() { realRequest.ID }
+                            };
+
+                            throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyMonkeyWebhookByID, fragment, 1, 0);
+                        }
+
+
+                         fragment = new TextFragment()
                         {
                             Code = SurveyTextCodes.SurveyMonkeyRequestHandleError,
                             DefaultFormatting = "SurveyMonkey终结点{0}请求处理错误，错误信息为{1}",

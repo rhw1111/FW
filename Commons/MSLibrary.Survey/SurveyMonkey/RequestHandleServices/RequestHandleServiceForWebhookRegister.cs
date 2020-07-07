@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -41,11 +42,24 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
                     SubscriptionUrl = realRequest.SubscriptionUrl
                 };
 
-                using (var response = await httpClient.PostAsync($"{realRequest.Address}/{realRequest.Version}/webhooks", new StringContent(JsonSerializerHelper.Serializer(body), new UTF8Encoding(), "application/json")))
+                using (var response = await httpClient.PostAsync($"{realRequest.Address}/{realRequest.Version}/webhooks", new StringContent(JsonSerializerHelper.Serializer(body), new UTF8Encoding(), "application/json"), cancellationToken))
                 {
+                    TextFragment fragment;
                     if (!response.IsSuccessStatusCode)
                     {
-                        var fragment = new TextFragment()
+                        if (response.StatusCode== HttpStatusCode.Conflict)
+                        {
+                            fragment = new TextFragment()
+                            {
+                                Code = SurveyTextCodes.ExistsSurveyMonkeyWebhookByName,
+                                DefaultFormatting = "已经存在名称为{0}的Webhook注册",
+                                ReplaceParameters = new List<object>() { realRequest.Name }
+                            };
+
+                            throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyRequestHandleError, fragment, 1, 0);
+                        }
+
+                        fragment = new TextFragment()
                         {
                             Code = SurveyTextCodes.SurveyMonkeyRequestHandleError,
                             DefaultFormatting = "SurveyMonkey终结点{0}请求处理错误，错误信息为{1}",

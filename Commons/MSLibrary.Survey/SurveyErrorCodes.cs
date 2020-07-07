@@ -28,6 +28,34 @@ namespace MSLibrary.Survey
         /// <summary>
         /// 找不到指定类型的Webhook回调验证服务
         /// </summary>
-        NotFoundWebhookCallbackValidationServiceByType = 315000321,
+        NotFoundSurveyMonkeyWebhookCallbackValidationServiceByType = 315000321,
+        /// <summary>
+        /// 已经存在相同名称的Webhook注册
+        /// </summary>
+        ExistsSurveyMonkeyWebhookByName = 315000330,
+        /// <summary>
+        /// 找不到指定ID的Webhook注册
+        /// </summary>
+        NotFoundSurveyMonkeyWebhookByID = 315000331,
+        /// <summary>
+        /// 找不到指定类型的Survey响应收集器工厂
+        /// </summary>
+        NotFoundSurveyResponseCollectorFactoryByType = 315000340,
+        /// <summary>
+        /// 找不到指定类型的Survey响应收集器绑定服务
+        /// </summary>
+        NotFoundSurveyResponseCollectorBindServiceByType = 315000341,
+        /// <summary>
+        /// 找不到指定类型的Survey响应收集器终结点终止服务
+        /// </summary>
+        NotFoundSurveyResponseCollectorEndpointFinanlyServiceByType = 315000342,
+        /// <summary>
+        /// 找不到指定类型的Survey响应收集器终结点初始化服务
+        /// </summary>
+        NotFoundSurveyResponseCollectorEndpointInitServiceByType = 315000343,
+        /// <summary>
+        /// 找不到指定类型的Survey响应收集器数据查询服务
+        /// </summary>
+        NotFoundSurveyResponseCollectorDataQueryServiceByType = 315000344,
     }
 }
