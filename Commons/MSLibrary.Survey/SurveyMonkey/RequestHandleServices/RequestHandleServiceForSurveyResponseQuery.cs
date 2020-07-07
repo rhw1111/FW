@@ -51,7 +51,7 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
             using (var httpClient = _httpClientFactory.CreateClient())
             {
                 await authHandler(httpClient);
-                using (var response = await httpClient.GetAsync($"{realRequest.Address}/{realRequest.Version}/surveys/{realRequest.SurveyID.ToUrlEncode()}/responses/bulk?page={realRequest.Page.ToString()}&per_page={realRequest.PageSize.ToString()}{strQuery.ToString()}"))
+                using (var response = await httpClient.GetAsync($"{realRequest.Address}/{realRequest.Version}/surveys/{realRequest.SurveyID.ToUrlEncode()}/responses/bulk?page={realRequest.Page.ToString()}&per_page={realRequest.PageSize.ToString()}{strQuery.ToString()}", cancellationToken))
                 {
                     if (!response.IsSuccessStatusCode)
                     {

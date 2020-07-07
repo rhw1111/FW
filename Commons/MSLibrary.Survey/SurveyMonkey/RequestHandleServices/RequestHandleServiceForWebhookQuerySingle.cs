@@ -34,7 +34,7 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
             {
                 await authHandler(httpClient);
 
-                using (var response = await httpClient.GetAsync($"{realRequest.Address}/{realRequest.Version}/webhooks/{realRequest.ID.ToUrlEncode()}"))
+                using (var response = await httpClient.GetAsync($"{realRequest.Address}/{realRequest.Version}/webhooks/{realRequest.ID.ToUrlEncode()}", cancellationToken))
                 {
                     if (!response.IsSuccessStatusCode)
                     {

@@ -36,12 +36,12 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
             {
                 var fragment = new TextFragment()
                 {
-                    Code = SurveyTextCodes.NotFoundWebhookCallbackValidationServiceByType,
-                    DefaultFormatting = "找不到类型为{0}的Webhook回调验证服务，发生位置为{1}",
+                    Code = SurveyTextCodes.NotFoundSurveyMonkeyWebhookCallbackValidationServiceByType,
+                    DefaultFormatting = "找不到类型为{0}的SurveyMonkey的Webhook回调验证服务，发生位置为{1}",
                     ReplaceParameters = new List<object>() { type,$"{typeof(RequestHandleServiceForWebhookCallback).FullName}.WebhookCallbackValidationServiceFactories" }
                 };
 
-                throw new UtilityException((int)SurveyErrorCodes.NotFoundWebhookCallbackValidationServiceByType, fragment, 1, 0);
+                throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyMonkeyWebhookCallbackValidationServiceByType, fragment, 1, 0);
             }
 
             var realRequest = (WebhookCallbackRequest)request;
@@ -117,7 +117,7 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
         {
             var configurationObj = JsonSerializerHelper.Deserialize<Configuration>(configuration);
             //验证SmApikey
-            if (!_securityService.VerifySignByKey(request.Body, request.SmSignature, configurationObj.ClientSecret))
+            if (!_securityService.VerifySignByKey(request.Body, request.SmSignature,$"{configurationObj.ClientID}&{configurationObj.ClientSecret}"))
             {
                 var fragment = new TextFragment()
                 {
