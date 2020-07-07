@@ -2,14 +2,15 @@
   <div class="TestDataSource">
     <!-- TestDataSource列表 -->
     <div class="q-pa-md">
-      <q-table title="TestDataSource列表"
+      <q-table title="测试数据源列表"
                :data="TestDataSourceList"
                :columns="columns"
                selection="multiple"
                :selected.sync="selected"
                row-key="id"
                @row-dblclick="toDetail"
-               :rows-per-page-options=[0]>
+               :rows-per-page-options=[0]
+               no-data-label="暂无数据更新">
 
         <template v-slot:top-right>
           <q-btn class="btn"
@@ -37,7 +38,7 @@
               persistent>
       <q-card style="width:100%">
         <q-card-section>
-          <div class="text-h6">创建TestDataSource</div>
+          <div class="text-h6">创建测试数据源</div>
         </q-card-section>
 
         <q-separator />
@@ -47,7 +48,7 @@
                      :dense="false"
                      class="col">
               <template v-slot:before>
-                <span style="font-size:14px">Name:</span>
+                <span style="font-size:14px">名称:</span>
               </template>
             </q-input>
             <q-input v-model="Type"
@@ -55,7 +56,7 @@
                      class="col"
                      style="margin-left:50px;">
               <template v-slot:before>
-                <span style="font-size:14px">Type:</span>
+                <span style="font-size:14px">类型:</span>
               </template>
             </q-input>
           </div>
@@ -66,7 +67,7 @@
                      type="textarea"
                      outlined>
               <template v-slot:before>
-                <span style="font-size:14px">Data:</span>
+                <span style="font-size:14px">数据:</span>
               </template>
             </q-input>
           </div>
@@ -91,7 +92,6 @@
 
 <script>
 import * as Apis from "@/api/index"
-import Axios from 'axios'
 export default {
   name: 'TestDataSource',
   data () {
@@ -109,13 +109,13 @@ export default {
         {
           name: 'name',
           required: true,
-          label: 'Name',
+          label: '名称',
           align: 'left',
           field: row => row.name,
           format: val => `${val}`,
         },
-        { name: 'type', align: 'left', label: 'Type', field: 'type', },
-        { name: 'data', label: 'Data', align: 'left', field: 'data', },
+        { name: 'type', align: 'left', label: '类型', field: 'type', },
+        { name: 'data', label: '数据', align: 'left', field: 'data', },
       ],
       //分页配置
       pagination: {
@@ -141,6 +141,7 @@ export default {
         this.pagination.page = page || 1;
         this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
         this.TestDataSourceList = res.data.results;
+        this.selected = [];
         this.$q.loading.hide();
       })
     },
@@ -202,14 +203,14 @@ export default {
         this.$q.notify({
           position: 'top',
           message: '提示',
-          caption: '请选择您要删除的TestDataSource',
+          caption: '请选择您要删除的测试数据源',
           color: 'red',
         })
         return;
       }
       this.$q.dialog({
         title: '提示',
-        message: '您确定要删除当前选择的TestDataSource吗',
+        message: '您确定要删除当前选择的测试数据源吗',
         persistent: true,
         ok: {
           push: true,
@@ -267,9 +268,35 @@ export default {
   .q-pa-md {
     margin-top: 40px;
   }
+  .q-table {
+    table-layout: fixed;
+    .cursor-pointer {
+      .text-left {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .q-table--col-auto-width {
+        width: 75px;
+      }
+    }
+  }
 }
 </style>
 <style lang="scss">
+.q-table {
+  table-layout: fixed;
+  .cursor-pointer {
+    .text-left {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+.q-table--col-auto-width {
+  width: 75px;
+}
 .new_input {
   width: 100%;
   padding: 10px 30px;

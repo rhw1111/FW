@@ -2,39 +2,15 @@
   <div class="TestCase">
     <!-- TestCase列表 -->
     <div class="q-pa-md">
-      <!-- <q-list bordered
-              separator>
-        <q-item clickable
-                v-ripple
-                v-for="(val,ind) in TestCaseList"
-                :key="ind"
-                tag="section"
-                @dblclick="toDetail(val.id)">
-          <q-item-section avatar>
-            <q-checkbox v-model="value"
-                        :val="val.id" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>{{val.name}}</q-item-label>
-            <q-item-label caption>{{val.configuration}}</q-item-label>
-            <q-item-label caption>{{val.engineType}}</q-item-label>
-          </q-item-section>
 
-        </q-item>
-
-      </q-list> -->
-
-      <q-table title="TestCase列表"
+      <q-table title="测试用例列表"
                :data="TestCaseList"
                :columns="columns"
                row-key="id"
                @row-dblclick="toDetail"
-               :rows-per-page-options=[0]>
-        <!-- 
-               selection="multiple"
-               :selected.sync="selected"
-               :pagination.sync="pagination"
-               :pagination-label="paginationLabel" -->
+               :rows-per-page-options=[0]
+               no-data-label="暂无数据更新">
+
         <template v-slot:top-right>
           <q-btn class="btn"
                  color="primary"
@@ -61,20 +37,25 @@
         </template>
       </q-table>
     </div>
-    <!--
-                主机选择框
-                -->
+    <!--  主机选择框  -->
     <lookUp :masterHostList="masterHostList"
+            :masterSelectIndex="masterHostIndex"
             :fixed="HostFixed"
             @addMasterHost='addMasterHost'
             @cancelMasterHost='cancelMasterHost'
             ref='lookUp' />
+    <!-- EngineType选择框 -->
+    <EngineTypeLookUp :fixed="EngineTypeFixed"
+                      :EngineTypeIndex="EngineTypeSelect"
+                      @cancelEngineType="cancelEngineType"
+                      @addEngineType="addEngineType"
+                      ref='TypelookUp' />
     <!-- 新增TestCase框 -->
     <q-dialog v-model="createFixed"
               persistent>
       <q-card style="width:100%">
         <q-card-section>
-          <div class="text-h6">创建TestCase</div>
+          <div class="text-h6">创建测试用例</div>
         </q-card-section>
 
         <q-separator />
@@ -84,15 +65,17 @@
                      :dense="false"
                      class="col">
               <template v-slot:before>
-                <span style="font-size:14px">Name:</span>
+                <span style="font-size:14px">名称:</span>
               </template>
             </q-input>
             <q-input v-model="EngineType"
                      :dense="false"
                      class="col"
-                     style="margin-left:50px;">
+                     style="margin-left:50px;"
+                     readonly
+                     @dblclick="openEngineType">
               <template v-slot:before>
-                <span style="font-size:14px">EngineType:</span>
+                <span style="font-size:14px">引擎类型:</span>
               </template>
             </q-input>
           </div>
@@ -122,26 +105,10 @@
                      type="textarea"
                      outlined>
               <template v-slot:before>
-                <span style="font-size:14px">Configuration:</span>
+                <span style="font-size:14px">配置:</span>
               </template>
             </q-input>
           </div>
-          <!-- <q-input v-model="Name"
-                   label="Name" />
-          <q-input v-model="EngineType"
-                   label="EngineType" />
-          <q-input v-model="Configuration"
-                   label="Configuration" />
-          <div class="q-pa-md row">
-            <q-input outlined
-                     readonly
-                     v-model="masterHostSelect"
-                     label="主机："
-                     stack-label
-                     :dense="false"
-                     class="col-xs-12 col-sm-4 col-xl-4"
-                     @dblclick="masterHost" />
-          </div> -->
         </div>
 
         <q-separator />
@@ -165,10 +132,12 @@
 <script>
 import * as Apis from "@/api/index"
 import lookUp from "@/components/lookUp.vue"
+import EngineTypeLookUp from "@/components/EngineTypeLookUp.vue"
 export default {
   name: 'TestCase',
   components: {
-    lookUp
+    lookUp,
+    EngineTypeLookUp
   },
   data () {
     return {
@@ -177,6 +146,12 @@ export default {
       TestCaseList: [],     //TeseCase列表
       masterHostList: [], //主机列表
       masterHostSelect: '', //主机选择
+      masterHostIndex: -1,//主机下标
+
+
+      EngineTypeFixed: false,//EngineTypeFlag
+      EngineTypeSelect: -1,//EngineType选择
+
 
       Name: '',           //Name
       Configuration: '',  //Configuration
@@ -189,13 +164,13 @@ export default {
         {
           name: 'name',
           required: true,
-          label: 'Name',
+          label: '名称',
           align: 'left',
           field: row => row.name,
           format: val => `${val}`,
         },
-        { name: 'engineType', align: 'left', label: 'EngineType', field: 'engineType', },
-        { name: 'configuration', label: 'Configuration', align: 'left', field: 'configuration', },
+        { name: 'engineType', align: 'left', label: '引擎类型', field: 'engineType', },
+        { name: 'configuration', label: '配置', align: 'left', field: 'configuration', },
         { name: 'id', label: '', align: 'left', field: 'id', },
       ],
       //分页配置
@@ -246,7 +221,7 @@ export default {
       console.log(value)
       this.$q.dialog({
         title: '提示',
-        message: '您确定要删除当前的TestCase吗',
+        message: '您确定要删除当前的测试用例吗',
         persistent: true,
         ok: {
           push: true,
@@ -278,6 +253,7 @@ export default {
       }
       this.masterHostSelect = this.masterHostList[value].address;
       this.MasterHostID = this.masterHostList[value].id;
+      this.masterHostIndex = value;
       this.createFixed = true;
       this.HostFixed = false;
     },
@@ -285,8 +261,33 @@ export default {
     cancelMasterHost () {
       this.createFixed = true;
       this.HostFixed = false;
-      this.$refs.lookUp.selectList = -1;
+      this.$refs.lookUp.selectIndex = this.masterHostIndex;
     },
+
+    // 打开EngineType框
+    openEngineType () {
+      this.EngineTypeFixed = true;
+      this.createFixed = false;
+    },
+    //添加EngineType
+    addEngineType (value, index) {
+      if (value == undefined) {
+        return false;
+      }
+      console.log(value, index)
+      this.EngineType = value[index];
+      this.EngineTypeSelect = index;
+      this.createFixed = true;
+      this.EngineTypeFixed = false;
+    },
+    //取消EngineType框
+    cancelEngineType () {
+      this.EngineTypeFixed = false;
+      this.createFixed = true;
+      this.$refs.TypelookUp.selectIndex = this.EngineTypeSelect;
+    },
+
+
     //新增弹窗取消按钮
     newCancel () {
       this.Name = '';
@@ -294,7 +295,8 @@ export default {
       this.EngineType = '';
       this.MasterHostID = '';
       this.masterHostSelect = '';
-      this.$refs.lookUp.selectList = -1;
+      this.$refs.lookUp.selectIndex = -1;
+      this.$refs.TypelookUp.selectIndex = -1;
       this.createFixed = false;
     },
     //新增弹窗创建按钮
@@ -317,6 +319,13 @@ export default {
             caption: '创建成功',
             color: 'secondary',
           })
+          this.Name = '';
+          this.Configuration = '';
+          this.EngineType = '';
+          this.MasterHostID = '';
+          this.masterHostSelect = '';
+          this.$refs.lookUp.selectIndex = -1;
+          this.$refs.TypelookUp.selectIndex = -1;
         })
       } else {
         this.$q.notify({
@@ -354,6 +363,19 @@ export default {
 }
 </style>
 <style lang="scss">
+.q-table {
+  table-layout: fixed;
+  .cursor-pointer {
+    .text-left {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+.q-table--col-auto-width {
+  width: 75px;
+}
 .new_input {
   width: 100%;
   padding: 10px 30px;

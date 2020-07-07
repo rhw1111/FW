@@ -27,15 +27,16 @@
                    :dense="false"
                    class="col">
             <template v-slot:before>
-              <span style="font-size:14px">SlaveName:</span>
+              <span style="font-size:14px">从主机名称:</span>
             </template>
           </q-input>
           <q-input v-model="SlaveCount"
                    :dense="false"
                    class="col"
-                   style="margin-left:50px;">
+                   style="margin-left:50px;"
+                   @keyup="SlaveCount=SlaveCount.replace(/[^\d]/g,'')">
             <template v-slot:before>
-              <span style="font-size:14px">Count:</span>
+              <span style="font-size:14px">数量:</span>
             </template>
           </q-input>
 
@@ -57,7 +58,7 @@
                    type="textarea"
                    outlined>
             <template v-slot:before>
-              <span style="font-size:14px">ExtensionInfo:</span>
+              <span style="font-size:14px">扩展信息:</span>
             </template>
           </q-input>
         </div>
@@ -129,6 +130,7 @@ export default {
       this.MasterHostID = this.masterHostList[value].id;
       this.masterSelectIndex = value;
       this.HostFixed = false;
+      console.log(this.masterHostSelect, this.MasterHostID, this.masterSelectIndex)
     },
     //取消主机选择
     cancelMasterHost () {
@@ -183,7 +185,7 @@ export default {
     deleteSlaveHost () {
       this.$q.dialog({
         title: '提示',
-        message: '您确定要删除当前SalveHost吗',
+        message: '您确定要删除当前从主机吗',
         persistent: true,
         ok: {
           push: true,
@@ -195,10 +197,7 @@ export default {
         },
       }).onOk(() => {
         this.$q.loading.show()
-        let para = {
-          caseId: this.SlaveHostData.testCaseID,
-          id: this.SlaveHostData.id
-        }
+        let para = `?id=${this.SlaveHostData.id}&caseId=${this.SlaveHostData.testCaseID}`;
         Apis.deleteSlaveHost(para).then((res) => {
           console.log(res)
           this.$router.push({ name: 'TestCaseDetail', query: { id: this.SlaveHostData.testCaseID } })

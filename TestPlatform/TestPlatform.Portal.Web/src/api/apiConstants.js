@@ -39,6 +39,8 @@ const apiConstants = {
 
   getCheckStatus: 'api/testcase/checkstatus',//查看状态
 
+  getTestCaseStatus: 'api/testcase/querytestcasestatus',//查看当前TestCase状态
+
   getTestDataSource: 'api/testdatasource/querybypage',//获得TestDataSource
 
   postCreateTestDataSource: 'api/testdatasource/add', //创建TestDataSource

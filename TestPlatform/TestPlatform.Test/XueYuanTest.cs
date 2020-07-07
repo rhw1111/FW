@@ -129,7 +129,7 @@ namespace TestPlatform.Test
         {
             TestCase testCase = new TestCase()
             {
-                ID = new Guid("cae64c27-8e87-4a38-b94a-32a47a7eea63"),
+                ID = new Guid("ce514456-8da9-432f-8999-1010fa94a83a"),
                 MasterHostID = new Guid("822114cf-5277-4667-961f-e231f9e67e4d"),
                 OwnerID = new Guid("46f8bcca-af6e-11ea-8e6a-0242ac110002"),
                 EngineType = EngineTypes.Tcp,
@@ -186,7 +186,7 @@ namespace TestPlatform.Test
             {
                 ID = new Guid("17c5a79c-0b05-4329-92fb-e83108d67831"),
                 HostID = new Guid("822114cf-5277-4667-961f-e231f9e67e4d"),
-                TestCaseID = new Guid("cae64c27-8e87-4a38-b94a-32a47a7eea63"),
+                TestCaseID = new Guid("ce514456-8da9-432f-8999-1010fa94a83a"),
                 SlaveName = "slave1",
                 Count = 100,
                 ExtensionInfo = ""
@@ -217,7 +217,7 @@ namespace TestPlatform.Test
         {
             TestCase testCase = new TestCase()
             {
-                ID = new Guid("cae64c27-8e87-4a38-b94a-32a47a7eea63"),
+                ID = new Guid("ce514456-8da9-432f-8999-1010fa94a83a"),
             };
 
             var testCaseStore = DIContainerContainer.Get<ITestCaseStore>();
@@ -236,7 +236,7 @@ namespace TestPlatform.Test
         {
             TestCase testCase = new TestCase()
             {
-                ID = new Guid("cae64c27-8e87-4a38-b94a-32a47a7eea63"),
+                ID = new Guid("ce514456-8da9-432f-8999-1010fa94a83a"),
             };
 
             var testCaseStore = DIContainerContainer.Get<ITestCaseStore>();

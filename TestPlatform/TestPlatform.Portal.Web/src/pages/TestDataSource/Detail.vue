@@ -18,7 +18,7 @@
                    :dense="false"
                    class="col">
             <template v-slot:before>
-              <span style="font-size:14px">Name:</span>
+              <span style="font-size:14px">名称:</span>
             </template>
           </q-input>
           <q-input v-model="Type"
@@ -26,7 +26,7 @@
                    class="col"
                    style="margin-left:50px;">
             <template v-slot:before>
-              <span style="font-size:14px">Type:</span>
+              <span style="font-size:14px">类型:</span>
             </template>
           </q-input>
         </div>
@@ -38,7 +38,7 @@
                    type="textarea"
                    outlined>
             <template v-slot:before>
-              <span style="font-size:14px">Data:</span>
+              <span style="font-size:14px">数据:</span>
             </template>
           </q-input>
         </div>
@@ -83,23 +83,38 @@ export default {
     },
     //更新TestDataSource
     putTestDataSource () {
-      this.$q.loading.show()
       let para = {
         ID: this.Id,
         Name: this.Name,
         Type: this.Type,
         Data: this.Data
       }
-      Apis.putTestDataSource(para).then((res) => {
-        console.log(res)
-        this.getTestDataSourceDetail();
-      })
+      if (this.Id && this.Name && this.Type && this.Data) {
+        this.$q.loading.show()
+        Apis.putTestDataSource(para).then((res) => {
+          console.log(res)
+          this.getTestDataSourceDetail();
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '保存成功',
+            color: 'secondary',
+          })
+        })
+      } else {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '请填写完整信息',
+          color: 'red',
+        })
+      }
     },
     //删除TestDataSource
     deleteTestDataSource () {
       this.$q.dialog({
         title: '提示',
-        message: '您确定要删除当前的TestDataSource吗',
+        message: '您确定要删除当前的测试数据源吗',
         persistent: true,
         ok: {
           push: true,

@@ -15,7 +15,7 @@
                    class="col"
                    readonly>
             <template v-slot:before>
-              <span style="font-size:14px">Createtime:</span>
+              <span style="font-size:14px">创建时间:</span>
             </template>
           </q-input>
         </div>
@@ -28,7 +28,7 @@
                    outlined
                    readonly>
             <template v-slot:before>
-              <span style="font-size:14px">Summary:</span>
+              <span style="font-size:14px">总结:</span>
             </template>
           </q-input>
         </div>
@@ -73,7 +73,7 @@ export default {
     deleteHistory () {
       this.$q.dialog({
         title: '提示',
-        message: '您确定要删除当前的History吗',
+        message: '您确定要删除当前的历史记录吗',
         persistent: true,
         ok: {
           push: true,
