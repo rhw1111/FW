@@ -8,6 +8,7 @@ using MSLibrary.Transaction;
 using MSLibrary.Context.DAL;
 using MSLibrary.StreamingDB.DAL;
 using FW.TestPlatform.Main.Configuration;
+using MSLibrary.CommandLine.SSH.DAL;
 
 namespace FW.TestPlatform.Main.DAL
 { 
@@ -16,6 +17,7 @@ namespace FW.TestPlatform.Main.DAL
     [Injection(InterfaceType = typeof(IContextConnectionFactory), Scope = InjectionScope.Singleton)]
     [Injection(InterfaceType = typeof(IMainDBConnectionFactory), Scope = InjectionScope.Singleton)]
     [Injection(InterfaceType = typeof(IStreamingDBConnectionFactory), Scope = InjectionScope.Singleton)]
+    [Injection(InterfaceType = typeof(ICommandLineConnectionFactory), Scope = InjectionScope.Singleton)]
     public class MainDBConnectionFactory : IMainDBConnectionFactory
     {
         private readonly ISystemConfigurationService _systemConfigurationService;
@@ -23,6 +25,11 @@ namespace FW.TestPlatform.Main.DAL
         public MainDBConnectionFactory(ISystemConfigurationService systemConfigurationService)
         {
             _systemConfigurationService = systemConfigurationService;
+        }
+
+        public string CreateAllForCommandLine()
+        {
+            return _systemConfigurationService.GetConnectionString("commandlineall");
         }
 
         public string CreateAllForContext()
@@ -48,6 +55,15 @@ namespace FW.TestPlatform.Main.DAL
         public string CreateAllForSystemConfiguration()
         {
             return CreateAllForLocalCommonLog();
+        }
+
+        public string CreateReadForCommandLine()
+        {
+            if (DBAllScope.IsAll())
+            {
+                return CreateAllForLocalCommonLog();
+            }
+            return _systemConfigurationService.GetConnectionString("commandlineread");
         }
 
         public string CreateReadForContext()

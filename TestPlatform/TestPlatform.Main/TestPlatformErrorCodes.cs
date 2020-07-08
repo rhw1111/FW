@@ -105,6 +105,14 @@ namespace FW.TestPlatform.Main
         /// <summary>
         /// 找不到指定Id的测试数据源
         /// </summary>
-        NotFoundTestCaseDataSourceByID = 325710206
+        NotFoundTestCaseDataSourceByID = 325710206,
+        /// <summary>
+        /// 找不到指定Id的SSHEndPoint
+        /// </summary>
+        NotFoundSSHEndPointByID = 325710207,
+        /// <summary>
+        /// 已经存在指定名称的SSH终端
+        /// </summary>
+        ExistSSHEndPointByName = 325710208
     }
 }
