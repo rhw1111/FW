@@ -11,6 +11,8 @@ using MSLibrary.DI;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.Transaction;
 using MSLibrary.Thread;
+using MSLibrary.Survey.DAL;
+using Microsoft.Azure.Amqp.Framing;
 
 namespace MSLibrary.Survey
 {
@@ -20,9 +22,19 @@ namespace MSLibrary.Survey
     /// </summary>
     public class SurveyResponseCollectorEndpoint : EntityBase<ISurveyResponseCollectorEndpointIMP>
     {
+        private static IFactory<ISurveyResponseCollectorEndpointIMP>? _surveyResponseCollectorEndpointIMPFactory;
+
+        public static IFactory<ISurveyResponseCollectorEndpointIMP>? SurveyResponseCollectorEndpointIMPFactory
+        {
+            set
+            {
+                _surveyResponseCollectorEndpointIMPFactory = value;
+            }
+        }
+
         public override IFactory<ISurveyResponseCollectorEndpointIMP>? GetIMPFactory()
         {
-            throw new NotImplementedException();
+            return _surveyResponseCollectorEndpointIMPFactory;
         }
 
         /// <summary>
@@ -106,6 +118,23 @@ namespace MSLibrary.Survey
         }
 
         /// <summary>
+        /// 初始化信息
+        /// </summary>
+        public string InitInfo
+        {
+            get
+            {
+
+                return GetAttribute<string>(nameof(InitInfo));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(InitInfo), value);
+            }
+        }
+
+
+        /// <summary>
         /// 创建时间
         /// </summary>
         public DateTime CreateTime
@@ -134,6 +163,107 @@ namespace MSLibrary.Survey
                 SetAttribute<DateTime>("ModifyTime", value);
             }
         }
+
+        /// <summary>
+        /// 管理收集器
+        /// 完成Survey收集器的增、删、绑定
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task ManageCollector(CancellationToken cancellationToken = default)
+        {
+            await _imp.ManageCollector(this, cancellationToken);
+        }
+
+        /// <summary>
+        /// 绑定收集器
+        /// </summary>
+        /// <param name="collectorData"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task BindCollector(string collectorData, CancellationToken cancellationToken = default)
+        {
+            await _imp.BindCollector(this, collectorData, cancellationToken);
+        }
+
+        /// <summary>
+        /// 解绑收集器
+        /// </summary>
+        /// <param name="collectorData"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task UnBindCollector(string collectorData, CancellationToken cancellationToken = default)
+        {
+            await _imp.UnBindCollector(this, collectorData, cancellationToken);
+        }
+
+        /// <summary>
+        /// 初始化
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task Init(CancellationToken cancellationToken = default)
+        {
+            await _imp.Init(this, cancellationToken);
+        }
+
+        /// <summary>
+        /// 终止处理
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task Finanly(CancellationToken cancellationToken = default)
+        {
+            await _imp.Finanly(this, cancellationToken);
+        }
+
+
+        /// <summary>
+        /// 获取指定surveyID的收集器
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<SurveyResponseCollector?> GetCollector(string surveyID, CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetCollector(this, surveyID, cancellationToken);
+        }
+
+
+        /// <summary>
+        /// 分页获取收集器
+        /// </summary>
+        /// <param name="endpoint"></param>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<QueryResult<SurveyResponseCollector>> GetCollector(int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetCollector(this, page, pageSize, cancellationToken);
+        }
+
+        /// <summary>
+        /// 获取所有收集器
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public IAsyncEnumerable<SurveyResponseCollector> GetAllCollector(CancellationToken cancellationToken = default)
+        {
+            return _imp.GetAllCollector(this, cancellationToken);
+        }
+
+        /// <summary>
+        /// 获取指定组下的所有收集器
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public IAsyncEnumerable<SurveyResponseCollector> GetAllCollector(string groupName, CancellationToken cancellationToken = default)
+        {
+            return _imp.GetAllCollector(this, groupName, cancellationToken);
+        }
+
+
     }
 
     public interface ISurveyResponseCollectorEndpointIMP
@@ -176,29 +306,12 @@ namespace MSLibrary.Survey
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task Finanly(SurveyResponseCollectorEndpoint endpoint, CancellationToken cancellationToken = default);
-        /// <summary>
-        /// 新增收集器
-        /// </summary>
-        /// <param name="endpoint"></param>
-        /// <param name="collector"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        Task AddCollector(SurveyResponseCollectorEndpoint endpoint,SurveyResponseCollector collector, CancellationToken cancellationToken = default);
-        /// <summary>
-        /// 删除收集器
-        /// </summary>
-        /// <param name="endpoint"></param>
-        /// <param name="collectorID"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        Task DeleteCollector(SurveyResponseCollectorEndpoint endpoint,Guid collectorID, CancellationToken cancellationToken = default);
+
 
         /// <summary>
         /// 获取指定surveyID的收集器
         /// </summary>
         /// <param name="endpoint"></param>
-        /// <param name="page"></param>
-        /// <param name="pageSize"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<SurveyResponseCollector?> GetCollector(SurveyResponseCollectorEndpoint endpoint, string surveyID, CancellationToken cancellationToken = default);
@@ -219,7 +332,14 @@ namespace MSLibrary.Survey
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         IAsyncEnumerable<SurveyResponseCollector> GetAllCollector(SurveyResponseCollectorEndpoint endpoint, CancellationToken cancellationToken = default);
-
+        /// <summary>
+        /// 获取指定组下的所有收集器
+        /// </summary>
+        /// <param name="endpoint"></param>
+        /// <param name="groupName"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        IAsyncEnumerable<SurveyResponseCollector> GetAllCollector(SurveyResponseCollectorEndpoint endpoint,string groupName, CancellationToken cancellationToken = default);
 
     }
 
@@ -233,13 +353,15 @@ namespace MSLibrary.Survey
         Task<SurveyResponseCollector> Create(string collectorData, CancellationToken cancellationToken = default);
     }
 
+
+
     /// <summary>
     /// Survey响应收集器绑定服务
     /// 负责Survey响应收集器的绑定、解除绑定操作
     /// </summary>
     public interface ISurveyResponseCollectorBindService
     {
-        Task Binding(string endpointConfiguration, SurveyResponseCollector collector, CancellationToken cancellationToken = default);
+        Task<string?> Binding(string endpointConfiguration, SurveyResponseCollector collector, CancellationToken cancellationToken = default);
         Task UnBinding(string endpointConfiguration, SurveyResponseCollector collector, CancellationToken cancellationToken = default);
     }
 
@@ -249,7 +371,7 @@ namespace MSLibrary.Survey
     /// </summary>
     public interface ISurveyResponseCollectorEndpointFinanlyService
     {
-        Task Execute(string endpointConfiguration, CancellationToken cancellationToken = default);
+        Task Execute(string endpointConfiguration,string initInfo, CancellationToken cancellationToken = default);
     }
     /// <summary>
     /// Survey响应收集器终结点初始化服务
@@ -257,7 +379,7 @@ namespace MSLibrary.Survey
     /// </summary>
     public interface ISurveyResponseCollectorEndpointInitService
     {
-        Task Execute(string endpointConfiguration, CancellationToken cancellationToken = default);
+        Task<string?> Execute(string endpointConfiguration, CancellationToken cancellationToken = default);
     }
 
     /// <summary>
@@ -276,66 +398,29 @@ namespace MSLibrary.Survey
     [Injection(InterfaceType = typeof(ISurveyResponseCollectorEndpointIMP), Scope = InjectionScope.Transient)]
     public class SurveyResponseCollectorEndpointIMP : ISurveyResponseCollectorEndpointIMP
     {
-        /// <summary>
-        /// Survey响应收集器绑定服务键值对
-        /// 键为SurveyResponseCollectorEndpoint.Type
-        /// </summary>
-        public static IDictionary<string, IFactory<ISurveyResponseCollectorBindService>> SurveyResponseCollectorBindServiceFactories { get; } = new Dictionary<string, IFactory<ISurveyResponseCollectorBindService>>();
+        private readonly ISurveyResponseCollectorStore _surveyResponseCollectorStore;
+        private readonly ISurveyResponseCollectorEndpointStore _surveyResponseCollectorEndpointStore;
 
-        /// <summary>
-        /// Survey响应收集器工厂键值对
-        /// 键为SurveyResponseCollectorEndpoint.Type
-        /// </summary>
-        public static IDictionary<string, IFactory<ISurveyResponseCollectorFactory>> SurveyResponseCollectorFactories { get; } = new Dictionary<string, IFactory<ISurveyResponseCollectorFactory>>();
-
-        /// <summary>
-        /// Survey响应收集器终结点终止服务工厂键值对
-        /// 键为SurveyResponseCollectorEndpoint.Type
-        /// </summary>
-        public static IDictionary<string, IFactory<ISurveyResponseCollectorEndpointFinanlyService>> SurveyResponseCollectorEndpointFinanlyServiceFactories { get; } = new Dictionary<string, IFactory<ISurveyResponseCollectorEndpointFinanlyService>>();
-
-        /// <summary>
-        /// Survey响应收集器终结点初始化服务工厂键值对
-        /// 键为SurveyResponseCollectorEndpoint.Type
-        /// </summary>
-        public static IDictionary<string, IFactory<ISurveyResponseCollectorEndpointInitService>> SurveyResponseCollectorEndpointInitServiceFactories { get; } = new Dictionary<string, IFactory<ISurveyResponseCollectorEndpointInitService>>();
-
-        /// <summary>
-        /// Survey响应收集器数据查询服务工厂键值对
-        /// 键为SurveyResponseCollectorEndpoint.Type
-        /// </summary>
-        public static IDictionary<string, IFactory<ISurveyResponseCollectorDataQueryService>> SurveyResponseCollectorDataQueryServiceFactories { get; } = new Dictionary<string, IFactory<ISurveyResponseCollectorDataQueryService>>();
-
-        public Task AddCollector(SurveyResponseCollectorEndpoint endpoint, SurveyResponseCollector collector, CancellationToken cancellationToken = default)
+        public SurveyResponseCollectorEndpointIMP(ISurveyResponseCollectorStore surveyResponseCollectorStore, ISurveyResponseCollectorEndpointStore surveyResponseCollectorEndpointStore)
         {
-            throw new NotImplementedException();
+            _surveyResponseCollectorStore = surveyResponseCollectorStore;
+            _surveyResponseCollectorEndpointStore = surveyResponseCollectorEndpointStore;
+        }
+
+        private async Task addCollector(SurveyResponseCollectorEndpoint endpoint, SurveyResponseCollector collector, CancellationToken cancellationToken = default)
+        {
+            collector.EndpointID = endpoint.ID;
+            await _surveyResponseCollectorStore.Add(collector,cancellationToken);
         }
 
         public async Task BindCollector(SurveyResponseCollectorEndpoint endpoint, string collectorData, CancellationToken cancellationToken = default)
         {
-            if (!SurveyResponseCollectorFactories.TryGetValue(endpoint.Type,out IFactory<ISurveyResponseCollectorFactory> surveyResponseCollectorFactory))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = SurveyTextCodes.NotFoundSurveyResponseCollectorFactoryByType,
-                    DefaultFormatting = "找不到类型为{0}的Survey响应收集器工厂，发生位置为{1}",
-                    ReplaceParameters = new List<object>() { endpoint.Type, $"{this.GetType().FullName}.SurveyResponseCollectorFactories" }
-                };
-                throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyResponseCollectorFactoryByType, fragment, 1, 0);
-            }
 
-            if (!SurveyResponseCollectorBindServiceFactories.TryGetValue(endpoint.Type, out IFactory<ISurveyResponseCollectorBindService> surveyResponseCollectorBindServiceFactory))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = SurveyTextCodes.NotFoundSurveyResponseCollectorBindServiceByType,
-                    DefaultFormatting = "找不到类型为{0}的Survey响应收集器绑定服务，发生位置为{1}",
-                    ReplaceParameters = new List<object>() { endpoint.Type, $"{this.GetType().FullName}.SurveyResponseCollectorBindServiceFactories" }
-                };
-                throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyResponseCollectorBindServiceByType, fragment, 1, 0);
-            }
+            var collectorFactory = SurveyResponseExtensionCollection.GetSurveyResponseCollectorFactory(endpoint.Type);
+            var collectorBindService= SurveyResponseExtensionCollection.GetSurveyResponseCollectorBindService(endpoint.Type);
 
-            var collector = await surveyResponseCollectorFactory.Create().Create(collectorData, cancellationToken);
+
+            var collector = await collectorFactory.Create(collectorData, cancellationToken);
 
             var existCollector = await GetCollector(endpoint, collector.SurveyID, cancellationToken);
 
@@ -343,100 +428,73 @@ namespace MSLibrary.Survey
             {
                 await using (DBTransactionScope scope = new DBTransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
                 {
-
-                    await AddCollector(endpoint, collector, cancellationToken);
-                    await surveyResponseCollectorBindServiceFactory.Create().Binding(endpoint.Configuration, collector, cancellationToken);
-
+                    //为收集器的组属性赋值
+                    collector.Group = getRanGroupName(endpoint);
+                    await addCollector(endpoint, collector, cancellationToken);
+                    var bindintInfo= await collectorBindService.Binding(endpoint.Configuration, collector, cancellationToken);
+                    if (bindintInfo != null)
+                    {
+                        await _surveyResponseCollectorStore.UpdateBindingInfo(collector.ID, bindintInfo, cancellationToken);
+                    }
                     scope.Complete();
                 }
             }
         }
 
-        public Task DeleteCollector(SurveyResponseCollectorEndpoint endpoint, Guid collectorID, CancellationToken cancellationToken = default)
+        private async Task deleteCollector(SurveyResponseCollectorEndpoint endpoint, Guid collectorID, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await _surveyResponseCollectorStore.Delete(endpoint.ID, collectorID,cancellationToken);
         }
 
         public async Task Finanly(SurveyResponseCollectorEndpoint endpoint, CancellationToken cancellationToken = default)
         {
-            if (!SurveyResponseCollectorEndpointFinanlyServiceFactories.TryGetValue(endpoint.Type, out IFactory<ISurveyResponseCollectorEndpointFinanlyService> surveyResponseCollectorEndpointFinanlyServiceFactory))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = SurveyTextCodes.NotFoundSurveyResponseCollectorEndpointFinanlyServiceByType,
-                    DefaultFormatting = "找不到类型为{0}的Survey响应收集器终结点终止服务，发生位置为{1}",
-                    ReplaceParameters = new List<object>() { endpoint.Type, $"{this.GetType().FullName}.SurveyResponseCollectorEndpointFinanlyServiceFactories" }
-                };
-                throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyResponseCollectorEndpointFinanlyServiceByType, fragment, 1, 0);
-            }
-            await surveyResponseCollectorEndpointFinanlyServiceFactory.Create().Execute(endpoint.Configuration,cancellationToken);
+            var service=SurveyResponseExtensionCollection.GetSurveyResponseCollectorEndpointFinanlyService(endpoint.Type);
+            await service.Execute(endpoint.Configuration, endpoint.InitInfo, cancellationToken);
         }
 
         public IAsyncEnumerable<SurveyResponseCollector> GetAllCollector(SurveyResponseCollectorEndpoint endpoint, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return _surveyResponseCollectorStore.QueryAllCollector(endpoint.ID, cancellationToken);
         }
 
-        public Task<QueryResult<SurveyResponseCollector>> GetCollector(SurveyResponseCollectorEndpoint endpoint, int page, int pageSize, CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<SurveyResponseCollector> GetAllCollector(SurveyResponseCollectorEndpoint endpoint, string groupName, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return _surveyResponseCollectorStore.QueryAllCollectorByGroup(endpoint.ID, groupName, cancellationToken);
         }
 
-        public Task<SurveyResponseCollector?> GetCollector(SurveyResponseCollectorEndpoint endpoint, string surveyID, CancellationToken cancellationToken = default)
+        public async Task<QueryResult<SurveyResponseCollector>> GetCollector(SurveyResponseCollectorEndpoint endpoint, int page, int pageSize, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return await _surveyResponseCollectorStore.QueryByPage(endpoint.ID, page, pageSize, cancellationToken);
+        }
+
+        public async Task<SurveyResponseCollector?> GetCollector(SurveyResponseCollectorEndpoint endpoint, string surveyID, CancellationToken cancellationToken = default)
+        {
+            return await _surveyResponseCollectorStore.Query(endpoint.ID, surveyID, cancellationToken);
         }
 
         public async Task Init(SurveyResponseCollectorEndpoint endpoint, CancellationToken cancellationToken = default)
         {
-            if (!SurveyResponseCollectorEndpointInitServiceFactories.TryGetValue(endpoint.Type, out IFactory<ISurveyResponseCollectorEndpointInitService> surveyResponseCollectorEndpointInitServiceFactory))
+            var service=SurveyResponseExtensionCollection.GetSurveyResponseCollectorEndpointInitService(endpoint.Type);
+
+            await using (DBTransactionScope scope = new DBTransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
             {
-                var fragment = new TextFragment()
+
+                var initInfo = await service.Execute(endpoint.Configuration, cancellationToken);
+                if (initInfo != null)
                 {
-                    Code = SurveyTextCodes.NotFoundSurveyResponseCollectorEndpointInitServiceByType,
-                    DefaultFormatting = "找不到类型为{0}的Survey响应收集器终结点初始化服务，发生位置为{1}",
-                    ReplaceParameters = new List<object>() { endpoint.Type, $"{this.GetType().FullName}.SurveyResponseCollectorEndpointInitServiceFactories" }
-                };
-                throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyResponseCollectorEndpointInitServiceByType, fragment, 1, 0);
+                    await _surveyResponseCollectorEndpointStore.UpdateInitInfo(endpoint.ID, initInfo, cancellationToken);
+                }
+                scope.Complete();
             }
-            await surveyResponseCollectorEndpointInitServiceFactory.Create().Execute(endpoint.Configuration,cancellationToken);
+          
         }
 
         public async Task ManageCollector(SurveyResponseCollectorEndpoint endpoint, CancellationToken cancellationToken = default)
         {
-            if (!SurveyResponseCollectorFactories.TryGetValue(endpoint.Type, out IFactory<ISurveyResponseCollectorFactory> surveyResponseCollectorFactory))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = SurveyTextCodes.NotFoundSurveyResponseCollectorFactoryByType,
-                    DefaultFormatting = "找不到类型为{0}的Survey响应收集器工厂，发生位置为{1}",
-                    ReplaceParameters = new List<object>() { endpoint.Type, $"{this.GetType().FullName}.SurveyResponseCollectorFactories" }
-                };
-                throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyResponseCollectorFactoryByType, fragment, 1, 0);
-            }
+            var collectorFactoryService = SurveyResponseExtensionCollection.GetSurveyResponseCollectorFactory(endpoint.Type);
+            var collectorDataQueryService = SurveyResponseExtensionCollection.GetSurveyResponseCollectorDataQueryService(endpoint.Type);
+            var collectorBindService = SurveyResponseExtensionCollection.GetSurveyResponseCollectorBindService(endpoint.Type);
 
-            if (!SurveyResponseCollectorDataQueryServiceFactories.TryGetValue(endpoint.Type, out IFactory<ISurveyResponseCollectorDataQueryService> surveyResponseCollectorDataQueryServiceFactory))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = SurveyTextCodes.NotFoundSurveyResponseCollectorDataQueryServiceByType,
-                    DefaultFormatting = "找不到类型为{0}的Survey响应收集器数据查询服务，发生位置为{1}",
-                    ReplaceParameters = new List<object>() { endpoint.Type, $"{this.GetType().FullName}.SurveyResponseCollectorDataQueryServiceFactories" }
-                };
-                throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyResponseCollectorDataQueryServiceByType, fragment, 1, 0);
-            }
-
-            if (!SurveyResponseCollectorBindServiceFactories.TryGetValue(endpoint.Type, out IFactory<ISurveyResponseCollectorBindService> surveyResponseCollectorBindServiceFactory))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = SurveyTextCodes.NotFoundSurveyResponseCollectorBindServiceByType,
-                    DefaultFormatting = "找不到类型为{0}的Survey响应收集器绑定服务，发生位置为{1}",
-                    ReplaceParameters = new List<object>() { endpoint.Type, $"{this.GetType().FullName}.SurveyResponseCollectorBindServiceFactories" }
-                };
-                throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyResponseCollectorBindServiceByType, fragment, 1, 0);
-            }
-            var surveyResponseCollectorDataQueryService = surveyResponseCollectorDataQueryServiceFactory.Create();
 
             //获取现有的所有收集器
             var currentCollectors = GetAllCollector(endpoint, cancellationToken);
@@ -447,7 +505,7 @@ namespace MSLibrary.Survey
                 async(collector)=>
                 {
                     //检查在源中是否存在，如果不存在，则需要删除并解绑收集器
-                    if (!await surveyResponseCollectorDataQueryService.Exist(endpoint.Configuration, collector.SurveyID, cancellationToken))
+                    if (!await collectorDataQueryService.Exist(endpoint.Configuration, collector.SurveyID, cancellationToken))
                     {
                         deleteCollectors.Add(collector);
                     }
@@ -459,9 +517,9 @@ namespace MSLibrary.Survey
                 async(collector)=>
                 {
                     await using (DBTransactionScope scope = new DBTransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
-                    {
-                        await DeleteCollector(endpoint, collector.ID, cancellationToken);
-                        await surveyResponseCollectorBindServiceFactory.Create().UnBinding(endpoint.Configuration, collector, cancellationToken);
+                    {                
+                        await collectorBindService.UnBinding(endpoint.Configuration, collector, cancellationToken);
+                        await deleteCollector(endpoint, collector.ID, cancellationToken);
                         scope.Complete();
                     }
                 }
@@ -470,21 +528,28 @@ namespace MSLibrary.Survey
 
 
             //从源获取所有关联的收集器数据
-            var collectorDatas=surveyResponseCollectorDataQueryService.QueryAll(endpoint.Configuration, cancellationToken);
+            var collectorDatas= collectorDataQueryService.QueryAll(endpoint.Configuration, cancellationToken);
             //转换成收集器，检查是否已经存在收集器，如果不存在，则新建，执行绑定
             await ParallelHelper.ForEach(collectorDatas, 5,
                 async (data) =>
                 {
-                    var newCollector = await surveyResponseCollectorFactory.Create().Create(data, cancellationToken);
+                    var newCollector = await collectorFactoryService.Create(data, cancellationToken);
+
+                    //为收集器的组属性赋值
+                    newCollector.Group = getRanGroupName(endpoint);
+
                     var existCollector = await GetCollector(endpoint, newCollector.SurveyID, cancellationToken);
                     if (existCollector == null)
                     {
                         await using (DBTransactionScope scope = new DBTransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
                         {
 
-                            await AddCollector(endpoint, newCollector, cancellationToken);
-                            await surveyResponseCollectorBindServiceFactory.Create().Binding(endpoint.Configuration, newCollector, cancellationToken);
-
+                            await addCollector(endpoint, newCollector, cancellationToken);
+                            var bindingInfo=await collectorBindService.Binding(endpoint.Configuration, newCollector, cancellationToken);
+                            if (bindingInfo != null)
+                            {
+                                await _surveyResponseCollectorStore.UpdateBindingInfo(newCollector.ID, bindingInfo, cancellationToken);
+                            }
                             scope.Complete();
                         }
                     }
@@ -495,29 +560,10 @@ namespace MSLibrary.Survey
 
         public async Task UnBindCollector(SurveyResponseCollectorEndpoint endpoint, string collectorData, CancellationToken cancellationToken = default)
         {
-            if (!SurveyResponseCollectorFactories.TryGetValue(endpoint.Type, out IFactory<ISurveyResponseCollectorFactory> surveyResponseCollectorFactory))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = SurveyTextCodes.NotFoundSurveyResponseCollectorFactoryByType,
-                    DefaultFormatting = "找不到类型为{0}的Survey响应收集器工厂，发生位置为{1}",
-                    ReplaceParameters = new List<object>() { endpoint.Type, $"{this.GetType().FullName}.SurveyResponseCollectorFactories" }
-                };
-                throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyResponseCollectorFactoryByType, fragment, 1, 0);
-            }
+            var collectorFactoryService = SurveyResponseExtensionCollection.GetSurveyResponseCollectorFactory(endpoint.Type);
+            var collectorBindService = SurveyResponseExtensionCollection.GetSurveyResponseCollectorBindService(endpoint.Type);
 
-            if (!SurveyResponseCollectorBindServiceFactories.TryGetValue(endpoint.Type, out IFactory<ISurveyResponseCollectorBindService> surveyResponseCollectorBindServiceFactory))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = SurveyTextCodes.NotFoundSurveyResponseCollectorBindServiceByType,
-                    DefaultFormatting = "找不到类型为{0}的Survey响应收集器绑定服务，发生位置为{1}",
-                    ReplaceParameters = new List<object>() { endpoint.Type, $"{this.GetType().FullName}.SurveyResponseCollectorBindServiceFactories" }
-                };
-                throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyResponseCollectorBindServiceByType, fragment, 1, 0);
-            }
-
-            var collector = await surveyResponseCollectorFactory.Create().Create(collectorData, cancellationToken);
+            var collector = await collectorFactoryService.Create(collectorData, cancellationToken);
 
             var existCollector = await GetCollector(endpoint, collector.SurveyID, cancellationToken);
 
@@ -525,12 +571,17 @@ namespace MSLibrary.Survey
             {
                 await using (DBTransactionScope scope = new DBTransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
                 {
-                    await DeleteCollector(endpoint, existCollector.ID, cancellationToken);
-                    await surveyResponseCollectorBindServiceFactory.Create().UnBinding(endpoint.Configuration, existCollector, cancellationToken);
-
+                    await collectorBindService.UnBinding(endpoint.Configuration, existCollector, cancellationToken);
+                    await deleteCollector(endpoint, existCollector.ID, cancellationToken);
                     scope.Complete();
                 }
             }
+        }
+
+        private string getRanGroupName(SurveyResponseCollectorEndpoint endpoint)
+        {
+            Random ran = new Random(DateTime.UtcNow.Millisecond);
+            return endpoint.GroupNames[ran.Next(0, endpoint.GroupNames.Count)];
         }
     }
 }

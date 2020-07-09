@@ -56,7 +56,7 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
                                 ReplaceParameters = new List<object>() { realRequest.Name }
                             };
 
-                            throw new UtilityException((int)SurveyErrorCodes.SurveyMonkeyRequestHandleError, fragment, 1, 0);
+                            throw new UtilityException((int)SurveyErrorCodes.ExistsSurveyMonkeyWebhookByName, fragment, 1, 0);
                         }
 
                         fragment = new TextFragment()
