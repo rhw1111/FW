@@ -40,5 +40,10 @@ namespace MSLibrary.CommandLine.SSH
         {
             await _sshEndpointStore.DeleteMutiple(ids, cancellationToken);
         }
+
+        public IAsyncEnumerable<SSHEndpoint> GetSSHEndpoints(CancellationToken cancellationToken = default)
+        {
+            return _sshEndpointStore.GetSSHEndpoints(cancellationToken);
+        }
     }
 }

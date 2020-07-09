@@ -11,6 +11,7 @@ using MSLibrary.DI;
 using Microsoft.EntityFrameworkCore;
 using MSLibrary.Transaction;
 using FW.TestPlatform.Main.DAL;
+using MSLibrary.Collections;
 
 namespace FW.TestPlatform.Main.SSH.DAL
 {
@@ -251,6 +252,39 @@ namespace FW.TestPlatform.Main.SSH.DAL
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }
             });
+        }
+
+        public IAsyncEnumerable<SSHEndpoint> GetSSHEndpoints(CancellationToken cancellationToken = default)
+        {
+            AsyncInteration<SSHEndpoint> interation = new AsyncInteration<SSHEndpoint>(
+                async (index) =>
+                {
+                    List<SSHEndpoint>? datas = null;
+                    await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _commandLineConnectionFactory.CreateReadForCommandLine(), async (conn, transaction) =>
+                    {
+                        await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                        {
+                            if (transaction != null)
+                            {
+                                await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                            }
+
+                            var ids = (from item in dbContext.SSHEndpoints
+                                       orderby EF.Property<long>(item, "Sequence")
+                                       select item.ID
+                                                ).Skip((index) * 500).Take(500);
+                            datas = await (from item in dbContext.SSHEndpoints
+                                           join idItem in ids
+                                           on item.ID equals idItem
+                                           orderby EF.Property<long>(item, "Sequence")
+                                           select item).ToListAsync();
+                        }
+                    });
+
+                    return datas;
+                }
+                );
+            return interation;
         }
     }
 }

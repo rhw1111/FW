@@ -24,9 +24,10 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppQuerySSHEndPointByPage _appQuerySSHEndPointByPage;
         private readonly IAppUpdateSSHEndpoint _appUpdateSSHEndpoint;
         private readonly IAppDeleteSSHEndPoint _appDeleteSSHEndPoint;
+        private readonly IAppQueryAllSSHEndpoint _appQueryAllSSHEndpoint;
 
         public SSHEndpointController(IAppAddSSHEndPoint appAddSSHEndPoint, IAppQuerySingleSSHEndPoint appQuerySingleSSHEndPoint, IAppDeleteSSHEndPoints appDeleteSSHEndPoints, IAppQuerySSHEndPointByPage appQuerySSHEndPointByPage, 
-            IAppUpdateSSHEndpoint appUpdateSSHEndpoint, IAppDeleteSSHEndPoint appDeleteSSHEndPoint)
+            IAppUpdateSSHEndpoint appUpdateSSHEndpoint, IAppDeleteSSHEndPoint appDeleteSSHEndPoint, IAppQueryAllSSHEndpoint appQueryAllSSHEndpoint)
         {
             _appAddSSHEndPoint = appAddSSHEndPoint;
             _appQuerySingleSSHEndPoint = appQuerySingleSSHEndPoint;
@@ -34,6 +35,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _appQuerySSHEndPointByPage = appQuerySSHEndPointByPage;
             _appUpdateSSHEndpoint = appUpdateSSHEndpoint;
             _appDeleteSSHEndPoint = appDeleteSSHEndPoint;
+            _appQueryAllSSHEndpoint = appQueryAllSSHEndpoint;
         }
 
         [HttpGet("querybypage")]
@@ -74,6 +76,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         public async Task DeleteMutiple(List<Guid> ids)
         {
             await _appDeleteSSHEndPoints.Do(ids);
+        }
+
+        [HttpGet("queryall")]
+        public async Task<List<SSHEndPointViewData>> QueryAll()
+        {
+            return await _appQueryAllSSHEndpoint.Do();
         }
     }
 }
