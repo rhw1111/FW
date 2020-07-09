@@ -7,7 +7,7 @@ using MSLibrary;
 namespace FW.TestPlatform.Main.DTOModel
 {
     /// <summary>
-    /// 测试数据源新建模型
+    /// SSH终端新建模型
     /// </summary>
     [DataContract]
     public class SSHEndPointAddModel : ModelBase
@@ -47,7 +47,7 @@ namespace FW.TestPlatform.Main.DTOModel
         }
 
         /// <summary>
-        /// 数据
+        /// 配置
         /// </summary>
         [DataMember]
         public string Configuration

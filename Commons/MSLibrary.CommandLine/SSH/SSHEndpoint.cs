@@ -204,6 +204,14 @@ namespace MSLibrary.CommandLine.SSH
         {
             await _imp.Add(this, cancellationToken);
         }
+        public async Task Delete(CancellationToken cancellationToken = default)
+        {
+            await _imp.Delete(this, cancellationToken);
+        }
+        public async Task Update(CancellationToken cancellationToken = default)
+        {
+            await _imp.Update(this, cancellationToken);
+        }
     }
 
     public interface ISSHEndpointIMP
@@ -222,7 +230,6 @@ namespace MSLibrary.CommandLine.SSH
 
         Task Add(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
         Task Delete(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
-        //Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default);
         Task Update(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
 
     }

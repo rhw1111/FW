@@ -35,5 +35,10 @@ namespace MSLibrary.CommandLine.SSH
         {
             return await _sshEndpointStore.QueryByNameNoLock(name, cancellationToken);
         }
+
+        public async Task DeleteMutiple(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            await _sshEndpointStore.DeleteMutiple(ids, cancellationToken);
+        }
     }
 }
