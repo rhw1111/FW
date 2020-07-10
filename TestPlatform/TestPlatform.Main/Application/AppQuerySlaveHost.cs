@@ -43,6 +43,7 @@ namespace FW.TestPlatform.Main.Application
                     ID = item.ID,
                     TestCaseID = item.TestCaseID,
                     HostID = item.HostID,
+                    Address = item.Host.Address,
                     Count = item.Count,
                     ExtensionInfo = item.ExtensionInfo,
                     SlaveName = item.SlaveName

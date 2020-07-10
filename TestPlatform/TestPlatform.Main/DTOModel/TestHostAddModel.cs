@@ -4,33 +4,18 @@ using System.Text;
 using System.Runtime.Serialization;
 using MSLibrary;
 using FW.TestPlatform.Main.Entities;
+using MSLibrary.CommandLine.SSH;
 
 namespace FW.TestPlatform.Main.DTOModel
 {
     /// <summary>
-    /// 测试数据源视图数据
+    /// 主机更新数据模型
     /// </summary>
     [DataContract]
-    public class TestCaseSlaveHostViewData: TestCaseSlaveHostAddModel
+    public class TestHostAddModel:ModelBase
     {
         /// <summary>
-        /// Id
-        /// </summary>
-        public Guid ID
-        {
-            get
-            {
-
-                return GetAttribute<Guid>(nameof(ID));
-            }
-            set
-            {
-                SetAttribute<Guid>(nameof(ID), value);
-            }
-        }
-
-        /// <summary>
-        /// Id
+        /// 地址
         /// </summary>
         public string Address
         {
@@ -44,18 +29,20 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<string>(nameof(Address), value);
             }
         }
+
         /// <summary>
-        /// 创建时间
+        /// SSH终结点ID
         /// </summary>
-        public DateTime CreateTime
+        public Guid SSHEndpointID
         {
             get
             {
-                return GetAttribute<DateTime>(nameof(CreateTime));
+
+                return GetAttribute<Guid>(nameof(SSHEndpointID));
             }
             set
             {
-                SetAttribute<DateTime>(nameof(CreateTime), value);
+                SetAttribute<Guid>(nameof(SSHEndpointID), value);
             }
         }
     }

@@ -14,8 +14,6 @@ namespace FW.TestPlatform.Main.DTOModel
     [DataContract]
     public class TestHostViewData:ModelBase
     {
-
-
         /// <summary>
         /// Id
         /// </summary>
@@ -61,6 +59,38 @@ namespace FW.TestPlatform.Main.DTOModel
             set
             {
                 SetAttribute<Guid>(nameof(SSHEndpointID), value);
+            }
+        }
+
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        [DataMember]
+        public DateTime CreateTime
+        {
+            get
+            {
+                return GetAttribute<DateTime>(nameof(CreateTime));
+            }
+            set
+            {
+                SetAttribute<DateTime>(nameof(CreateTime), value);
+            }
+        }
+
+        /// <summary>
+        /// 修改时间
+        /// </summary>
+        [DataMember]
+        public DateTime ModifyTime
+        {
+            get
+            {
+                return GetAttribute<DateTime>(nameof(ModifyTime));
+            }
+            set
+            {
+                SetAttribute<DateTime>(nameof(ModifyTime), value);
             }
         }
     }

@@ -9,6 +9,8 @@ using MSLibrary.CommandLine.SSH;
 using FW.TestPlatform.Main.Entities.DAL;
 using MSLibrary.Transaction;
 using Microsoft.Extensions.Azure;
+using MSLibrary.CommandLine.SSH.DAL;
+using MSLibrary.LanguageTranslate;
 
 namespace FW.TestPlatform.Main.Entities
 {
@@ -166,19 +168,26 @@ namespace FW.TestPlatform.Main.Entities
     public class TestHostIMP : ITestHostIMP
     {
         private ITestHostStore _testHostStore;
-        public TestHostIMP(ITestHostStore testHostStore)
+        private ISSHEndpointStore _sSHEndpointStore;
+        public TestHostIMP(ITestHostStore testHostStore, ISSHEndpointStore sSHEndpointStore)
         {
             _testHostStore = testHostStore;
+            _sSHEndpointStore = sSHEndpointStore;
         }
         public async Task Add(TestHost host, CancellationToken cancellationToken = default)
         {
-            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
+            var sshEndpoint = await _sSHEndpointStore.QueryByID(host.SSHEndpointID, cancellationToken);
+            if (sshEndpoint == null)
             {
-                await _testHostStore.Add(host, cancellationToken);
-                //检查是否有名称重复的
-                
-                scope.Complete();
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundSSHEndPointByID,
+                    DefaultFormatting = "找不到Id为{0}的SSH端点",
+                    ReplaceParameters = new List<object>() { host.SSHEndpointID.ToString() }
+                };
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSSHEndPointByID, fragment, 1, 0);
             }
+            await _testHostStore.Add(host, cancellationToken);
         }
 
         public async Task Delete(TestHost host, CancellationToken cancellationToken = default)
@@ -188,17 +197,18 @@ namespace FW.TestPlatform.Main.Entities
 
         public async Task Update(TestHost host, CancellationToken cancellationToken = default)
         {
-            TestHost testHost = await _testHostStore.QueryByID(host.ID, cancellationToken);
-            if(testHost != null)
+            var sshEndpoint = await _sSHEndpointStore.QueryByID(host.SSHEndpointID, cancellationToken);
+            if (sshEndpoint == null)
             {
-                await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
+                var fragment = new TextFragment()
                 {
-                    await _testHostStore.Update(host, cancellationToken);
-                    //检查是否有名称重复的
-
-                    scope.Complete();
-                }
+                    Code = TestPlatformTextCodes.NotFoundSSHEndPointByID,
+                    DefaultFormatting = "找不到Id为{0}的SSH端点",
+                    ReplaceParameters = new List<object>() { host.SSHEndpointID.ToString() }
+                };
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSSHEndPointByID, fragment, 1, 0);
             }
+            await _testHostStore.Update(host, cancellationToken);
         }
         public async Task<List<TestHost>> GetHosts(CancellationToken cancellationToken = default)
         {

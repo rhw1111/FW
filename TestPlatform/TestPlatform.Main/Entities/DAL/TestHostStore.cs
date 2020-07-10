@@ -97,6 +97,56 @@ namespace FW.TestPlatform.Main.Entities.DAL
             });
         }
 
+        public async Task<TestHost?> QueryByName(string address, CancellationToken cancellationToken = default)
+        {
+            TestHost? result = null;
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    result = await (from item in dbContext.TestHosts
+                                    where item.Address == address
+                                    select item).FirstOrDefaultAsync();
+                }
+            });
+
+            return result;
+        }
+
+        public async Task<Guid?> QueryByNameNoLock(string address, CancellationToken cancellationToken = default)
+        {
+            Guid? result = null;
+            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.RequiresNew, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted, Timeout = new TimeSpan(0, 0, 30) }))
+            {
+
+                await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+                {
+                    await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                    {
+                        if (transaction != null)
+                        {
+                            await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                        }
+
+
+                        var testCase = await (from item in dbContext.TestHosts
+                                              where item.Address == address
+                                              orderby EF.Property<long>(item, "Sequence") descending
+                                              select item).FirstOrDefaultAsync();
+                        if (testCase != null)
+                            result = testCase.ID;
+                    }
+                });
+
+                scope.Complete();
+            }
+            return result;
+        }
         public async Task<TestHost> QueryByID(Guid id, CancellationToken cancellationToken = default)
         {
             TestHost result = new TestHost();
@@ -159,6 +209,29 @@ namespace FW.TestPlatform.Main.Entities.DAL
             });
 
             return result;
+        }
+
+        public async Task DeleteTestHosts(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    List<TestHost> list = new List<TestHost>();
+                    foreach (Guid id in ids)
+                    {
+                        var deleteObj = new TestHost() { ID = id };
+                        list.Add(deleteObj);
+                    }
+                    dbContext.TestHosts.AttachRange(list.ToArray());
+                    dbContext.TestHosts.RemoveRange(list.ToArray());
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
         }
 
         public IAsyncEnumerable<TestHost> GetHosts(CancellationToken cancellationToken = default)

@@ -113,6 +113,10 @@ namespace FW.TestPlatform.Main
         /// <summary>
         /// 已经存在指定名称的SSH终端
         /// </summary>
-        ExistSSHEndPointByName = 325710208
+        ExistSSHEndPointByName = 325710208,
+        /// <summary>
+        /// 已经存在指定名称的主机
+        /// </summary>
+        ExistTestHostByName = 325710209
     }
 }
