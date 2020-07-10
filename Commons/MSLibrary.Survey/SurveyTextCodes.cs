@@ -94,5 +94,40 @@ namespace MSLibrary.Survey
         /// {1}：发生的位置
         /// </summary>
         public static string NotFoundSurveyResponseCollectorDataQueryServiceByType = "NotFoundSurveyResponseCollectorDataQueryServiceByType";
+        /// <summary>
+        /// 找不到指定类型的Survey响应数据查询服务
+        /// 格式为“找不到类型为{0}的Survey响应数据查询服务，发生位置为{1}”
+        /// {0}：类型
+        /// {1}：发生的位置 
+        /// </summary>
+        public static string NotFoundSurveyResponseDataQueryServiceByType = "NotFoundSurveyResponseDataQueryServiceByType";
+        /// <summary>
+        /// 找不到指定类型的Survey响应数据ID解析服务
+        /// 格式为“找不到类型为{0}的Survey响应数据ID解析服务，发生位置为{1}”
+        /// {0}：类型
+        /// {1}：发生的位置
+        /// </summary>
+        public static string NotFoundSurveyResponseDataIDResolveServiceByType = "NotFoundSurveyResponseDataIDResolveServiceByType";
+        /// <summary>
+        /// 找不到指定类型的Survey的Http回调解析服务
+        /// 格式为“找不到类型为{0}的Survey的Http回调解析服务，发生位置为{1}”
+        /// {0}：类型
+        /// {1}：发生的位置
+        /// </summary>
+        public static string NotFoundSurveyHttpCallbackResolveServiceByType = "NotFoundSurveyHttpCallbackResolveServiceByType";
+        /// <summary>
+        /// 找不到指定类型的Survey的Http回调处理服务
+        /// 格式为“找不到类型为{0}的Survey的Http回调处理服务，发生位置为{1}”
+        /// {0}：类型
+        /// {1}：发生的位置
+        /// </summary>
+        public static string NotFoundSurveyHttpCallbackHandleServiceByType = "NotFoundSurveyHttpCallbackHandleServiceByType";
+        /// <summary>
+        /// 找不到指定名称的SurveyMonkey终结点
+        /// 格式为“找不到名称为{0}的SurveyMonkey终结点”
+        /// {0}：终结点名称
+        /// </summary>
+        public static string NotFoundSurveyMonkeyEndpointByName = "NotFoundSurveyMonkeyEndpointByName";
+
     }
 }

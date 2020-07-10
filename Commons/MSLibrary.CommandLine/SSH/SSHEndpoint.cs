@@ -8,6 +8,7 @@ using MSLibrary;
 using MSLibrary.DI;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.Template;
+using MSLibrary.CommandLine.SSH.DAL;
 
 namespace MSLibrary.CommandLine.SSH
 {
@@ -198,6 +199,19 @@ namespace MSLibrary.CommandLine.SSH
         {
             await _imp.ExecuteCommand(this, action, cancellationToken);
         }
+
+        public async Task Add(CancellationToken cancellationToken = default)
+        {
+            await _imp.Add(this, cancellationToken);
+        }
+        public async Task Delete(CancellationToken cancellationToken = default)
+        {
+            await _imp.Delete(this, cancellationToken);
+        }
+        public async Task Update(CancellationToken cancellationToken = default)
+        {
+            await _imp.Update(this, cancellationToken);
+        }
     }
 
     public interface ISSHEndpointIMP
@@ -213,6 +227,10 @@ namespace MSLibrary.CommandLine.SSH
         Task UploadFile(SSHEndpoint endpoint, Func<ISSHEndpointUploadFileService, Task> action, CancellationToken cancellationToken = default);
 
         Task ExecuteCommand(SSHEndpoint endpoint, Func<ISSHEndpointCommandService, Task> action, CancellationToken cancellationToken = default);
+
+        Task Add(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
+        Task Delete(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
+        Task Update(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
 
     }
 
@@ -233,6 +251,11 @@ namespace MSLibrary.CommandLine.SSH
     [Injection(InterfaceType = typeof(ISSHEndpointIMP), Scope = InjectionScope.Transient)]
     public class SSHEndpointIMP : ISSHEndpointIMP
     {
+        private readonly ISSHEndpointStore _sshEndpointStore;
+        public SSHEndpointIMP(ISSHEndpointStore sshEndpointStore)
+        {
+            _sshEndpointStore = sshEndpointStore;
+        }
         /// <summary>
         /// 文本替换服务
         /// 如果该属性赋值，则configuration中的内容将首先使用该服务来替换占位符
@@ -310,6 +333,20 @@ namespace MSLibrary.CommandLine.SSH
             {
                 return content;
             }
+        }
+
+        public async Task Add(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default)
+        {
+            await _sshEndpointStore.Add(sshEndPoint, cancellationToken);
+        }
+        public async Task Delete(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default)
+        {
+            await _sshEndpointStore.Delete(sshEndPoint.ID, cancellationToken);
+        }
+        //Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default);
+        public async Task Update(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default)
+        {
+            await _sshEndpointStore.Update(sshEndPoint, cancellationToken);
         }
     }
 

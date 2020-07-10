@@ -13,7 +13,7 @@ namespace MSLibrary.CommandLine.SSH
     {
         public static KVCacheVisitorSetting KVCacheVisitorSetting = new KVCacheVisitorSetting()
         {
-            Name = "_SystemConfigurationRepository",
+            Name = "_SSHEndpointRepository",
             ExpireSeconds = 600,
             MaxLength = 500
         };
@@ -35,7 +35,7 @@ namespace MSLibrary.CommandLine.SSH
             return await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _sshEndpointRepository.QueryByName(name);
+                    return await _sshEndpointRepository.QueryByName(name, cancellationToken);
                 }, name
                 );
         }

@@ -3,7 +3,7 @@
             persistent>
     <q-card>
       <q-card-section>
-        <div class="text-h6">EngineType List</div>
+        <div class="text-h6">引擎类型列表</div>
       </q-card-section>
 
       <q-separator />

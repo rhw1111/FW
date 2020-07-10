@@ -22,5 +22,28 @@ namespace MSLibrary.CommandLine.SSH
         {
             return await _sshEndpointStore.QueryByName(name, cancellationToken);
         }
+
+        public async Task<SSHEndpoint?> QueryByID(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _sshEndpointStore.QueryByID(id, cancellationToken);
+        }
+        public async Task<QueryResult<SSHEndpoint>> QueryByPage(string matchName, int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            return await _sshEndpointStore.QueryByPage(matchName, page, pageSize, cancellationToken);
+        }
+        public async Task<Guid?> QueryByNameNoLock(string name, CancellationToken cancellationToken = default)
+        {
+            return await _sshEndpointStore.QueryByNameNoLock(name, cancellationToken);
+        }
+
+        public async Task DeleteMutiple(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            await _sshEndpointStore.DeleteMutiple(ids, cancellationToken);
+        }
+
+        public IAsyncEnumerable<SSHEndpoint> GetSSHEndpoints(CancellationToken cancellationToken = default)
+        {
+            return _sshEndpointStore.GetSSHEndpoints(cancellationToken);
+        }
     }
 }
