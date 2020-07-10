@@ -49,8 +49,6 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    finally:");
             sbCode.AppendLine("        connect.close()");
             sbCode.AppendLine("");
-            sbCode.AppendLine("    return \"\"");
-            sbCode.AppendLine("");
 
             return await Task.FromResult(sbCode.ToString());
         }
