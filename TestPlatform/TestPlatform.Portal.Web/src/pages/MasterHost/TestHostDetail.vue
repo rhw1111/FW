@@ -31,7 +31,7 @@
                    v-model="SSHSelect"
                    @dblclick="openSSH">
             <template v-slot:before>
-              <span style="font-size:14px">SSH端点:</span>
+              <span style="font-size:14px">SSH终结点:</span>
             </template>
           </q-input>
         </div>
