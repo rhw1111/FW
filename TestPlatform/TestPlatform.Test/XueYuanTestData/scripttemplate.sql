@@ -22,8 +22,6 @@ from locust.event import EventHook
 from locust.env import Environment
 from locust.stats import stats_printer
 from locust.log import setup_logging
-from Crypto.Cipher import DES3
-import base64
 import requests
 from urllib import request, parse
 
