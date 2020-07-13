@@ -3,5 +3,6 @@
 FROM nginx
 COPY PortalWebBin/www/  /usr/share/nginx/html/
 COPY PortalWebBin/nginx.conf /etc/nginx/nginx.conf
+WORKDIR /usr/share/nginx
 RUN chmod -R 777 *
 EXPOSE 80

@@ -20,6 +20,9 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    import socket");
             sbCode.AppendLine("    import re");
             sbCode.AppendLine("");
+            sbCode.AppendLine("    if senddata is None or senddata == \"\":");
+            sbCode.AppendLine("        return None");
+            sbCode.AppendLine("");
             sbCode.AppendLine("    bufsize = 2048");
             sbCode.AppendLine("");
             sbCode.AppendLine("    try:");
@@ -37,8 +40,6 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    except Exception as e:");
             sbCode.AppendLine("        print(str(e))");
             sbCode.AppendLine("        return None");
-            sbCode.AppendLine("");
-            sbCode.AppendLine("    return \"\"");
             sbCode.AppendLine("");
 
             return await Task.FromResult(sbCode.ToString());

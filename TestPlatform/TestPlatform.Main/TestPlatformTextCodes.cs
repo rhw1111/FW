@@ -176,10 +176,30 @@ namespace FW.TestPlatform.Main
         public const string ExistTestCaseSlaveByName = "ExistTestCaseSlaveByName";
 
         /// <summary>
+        /// 已经存在指定名称的SSH终端
+        /// 格式为“已经存在名称为{0}的SSH终端”
+        /// {0}：名称
+        /// </summary>
+        public const string ExistSSHEndPointByName = "ExistSSHEndPointByName";
+
+        /// <summary>
+        /// 已经存在指定名称的主机
+        /// 格式为“已经存在地址为{0}的主机”
+        /// {0}：名称
+        /// </summary>
+        public const string ExistTestHostByName = "ExistTestHostByName";
+
+        /// <summary>
         /// 找不到指定Id的测试数据源
         /// 格式为“找不到测试数据源Id为{0}的测试数据源”
         /// {0}：Id
         /// </summary>
         public const string NotFoundTestCaseDataSourceByID = "NotFoundTestCaseDataSourceByID";
+        /// <summary>
+        /// 找不到指定Id的SSH终端
+        /// 格式为“找不到SSH终端Id为{0}的SSH终端”
+        /// {0}：Id
+        /// </summary>
+        public const string NotFoundSSHEndPointByID = "NotFoundSSHEndPointByID";
     }
 }

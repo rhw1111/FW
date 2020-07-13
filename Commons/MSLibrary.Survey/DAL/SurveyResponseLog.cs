@@ -7,7 +7,7 @@ namespace MSLibrary.Survey.DAL
 {
     /// <summary>
     /// Survey响应日志
-    /// SurveyType+SurveyID唯一
+    /// SurveyType+SurveyID+ResponseID唯一
     /// SurveyType为SurveyResponseCollectorEndpoint中的Type
     /// </summary>
     public class SurveyResponseLog:ModelBase
@@ -60,6 +60,23 @@ namespace MSLibrary.Survey.DAL
                 SetAttribute<string>(nameof(SurveyID), value);
             }
         }
+
+        /// <summary>
+        /// 响应标识
+        /// </summary>
+        public string ResponseID
+        {
+            get
+            {
+
+                return GetAttribute<string>(nameof(ResponseID));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(ResponseID), value);
+            }
+        }
+
 
         /// <summary>
         /// 创建时间

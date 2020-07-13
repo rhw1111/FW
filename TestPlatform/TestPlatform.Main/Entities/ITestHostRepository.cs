@@ -11,5 +11,9 @@ namespace FW.TestPlatform.Main.Entities
     {
         Task<TestHost?> QueryByID(Guid id, CancellationToken cancellationToken = default);
         IAsyncEnumerable<TestHost> GetHosts(CancellationToken cancellationToken = default);
+        Task<TestHost?> QueryByName(string address, CancellationToken cancellationToken = default);
+        Task<Guid?> QueryByNameNoLock(string address, CancellationToken cancellationToken = default);
+        Task<QueryResult<TestHost>> QueryByPage(string matchAddress, int page, int pageSize, CancellationToken cancellationToken = default);
+        Task DeleteTestHosts(List<Guid> ids, CancellationToken cancellationToken = default);
     }
 }

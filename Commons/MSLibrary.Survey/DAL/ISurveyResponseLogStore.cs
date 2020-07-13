@@ -12,8 +12,10 @@ namespace MSLibrary.Survey.DAL
     public interface ISurveyResponseLogStore
     {
         Task Add(SurveyResponseLog log, CancellationToken cancellationToken = default);
-        Task Query(string surveyType,string surveyID, CancellationToken cancellationToken = default);
-        Task Delete(string surveyType, DateTime maxCreateTime, CancellationToken cancellationToken = default);
+        Task<SurveyResponseLog?> Query(string surveyType,string surveyID,string responseID, CancellationToken cancellationToken = default);
+        Task<Guid?> QueryNoLock(string surveyType, string surveyID, string responseID, CancellationToken cancellationToken = default);
+
+        Task Delete(string surveyType, string surveyID, DateTime maxCreateTime, CancellationToken cancellationToken = default);
         
     }
 }

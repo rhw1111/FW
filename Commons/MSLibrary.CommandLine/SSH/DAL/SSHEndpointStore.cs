@@ -21,6 +21,31 @@ namespace MSLibrary.CommandLine.SSH.DAL
             _commandLineEntityDBContextFactory = commandLineEntityDBContextFactory;
         }
 
+        public Task Add(SSHEndpoint source, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Delete(Guid id, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteMutiple(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<SSHEndpoint> GetSSHEndpoints(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<SSHEndpoint?> QueryByID(Guid id, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<SSHEndpoint?> QueryByName(string name, CancellationToken cancellationToken = default)
         {
             SSHEndpoint? endpoint = null;
@@ -43,6 +68,21 @@ namespace MSLibrary.CommandLine.SSH.DAL
             });
 
             return endpoint;
+        }
+
+        public Task<Guid?> QueryByNameNoLock(string name, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<QueryResult<SSHEndpoint>> QueryByPage(string matchName, int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Update(SSHEndpoint source, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }

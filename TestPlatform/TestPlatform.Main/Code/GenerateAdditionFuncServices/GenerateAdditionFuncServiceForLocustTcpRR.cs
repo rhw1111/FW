@@ -23,6 +23,9 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    if address is None or address == \"\" or port is None or port == \"\":");
             sbCode.AppendLine("        return None");
             sbCode.AppendLine("");
+            sbCode.AppendLine("    if senddata is None or senddata == \"\":");
+            sbCode.AppendLine("        return None");
+            sbCode.AppendLine("");
             sbCode.AppendLine("    host = address");
             sbCode.AppendLine("    port = port");
             sbCode.AppendLine("    ADDR = (host, port)");
@@ -48,8 +51,6 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("        return None");
             sbCode.AppendLine("    finally:");
             sbCode.AppendLine("        connect.close()");
-            sbCode.AppendLine("");
-            sbCode.AppendLine("    return \"\"");
             sbCode.AppendLine("");
 
             return await Task.FromResult(sbCode.ToString());
