@@ -33,7 +33,7 @@ namespace FW.TestPlatform.Main.Application
                         ID = item.ID,
                         Type = item.Type,
                         Configuration = item.Configuration,
-                        Name = item.Configuration
+                        Name = item.Name
                     }
                     );
             }
