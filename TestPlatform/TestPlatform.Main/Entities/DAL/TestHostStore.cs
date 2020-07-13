@@ -83,14 +83,15 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-
+                    //Guid sshEndpointId = source.SSHEndpointID;
                     source.ModifyTime = DateTime.UtcNow;
                     dbContext.TestHosts.Attach(source);
-
+                    //source.SSHEndpointID = sshEndpointId;
                     var entry = dbContext.Entry(source);
                     foreach (var item in entry.Properties)
                     {
-                        entry.Property(item.Metadata.Name).IsModified = true;
+                        if(item.Metadata.Name != "ID")
+                            entry.Property(item.Metadata.Name).IsModified = true;
                     }
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }

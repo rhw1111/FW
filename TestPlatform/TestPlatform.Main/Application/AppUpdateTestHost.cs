@@ -35,7 +35,8 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
             }
-          
+            testHost.SSHEndpointID = model.SSHEndpointID;
+            testHost.Address = model.Address;
             await testHost.Update(cancellationToken);
 
             return new TestHostViewData()
