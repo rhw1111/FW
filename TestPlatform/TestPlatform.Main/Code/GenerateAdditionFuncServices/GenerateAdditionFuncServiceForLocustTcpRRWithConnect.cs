@@ -20,7 +20,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    import socket");
             sbCode.AppendLine("    import re");
             sbCode.AppendLine("");
-            sbCode.AppendLine("    if senddata is None or senddata == \"\"");
+            sbCode.AppendLine("    if senddata is None or senddata == \"\":");
             sbCode.AppendLine("        return None");
             sbCode.AppendLine("");
             sbCode.AppendLine("    bufsize = 2048");

@@ -50,6 +50,14 @@ SET configuration = '{
             {
                 "Name": "self.user_id",
                 "Content": "{$varkv(json_user_account,\'UserName\')}"
+            },
+            {
+                "Name": "self.user_password",
+                "Content": "{$varkv(json_user_account,\'Password\')}"
+            },
+            {
+                "Name": "self.user_token",
+                "Content": "{$currconnectkv(\'user_token\')}"
             }
         ]
     },
@@ -107,6 +115,14 @@ SET configuration = '{
             {
                 "Name": "self.user_id",
                 "Content": "{$varkv(json_user_account,\'UserName\')}"
+            },
+            {
+                "Name": "self.user_password",
+                "Content": "{$varkv(json_user_account,\'Password\')}"
+            },
+            {
+                "Name": "self.user_token",
+                "Content": "{$currconnectkv(\'user_token\')}"
             }
         ]
     },

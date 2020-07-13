@@ -90,47 +90,6 @@ lock = threading.Lock()
 {$datavardeclareinit(0)}
 
 
-class EncryptDate():
-    def __init__(self, key):
-        self.key = key
-        self.mode = DES3.MODE_CBC
-        self.iv = b"12345678"
-        self.length = DES3.block_size
-
-    def pad(self, s):
-        return s + (self.length - len(s) % self.length) * chr(self.length - len(s) % self.length)
-
-    # 定义 padding 即 填充 为PKCS7
-    def unpad(self, s):
-        return s[0:-ord(s[-1])]
-
-    # DES3的加密模式为CBC
-    def encrypt(self, text):
-        text = self.pad(text)
-        cryptor = DES3.new(self.key, self.mode, self.iv)
-        # self.iv 为 IV 即偏移量
-        x = len(text) % 8
-
-        if x != 0:
-            text = text + "\0" * (8 - x)  # 不满16，32，64位补0
-
-        self.ciphertext = cryptor.encrypt(text)
-        return base64.standard_b64encode(self.ciphertext).decode("utf-8")
-
-    def decrypt(self, text):
-        cryptor = DES3.new(self.key, self.mode, self.iv)
-        de_text = base64.standard_b64decode(text)
-        plain_text = cryptor.decrypt(de_text)
-        st = str(plain_text.decode("utf-8")).rstrip("\0")
-        out = self.unpad(st)
-        return out
-        # 上面注释内容解密如果运行报错，就注释掉试试
-        # return plain_text
-
-
-ed = EncryptDate(key)
-
-
 class TcpSocketClient(socket.socket):
     _locust_environment = None
 

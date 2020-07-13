@@ -23,7 +23,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    if address is None or address == \"\" or port is None or port == \"\":");
             sbCode.AppendLine("        return None");
             sbCode.AppendLine("");
-            sbCode.AppendLine("    if senddata is None or senddata == \"\"");
+            sbCode.AppendLine("    if senddata is None or senddata == \"\":");
             sbCode.AppendLine("        return None");
             sbCode.AppendLine("");
             sbCode.AppendLine("    host = address");
