@@ -15,7 +15,7 @@
     <div class="q-pa-md row">
 
       <div class="new_input">
-        <div class="row">
+        <div class="row input_row">
           <q-input v-model="Name"
                    :dense="false"
                    class="col">
@@ -33,7 +33,7 @@
           </q-input>
         </div>
 
-        <div class="row">
+        <div class="row input_row">
           <q-input v-model="Configuration"
                    :dense="false"
                    class="col-xs-12"
@@ -166,8 +166,7 @@ export default {
 .new_input {
   width: 100%;
   padding: 10px 30px;
-
-  .row {
+  .input_row {
     margin-bottom: 10px;
   }
 }

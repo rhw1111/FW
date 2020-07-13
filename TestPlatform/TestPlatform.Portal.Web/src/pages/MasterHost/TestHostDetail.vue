@@ -15,7 +15,7 @@
     <div class="q-pa-md row">
 
       <div class="new_input">
-        <div class="row">
+        <div class="row input_row">
           <q-input v-model="Name"
                    :dense="false"
                    class="col">
@@ -24,14 +24,14 @@
             </template>
           </q-input>
         </div>
-        <div class="row">
+        <div class="row input_row">
           <q-input :dense="false"
                    class="col col-xs-12"
                    readonly
                    v-model="SSHSelect"
                    @dblclick="openSSH">
             <template v-slot:before>
-              <span style="font-size:14px">SSH端点:</span>
+              <span style="font-size:14px">SSH终结点:</span>
             </template>
           </q-input>
         </div>
@@ -213,8 +213,7 @@ export default {
 .new_input {
   width: 100%;
   padding: 10px 30px;
-
-  .row {
+  .input_row {
     margin-bottom: 10px;
   }
 }
