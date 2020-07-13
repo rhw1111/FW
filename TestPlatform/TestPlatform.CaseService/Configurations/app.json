@@ -1,9 +1,9 @@
 {
   "Connections": {
-    "mainall": "Server=172.17.0.1;Port=3306;Database=tpmain;Uid=root;Pwd=123456;",
-    "mainread": "Server=172.17.0.1;Port=3306;Database=tpmain;Uid=root;Pwd=123456;",
-    "configurationall": "Server=172.17.0.1;Port=3306;Database=tpconfig;Uid=root;Pwd=123456;",
-    "confifurationread": "Server=172.17.0.1;Port=3306;Database=tpconfig;Uid=root;Pwd=123456;"
+    "mainall": "Server=localhost;Port=3306;Database=tpmain;Uid=test;Pwd=test;",
+    "mainread": "Server=localhost;Port=3306;Database=tpmain;Uid=test;Pwd=test;",
+    "configurationall": "Server=localhost;Port=3306;Database=tpconfig;Uid=test;Pwd=test;",
+    "confifurationread": "Server=localhost;Port=3306;Database=tpconfig;Uid=test;Pwd=test;"
   },
   "ApplicationName": "TestPlatform.CaseService",
   "DISetting": {

@@ -33,8 +33,18 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 # from api import api
 # from common import common
 
-setup_logging("INFO", None)
 
+# -----------------------------------------------------------
+{$additionfunc(0)}
+# -----------------------------------------------------------
+
+
+# -----------------------------------------------------------
+{$datavardeclareinit(0)}
+# -----------------------------------------------------------
+
+
+setup_logging("INFO", None)
 
 host = "{Address}"
 port = {Port}
@@ -80,12 +90,6 @@ second_unit = 1000000000
 # default is 2 seconds
 all_locusts_spawned = Semaphore()
 lock = threading.Lock()
-
-
-{$additionfunc(0)}
-
-
-{$datavardeclareinit(0)}
 
 
 class TcpSocketClient(socket.socket):
