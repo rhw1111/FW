@@ -271,6 +271,7 @@ export default {
   },
   mounted () {
     this.getSSHEndpointList();
+    this.getTestHostList();
   },
   methods: {
     //获得SSH端口列表
@@ -279,15 +280,14 @@ export default {
       let para = {
         matchName: '',
         page: page || 1,
-        pageSize: ''
+        pageSize: 50
       }
       Apis.getSSHEndpointList(para).then((res) => {
         console.log(res)
         this.SSHEndpointList = res.data.results;
         this.SSHEndpointPagination.page = page || 1;
         this.SSHEndpointPagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
-        this.getTestHostList();
-        this.getSSHEndpointData();
+        this.$q.loading.hide()
       })
     },
     openSSHCreate () {
@@ -404,24 +404,25 @@ export default {
     // --------------------------------- TestHost ---------------------------
     //获得TestHost列表
     getTestHostList (page) {
+      this.$q.loading.show()
       let para = {
         matchName: '',
         page: page || 1,
-        pageSize: ''
+        pageSize: 50
       }
       Apis.getTestHostList(para).then((res) => {
         console.log(res)
         this.MasterHostList = res.data.results;
         this.MasterHostPagination.page = page || 1;
         this.MasterHostPagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
-        this.$q.loading.hide()
+        this.getSSHEndpointData();
       })
     },
     //获得SSH端口数据
     getSSHEndpointData () {
       Apis.getSSHEndpointData({}).then((res) => {
-        console.log(res)
         this.SSHEndpointDataArr = res.data;
+        this.$q.loading.hide()
       })
     },
     //新增HostFlag
@@ -511,38 +512,27 @@ export default {
           label: '取消'
         },
       }).onOk(() => {
-        if (this.MasterHostSelected.length == 1) {
-          //单个删除SSH端口
-          let para = `?id=${this.MasterHostSelected[0].id}`
+        let SelectedLength = this.MasterHostSelected.length;
+        let DelNum = 0;
+        for (let i = 0; i < this.MasterHostSelected.length; i++) {
+          //单个批量删除SSH端口
+          let para = `?id=${this.MasterHostSelected[i].id}`
           this.$q.loading.show()
           Apis.deleteTestHost(para).then(() => {
-            this.$q.notify({
-              position: 'top',
-              message: '提示',
-              caption: '删除成功',
-              color: 'secondary',
-            })
-            this.getSSHEndpointList();
-          })
-        } else if (this.MasterHostSelected.length > 1) {
-          //批量删除SSH端口
-          let para = {
-            delArr: []
-          }
-          for (let i = 0; i < this.MasterHostSelected.length; i++) {
-            para.delArr.push(this.MasterHostSelected[i].id)
-          }
-          this.$q.loading.show()
-          Apis.deleteTestHostArr(para).then(() => {
-            this.$q.notify({
-              position: 'top',
-              message: '提示',
-              caption: '删除成功',
-              color: 'secondary',
-            })
-            this.getSSHEndpointList();
+            DelNum++;
+            console.log(DelNum, SelectedLength)
+            if (DelNum == SelectedLength) {
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: '删除成功',
+                color: 'secondary',
+              })
+              this.getSSHEndpointList();
+            }
           })
         }
+
       })
     },
     //跳转TestHost详情
