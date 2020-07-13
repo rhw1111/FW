@@ -12,8 +12,7 @@
                table-style="max-height: 500px"
                :virtual-scroll-sticky-start="48"
                :rows-per-page-options=[0]
-               no-data-label="暂无数据更新"
-               @row-dblclick="toTestHostDetail">
+               no-data-label="暂无数据更新">
 
         <template v-slot:top-right>
           <q-btn class="btn"
@@ -24,6 +23,15 @@
                  color="red"
                  label="删 除"
                  @click="deleteTestHost" />
+        </template>
+        <template v-slot:body-cell-id="props">
+          <q-td class="text-left"
+                :props="props">
+            <q-btn class="btn"
+                   color="primary"
+                   label="更 新"
+                   @click="toTestHostDetail(props)" />
+          </q-td>
         </template>
         <template v-slot:bottom
                   class="row">
@@ -45,8 +53,7 @@
                row-key="id"
                :rows-per-page-options=[0]
                table-style="max-height: 500px"
-               no-data-label="暂无数据更新"
-               @row-dblclick="toSSHEndpointDetail">
+               no-data-label="暂无数据更新">
 
         <template v-slot:top-right>
           <q-btn class="btn"
@@ -57,6 +64,15 @@
                  color="red"
                  label="删 除"
                  @click="deleteSSH" />
+        </template>
+        <template v-slot:body-cell-id="props">
+          <q-td class="text-left"
+                :props="props">
+            <q-btn class="btn"
+                   color="primary"
+                   label="更 新"
+                   @click="toSSHEndpointDetail(props)" />
+          </q-td>
         </template>
         <template v-slot:bottom
                   class="row">
@@ -80,7 +96,7 @@
 
         <q-separator />
         <div class="new_input">
-          <div class="row">
+          <div class="row input_row">
             <q-input v-model="Name"
                      :dense="false"
                      class="col">
@@ -97,7 +113,7 @@
               </template>
             </q-input>
           </div>
-          <div class="row">
+          <div class="row input_row">
             <q-input v-model="Configuration"
                      :dense="false"
                      class="col-xs-12"
@@ -135,7 +151,7 @@
 
         <q-separator />
         <div class="new_input">
-          <div class="row">
+          <div class="row input_row">
             <q-input v-model="TestHostName"
                      :dense="false"
                      class="col">
@@ -144,7 +160,7 @@
               </template>
             </q-input>
           </div>
-          <div class="row">
+          <div class="row input_row">
             <q-input :dense="false"
                      class="col col-xs-12"
                      readonly
@@ -220,6 +236,7 @@ export default {
           field: row => row.address,
           format: val => `${val}`,
         },
+        { name: 'id', label: '操作', align: 'left', field: 'id', },
       ],
       // ------------------------------------ SSH端口 ------------------------------------
       SSHEndpointList: [], //SSH端口列表
@@ -241,6 +258,7 @@ export default {
         },
         { name: 'type', align: 'left', label: '类型', field: 'type', },
         { name: 'configuration', label: '配置', align: 'left', field: 'configuration', },
+        { name: 'id', label: '操作', align: 'left', field: 'id', },
       ],
 
       createSSHEndpointFlag: false,//创建dialogFlag
@@ -371,11 +389,11 @@ export default {
       })
     },
     //跳转SSH端口详情
-    toSSHEndpointDetail (val, row) {
+    toSSHEndpointDetail (env) {
       this.$router.push({
         name: 'SSHEndpointDetail',
         query: {
-          id: row.id
+          id: env.row.id
         }
       })
     },
@@ -528,11 +546,11 @@ export default {
       })
     },
     //跳转TestHost详情
-    toTestHostDetail (val, row) {
+    toTestHostDetail (env) {
       this.$router.push({
         name: 'TestHostDetail',
         query: {
-          id: row.id
+          id: env.row.id
         }
       })
     },
@@ -569,7 +587,7 @@ export default {
 .new_input {
   width: 100%;
   padding: 10px 30px;
-  .row {
+  .input_row {
     margin-bottom: 10px;
   }
 }

@@ -109,7 +109,7 @@
 
         <q-separator />
         <div class="new_input">
-          <div class="row">
+          <div class="row input_row">
             <q-input v-model="SlaveHostName"
                      :dense="false"
                      class="col">
@@ -135,7 +135,7 @@
               </template>
             </q-input>
           </div>
-          <div class="row">
+          <div class="row input_row">
             <q-input v-model="SlaveExtensionInfo"
                      :dense="false"
                      class="col"
@@ -172,7 +172,6 @@
                  row-key="id"
                  selection="multiple"
                  :selected.sync="SlaveHostSelected"
-                 @row-dblclick="toSlaveHostDetail"
                  :rows-per-page-options=[0]
                  no-data-label="暂无数据更新">
           <template v-slot:body-cell-id="props">
@@ -180,7 +179,8 @@
               <q-btn class="btn"
                      color="primary"
                      label="更 新"
-                     :disable="isNoRun!=1?false:true" />
+                     :disable="isNoRun!=1?false:true"
+                     @click="toSlaveHostDetail(props)" />
             </q-td>
           </template>
           <template v-slot:top-right>
@@ -209,7 +209,6 @@
                  row-key="id"
                  selection="multiple"
                  :selected.sync="HistorySelected"
-                 @row-dblclick="toHistoryDetail"
                  :rows-per-page-options=[0]
                  no-data-label="暂无数据更新">
           <template v-slot:top-right>
@@ -218,6 +217,15 @@
                    label="删 除"
                    :disable="isNoRun!=1?false:true"
                    @click="deleteHistory" />
+          </template>
+          <template v-slot:body-cell-id="props">
+            <q-td :props="props">
+              <q-btn class="btn"
+                     color="primary"
+                     label="查 看"
+                     :disable="isNoRun!=1?false:true"
+                     @click="toHistoryDetail(props)" />
+            </q-td>
           </template>
           <template v-slot:bottom>
             <q-pagination v-model="pagination.page"
@@ -318,6 +326,7 @@ export default {
           field: row => row.createTime,
           format: val => `${val}`,
         },
+        { name: 'id', label: '操作', align: 'left', field: 'id' },
       ],
       //历史记录分页配置
       pagination: {
@@ -602,11 +611,9 @@ export default {
       })
     },
     //跳转从机详情
-    toSlaveHostDetail (evt, row) {
-      if (this.isNoRun == 1) {
-        return;
-      }
-      sessionStorage.setItem('SlaveHostDetailData', JSON.stringify(row))
+    toSlaveHostDetail (evt) {
+      console.log(evt)
+      sessionStorage.setItem('SlaveHostDetailData', JSON.stringify(evt.row))
       this.$router.push({
         name: 'SlaveHostDetail'
       })
@@ -666,17 +673,12 @@ export default {
       this.getHistoryList(value)
     },
     //跳转到历史记录详情
-    toHistoryDetail (evt, row) {
-      console.log(this.isNoRun)
-      if (this.isNoRun == 1) {
-        return;
-      }
-      console.log(evt, row)
+    toHistoryDetail (evt) {
       this.$router.push({
         name: 'HistoryDetail',
         query: {
-          historyId: row.id,
-          caseId: row.caseID
+          historyId: evt.row.id,
+          caseId: evt.row.caseID
         }
       })
     },

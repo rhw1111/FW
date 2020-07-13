@@ -7,7 +7,6 @@
                :data="TestCaseList"
                :columns="columns"
                row-key="id"
-               @row-dblclick="toDetail"
                :rows-per-page-options=[0]
                no-data-label="暂无数据更新">
 
@@ -27,8 +26,12 @@
           </q-pagination>
         </template>
         <template v-slot:body-cell-id="props">
-          <q-td class="text-right"
+          <q-td class=""
                 :props="props">
+            <q-btn class="btn"
+                   color="primary"
+                   label="更 新"
+                   @click="toDetail(props)" />
             <q-btn class="btn"
                    style="background: #FF0000; color: white"
                    label="删 除"
@@ -160,7 +163,7 @@ export default {
         },
         { name: 'engineType', align: 'left', label: '引擎类型', field: 'engineType', },
         { name: 'configuration', label: '配置', align: 'left', field: 'configuration', },
-        { name: 'id', label: '', align: 'left', field: 'id', },
+        { name: 'id', label: '操作', align: 'left', field: 'id', },
       ],
       //分页配置
       pagination: {
@@ -303,12 +306,11 @@ export default {
       }
     },
     //跳转TestCase详情
-    toDetail (evt, row) {
-      console.log(row)
+    toDetail (evt) {
       this.$router.push({
         name: 'TestCaseDetail',
         query: {
-          id: row.id
+          id: evt.row.id
         },
       })
     }
@@ -331,12 +333,10 @@ export default {
 <style lang="scss">
 .q-table {
   table-layout: fixed;
-  .cursor-pointer {
-    .text-left {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+  .text-left {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 .q-table--col-auto-width {
