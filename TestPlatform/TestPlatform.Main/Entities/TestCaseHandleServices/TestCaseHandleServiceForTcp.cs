@@ -362,7 +362,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         /// 测试接口地址
         /// </summary>
         [DataMember]
-        public string Port
+        public int Port
         {
             get; set;
         }
