@@ -28,7 +28,7 @@ namespace FW.TestPlatform.Main.Application
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.NotFoundSSHEndPointByID,
-                    DefaultFormatting = "找不到SSH终端Id为{0}的SSH终端",
+                    DefaultFormatting = "找不到Id为{0}的SSH终结点",
                     ReplaceParameters = new List<object>() { model.ID.ToString() }
                 };
 
@@ -41,7 +41,7 @@ namespace FW.TestPlatform.Main.Application
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.ExistSSHEndPointByName,
-                    DefaultFormatting = "已经存在名称为{0}的SSH终端",
+                    DefaultFormatting = "已经存在名称为{0}的SSH终结点",
                     ReplaceParameters = new List<object>() { model.Name }
                 };
 

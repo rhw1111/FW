@@ -41,6 +41,11 @@ namespace MSLibrary.CommandLine.SSH.DAL
             throw new NotImplementedException();
         }
 
+        public Task<bool> IsUsedByTestHosts(Guid id, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<SSHEndpoint?> QueryByID(Guid id, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
@@ -83,6 +88,6 @@ namespace MSLibrary.CommandLine.SSH.DAL
         public Task Update(SSHEndpoint source, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
-        }
+        }      
     }
 }

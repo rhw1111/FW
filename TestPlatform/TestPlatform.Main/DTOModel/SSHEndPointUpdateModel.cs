@@ -7,7 +7,7 @@ using MSLibrary;
 namespace FW.TestPlatform.Main.DTOModel
 {
     /// <summary>
-    /// SSH终端更新模型
+    /// SSH终结点更新模型
     /// </summary>
     [DataContract]
     public class SSHEndPointUpdateModel : SSHEndPointAddModel

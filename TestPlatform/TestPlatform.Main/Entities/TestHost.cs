@@ -182,7 +182,7 @@ namespace FW.TestPlatform.Main.Entities
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.NotFoundSSHEndPointByID,
-                    DefaultFormatting = "找不到Id为{0}的SSH端点",
+                    DefaultFormatting = "找不到Id为{0}的SSH终结点",
                     ReplaceParameters = new List<object>() { host.SSHEndpointID.ToString() }
                 };
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSSHEndPointByID, fragment, 1, 0);
@@ -203,7 +203,7 @@ namespace FW.TestPlatform.Main.Entities
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.NotFoundSSHEndPointByID,
-                    DefaultFormatting = "找不到Id为{0}的SSH端点",
+                    DefaultFormatting = "找不到Id为{0}的SSH终结点",
                     ReplaceParameters = new List<object>() { host.SSHEndpointID.ToString() }
                 };
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSSHEndPointByID, fragment, 1, 0);
@@ -220,6 +220,33 @@ namespace FW.TestPlatform.Main.Entities
             }
             return hostList;
         }
+        public async Task<bool> IsUsedByTestHostsOrSlaves(TestHost host, CancellationToken cancellationToken = default)
+        {
+            bool result = false;
+            result = await _testHostStore.IsUsedByTestCases(host.ID ,cancellationToken);
+            if (result)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.TestHostIsUsedByTestCases,
+                    DefaultFormatting = "Id为{0}的主机正在被其它的测试用例使用，不能被删除",
+                    ReplaceParameters = new List<object>() { host.ID.ToString() }
+                };
+                throw new UtilityException((int)TestPlatformErrorCodes.TestHostIsUsedByTestCases, fragment, 1, 0);
+            }
+            result = await _testHostStore.IsUsedBySlaveHosts(host.ID, cancellationToken);
+            if (result)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.TestHostIsUsedBySlaves,
+                    DefaultFormatting = "Id为{0}的主机正在被其它的从主机使用，不能被删除",
+                    ReplaceParameters = new List<object>() { host.ID.ToString() }
+                };
+                throw new UtilityException((int)TestPlatformErrorCodes.TestHostIsUsedBySlaves, fragment, 1, 0);
+            }
+            return result;
+        }
     }
 
     public interface ITestHostIMP
@@ -228,5 +255,6 @@ namespace FW.TestPlatform.Main.Entities
         Task Update(TestHost host, CancellationToken cancellationToken = default);
         Task Delete(TestHost host, CancellationToken cancellationToken = default);
         Task<List<TestHost>> GetHosts(CancellationToken cancellationToken = default);
+        Task<bool> IsUsedByTestHostsOrSlaves(TestHost host, CancellationToken cancellationToken = default);
     }
 }
