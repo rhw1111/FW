@@ -45,7 +45,7 @@
       </q-table>
       <!-- SSH端口列表 -->
       <q-table class="col-md-8 col-sm-12 col-xs-12"
-               title="SSH端点列表"
+               title="SSH终结点列表"
                :data="SSHEndpointList"
                :columns="SSHEndpointColumns"
                selection="multiple"
@@ -91,7 +91,7 @@
               persistent>
       <q-card style="width:100%">
         <q-card-section>
-          <div class="text-h6">创建SSH端点</div>
+          <div class="text-h6">创建SSH终结点</div>
         </q-card-section>
 
         <q-separator />
@@ -167,7 +167,7 @@
                      v-model="SSHSelect"
                      @dblclick="openSSH">
               <template v-slot:before>
-                <span style="font-size:14px">SSH端点:</span>
+                <span style="font-size:14px">SSH终结点:</span>
               </template>
             </q-input>
           </div>
