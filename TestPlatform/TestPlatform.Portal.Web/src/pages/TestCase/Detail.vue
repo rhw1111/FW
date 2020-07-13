@@ -14,14 +14,6 @@
             @addMasterHost='addSlaveHostHost'
             @cancelMasterHost='cancelSlaveHostHost'
             ref='SlaveHostHostlookUp' />
-    <!-- 
-             -->
-    <!-- EngineType选择框 -->
-    <EngineTypeLookUp :fixed="EngineTypeFixed"
-                      :EngineTypeIndex="EngineTypeSelect"
-                      @cancelEngineType="cancelEngineType"
-                      @addEngineType="addEngineType"
-                      ref='TypelookUp' />
     <!-- button -->
     <div class="detail_header">
       <q-btn class="btn"
@@ -65,7 +57,7 @@
     <div class="q-pa-md row">
 
       <div class="new_input">
-        <div class="row">
+        <div class="row input_row">
           <q-input v-model="Name"
                    :dense="false"
                    class="col">
@@ -73,16 +65,16 @@
               <span style="font-size:14px">名称:</span>
             </template>
           </q-input>
-          <q-input v-model="EngineType"
-                   :dense="false"
-                   class="col"
-                   readonly
-                   style="margin-left:50px;"
-                   @dblclick="openEngineType">
+          <q-select v-model="EngineType"
+                    :options="['Http','Tcp']"
+                    class="col"
+                    :dense="false">
             <template v-slot:before>
               <span style="font-size:14px">引擎类型:</span>
             </template>
-          </q-input>
+            <template v-slot:prepend>
+            </template>
+          </q-select>
 
           <q-input :dense="false"
                    class="col"
@@ -94,7 +86,7 @@
             </template>
           </q-input>
         </div>
-        <div class="row">
+        <div class="row input_row">
           <q-input v-model="Configuration"
                    :dense="false"
                    class="col-xs-12"
@@ -173,7 +165,7 @@
     <div class="q-pa-md row HostList">
       <!-- 从机列表 -->
       <q-list bordered
-              class="col-xs-12 col-sm-6 col-xl-6">
+              class="col-xs-12 col-sm-7 col-xl-7">
         <q-table title="从主机列表"
                  :data="SlaveHostList"
                  :columns="columns"
@@ -183,6 +175,14 @@
                  @row-dblclick="toSlaveHostDetail"
                  :rows-per-page-options=[0]
                  no-data-label="暂无数据更新">
+          <template v-slot:body-cell-id="props">
+            <q-td :props="props">
+              <q-btn class="btn"
+                     color="primary"
+                     label="更 新"
+                     :disable="isNoRun!=1?false:true" />
+            </q-td>
+          </template>
           <template v-slot:top-right>
             <q-btn class="
                  btn"
@@ -202,7 +202,7 @@
       </q-list>
       <!-- 历史记录列表 -->
       <q-list bordered
-              class="col-xs-12 col-sm-6 col-xl-6">
+              class="col-xs-12 col-sm-5 col-xl-5">
         <q-table title="历史记录列表"
                  :data="HistoryList"
                  :columns="HistoryColumns"
@@ -237,12 +237,10 @@
 <script>
 import * as Apis from "@/api/index"
 import lookUp from "@/components/lookUp.vue"
-import EngineTypeLookUp from "@/components/EngineTypeLookUp.vue"
 export default {
   name: 'TestCaseDetail',
   components: {
     lookUp,
-    EngineTypeLookUp
   },
   data () {
     return {
@@ -271,8 +269,6 @@ export default {
       masterSelectIndex: '',  //主机已选择下标
 
 
-      EngineTypeFixed: false,//EngineTypeFlag
-      EngineTypeSelect: -1,//EngineType选择
 
       Name: '',           //Name
       Configuration: '',  //Configuration
@@ -303,8 +299,10 @@ export default {
           field: row => row.slaveName,
           format: val => `${val}`,
         },
+        { name: 'address', align: 'left', label: 'ip', field: 'address', },
         { name: 'count', align: 'left', label: '数量', field: 'count', },
         { name: 'extensionInfo', label: '扩展信息', align: 'left', field: 'extensionInfo', style: 'width:100px;' },
+        { name: 'id', label: '操作', align: 'left', field: 'id' },
       ],
 
 
@@ -350,7 +348,6 @@ export default {
         this.Name = res.data.name;
         this.Configuration = res.data.configuration;
         this.EngineType = res.data.engineType;
-        this.EngineTypeSelect = this.EngineType == 'Tcp' ? 1 : 0;
         this.getMasterHostList();
         this.getSlaveHostsList();
         this.getHistoryList();
@@ -424,25 +421,8 @@ export default {
       this.$refs.lookUp.selectIndex = this.masterSelectIndex;
     },
 
-    // 打开EngineType框
-    openEngineType () {
-      this.EngineTypeFixed = true;
-    },
-    //添加EngineType
-    addEngineType (value, index) {
-      if (value == undefined) {
-        return false;
-      }
-      console.log(value, index)
-      this.EngineType = value[index];
-      this.EngineTypeSelect = index;
-      this.EngineTypeFixed = false;
-    },
-    //取消EngineType框
-    cancelEngineType () {
-      this.EngineTypeFixed = false;
-      this.$refs.TypelookUp.selectIndex = this.EngineTypeSelect;
-    },
+
+
 
 
     //双击从机host
@@ -846,8 +826,8 @@ export default {
   width: 100%;
   padding: 10px 30px;
 
-  .row {
-    margin-bottom: 10px;
+  .input_row {
+    margin-bottom: 30px;
   }
 }
 .q-textarea .q-field__native {

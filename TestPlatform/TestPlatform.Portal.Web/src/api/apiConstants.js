@@ -1,4 +1,5 @@
 const apiConstants = {
+  //---------------------------------------- TestCase -------------------------------------
   postCreateTestCase: 'api/testcase/add',     //创建TestCase
 
   deleteTestCase: 'api/testcase/delete',        //删除TestCase
@@ -41,6 +42,7 @@ const apiConstants = {
 
   getTestCaseStatus: 'api/testcase/querytestcasestatus',//查看当前TestCase状态
 
+  // ---------------------------------------- TestDataSource -------------------------------------------------------
   getTestDataSource: 'api/testdatasource/querybypage',//获得TestDataSource
 
   postCreateTestDataSource: 'api/testdatasource/add', //创建TestDataSource
@@ -53,5 +55,31 @@ const apiConstants = {
 
   putTestDataSource: 'api/testdatasource/update',//更新TestDataSource
 
+  // ------------------------------------------------ SSHEndpoint ------------------------------------------------------
+  getSSHEndpointList: 'api/sshendpoint/querybypage',//获得SSH端口列表
+
+  getSSHEndpointData: 'api/sshendpoint/queryall',//获得SSH端口数据
+
+  postCreateSSHEndpoint: 'api/sshendpoint/add',  //创建SSH端口
+
+  deleteSSHEndpoint: 'api/sshendpoint/delete',//删除单个SSHEndpoint
+
+  deleteSSHEndpointArr: 'api/sshendpoint/deletemultiple',//批量删除多个SSHEndpoint
+
+  getSSHEndpointDetail: 'api/sshendpoint/sshendpoint',//获得SSH端口详情
+
+  putSSHEndpoint: 'api/sshendpoint/update', //更新SSH端口
+  // ---------------------------------------------- TestHost ---------------------------------------------------------
+  getTestHostList: 'api/testhost/querybypage',  //获得测试机列表
+
+  getTestHostDetail: 'api/testhost/testhost',//获得测试机详情
+
+  postCreateTestHost: 'api/testhost/add',//创建测试机
+
+  putTestHost: 'api/testhost/update',//更新测试机
+
+  deleteTestHost: 'api/testhost/delete',//单个删除TestHost
+
+  deleteTestHostArr: 'api/testhost/deletemultiple',//批量删除TestHost 
 }
 export default apiConstants

@@ -44,12 +44,6 @@
             @addMasterHost='addMasterHost'
             @cancelMasterHost='cancelMasterHost'
             ref='lookUp' />
-    <!-- EngineType选择框 -->
-    <EngineTypeLookUp :fixed="EngineTypeFixed"
-                      :EngineTypeIndex="EngineTypeSelect"
-                      @cancelEngineType="cancelEngineType"
-                      @addEngineType="addEngineType"
-                      ref='TypelookUp' />
     <!-- 新增TestCase框 -->
     <q-dialog v-model="createFixed"
               persistent>
@@ -60,7 +54,7 @@
 
         <q-separator />
         <div class="new_input">
-          <div class="row">
+          <div class="row input_row">
             <q-input v-model="Name"
                      :dense="false"
                      class="col">
@@ -68,18 +62,18 @@
                 <span style="font-size:14px">名称:</span>
               </template>
             </q-input>
-            <q-input v-model="EngineType"
-                     :dense="false"
-                     class="col"
-                     style="margin-left:50px;"
-                     readonly
-                     @dblclick="openEngineType">
+            <q-select v-model="EngineType"
+                      :options="['Http','Tcp']"
+                      class="col"
+                      :dense="false">
               <template v-slot:before>
                 <span style="font-size:14px">引擎类型:</span>
               </template>
-            </q-input>
+              <template v-slot:prepend>
+              </template>
+            </q-select>
           </div>
-          <div class="row">
+          <div class="row input_row">
             <q-input :dense="false"
                      class="col col-xs-12"
                      readonly
@@ -98,7 +92,7 @@
                      class="col-xs-12"
                      @dblclick="masterHost" /> -->
           </div>
-          <div class="row">
+          <div class="row input_row">
             <q-input v-model="Configuration"
                      :dense="false"
                      class="col-xs-12"
@@ -132,12 +126,10 @@
 <script>
 import * as Apis from "@/api/index"
 import lookUp from "@/components/lookUp.vue"
-import EngineTypeLookUp from "@/components/EngineTypeLookUp.vue"
 export default {
   name: 'TestCase',
   components: {
     lookUp,
-    EngineTypeLookUp
   },
   data () {
     return {
@@ -148,9 +140,6 @@ export default {
       masterHostSelect: '', //主机选择
       masterHostIndex: -1,//主机下标
 
-
-      EngineTypeFixed: false,//EngineTypeFlag
-      EngineTypeSelect: -1,//EngineType选择
 
 
       Name: '',           //Name
@@ -264,28 +253,7 @@ export default {
       this.$refs.lookUp.selectIndex = this.masterHostIndex;
     },
 
-    // 打开EngineType框
-    openEngineType () {
-      this.EngineTypeFixed = true;
-      this.createFixed = false;
-    },
-    //添加EngineType
-    addEngineType (value, index) {
-      if (value == undefined) {
-        return false;
-      }
-      console.log(value, index)
-      this.EngineType = value[index];
-      this.EngineTypeSelect = index;
-      this.createFixed = true;
-      this.EngineTypeFixed = false;
-    },
-    //取消EngineType框
-    cancelEngineType () {
-      this.EngineTypeFixed = false;
-      this.createFixed = true;
-      this.$refs.TypelookUp.selectIndex = this.EngineTypeSelect;
-    },
+
 
 
     //新增弹窗取消按钮
@@ -296,7 +264,6 @@ export default {
       this.MasterHostID = '';
       this.masterHostSelect = '';
       this.$refs.lookUp.selectIndex = -1;
-      this.$refs.TypelookUp.selectIndex = -1;
       this.createFixed = false;
     },
     //新增弹窗创建按钮
@@ -325,7 +292,6 @@ export default {
           this.MasterHostID = '';
           this.masterHostSelect = '';
           this.$refs.lookUp.selectIndex = -1;
-          this.$refs.TypelookUp.selectIndex = -1;
         })
       } else {
         this.$q.notify({
@@ -379,8 +345,8 @@ export default {
 .new_input {
   width: 100%;
   padding: 10px 30px;
-  .row {
-    margin-bottom: 10px;
+  .input_row {
+    margin-bottom: 30px;
   }
 }
 .q-textarea .q-field__native {
