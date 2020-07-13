@@ -28,13 +28,24 @@ namespace FW.TestPlatform.Main.Application
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.NotFoundSSHEndPointByID,
-                    DefaultFormatting = "找不到SSH终端Id为{0}的SSH终端",
+                    DefaultFormatting = "找不到SSH终结点Id为{0}的SSH终结点",
                     ReplaceParameters = new List<object>() { id.ToString() }
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSSHEndPointByID, fragment, 1, 0);
             }
+            bool isUsed = await sshEndPoint.IsUsedByTestHosts(cancellationToken);
+            if (isUsed)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.SSHEndpointIsUsedByTestHosts,
+                    DefaultFormatting = "Id为{0}的SSH终结点正在被其它的主机使用，不能被删除",
+                    ReplaceParameters = new List<object>() { id.ToString() }
+                };
 
+                throw new UtilityException((int)TestPlatformErrorCodes.SSHEndPointIsUsedByTestHosts, fragment, 1, 0);
+            }
             await sshEndPoint.Delete(cancellationToken);
             
             return new SSHEndPointViewData()

@@ -1,6 +1,6 @@
 SELECT * FROM tpmain.scripttemplate;
 
-INSERT INTO tpmain.scripttemplate
+REPLACE INTO tpmain.scripttemplate
 VALUES('9adb8033-f28a-43a1-b396-0f36307b213b', 'LocustTcp', '', now(), now(), '1');
 
 UPDATE tpmain.scripttemplate
@@ -212,7 +212,7 @@ class TcpTestUser(User):
         return is_success
 
     def login(self):
-        # {$connectinit(8)}
+        {$connectinit(8)}
 
         if self.user_token is None or self.user_token == "":
             is_success = False

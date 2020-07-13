@@ -23,26 +23,6 @@ namespace FW.TestPlatform.Main.Application
         public async Task Do(List<Guid> ids, CancellationToken cancellationToken = default)
         {
              await _sshEndPointRepository.DeleteMutiple(ids, cancellationToken);
-            //if (sshEndPoint == null)
-            //{
-            //    var fragment = new TextFragment()
-            //    {
-            //        Code = TestPlatformTextCodes.NotFoundSSHEndPointByID,
-            //        DefaultFormatting = "找不到SSH终端Id为{0}的SSH终端",
-            //        ReplaceParameters = new List<object>() { id.ToString() }
-            //    };
-
-            //    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSSHEndPointByID, fragment, 1, 0);
-            //}
-            //return new SSHEndPointViewData()
-            //{
-            //    ID = sshEndPoint.ID,
-            //    Name = sshEndPoint.Name,
-            //    Configuration = sshEndPoint.Configuration,
-            //    Type = sshEndPoint.Type,
-            //    CreateTime = sshEndPoint.CreateTime,
-            //    ModifyTime = sshEndPoint.ModifyTime
-            //};
         }
     }
 }
