@@ -40,8 +40,8 @@ namespace FW.TestPlatform.Main.Application
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.SSHEndpointIsUsedByTestHosts,
-                    DefaultFormatting = "Id为{0}的SSH终结点正在被其它的主机使用，不能被删除",
-                    ReplaceParameters = new List<object>() { id.ToString() }
+                    DefaultFormatting = "名称为{0}的SSH终结点正在被其它的主机使用，不能被删除",
+                    ReplaceParameters = new List<object>() { sshEndPoint.Name }
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.SSHEndPointIsUsedByTestHosts, fragment, 1, 0);

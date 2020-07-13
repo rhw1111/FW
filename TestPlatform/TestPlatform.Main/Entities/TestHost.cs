@@ -162,6 +162,10 @@ namespace FW.TestPlatform.Main.Entities
         {
             await _imp.Delete(this, cancellationToken);
         }
+        public async Task<bool> IsUsedByTestHostsOrSlaves(CancellationToken cancellationToken = default)
+        {
+            return await _imp.IsUsedByTestHostsOrSlaves(this, cancellationToken);
+        }
     }
 
     [Injection(InterfaceType = typeof(ITestHostIMP),Scope = InjectionScope.Transient)]
@@ -229,8 +233,8 @@ namespace FW.TestPlatform.Main.Entities
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.TestHostIsUsedByTestCases,
-                    DefaultFormatting = "Id为{0}的主机正在被其它的测试用例使用，不能被删除",
-                    ReplaceParameters = new List<object>() { host.ID.ToString() }
+                    DefaultFormatting = "地址为{0}的主机正在被其它的测试用例使用，不能被删除",
+                    ReplaceParameters = new List<object>() { host.Address.ToString() }
                 };
                 throw new UtilityException((int)TestPlatformErrorCodes.TestHostIsUsedByTestCases, fragment, 1, 0);
             }
@@ -240,8 +244,8 @@ namespace FW.TestPlatform.Main.Entities
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.TestHostIsUsedBySlaves,
-                    DefaultFormatting = "Id为{0}的主机正在被其它的从主机使用，不能被删除",
-                    ReplaceParameters = new List<object>() { host.ID.ToString() }
+                    DefaultFormatting = "地址为{0}的主机正在被其它的从主机使用，不能被删除",
+                    ReplaceParameters = new List<object>() { host.Address.ToString() }
                 };
                 throw new UtilityException((int)TestPlatformErrorCodes.TestHostIsUsedBySlaves, fragment, 1, 0);
             }

@@ -34,8 +34,9 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
             }
-          
-            await testHost.Delete(cancellationToken);
+            bool result = await testHost.IsUsedByTestHostsOrSlaves(cancellationToken);
+            if(!result)
+                await testHost.Delete(cancellationToken);
         }
     }
 }
