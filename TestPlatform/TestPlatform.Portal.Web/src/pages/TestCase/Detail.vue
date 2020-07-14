@@ -50,7 +50,7 @@
              @click="lookSlaveLog" />
       <q-btn class="btn"
              color="primary"
-             label="查 看 监 测 地 址"
+             label="性 能 监 测"
              @click="lookMonitorUrl" />
     </div>
     <!-- TestCase字段 -->
