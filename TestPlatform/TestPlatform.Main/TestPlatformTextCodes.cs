@@ -176,8 +176,8 @@ namespace FW.TestPlatform.Main
         public const string ExistTestCaseSlaveByName = "ExistTestCaseSlaveByName";
 
         /// <summary>
-        /// 已经存在指定名称的SSH终端
-        /// 格式为“已经存在名称为{0}的SSH终端”
+        /// 已经存在指定名称的SSH终结点
+        /// 格式为“已经存在名称为{0}的SSH终结点”
         /// {0}：名称
         /// </summary>
         public const string ExistSSHEndPointByName = "ExistSSHEndPointByName";
@@ -196,10 +196,28 @@ namespace FW.TestPlatform.Main
         /// </summary>
         public const string NotFoundTestCaseDataSourceByID = "NotFoundTestCaseDataSourceByID";
         /// <summary>
-        /// 找不到指定Id的SSH终端
-        /// 格式为“找不到SSH终端Id为{0}的SSH终端”
+        /// 找不到指定Id的SSH终结点
+        /// 格式为“找不到SSH终结点Id为{0}的SSH终结点”
         /// {0}：Id
         /// </summary>
         public const string NotFoundSSHEndPointByID = "NotFoundSSHEndPointByID";
+        /// <summary>
+        /// 指定地址的主机不能被删除
+        /// 格式为“地址为{0}的主机正在被其它的测试用例使用，不能被删除”
+        /// {0}：地址
+        /// </summary>
+        public const string TestHostIsUsedByTestCases = "TestHostIsUsedByTestCases";
+        /// <summary>
+        /// 指定地址的主机不能被删除
+        /// 格式为“地址为{0}的主机正在被其它的从主机使用，不能被删除”
+        /// {0}：地址
+        /// </summary>
+        public const string TestHostIsUsedBySlaves = "TestHostIsUsedBySlaves";
+        /// <summary>
+        /// 指定名称的SSH终结点不能被删除
+        /// 格式为“名称为{0}的SSH终结点正在被其它的主机使用，不能被删除”
+        /// {0}：名称
+        /// </summary>
+        public const string SSHEndpointIsUsedByTestHosts = "SSHEndpointIsUsedByTestHosts";
     }
 }

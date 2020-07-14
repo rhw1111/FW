@@ -310,7 +310,7 @@ export default {
         { name: 'address', align: 'left', label: 'ip', field: 'address', },
         { name: 'count', align: 'left', label: '数量', field: 'count', },
         { name: 'extensionInfo', label: '扩展信息', align: 'left', field: 'extensionInfo', style: 'width:100px;' },
-        { name: 'id', label: '操作', align: 'left', field: 'id' },
+        { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
       ],
 
 
@@ -326,7 +326,7 @@ export default {
           field: row => row.createTime,
           format: val => `${val}`,
         },
-        { name: 'id', label: '操作', align: 'left', field: 'id' },
+        { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
       ],
       //历史记录分页配置
       pagination: {
@@ -589,6 +589,7 @@ export default {
           let para = `?caseId=${this.detailData.id}&id=${this.SlaveHostSelected[0].id}`
           Apis.deleteSlaveHost(para).then((res) => {
             console.log(res)
+            this.SlaveHostSelected = [];
             this.getSlaveHostsList();
           })
         } else if (this.SlaveHostSelected.length > 1) {
@@ -604,6 +605,7 @@ export default {
           }
           Apis.deleteSlaveHostArr(para).then((res) => {
             console.log(res)
+            this.SlaveHostSelected = [];
             this.getSlaveHostsList();
           })
         }
@@ -648,6 +650,7 @@ export default {
           // 单个删除slaveHost列表
           let para = `?caseId=${this.detailData.id}&historyId=${this.HistorySelected[0].id}`
           Apis.deleteHistory(para).then(() => {
+            this.HistorySelected = [];
             this.getHistoryList();
           })
         } else if (this.HistorySelected.length > 1) {
@@ -662,6 +665,7 @@ export default {
             IDS: delIdArr
           }
           Apis.deleteHistoryArr(para).then(() => {
+            this.HistorySelected = [];
             this.getHistoryList();
           })
         }

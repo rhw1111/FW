@@ -1,6 +1,47 @@
 <template>
   <div class="MasterHost">
     <div class="q-pa-md row masterhost">
+      <!-- SSH端口列表 -->
+      <q-table class="col-md-8 col-sm-12 col-xs-12"
+               title="SSH终结点列表"
+               :data="SSHEndpointList"
+               :columns="SSHEndpointColumns"
+               selection="multiple"
+               :selected.sync="SSHEndpointSelected"
+               row-key="id"
+               :rows-per-page-options=[0]
+               table-style="max-height: 500px"
+               no-data-label="暂无数据更新">
+
+        <template v-slot:top-right>
+          <q-btn class="btn"
+                 color="primary"
+                 label="新 增"
+                 @click="openSSHCreate" />
+          <q-btn class="btn"
+                 color="red"
+                 label="删 除"
+                 @click="deleteSSH" />
+        </template>
+        <template v-slot:body-cell-id="props">
+          <q-td class="text-left"
+                :props="props">
+            <q-btn class="btn"
+                   color="primary"
+                   label="更 新"
+                   @click="toSSHEndpointDetail(props)" />
+          </q-td>
+        </template>
+        <template v-slot:bottom
+                  class="row">
+          <q-pagination v-model="SSHEndpointPagination.page"
+                        :max="SSHEndpointPagination.rowsNumber"
+                        :input="true"
+                        class="col offset-md-9"
+                        @input="SSHNextPage">
+          </q-pagination>
+        </template>
+      </q-table>
       <!-- 主机列表 -->
       <q-table class="col-md-4 col-sm-12 col-xs-12"
                title="主机列表"
@@ -40,47 +81,6 @@
                         :input="true"
                         class="col offset-md-7"
                         @input="TestHostNextPage">
-          </q-pagination>
-        </template>
-      </q-table>
-      <!-- SSH端口列表 -->
-      <q-table class="col-md-8 col-sm-12 col-xs-12"
-               title="SSH终结点列表"
-               :data="SSHEndpointList"
-               :columns="SSHEndpointColumns"
-               selection="multiple"
-               :selected.sync="SSHEndpointSelected"
-               row-key="id"
-               :rows-per-page-options=[0]
-               table-style="max-height: 500px"
-               no-data-label="暂无数据更新">
-
-        <template v-slot:top-right>
-          <q-btn class="btn"
-                 color="primary"
-                 label="新 增"
-                 @click="openSSHCreate" />
-          <q-btn class="btn"
-                 color="red"
-                 label="删 除"
-                 @click="deleteSSH" />
-        </template>
-        <template v-slot:body-cell-id="props">
-          <q-td class="text-left"
-                :props="props">
-            <q-btn class="btn"
-                   color="primary"
-                   label="更 新"
-                   @click="toSSHEndpointDetail(props)" />
-          </q-td>
-        </template>
-        <template v-slot:bottom
-                  class="row">
-          <q-pagination v-model="SSHEndpointPagination.page"
-                        :max="SSHEndpointPagination.rowsNumber"
-                        :input="true"
-                        class="col offset-md-9"
-                        @input="SSHNextPage">
           </q-pagination>
         </template>
       </q-table>
@@ -236,7 +236,10 @@ export default {
           field: row => row.address,
           format: val => `${val}`,
         },
-        { name: 'id', label: '操作', align: 'left', field: 'id', },
+        {
+          name: 'sshEndpointName', label: 'SSH终结点', align: 'left', field: 'sshEndpointName',
+        },
+        { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
       ],
       // ------------------------------------ SSH端口 ------------------------------------
       SSHEndpointList: [], //SSH端口列表
@@ -258,7 +261,7 @@ export default {
         },
         { name: 'type', align: 'left', label: '类型', field: 'type', },
         { name: 'configuration', label: '配置', align: 'left', field: 'configuration', },
-        { name: 'id', label: '操作', align: 'left', field: 'id', },
+        { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
       ],
 
       createSSHEndpointFlag: false,//创建dialogFlag
@@ -271,6 +274,7 @@ export default {
   },
   mounted () {
     this.getSSHEndpointList();
+    this.getTestHostList();
   },
   methods: {
     //获得SSH端口列表
@@ -279,15 +283,14 @@ export default {
       let para = {
         matchName: '',
         page: page || 1,
-        pageSize: ''
+        pageSize: 50
       }
       Apis.getSSHEndpointList(para).then((res) => {
         console.log(res)
         this.SSHEndpointList = res.data.results;
         this.SSHEndpointPagination.page = page || 1;
         this.SSHEndpointPagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
-        this.getTestHostList();
-        this.getSSHEndpointData();
+        this.$q.loading.hide()
       })
     },
     openSSHCreate () {
@@ -322,6 +325,7 @@ export default {
         console.log(res)
         this.newSSHCancel();
         this.getSSHEndpointList();
+        this.getSSHEndpointData();
         this.$q.notify({
           position: 'top',
           message: '提示',
@@ -354,36 +358,32 @@ export default {
           label: '取消'
         },
       }).onOk(() => {
-        if (this.SSHEndpointSelected.length == 1) {
-          //单个删除SSH端口
-          let para = `?id=${this.SSHEndpointSelected[0].id}`
+        //单个批量删除SSH端口
+
+        let SelectedLength = this.SSHEndpointSelected.length;
+        let DelNum = 0;
+
+        for (let i = 0; i < this.SSHEndpointSelected.length; i++) {
+          let para = `?id=${this.SSHEndpointSelected[i].id}`
           this.$q.loading.show()
           Apis.deleteSSHEndpoint(para).then(() => {
-            this.$q.notify({
-              position: 'top',
-              message: '提示',
-              caption: '删除成功',
-              color: 'secondary',
-            })
-            this.getSSHEndpointList();
-          })
-        } else if (this.SSHEndpointSelected.length > 1) {
-          //批量删除SSH端口
-          let para = {
-            delArr: []
-          }
-          for (let i = 0; i < this.SSHEndpointSelected.length; i++) {
-            para.delArr.push(this.SSHEndpointSelected[i].id)
-          }
-          this.$q.loading.show()
-          Apis.deleteSSHEndpointArr(para).then(() => {
-            this.$q.notify({
-              position: 'top',
-              message: '提示',
-              caption: '删除成功',
-              color: 'secondary',
-            })
-            this.getSSHEndpointList();
+            DelNum++;
+            if (DelNum == SelectedLength) {
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: '删除成功',
+                color: 'secondary',
+              })
+              this.SSHEndpointSelected = [];
+              this.getSSHEndpointList();
+            }
+          }).catch(() => {
+            DelNum++;
+            if (DelNum == SelectedLength) {
+              this.SSHEndpointSelected = [];
+              this.getSSHEndpointList();
+            }
           })
         }
       })
@@ -404,24 +404,25 @@ export default {
     // --------------------------------- TestHost ---------------------------
     //获得TestHost列表
     getTestHostList (page) {
+      this.$q.loading.show()
       let para = {
         matchName: '',
         page: page || 1,
-        pageSize: ''
+        pageSize: 50
       }
       Apis.getTestHostList(para).then((res) => {
         console.log(res)
         this.MasterHostList = res.data.results;
         this.MasterHostPagination.page = page || 1;
         this.MasterHostPagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
-        this.$q.loading.hide()
+        this.getSSHEndpointData();
       })
     },
     //获得SSH端口数据
     getSSHEndpointData () {
       Apis.getSSHEndpointData({}).then((res) => {
-        console.log(res)
         this.SSHEndpointDataArr = res.data;
+        this.$q.loading.hide()
       })
     },
     //新增HostFlag
@@ -446,7 +447,7 @@ export default {
           SSHEndpointID: this.SSHSelectId
         }
         Apis.postCreateTestHost(para).then(() => {
-          this.getSSHEndpointList();
+          this.getTestHostList();
           this.newTestHostCancel();
           this.$q.notify({
             position: 'top',
@@ -511,38 +512,34 @@ export default {
           label: '取消'
         },
       }).onOk(() => {
-        if (this.MasterHostSelected.length == 1) {
-          //单个删除SSH端口
-          let para = `?id=${this.MasterHostSelected[0].id}`
+        let SelectedLength = this.MasterHostSelected.length;
+        let DelNum = 0;
+        for (let i = 0; i < this.MasterHostSelected.length; i++) {
+          //单个批量删除SSH端口
+          let para = `?id=${this.MasterHostSelected[i].id}`
           this.$q.loading.show()
           Apis.deleteTestHost(para).then(() => {
-            this.$q.notify({
-              position: 'top',
-              message: '提示',
-              caption: '删除成功',
-              color: 'secondary',
-            })
-            this.getSSHEndpointList();
-          })
-        } else if (this.MasterHostSelected.length > 1) {
-          //批量删除SSH端口
-          let para = {
-            delArr: []
-          }
-          for (let i = 0; i < this.MasterHostSelected.length; i++) {
-            para.delArr.push(this.MasterHostSelected[i].id)
-          }
-          this.$q.loading.show()
-          Apis.deleteTestHostArr(para).then(() => {
-            this.$q.notify({
-              position: 'top',
-              message: '提示',
-              caption: '删除成功',
-              color: 'secondary',
-            })
-            this.getSSHEndpointList();
+            DelNum++;
+            console.log(DelNum, SelectedLength)
+            if (DelNum == SelectedLength) {
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: '删除成功',
+                color: 'secondary',
+              })
+              this.MasterHostSelected = [];
+              this.getTestHostList();
+            }
+          }).catch(() => {
+            DelNum++;
+            if (DelNum == SelectedLength) {
+              this.MasterHostSelected = [];
+              this.getTestHostList();
+            }
           })
         }
+
       })
     },
     //跳转TestHost详情

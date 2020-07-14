@@ -135,12 +135,12 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         }
 
 
-                        var testCase = await (from item in dbContext.TestHosts
+                        var testHost = await (from item in dbContext.TestHosts
                                               where item.Address == address
                                               orderby EF.Property<long>(item, "Sequence") descending
                                               select item).FirstOrDefaultAsync();
-                        if (testCase != null)
-                            result = testCase.ID;
+                        if (testHost != null)
+                            result = testHost.ID;
                     }
                 });
 
@@ -148,9 +148,9 @@ namespace FW.TestPlatform.Main.Entities.DAL
             }
             return result;
         }
-        public async Task<TestHost> QueryByID(Guid id, CancellationToken cancellationToken = default)
+        public async Task<TestHost?> QueryByID(Guid id, CancellationToken cancellationToken = default)
         {
-            TestHost result = new TestHost();
+            TestHost? result = null;
             await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
             {
                 await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
@@ -160,10 +160,9 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
 
-
                     result =await (from item in dbContext.TestHosts
                               where item.ID == id
-                              select item).FirstOrDefaultAsync();
+                              select item).Include(item => item.SSHEndpoint).FirstOrDefaultAsync();
                 }
             });
 
@@ -203,7 +202,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                                       join idItem in ids
                                  on item.ID equals idItem
                                  orderby item.CreateTime descending
-                                 select item).ToListAsync();
+                                 select item).Include(item => item.SSHEndpoint).ToListAsync();
 
                     result.Results.AddRange(datas);                    
                 }
@@ -266,6 +265,51 @@ namespace FW.TestPlatform.Main.Entities.DAL
                 }
                 );
             return interation;
+        }
+
+        public async Task<bool> IsUsedByTestCases(Guid hostId, CancellationToken cancellationToken = default)
+        {
+            bool result = false;
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    var count = await (from item in dbContext.TestCases
+                                       where item.MasterHostID == hostId
+                                       select item.ID).CountAsync();
+                    if (count > 0)
+                        result = true;
+                }
+            });
+
+            return result;
+        }
+
+        public async Task<bool> IsUsedBySlaveHosts(Guid hostId, CancellationToken cancellationToken = default)
+        {
+            bool result = false;
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    var count = await (from item in dbContext.TestCaseSlaveHosts
+                                       where item.HostID == hostId
+                                       select item.ID).CountAsync();
+                    if (count > 0)
+                        result = true;
+                }
+            });
+
+            return result;
         }
     }
 }

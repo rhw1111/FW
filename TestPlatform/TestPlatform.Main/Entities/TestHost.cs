@@ -162,6 +162,10 @@ namespace FW.TestPlatform.Main.Entities
         {
             await _imp.Delete(this, cancellationToken);
         }
+        public async Task<bool> IsUsedByTestHostsOrSlaves(CancellationToken cancellationToken = default)
+        {
+            return await _imp.IsUsedByTestHostsOrSlaves(this, cancellationToken);
+        }
     }
 
     [Injection(InterfaceType = typeof(ITestHostIMP),Scope = InjectionScope.Transient)]
@@ -182,7 +186,7 @@ namespace FW.TestPlatform.Main.Entities
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.NotFoundSSHEndPointByID,
-                    DefaultFormatting = "找不到Id为{0}的SSH端点",
+                    DefaultFormatting = "找不到Id为{0}的SSH终结点",
                     ReplaceParameters = new List<object>() { host.SSHEndpointID.ToString() }
                 };
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSSHEndPointByID, fragment, 1, 0);
@@ -203,7 +207,7 @@ namespace FW.TestPlatform.Main.Entities
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.NotFoundSSHEndPointByID,
-                    DefaultFormatting = "找不到Id为{0}的SSH端点",
+                    DefaultFormatting = "找不到Id为{0}的SSH终结点",
                     ReplaceParameters = new List<object>() { host.SSHEndpointID.ToString() }
                 };
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSSHEndPointByID, fragment, 1, 0);
@@ -220,6 +224,32 @@ namespace FW.TestPlatform.Main.Entities
             }
             return hostList;
         }
+        public async Task<bool> IsUsedByTestHostsOrSlaves(TestHost host, CancellationToken cancellationToken = default)
+        {
+            bool isUsed = await _testHostStore.IsUsedByTestCases(host.ID ,cancellationToken);
+            if (isUsed)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.TestHostIsUsedByTestCases,
+                    DefaultFormatting = "地址为{0}的主机正在被其它的测试用例使用，不能被删除",
+                    ReplaceParameters = new List<object>() { host.Address.ToString() }
+                };
+                throw new UtilityException((int)TestPlatformErrorCodes.TestHostIsUsedByTestCases, fragment, 1, 0);
+            }
+            isUsed = await _testHostStore.IsUsedBySlaveHosts(host.ID, cancellationToken);
+            if (isUsed)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.TestHostIsUsedBySlaves,
+                    DefaultFormatting = "地址为{0}的主机正在被其它的从主机使用，不能被删除",
+                    ReplaceParameters = new List<object>() { host.Address.ToString() }
+                };
+                throw new UtilityException((int)TestPlatformErrorCodes.TestHostIsUsedBySlaves, fragment, 1, 0);
+            }
+            return isUsed;
+        }
     }
 
     public interface ITestHostIMP
@@ -228,5 +258,6 @@ namespace FW.TestPlatform.Main.Entities
         Task Update(TestHost host, CancellationToken cancellationToken = default);
         Task Delete(TestHost host, CancellationToken cancellationToken = default);
         Task<List<TestHost>> GetHosts(CancellationToken cancellationToken = default);
+        Task<bool> IsUsedByTestHostsOrSlaves(TestHost host, CancellationToken cancellationToken = default);
     }
 }
