@@ -50,7 +50,7 @@
              @click="lookSlaveLog" />
       <q-btn class="btn"
              color="primary"
-             label="查 看 监 测 地 址"
+             label="性 能 监 测"
              @click="lookMonitorUrl" />
     </div>
     <!-- TestCase字段 -->
@@ -772,10 +772,12 @@ export default {
     },
     //查看MonitorUrl
     lookMonitorUrl () {
-      this.$q.dialog({
-        title: '提示',
-        message: this.detailData.monitorUrl
-      })
+      window.open(this.detailData.monitorUrl);
+      // this.$q.dialog({
+      //   title: '提示',
+      //   message: `<a href="${this.detailData.monitorUrl}"  target="_blank" style="text-decoration:none">${this.detailData.monitorUrl}</a>`,
+      //   html: true
+      // })
     }
   }
 }
