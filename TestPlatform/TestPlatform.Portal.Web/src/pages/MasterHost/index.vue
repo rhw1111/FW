@@ -1,6 +1,47 @@
 <template>
   <div class="MasterHost">
     <div class="q-pa-md row masterhost">
+      <!-- SSH端口列表 -->
+      <q-table class="col-md-8 col-sm-12 col-xs-12"
+               title="SSH终结点列表"
+               :data="SSHEndpointList"
+               :columns="SSHEndpointColumns"
+               selection="multiple"
+               :selected.sync="SSHEndpointSelected"
+               row-key="id"
+               :rows-per-page-options=[0]
+               table-style="max-height: 500px"
+               no-data-label="暂无数据更新">
+
+        <template v-slot:top-right>
+          <q-btn class="btn"
+                 color="primary"
+                 label="新 增"
+                 @click="openSSHCreate" />
+          <q-btn class="btn"
+                 color="red"
+                 label="删 除"
+                 @click="deleteSSH" />
+        </template>
+        <template v-slot:body-cell-id="props">
+          <q-td class="text-left"
+                :props="props">
+            <q-btn class="btn"
+                   color="primary"
+                   label="更 新"
+                   @click="toSSHEndpointDetail(props)" />
+          </q-td>
+        </template>
+        <template v-slot:bottom
+                  class="row">
+          <q-pagination v-model="SSHEndpointPagination.page"
+                        :max="SSHEndpointPagination.rowsNumber"
+                        :input="true"
+                        class="col offset-md-9"
+                        @input="SSHNextPage">
+          </q-pagination>
+        </template>
+      </q-table>
       <!-- 主机列表 -->
       <q-table class="col-md-4 col-sm-12 col-xs-12"
                title="主机列表"
@@ -40,47 +81,6 @@
                         :input="true"
                         class="col offset-md-7"
                         @input="TestHostNextPage">
-          </q-pagination>
-        </template>
-      </q-table>
-      <!-- SSH端口列表 -->
-      <q-table class="col-md-8 col-sm-12 col-xs-12"
-               title="SSH终结点列表"
-               :data="SSHEndpointList"
-               :columns="SSHEndpointColumns"
-               selection="multiple"
-               :selected.sync="SSHEndpointSelected"
-               row-key="id"
-               :rows-per-page-options=[0]
-               table-style="max-height: 500px"
-               no-data-label="暂无数据更新">
-
-        <template v-slot:top-right>
-          <q-btn class="btn"
-                 color="primary"
-                 label="新 增"
-                 @click="openSSHCreate" />
-          <q-btn class="btn"
-                 color="red"
-                 label="删 除"
-                 @click="deleteSSH" />
-        </template>
-        <template v-slot:body-cell-id="props">
-          <q-td class="text-left"
-                :props="props">
-            <q-btn class="btn"
-                   color="primary"
-                   label="更 新"
-                   @click="toSSHEndpointDetail(props)" />
-          </q-td>
-        </template>
-        <template v-slot:bottom
-                  class="row">
-          <q-pagination v-model="SSHEndpointPagination.page"
-                        :max="SSHEndpointPagination.rowsNumber"
-                        :input="true"
-                        class="col offset-md-9"
-                        @input="SSHNextPage">
           </q-pagination>
         </template>
       </q-table>
@@ -236,7 +236,7 @@ export default {
           field: row => row.address,
           format: val => `${val}`,
         },
-        { name: 'id', label: '操作', align: 'left', field: 'id', },
+        { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
       ],
       // ------------------------------------ SSH端口 ------------------------------------
       SSHEndpointList: [], //SSH端口列表
@@ -258,7 +258,7 @@ export default {
         },
         { name: 'type', align: 'left', label: '类型', field: 'type', },
         { name: 'configuration', label: '配置', align: 'left', field: 'configuration', },
-        { name: 'id', label: '操作', align: 'left', field: 'id', },
+        { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
       ],
 
       createSSHEndpointFlag: false,//创建dialogFlag
@@ -322,6 +322,7 @@ export default {
         console.log(res)
         this.newSSHCancel();
         this.getSSHEndpointList();
+        this.getSSHEndpointData();
         this.$q.notify({
           position: 'top',
           message: '提示',
@@ -447,7 +448,7 @@ export default {
           SSHEndpointID: this.SSHSelectId
         }
         Apis.postCreateTestHost(para).then(() => {
-          this.getSSHEndpointList();
+          this.getTestHostList();
           this.newTestHostCancel();
           this.$q.notify({
             position: 'top',
@@ -528,7 +529,7 @@ export default {
                 caption: '删除成功',
                 color: 'secondary',
               })
-              this.getSSHEndpointList();
+              this.getTestHostList();
             }
           })
         }

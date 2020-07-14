@@ -310,7 +310,7 @@ export default {
         { name: 'address', align: 'left', label: 'ip', field: 'address', },
         { name: 'count', align: 'left', label: '数量', field: 'count', },
         { name: 'extensionInfo', label: '扩展信息', align: 'left', field: 'extensionInfo', style: 'width:100px;' },
-        { name: 'id', label: '操作', align: 'left', field: 'id' },
+        { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
       ],
 
 
@@ -326,7 +326,7 @@ export default {
           field: row => row.createTime,
           format: val => `${val}`,
         },
-        { name: 'id', label: '操作', align: 'left', field: 'id' },
+        { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
       ],
       //历史记录分页配置
       pagination: {
