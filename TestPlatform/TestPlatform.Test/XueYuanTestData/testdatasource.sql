@@ -24,5 +24,18 @@ VALUES('65552bae-c4d8-11ea-8951-00ffb1d16cf9', 'Json', 'datasource_port_list', '
     8008
 ]', now(), now());
 
+REPLACE INTO tpmain.testdatasource(id, type, name, data, createtime, modifytime)
+VALUES('d8864747-c5ab-11ea-95ce-00ffb1d16cf9', 'Json', 'datasource_user_parameter_list', '[
+    {
+        "UserName": "zhangsan",
+        "Parameter": "zhangsanzhangsanzhangsanzhangsan",
+        "Parameter2": "zhangsanzhangsanzhangsanzhangsan"
+    },
+    {
+        "UserName": "lisi",
+        "Parameter": "lisilisilisilisilisilisi",
+        "Parameter2": "lisilisilisilisilisilisi"
+    },
+]', now(), now());
 
-
+select uuid()

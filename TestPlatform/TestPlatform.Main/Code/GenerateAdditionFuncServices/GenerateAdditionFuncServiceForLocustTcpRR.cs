@@ -26,10 +26,13 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    if senddata is None or senddata == \"\":");
             sbCode.AppendLine("        return None");
             sbCode.AppendLine("");
+            sbCode.AppendLine("    if type(senddata) != str:");
+            sbCode.AppendLine("        senddata = str(senddata)");
+            sbCode.AppendLine("");
             sbCode.AppendLine("    host = address");
             sbCode.AppendLine("    port = port");
             sbCode.AppendLine("    ADDR = (host, port)");
-            sbCode.AppendLine("    bufsize = 2048");
+            sbCode.AppendLine("    buffsize = 10240");
             sbCode.AppendLine("");
             sbCode.AppendLine("    connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)");
             sbCode.AppendLine("");
@@ -37,7 +40,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("        connect.connect(ADDR)");
             sbCode.AppendLine("        connect.send(senddata.encode())");
             sbCode.AppendLine("");
-            sbCode.AppendLine("        data = connect.recv(bufsize).decode()");
+            sbCode.AppendLine("        data = connect.recv(buffsize).decode()");
             sbCode.AppendLine("");
             sbCode.AppendLine("        p = re.compile(receivereg, re.S)");
             sbCode.AppendLine("        result = re.findall(p, data)");
