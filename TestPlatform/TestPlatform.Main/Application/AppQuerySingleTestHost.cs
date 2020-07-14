@@ -39,6 +39,7 @@ namespace FW.TestPlatform.Main.Application
                 ID = testHost.ID,
                 Address = testHost.Address,
                 SSHEndpointID = testHost.SSHEndpointID,
+                SSHEndpointName = testHost.SSHEndpoint.Name,
                 CreateTime = testHost.CreateTime,
                 ModifyTime = testHost.ModifyTime
             };

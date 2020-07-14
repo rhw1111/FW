@@ -72,11 +72,11 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             await _appDeleteTestHost.Do(id);
         }
 
-        [HttpDelete("deletemultiple")]
-        public async Task DeleteMutiple(List<Guid> ids)
-        {
-            await _appDeleteTestHosts.Do(ids);
-        }
+        //[HttpDelete("deletemultiple")]
+        //public async Task DeleteMutiple(List<Guid> ids)
+        //{
+        //    await _appDeleteTestHosts.Do(ids);
+        //}
 
         [HttpGet("queryall")]
         public async Task<List<TestHostViewData>> QueryAll()

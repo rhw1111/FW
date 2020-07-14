@@ -63,6 +63,21 @@ namespace FW.TestPlatform.Main.DTOModel
         }
 
         /// <summary>
+        /// SSH终结点名子
+        /// </summary>
+        public string SSHEndpointName
+        {
+            get
+            {
+                return GetAttribute<string>(nameof(SSHEndpointName));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(SSHEndpointName), value);
+            }
+        }
+
+        /// <summary>
         /// 创建时间
         /// </summary>
         [DataMember]

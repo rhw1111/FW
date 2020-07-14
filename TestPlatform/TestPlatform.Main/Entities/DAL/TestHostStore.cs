@@ -202,7 +202,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                                       join idItem in ids
                                  on item.ID equals idItem
                                  orderby item.CreateTime descending
-                                 select item).ToListAsync();
+                                 select item).Include(item => item.SSHEndpoint).ToListAsync();
 
                     result.Results.AddRange(datas);                    
                 }
