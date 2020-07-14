@@ -774,7 +774,8 @@ export default {
     lookMonitorUrl () {
       this.$q.dialog({
         title: '提示',
-        message: this.detailData.monitorUrl
+        message: `<a href="${this.detailData.monitorUrl}"  target="_blank" style="text-decoration:none">${this.detailData.monitorUrl}</a>`,
+        html: true
       })
     }
   }
