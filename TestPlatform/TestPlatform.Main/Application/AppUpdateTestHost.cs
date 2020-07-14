@@ -35,6 +35,19 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
             }
+            //检查是否有名称重复的
+            var newId = await _testHostRepository.QueryByNameNoLock(model.Address, cancellationToken);
+            if (newId != null && newId != model.ID)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.ExistTestHostByName,
+                    DefaultFormatting = "已经存在地址为{0}的主机",
+                    ReplaceParameters = new List<object>() { model.Address }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.ExistTestHostByName, fragment, 1, 0);
+            }
             testHost.SSHEndpointID = model.SSHEndpointID;
             testHost.Address = model.Address;
             await testHost.Update(cancellationToken);

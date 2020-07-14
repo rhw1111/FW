@@ -135,12 +135,12 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         }
 
 
-                        var testCase = await (from item in dbContext.TestHosts
+                        var testHost = await (from item in dbContext.TestHosts
                                               where item.Address == address
                                               orderby EF.Property<long>(item, "Sequence") descending
                                               select item).FirstOrDefaultAsync();
-                        if (testCase != null)
-                            result = testCase.ID;
+                        if (testHost != null)
+                            result = testHost.ID;
                     }
                 });
 
@@ -281,6 +281,8 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     var count = await (from item in dbContext.TestCases
                                        where item.MasterHostID == hostId
                                        select item.ID).CountAsync();
+                    if (count > 0)
+                        result = true;
                 }
             });
 
