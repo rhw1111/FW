@@ -304,63 +304,91 @@ class TcpTestUser(User):
 
     def add_master_data():
         # print("add_master_data")
-        stats = TcpTestUser.environment.runner.stats
-        stats_connect = stats.entries[("connect", "tcpsocket")]
-        stats_send = stats.entries[("send", "tcpsocket")]
 
-        if stats_connect is not None and stats_send is not None:
-            master_data = {}
-            master_data["CaseID"] = case_id
-            master_data["ConnectCount"] = str(stats_connect.num_requests)
-            master_data["ConnectFailCount"] = str(stats_connect.num_failures)
-            master_data["ReqCount"] = str(stats_send.num_requests)
-            master_data["ReqFailCount"] = str(stats_send.num_failures)
-            master_data["MaxDuration"] = str(stats_send.max_response_time)
-            master_data["MinDurartion"] = str(stats_send.min_response_time)
-            master_data["AvgDuration"] = str(stats_send.avg_response_time)
+        try:
+            stats = TcpTestUser.environment.runner.stats
+            stats_connect = stats.entries[("connect", "tcpsocket")]
+            stats_send = stats.entries[("send", "tcpsocket")]
 
-            # print(master_data)
-            TcpTestUser.post_api("api/monitor/addmasterdata", master_data)
+            if stats_connect is not None and stats_send is not None:
+                master_data = {}
+                master_data["CaseID"] = case_id
+                master_data["ConnectCount"] = str(stats_connect.num_requests)
+                master_data["ConnectFailCount"] = str(stats_connect.num_failures)
+                master_data["ReqCount"] = str(stats_send.num_requests)
+                master_data["ReqFailCount"] = str(stats_send.num_failures)
+                master_data["MaxDuration"] = str(stats_send.max_response_time)
+                master_data["MinDurartion"] = str(stats_send.min_response_time)
+                master_data["AvgDuration"] = str(stats_send.avg_response_time)
+
+                # print(master_data)
+                TcpTestUser.post_api("api/monitor/addmasterdata", master_data)
+        except Exception as e:
+            print(str(e))
 
     def add_worker_data():
         # print("add_worker_data")
-        stats = TcpTestUser.environment.runner.stats
-        stats_send = stats.entries[("send", "tcpsocket")]
 
-        if stats_send is not None:
-            worker_data_data = {}
-            worker_data_data["CaseID"] = case_id
-            worker_data_data["SlaveID"] = client_id
-            worker_data_data["QPS"] = str(stats_send.current_rps)
-            worker_data_data["Time"] = datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S")
+        try:
+            stats = TcpTestUser.environment.runner.stats
+            stats_send = stats.entries[("send", "tcpsocket")]
 
-            worker_data = []
-            worker_data.append(worker_data_data)
+            if stats_send is not None:
+                worker_data_data = {}
+                worker_data_data["CaseID"] = case_id
+                worker_data_data["SlaveID"] = client_id
+                worker_data_data["QPS"] = str(stats_send.current_rps)
+                worker_data_data["Time"] = datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S")
 
-            # print(worker_data)
-            TcpTestUser.post_api("api/monitor/addslavedata", worker_data)
+                worker_data = []
+                worker_data.append(worker_data_data)
 
-            TcpTestUser.setQPS(stats_send.current_rps)
+                # print(worker_data)
+                TcpTestUser.post_api("api/monitor/addslavedata", worker_data)
+
+                TcpTestUser.setQPS(stats_send.current_rps)             
+        except Exception as e:
+            print(str(e))
 
     def add_history_data():
         # print("add_history_data")
-        stats = TcpTestUser.environment.runner.stats
-        stats_connect = stats.entries[("connect", "tcpsocket")]
-        stats_send = stats.entries[("send", "tcpsocket")]
 
-        if stats_connect is not None and stats_send is not None:
+        try:
+            stats = TcpTestUser.environment.runner.stats
+            stats_connect = stats.entries[("connect", "tcpsocket")]
+            stats_send = stats.entries[("send", "tcpsocket")]
+
+            if stats_connect is not None and stats_send is not None:
+                history_data = {}
+                history_data["CaseID"] = case_id
+                history_data["ConnectCount"] = stats_connect.num_requests
+                history_data["ConnectFailCount"] = stats_connect.num_failures
+                history_data["ReqCount"] = stats_send.num_requests
+                history_data["ReqFailCount"] = stats_send.num_failures
+                history_data["MaxQPS"] = TcpTestUser.MaxQPS
+                history_data["MinQPS"] = TcpTestUser.MinQPS
+                history_data["AvgQPS"] = TcpTestUser.AvgQPS
+                history_data["MaxDuration"] = stats_send.max_response_time
+                history_data["MinDurartion"] = stats_send.min_response_time
+                history_data["AvgDuration"] = stats_send.avg_response_time
+
+                # print(history_data)
+                TcpTestUser.post_api("api/report/addhistory", history_data)            
+        except Exception as e:
+            print(str(e))
+
             history_data = {}
             history_data["CaseID"] = case_id
-            history_data["ConnectCount"] = stats_connect.num_requests
-            history_data["ConnectFailCount"] = stats_connect.num_failures
-            history_data["ReqCount"] = stats_send.num_requests
-            history_data["ReqFailCount"] = stats_send.num_failures
-            history_data["MaxQPS"] = TcpTestUser.MaxQPS
-            history_data["MinQPS"] = TcpTestUser.MinQPS
-            history_data["AvgQPS"] = TcpTestUser.AvgQPS
-            history_data["MaxDuration"] = stats_send.max_response_time
-            history_data["MinDurartion"] = stats_send.min_response_time
-            history_data["AvgDuration"] = stats_send.avg_response_time
+            history_data["ConnectCount"] = 0
+            history_data["ConnectFailCount"] = 0
+            history_data["ReqCount"] = 0
+            history_data["ReqFailCount"] = 0
+            history_data["MaxQPS"] = 0.0
+            history_data["MinQPS"] = 0.0
+            history_data["AvgQPS"] = 0.0
+            history_data["MaxDuration"] = 0.0
+            history_data["MinDurartion"] = 0.0
+            history_data["AvgDuration"] = 0.0
 
             # print(history_data)
             TcpTestUser.post_api("api/report/addhistory", history_data)
@@ -462,6 +490,7 @@ class TcpTestUser(User):
             # print(all_locusts_spawned.ready())
 
         self.client.close()
+        print("Connection closed.")
         self.is_login = False
 
     @task(1)

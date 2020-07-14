@@ -72,11 +72,11 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             await _appDeleteSSHEndPoint.Do(id);
         }
 
-        [HttpDelete("deletemultiple")]
-        public async Task DeleteMutiple(List<Guid> ids)
-        {
-            await _appDeleteSSHEndPoints.Do(ids);
-        }
+        //[HttpDelete("deletemultiple")]
+        //public async Task DeleteMutiple(List<Guid> ids)
+        //{
+        //    await _appDeleteSSHEndPoints.Do(ids);
+        //}
 
         [HttpGet("queryall")]
         public async Task<List<SSHEndPointViewData>> QueryAll()

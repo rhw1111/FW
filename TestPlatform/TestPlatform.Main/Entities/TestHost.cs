@@ -226,9 +226,8 @@ namespace FW.TestPlatform.Main.Entities
         }
         public async Task<bool> IsUsedByTestHostsOrSlaves(TestHost host, CancellationToken cancellationToken = default)
         {
-            bool result = false;
-            result = await _testHostStore.IsUsedByTestCases(host.ID ,cancellationToken);
-            if (result)
+            bool isUsed = await _testHostStore.IsUsedByTestCases(host.ID ,cancellationToken);
+            if (isUsed)
             {
                 var fragment = new TextFragment()
                 {
@@ -238,8 +237,8 @@ namespace FW.TestPlatform.Main.Entities
                 };
                 throw new UtilityException((int)TestPlatformErrorCodes.TestHostIsUsedByTestCases, fragment, 1, 0);
             }
-            result = await _testHostStore.IsUsedBySlaveHosts(host.ID, cancellationToken);
-            if (result)
+            isUsed = await _testHostStore.IsUsedBySlaveHosts(host.ID, cancellationToken);
+            if (isUsed)
             {
                 var fragment = new TextFragment()
                 {
@@ -249,7 +248,7 @@ namespace FW.TestPlatform.Main.Entities
                 };
                 throw new UtilityException((int)TestPlatformErrorCodes.TestHostIsUsedBySlaves, fragment, 1, 0);
             }
-            return result;
+            return isUsed;
         }
     }
 
