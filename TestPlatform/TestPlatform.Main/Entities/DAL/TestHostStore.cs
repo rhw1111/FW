@@ -187,13 +187,13 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
                     var strLike = $"{matchAddress.ToSqlLike()}%";
                     var count = await (from item in dbContext.TestHosts
-                                    where EF.Functions.Like(item.Address, strLike)
-                                    select item.ID).CountAsync();
+                                    where EF.Functions.Like(item.Address, strLike) && item.SSHEndpoint != null
+                                       select item.ID).CountAsync();
 
                     result.TotalCount = count;
 
                     var ids= (from item in dbContext.TestHosts
-                              where EF.Functions.Like(item.Address, strLike)  
+                              where EF.Functions.Like(item.Address, strLike) && item.SSHEndpoint != null
                                         orderby item.CreateTime descending
                                         select item.ID                                 
                                         ).Skip((page-1)*pageSize).Take(pageSize);
@@ -250,6 +250,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                             }
 
                             var ids = (from item in dbContext.TestHosts
+                                       where item.SSHEndpoint != null
                                        orderby EF.Property<long>(item, "Sequence")
                                        select item.ID
                                                 ).Skip((index) * 500).Take(500);
