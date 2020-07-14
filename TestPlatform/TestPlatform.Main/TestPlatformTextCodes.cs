@@ -202,21 +202,21 @@ namespace FW.TestPlatform.Main
         /// </summary>
         public const string NotFoundSSHEndPointByID = "NotFoundSSHEndPointByID";
         /// <summary>
-        /// 指定Id的主机不能被删除
-        /// 格式为“Id为{0}的主机正在被其它的测试用例使用，不能被删除”
-        /// {0}：Id
+        /// 指定地址的主机不能被删除
+        /// 格式为“地址为{0}的主机正在被其它的测试用例使用，不能被删除”
+        /// {0}：地址
         /// </summary>
         public const string TestHostIsUsedByTestCases = "TestHostIsUsedByTestCases";
         /// <summary>
-        /// 定Id的主机不能被删除
-        /// 格式为“Id为{0}的主机正在被其它的从主机使用，不能被删除”
-        /// {0}：Id
+        /// 指定地址的主机不能被删除
+        /// 格式为“地址为{0}的主机正在被其它的从主机使用，不能被删除”
+        /// {0}：地址
         /// </summary>
         public const string TestHostIsUsedBySlaves = "TestHostIsUsedBySlaves";
         /// <summary>
-        /// 定Id的SSH终结点不能被删除
-        /// 格式为“Id为{0}的SSH终结点正在被其它的主机使用，不能被删除”
-        /// {0}：Id
+        /// 指定名称的SSH终结点不能被删除
+        /// 格式为“名称为{0}的SSH终结点正在被其它的主机使用，不能被删除”
+        /// {0}：名称
         /// </summary>
         public const string SSHEndpointIsUsedByTestHosts = "SSHEndpointIsUsedByTestHosts";
     }

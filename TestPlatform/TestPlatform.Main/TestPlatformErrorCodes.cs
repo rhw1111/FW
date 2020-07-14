@@ -119,15 +119,15 @@ namespace FW.TestPlatform.Main
         /// </summary>
         ExistTestHostByName = 325710209,
         /// <summary>
-        /// 指定Id的主机正在被其它的测试用例使用，不能被删除
+        /// 指定地址的主机正在被其它的测试用例使用，不能被删除
         /// </summary>
         TestHostIsUsedByTestCases = 325710210,
         /// <summary>
-        /// 指定Id的主机正在被其它的从主机使用，不能被删除
+        /// 指定地址的主机正在被其它的从主机使用，不能被删除
         /// </summary>
         TestHostIsUsedBySlaves = 325710211,
         /// <summary>
-        /// 指定Id的SSH终结点正在被其它的主机使用，不能被删除
+        /// 指定名称的SSH终结点正在被其它的主机使用，不能被删除
         /// </summary>
         SSHEndPointIsUsedByTestHosts = 325710212
     }
