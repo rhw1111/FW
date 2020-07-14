@@ -232,6 +232,8 @@ namespace FW.TestPlatform.Main
         public const string CurrConnectKV = "currconnectkv";
         public const string CaseID = "caseid";
         public const string CaseServiceBaseAddress = "caseservicebaseaddress";
+        public const string FilterJsonData = "filterjsondata";
+        public const string CalcCheckSum = "calcchecksum";
     }
 
     /// <summary>
@@ -259,6 +261,8 @@ namespace FW.TestPlatform.Main
         public const string DecimalRange = "DecimalRange";
         public const string RanJsonData = "RanJsonData";
         public const string DesSecurity = "DesSecurity";
+        public const string FilterJsonData = "FilterJsonData";
+        public const string CalcCheckSum = "CalcCheckSum";
     }
 
     /// <summary>
