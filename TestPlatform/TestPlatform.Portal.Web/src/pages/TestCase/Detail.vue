@@ -772,11 +772,12 @@ export default {
     },
     //查看MonitorUrl
     lookMonitorUrl () {
-      this.$q.dialog({
-        title: '提示',
-        message: `<a href="${this.detailData.monitorUrl}"  target="_blank" style="text-decoration:none">${this.detailData.monitorUrl}</a>`,
-        html: true
-      })
+      window.open(this.detailData.monitorUrl);
+      // this.$q.dialog({
+      //   title: '提示',
+      //   message: `<a href="${this.detailData.monitorUrl}"  target="_blank" style="text-decoration:none">${this.detailData.monitorUrl}</a>`,
+      //   html: true
+      // })
     }
   }
 }
