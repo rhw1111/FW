@@ -236,6 +236,7 @@ export default {
           this.$q.loading.show()
           let para = `?id=${this.selected[0].id}`;
           Apis.deleteTestDataSource(para).then(() => {
+            this.selected = [];
             this.getTestDataSource();
           })
         } else if (this.selected.length > 1) {
@@ -249,6 +250,7 @@ export default {
             delArr: delArr
           };
           Apis.deleteTestDataSourceArr(para).then(() => {
+            this.selected = [];
             this.getTestDataSource();
           })
         }
