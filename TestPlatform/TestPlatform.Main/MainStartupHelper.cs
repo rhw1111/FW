@@ -291,7 +291,9 @@ namespace FW.TestPlatform.Main
                 AdditionFuncNames.IntRange,
                 AdditionFuncNames.DecimalRange,
                 AdditionFuncNames.RanJsonData,
-                AdditionFuncNames.DesSecurity };
+                AdditionFuncNames.DesSecurity,
+                AdditionFuncNames.FilterJsonData,
+                AdditionFuncNames.CalcCheckSum };
 
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.NameOnceJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustNameOnceJsonDataFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.TcpRR}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustTcpRRFactory>();
@@ -303,6 +305,8 @@ namespace FW.TestPlatform.Main
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.DecimalRange}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustDecimalRangeFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.RanJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustRanJsonDataFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.DesSecurity}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustDesSecurityFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.FilterJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustFilterJsonDataFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.CalcCheckSum}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustCalcCheckSumFactory>();
 
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.AdditionFunc] = DIContainerContainer.Get<LabelParameterHandlerForDataVarDeclareInitFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataVarDeclareInit] = DIContainerContainer.Get<LabelParameterHandlerForAdditionFuncFactory>();
@@ -327,6 +331,8 @@ namespace FW.TestPlatform.Main
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.CurrConnectKV] = DIContainerContainer.Get<LabelParameterHandlerForCurrConnectKVFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.CaseID] = DIContainerContainer.Get<LabelParameterHandlerForCaseIDFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.CaseServiceBaseAddress] = DIContainerContainer.Get<LabelParameterHandlerForCaseServiceBaseAddressFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.FilterJsonData] = DIContainerContainer.Get<LabelParameterHandlerForFilterJsonDataFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.CalcCheckSum] = DIContainerContainer.Get<LabelParameterHandlerForCalcCheckSumFactory>();
 
             GetSeparatorServiceSelector.GetSeparatorServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSeparatorServiceForLocustFactory>();
 
