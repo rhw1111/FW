@@ -589,6 +589,7 @@ export default {
           let para = `?caseId=${this.detailData.id}&id=${this.SlaveHostSelected[0].id}`
           Apis.deleteSlaveHost(para).then((res) => {
             console.log(res)
+            this.SlaveHostSelected = [];
             this.getSlaveHostsList();
           })
         } else if (this.SlaveHostSelected.length > 1) {
@@ -604,6 +605,7 @@ export default {
           }
           Apis.deleteSlaveHostArr(para).then((res) => {
             console.log(res)
+            this.SlaveHostSelected = [];
             this.getSlaveHostsList();
           })
         }
@@ -648,6 +650,7 @@ export default {
           // 单个删除slaveHost列表
           let para = `?caseId=${this.detailData.id}&historyId=${this.HistorySelected[0].id}`
           Apis.deleteHistory(para).then(() => {
+            this.HistorySelected = [];
             this.getHistoryList();
           })
         } else if (this.HistorySelected.length > 1) {
@@ -662,6 +665,7 @@ export default {
             IDS: delIdArr
           }
           Apis.deleteHistoryArr(para).then(() => {
+            this.HistorySelected = [];
             this.getHistoryList();
           })
         }

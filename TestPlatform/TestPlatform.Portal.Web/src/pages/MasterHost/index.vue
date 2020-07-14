@@ -236,6 +236,9 @@ export default {
           field: row => row.address,
           format: val => `${val}`,
         },
+        {
+          name: 'sshEndpointName', label: 'SSH终结点', align: 'left', field: 'sshEndpointName',
+        },
         { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
       ],
       // ------------------------------------ SSH端口 ------------------------------------
@@ -355,36 +358,32 @@ export default {
           label: '取消'
         },
       }).onOk(() => {
-        if (this.SSHEndpointSelected.length == 1) {
-          //单个删除SSH端口
-          let para = `?id=${this.SSHEndpointSelected[0].id}`
+        //单个批量删除SSH端口
+
+        let SelectedLength = this.SSHEndpointSelected.length;
+        let DelNum = 0;
+
+        for (let i = 0; i < this.SSHEndpointSelected.length; i++) {
+          let para = `?id=${this.SSHEndpointSelected[i].id}`
           this.$q.loading.show()
           Apis.deleteSSHEndpoint(para).then(() => {
-            this.$q.notify({
-              position: 'top',
-              message: '提示',
-              caption: '删除成功',
-              color: 'secondary',
-            })
-            this.getSSHEndpointList();
-          })
-        } else if (this.SSHEndpointSelected.length > 1) {
-          //批量删除SSH端口
-          let para = {
-            delArr: []
-          }
-          for (let i = 0; i < this.SSHEndpointSelected.length; i++) {
-            para.delArr.push(this.SSHEndpointSelected[i].id)
-          }
-          this.$q.loading.show()
-          Apis.deleteSSHEndpointArr(para).then(() => {
-            this.$q.notify({
-              position: 'top',
-              message: '提示',
-              caption: '删除成功',
-              color: 'secondary',
-            })
-            this.getSSHEndpointList();
+            DelNum++;
+            if (DelNum == SelectedLength) {
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: '删除成功',
+                color: 'secondary',
+              })
+              this.SSHEndpointSelected = [];
+              this.getSSHEndpointList();
+            }
+          }).catch(() => {
+            DelNum++;
+            if (DelNum == SelectedLength) {
+              this.SSHEndpointSelected = [];
+              this.getSSHEndpointList();
+            }
           })
         }
       })
@@ -529,6 +528,13 @@ export default {
                 caption: '删除成功',
                 color: 'secondary',
               })
+              this.MasterHostSelected = [];
+              this.getTestHostList();
+            }
+          }).catch(() => {
+            DelNum++;
+            if (DelNum == SelectedLength) {
+              this.MasterHostSelected = [];
               this.getTestHostList();
             }
           })
