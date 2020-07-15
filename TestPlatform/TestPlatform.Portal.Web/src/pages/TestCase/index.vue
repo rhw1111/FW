@@ -100,7 +100,7 @@
             <!-- 压测用户总数 -->
             <q-input filled
                      bottom-slots
-                     v-model="paraConfig.UserCount"
+                     v-model.number="paraConfig.UserCount"
                      class="col"
                      :dense="false"
                      @keyup="paraConfig.UserCount=paraConfig.UserCount.replace(/[^\d]/g,'')">
@@ -114,7 +114,7 @@
             <!-- 每秒加载用户数 -->
             <q-input filled
                      bottom-slots
-                     v-model="paraConfig.PerSecondUserCount"
+                     v-model.number="paraConfig.PerSecondUserCount"
                      class="col"
                      :dense="false"
                      @keyup="paraConfig.PerSecondUserCount=paraConfig.PerSecondUserCount.replace(/[^\d]/g,'')">
@@ -145,7 +145,7 @@
             <!-- 被测服务器端口 -->
             <q-input filled
                      bottom-slots
-                     v-model="paraConfig.Port"
+                     v-model.number="paraConfig.Port"
                      class="col"
                      :dense="false"
                      @input="paraConfig.Port=paraConfig.Port.replace(/[^\d]/g,'')">
@@ -162,7 +162,7 @@
             <!-- 压测时间 -->
             <q-input filled
                      bottom-slots
-                     v-model="paraConfig.Duration"
+                     v-model.number="paraConfig.Duration"
                      class="col-6"
                      :dense="false"
                      @keyup="paraConfig.Duration=paraConfig.Duration.replace(/[^\d]/g,'')">
