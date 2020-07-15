@@ -162,7 +162,7 @@ CREATE TABLE `testcase` (
   `ownerid` char(36) NOT NULL,
   `enginetype` varchar(150) NOT NULL DEFAULT '',
   `name` varchar(150) NOT NULL DEFAULT '',
-  `configuration` varchar(4000) NOT NULL DEFAULT '',
+  `configuration` varchar(8000) NOT NULL DEFAULT '',
   `status` int NOT NULL DEFAULT '0',
   `createtime` datetime NOT NULL,
   `modifytime` datetime NOT NULL,

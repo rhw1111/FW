@@ -50,7 +50,8 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("        else:");
             sbCode.AppendLine("            return \"\"");
             sbCode.AppendLine("    except Exception as e:");
-            sbCode.AppendLine("        print(str(e))");
+            sbCode.AppendLine("        print(\"[% s] % s: Error, % s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))");
+            sbCode.AppendLine("");
             sbCode.AppendLine("        return None");
             sbCode.AppendLine("    finally:");
             sbCode.AppendLine("        connect.close()");

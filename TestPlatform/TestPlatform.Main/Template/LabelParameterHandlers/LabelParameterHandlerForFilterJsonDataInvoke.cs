@@ -14,15 +14,15 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 {
     /// <summary>
     ///过滤数据
-    ///格式:{$filterjsondata(data,name,value)}
+    ///格式:{$filterjsondatainvoke(data,name,value)}
     ///参数：1，Json字符串 2，属性名称 3，属性值
     ///返回值：过滤后数据
-    [Injection(InterfaceType = typeof(LabelParameterHandlerForFilterJsonData), Scope = InjectionScope.Singleton)]
-    public class LabelParameterHandlerForFilterJsonData : ILabelParameterHandler
+    [Injection(InterfaceType = typeof(LabelParameterHandlerForFilterJsonDataInvoke), Scope = InjectionScope.Singleton)]
+    public class LabelParameterHandlerForFilterJsonDataInvoke : ILabelParameterHandler
     {
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForFilterJsonData(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForFilterJsonDataInvoke(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
@@ -37,7 +37,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 {
                     Code = TextCodes.LabelParameterCountError,
                     DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
-                    ReplaceParameters = new List<object>() { "{$filterjsondata(data,name,value)}", 3, parameters.Length }
+                    ReplaceParameters = new List<object>() { "{$filterjsondatainvoke(data,name,value)}", 3, parameters.Length }
                 };
 
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);

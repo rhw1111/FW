@@ -15,6 +15,10 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
         public async Task<string> Generate()
         {
             StringBuilder sbCode = new StringBuilder();
+            sbCode.AppendLine("from Crypto.Cipher import DES3");
+            sbCode.AppendLine("import base64");
+            sbCode.AppendLine("");
+            sbCode.AppendLine("");
             sbCode.AppendLine("def DesSecurity(data, key):");
             sbCode.AppendLine("    # print(\"DesSecurity\")");
             //sbCode.AppendLine("    from Crypto.Cipher import DES3");
@@ -40,6 +44,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             //sbCode.AppendLine("    result = base64.standard_b64encode(ciphertext).decode(\"utf - 8\")");
             //sbCode.AppendLine("");
             //sbCode.AppendLine("    return result");
+            sbCode.AppendLine("");
             sbCode.AppendLine("    ed.setKey(key)");
             sbCode.AppendLine("    return ed.encrypt(data)");
             sbCode.AppendLine("");
@@ -63,6 +68,9 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("");
             sbCode.AppendLine("    # DES3的加密模式为CBC");
             sbCode.AppendLine("    def encrypt(self, text):");
+            sbCode.AppendLine("        if type(text) != str:");
+            sbCode.AppendLine("            text = str(text)");
+            sbCode.AppendLine("");
             sbCode.AppendLine("        text = self.pad(text)");
             sbCode.AppendLine("        cryptor = DES3.new(self.key, self.mode, self.iv)");
             sbCode.AppendLine("        # self.iv 为 IV 即偏移量");
@@ -75,6 +83,9 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("        return base64.standard_b64encode(self.ciphertext).decode(\"utf - 8\")");
             sbCode.AppendLine("");
             sbCode.AppendLine("    def decrypt(self, text):");
+            sbCode.AppendLine("        if type(text) != str:");
+            sbCode.AppendLine("            text = str(text)");
+            sbCode.AppendLine("");
             sbCode.AppendLine("        cryptor = DES3.new(self.key, self.mode, self.iv)");
             sbCode.AppendLine("        de_text = base64.standard_b64decode(text)");
             sbCode.AppendLine("        plain_text = cryptor.decrypt(de_text)");
