@@ -15,16 +15,16 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 {
     /// <summary>
     ///针对全局数据变量声明的标签参数处理
-    ///格式:{$connectinit(space)}
+    ///格式:{$stopinit(space)}
     ///要求context中的Parameters中
     ///包含EngineType参数，参数类型为string
     ///包含DataSourceVars参数，参数类型为List<ConfigurationDataForDataSourceVar>
-    [Injection(InterfaceType = typeof(LabelParameterHandlerForConnectInit), Scope = InjectionScope.Singleton)]
-    public class LabelParameterHandlerForConnectInit : ILabelParameterHandler
+    [Injection(InterfaceType = typeof(LabelParameterHandlerForStopInit), Scope = InjectionScope.Singleton)]
+    public class LabelParameterHandlerForStopInit : ILabelParameterHandler
     {
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForConnectInit(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForStopInit(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
@@ -45,19 +45,19 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             var engineType = (string)objEngineType;
 
-            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.ConnectInit, out object? objVars))
+            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.StopInit, out object? objVars))
             {
                 var fragment = new TextFragment()
                 {
                     Code = TextCodes.NotFoundParameterInTemplateContextByName,
                     DefaultFormatting = "在模板上下文中找不到名称为{0}的参数",
-                    ReplaceParameters = new List<object>() { TemplateContextParameterNames.ConnectInit }
+                    ReplaceParameters = new List<object>() { TemplateContextParameterNames.StopInit }
                 };
 
                 throw new UtilityException((int)Errors.NotFoundParameterInTemplateContextByName, fragment, 1, 0);
             }
 
-            var vars = ((ConfigurationDataForTcpConnectInit)objVars).VarSettings;
+            var vars = ((ConfigurationDataForTcpStopInit)objVars).VarSettings;
 
             StringBuilder strCode = new StringBuilder();
             var separatorService = _getSeparatorServiceSelector.Choose(engineType).Create();
@@ -69,7 +69,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 {
                     Code = TextCodes.LabelParameterCountError,
                     DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
-                    ReplaceParameters = new List<object>() { "{$connectinit(space)}", 1, parameters.Length }
+                    ReplaceParameters = new List<object>() { "{$stopinit(space)}", 1, parameters.Length }
                 };
 
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
@@ -83,7 +83,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 {
                     Code = TextCodes.LabelParameterTypeError,
                     DefaultFormatting = "标签{0}要求的参数{1}应为{2}，参数类型错误",
-                    ReplaceParameters = new List<object>() { "{$connectinit(space)}", "space", "Int" }
+                    ReplaceParameters = new List<object>() { "{$stopinit(space)}", "space", "Int" }
                 };
 
                 throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);

@@ -47,7 +47,7 @@ namespace FW.TestPlatform.Main.Application
             {
                 ID = queryResult.ID,
                 Name = queryResult.Name,
-                MonitorUrl=$"{monitorAddress}&var-CaseID={queryResult.ID.ToString().ToUrlEncode()}&from=now&refresh=3s",
+                MonitorUrl=$"{monitorAddress}&var-CaseID={queryResult.ID.ToString().ToUrlEncode()}&from=now-15m&refresh=5s&to=now",
                 Configuration = queryResult.Configuration,
                 Status = queryResult.Status,
                 EngineType = queryResult.EngineType,

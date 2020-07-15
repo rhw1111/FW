@@ -312,6 +312,7 @@ namespace FW.TestPlatform.Main
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataVarDeclareInit] = DIContainerContainer.Get<LabelParameterHandlerForAdditionFuncFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.ConnectInit] = DIContainerContainer.Get<LabelParameterHandlerForConnectInitFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.SendInit] = DIContainerContainer.Get<LabelParameterHandlerForSendInitFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.StopInit] = DIContainerContainer.Get<LabelParameterHandlerForStopInitFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.SendData] = DIContainerContainer.Get<LabelParameterHandlerForSendDataFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.HostName] = DIContainerContainer.Get<LabelParameterHandlerForHostNameFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.CurConnectID] = DIContainerContainer.Get<LabelParameterHandlerForCurConnectIDFactory>();
@@ -331,8 +332,9 @@ namespace FW.TestPlatform.Main
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.CurrConnectKV] = DIContainerContainer.Get<LabelParameterHandlerForCurrConnectKVFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.CaseID] = DIContainerContainer.Get<LabelParameterHandlerForCaseIDFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.CaseServiceBaseAddress] = DIContainerContainer.Get<LabelParameterHandlerForCaseServiceBaseAddressFactory>();
-            LabelParameterIMP.HandlerFactories[LabelParameterTypes.FilterJsonData] = DIContainerContainer.Get<LabelParameterHandlerForFilterJsonDataFactory>();
-            LabelParameterIMP.HandlerFactories[LabelParameterTypes.CalcCheckSum] = DIContainerContainer.Get<LabelParameterHandlerForCalcCheckSumFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.FilterJsonDataInvoke] = DIContainerContainer.Get<LabelParameterHandlerForFilterJsonDataInvokeFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.CalcCheckSumInvoke] = DIContainerContainer.Get<LabelParameterHandlerForCalcCheckSumInvokeFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.SlaveName] = DIContainerContainer.Get<LabelParameterHandlerForSlaveNameFactory>();
 
             GetSeparatorServiceSelector.GetSeparatorServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSeparatorServiceForLocustFactory>();
 

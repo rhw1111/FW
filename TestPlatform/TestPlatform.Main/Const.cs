@@ -18,6 +18,7 @@ namespace FW.TestPlatform.Main
         public const string DataSourceVars = "DataSourceVars";
         public const string ConnectInit = "ConnectInit";
         public const string SendInit = "SendInit";
+        public const string StopInit = "StopInit";
 
         public const string CaseServiceBaseAddress = "CaseServiceBaseAddress";
         public const string CaseID = "CaseID";
@@ -213,6 +214,7 @@ namespace FW.TestPlatform.Main
         public const string DataVarDeclareInit = "datavardeclareinit";
         public const string ConnectInit = "connectinit";
         public const string SendInit = "sendinit";
+        public const string StopInit = "stopinit";
         public const string SendData = "senddata";
         public const string HostName = "hostname";
         public const string CurConnectID = "curconnectid";
@@ -232,8 +234,9 @@ namespace FW.TestPlatform.Main
         public const string CurrConnectKV = "currconnectkv";
         public const string CaseID = "caseid";
         public const string CaseServiceBaseAddress = "caseservicebaseaddress";
-        public const string FilterJsonData = "filterjsondata";
-        public const string CalcCheckSum = "calcchecksum";
+        public const string FilterJsonDataInvoke = "filterjsondatainvoke";
+        public const string CalcCheckSumInvoke = "calcchecksuminvoke";
+        public const string SlaveName = "slavename";
     }
 
     /// <summary>
