@@ -53,7 +53,7 @@ client_id = "{SlaveName}"
 # case_id
 case_id = "{CaseID}"
 # # 数据包头
-package_start = "<package>"
+package_start = ""
 # # 数据包尾
 package_end = "{ResponseSeparator}"
 # API地址
@@ -65,7 +65,7 @@ max_wait = 0.001
 # 时间格式
 datetime_format = "%Y-%m-%d %H:%M:%S.%f"
 # revc数据大小
-buff_size = 2048
+buff_size = 10240
 # 是否1次发送对应1次接收
 is_one_to_one = False
 # 是否等待所有用户加载完，执行Task
@@ -82,8 +82,6 @@ is_save_interval = 1
 is_security_data = True
 # 是否接收数据
 is_recv = False
-# 秘钥，密钥的长度必须是16的倍数
-key = "abcdefghijklmnop"
 # 时间单位，秒=1，毫秒=1000，微妙=1000000，纳秒=1000000000
 second_unit = 1000000000
 
@@ -173,6 +171,7 @@ class TcpTestUser(User):
     user_token = ""
     request_body = ""
     senddata = ""
+    recv_data = ""
     worker_report_time = datetime.datetime.now()
     is_login = False
     environment = None
@@ -189,30 +188,22 @@ class TcpTestUser(User):
         self.client._locust_environment = self.environment
         TcpTestUser.environment = self.environment
 
-    def get_package(self):
-        self.request_body = {$senddata()}
-        self.senddata = self.request_body
-        package = self.senddata
-
-        if type(package) != str:
-            package = str(self.senddata)
-
-        {$sendinit(8)}
-
-        return package
-
     def connect(self):
         is_success = self.client.connect(self.ADDR)
 
         if is_success is False:
-            print("Client: connect fail, %s:%s" % self.ADDR)
+            print("[%s] %s: Connect fail, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.host, self.port))
             return is_success
 
-        print("Client: connect success, %s:%s" % self.ADDR)
+        print("[%s] %s: Connect success, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.host, self.port))
         return is_success
 
     def login(self):
+        #--------------------------------------------------        
         {$connectinit(8)}
+        #--------------------------------------------------
+
+        is_success = False
 
         if self.user_token is None or self.user_token == "":
             is_success = False
@@ -220,20 +211,59 @@ class TcpTestUser(User):
             is_success = True
 
         if is_success is False:
-            print("Client: login fail, %s: %s" % (self.user_id, self.user_password))
+            print("[%s] %s: Login fail, %s: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_id, self.user_password))
             return is_success
 
-        print("Client: login success, %s: %s" % (self.user_id, self.user_password))
+        print("[%s] %s: Login success, %s: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_id, self.user_password))
         return is_success
+    
+    def get_package(self):
+        #--------------------------------------------------
+        self.request_body = {$senddata()}
+        #--------------------------------------------------
 
-    def send_data(self, package):
-        is_success = self.client.send(package)
+        self.senddata = self.request_body
+        package = DesSecurity(self.senddata, "abcdefghjhijklmn")
+        # package = ed.encrypt(self.senddata)
+
+        return package
+
+    def send_data(self):
+        #--------------------------------------------------
+        {$sendinit(8)}
+        #--------------------------------------------------
+
+        is_success = False
+
+        if self.recv_data is None or self.recv_data == "":
+            is_success = False
+        else:
+            is_success = True
 
         if is_success is False:
-            print("Client: send fail, %s" % package)
+            print("[%s] %s: Send fail, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, package))
             return is_success
 
-        # print("Client: send success, %s" % package)
+        # print("[%s] %s: Send success, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, package))
+        return is_success
+
+    def stop_data(self):
+        #--------------------------------------------------
+        {$stopinit(8)}
+        #--------------------------------------------------
+
+        is_success = False
+
+        if self.recv_data is None or self.recv_data == "":
+            is_success = False
+        else:
+            is_success = True
+
+        if is_success is False:
+            print("[%s] %s: Stop fail, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, package))
+            return is_success
+
+        print("[%s] %s: Stop success, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, package))
         return is_success
 
     def recv_data_thread_nothing(self):
@@ -243,17 +273,19 @@ class TcpTestUser(User):
 
                 if data == "exit" or not data:
                     # print("Not Data: %s" % data)
+
                     break
 
                 # print("Data: %s" % data)
 
             except Exception as e:
-                print(str(e))
+                print("[%s] %s: Error: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
+
                 break
 
         if is_recv_error_close:
             self.client.close()
-            print("Connection closed.")
+            print("[%s] %s: Connect close." % (datetime.datetime.now().strftime(datetime_format), client_id))
 
     MaxQPS = 0.0
     MinQPS = 0.0
@@ -288,7 +320,7 @@ class TcpTestUser(User):
         while TcpTestUser.environment is None or TcpTestUser.environment.runner.state != locust.runners.STATE_RUNNING:
             time.sleep(1)
 
-        print("Locust Runner State: %s" % TcpTestUser.environment.runner.state)
+        print("[%s] %s: Locust Runner State: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, TcpTestUser.environment.runner.state))
 
         if TcpTestUser.environment.parsed_options.worker is False:
             # Master
@@ -297,7 +329,7 @@ class TcpTestUser(User):
                 TcpTestUser.add_worker_data()
                 time.sleep(is_save_interval)
 
-            print("Locust Runner State: %s" % TcpTestUser.environment.runner.state)
+            print("[%s] %s: Locust Runner State: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, TcpTestUser.environment.runner.state))        
         else:
             # Work
             pass        
@@ -308,7 +340,7 @@ class TcpTestUser(User):
         try:
             stats = TcpTestUser.environment.runner.stats
             stats_connect = stats.entries[("connect", "tcpsocket")]
-            stats_send = stats.entries[("send", "tcpsocket")]
+            stats_send = stats.entries[("send_data", "tcpsocket")]
 
             if stats_connect is not None and stats_send is not None:
                 master_data = {}
@@ -324,14 +356,14 @@ class TcpTestUser(User):
                 # print(master_data)
                 TcpTestUser.post_api("api/monitor/addmasterdata", master_data)
         except Exception as e:
-            print(str(e))
+            print("[%s] %s: Error: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
 
     def add_worker_data():
         # print("add_worker_data")
 
         try:
             stats = TcpTestUser.environment.runner.stats
-            stats_send = stats.entries[("send", "tcpsocket")]
+            stats_send = stats.entries[("send_data", "tcpsocket")]
 
             if stats_send is not None:
                 worker_data_data = {}
@@ -348,7 +380,7 @@ class TcpTestUser(User):
 
                 TcpTestUser.setQPS(stats_send.current_rps)             
         except Exception as e:
-            print(str(e))
+            print("[%s] %s: Error: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
 
     def add_history_data():
         # print("add_history_data")
@@ -356,7 +388,7 @@ class TcpTestUser(User):
         try:
             stats = TcpTestUser.environment.runner.stats
             stats_connect = stats.entries[("connect", "tcpsocket")]
-            stats_send = stats.entries[("send", "tcpsocket")]
+            stats_send = stats.entries[("send_data", "tcpsocket")]
 
             if stats_connect is not None and stats_send is not None:
                 history_data = {}
@@ -375,7 +407,7 @@ class TcpTestUser(User):
                 # print(history_data)
                 TcpTestUser.post_api("api/report/addhistory", history_data)            
         except Exception as e:
-            print(str(e))
+            print("[%s] %s: Error: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
 
             history_data = {}
             history_data["CaseID"] = case_id
@@ -406,7 +438,8 @@ class TcpTestUser(User):
             # print("Url: %s" % github_url)
             # print("Result: %s" % result.text)
         except Exception as e:
-            print(str(e))
+            print("[%s] %s: Error: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
+
             return
 
     def quitting():
@@ -489,15 +522,29 @@ class TcpTestUser(User):
             lock.release()
             # print(all_locusts_spawned.ready())
 
+        is_success = self.stop_data()
         self.client.close()
-        print("Connection closed.")
+        print("[%s] %s: Connect close." % (datetime.datetime.now().strftime(datetime_format), client_id))
         self.is_login = False
 
     @task(1)
     def send(self):
         if self.is_login:
-            package = self.get_package()
-            send_is_success = self.send_data(package)
+            start_time = time.time()
+
+            try:
+                is_success = self.send_data()
+            except Exception as e:
+                total_time = int((time.time() - start_time) * second_unit)
+                self.environment.events.request_failure.fire(
+                    request_type="tcpsocket", name="send_data",
+                    response_time=total_time, response_length=len(str(e)),
+                    exception=e)
+            else:
+                total_time = int((time.time() - start_time) * second_unit)
+                self.environment.events.request_success.fire(
+                    request_type="tcpsocket", name="send_data",
+                    response_time=total_time, response_length=0)
         else:
             self.is_login = self.login()
 '

@@ -14,15 +14,15 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 {
     /// <summary>
     ///计算校验和
-    ///格式:{$calcchecksum(msg)}
+    ///格式:{$calcchecksuminvoke(msg)}
     ///参数：1，从"8=........"开始一直到"10="之前的部分，不包含10=
     ///返回值：校验和
-    [Injection(InterfaceType = typeof(LabelParameterHandlerForCalcCheckSum), Scope = InjectionScope.Singleton)]
-    public class LabelParameterHandlerForCalcCheckSum : ILabelParameterHandler
+    [Injection(InterfaceType = typeof(LabelParameterHandlerForCalcCheckSumInvoke), Scope = InjectionScope.Singleton)]
+    public class LabelParameterHandlerForCalcCheckSumInvoke : ILabelParameterHandler
     {
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForCalcCheckSum(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForCalcCheckSumInvoke(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
@@ -37,7 +37,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 {
                     Code = TextCodes.LabelParameterCountError,
                     DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
-                    ReplaceParameters = new List<object>() { "{$calcchecksum(msg)}", 1, parameters.Length }
+                    ReplaceParameters = new List<object>() { "{$calcchecksuminvoke(msg)}", 1, parameters.Length }
                 };
 
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);

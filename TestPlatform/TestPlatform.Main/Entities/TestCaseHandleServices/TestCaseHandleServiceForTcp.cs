@@ -147,7 +147,9 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             contextDict.Add(TemplateContextParameterNames.ConnectInit, configuration.ConnectInit);
             //将Tcp发送前初始化脚本配置加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.SendInit, configuration.SendInit);
-            
+            //将Tcp停止前初始化脚本配置加入到模板上下文中
+            contextDict.Add(TemplateContextParameterNames.StopInit, configuration.StopInit);
+
 
 
             //为DataSourceVars补充Data属性
@@ -194,18 +196,18 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             {
                 #region Test Code
 #if DEBUG
-                //string testFilePath = @"E:\Downloads\script.py";
+                string testFilePath = @"E:\Downloads\script.py";
 
-                //if (File.Exists(testFilePath))
-                //{
-                //    File.Delete(testFilePath);
-                //}
+                if (File.Exists(testFilePath))
+                {
+                    File.Delete(testFilePath);
+                }
 
-                //using (FileStream fileStream = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.Write))
-                //{
-                //    BinaryWriter w = new BinaryWriter(fileStream);
-                //    w.Write(textStream.ToArray());
-                //}
+                using (FileStream fileStream = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.Write))
+                {
+                    BinaryWriter w = new BinaryWriter(fileStream);
+                    w.Write(textStream.ToArray());
+                }
 #endif
                 #endregion
 
@@ -385,6 +387,14 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             get; set;
         } = null!;
 
+        /// <summary>
+        /// Tcp发送前初始化脚本配置
+        /// </summary>
+        [DataMember]
+        public ConfigurationDataForTcpStopInit StopInit
+        {
+            get; set;
+        } = null!;
 
         /// <summary>
         /// 请求体内容
@@ -446,7 +456,21 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         } = new List<ConfigurationDataForVar>();
     }
 
-
+    /// <summary>
+    /// Tcp发送前初始化脚本配置
+    /// </summary>
+    [DataContract]
+    public class ConfigurationDataForTcpStopInit
+    {
+        /// <summary>
+        /// 变量赋值配置
+        /// </summary>
+        [DataMember]
+        public List<ConfigurationDataForVar> VarSettings
+        {
+            get; set;
+        } = new List<ConfigurationDataForVar>();
+    }
 
     /// <summary>
     /// 变量赋值配置
