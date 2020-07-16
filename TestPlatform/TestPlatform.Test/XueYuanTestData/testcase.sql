@@ -71,18 +71,6 @@ SET configuration = '{
                 "Content": "{$tcprrwithconnectinvoke({$curconnect()},login_send_data,\'.*\')}"
             },
             {
-                "Name": "",
-                "Content": "a = 1
-b = 2"
-            },
-            {
-                "Name": "",
-                "Content": "
-a = 1
-b = 2
-                "
-            },
-            {
                 "Name": "self.user_id",
                 "Content": "{$varkv(json_user_account,\'UserName\')}"
             },
@@ -142,6 +130,5 @@ b = 2
     }
 }'
 where id = 'ce514456-8da9-432f-8999-1010fa94a83a';
-
 
 
