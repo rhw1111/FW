@@ -293,7 +293,8 @@ namespace FW.TestPlatform.Main
                 AdditionFuncNames.RanJsonData,
                 AdditionFuncNames.DesSecurity,
                 AdditionFuncNames.FilterJsonData,
-                AdditionFuncNames.CalcCheckSum };
+                AdditionFuncNames.CalcCheckSum,
+                AdditionFuncNames.GetJsonData };
 
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.NameOnceJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustNameOnceJsonDataFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.TcpRR}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustTcpRRFactory>();
@@ -307,6 +308,7 @@ namespace FW.TestPlatform.Main
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.DesSecurity}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustDesSecurityFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.FilterJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustFilterJsonDataFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.CalcCheckSum}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustCalcCheckSumFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.GetJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustGetJsonDataFactory>();
 
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.AdditionFunc] = DIContainerContainer.Get<LabelParameterHandlerForDataVarDeclareInitFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataVarDeclareInit] = DIContainerContainer.Get<LabelParameterHandlerForAdditionFuncFactory>();
@@ -314,6 +316,8 @@ namespace FW.TestPlatform.Main
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.SendInit] = DIContainerContainer.Get<LabelParameterHandlerForSendInitFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.StopInit] = DIContainerContainer.Get<LabelParameterHandlerForStopInitFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.SendData] = DIContainerContainer.Get<LabelParameterHandlerForSendDataFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.RecvData] = DIContainerContainer.Get<LabelParameterHandlerForRecvDataFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.RequestBody] = DIContainerContainer.Get<LabelParameterHandlerForRequestBodyFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.HostName] = DIContainerContainer.Get<LabelParameterHandlerForHostNameFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.CurConnectID] = DIContainerContainer.Get<LabelParameterHandlerForCurConnectIDFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.CurConnect] = DIContainerContainer.Get<LabelParameterHandlerForCurConnectFactory>();
@@ -335,6 +339,7 @@ namespace FW.TestPlatform.Main
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.FilterJsonDataInvoke] = DIContainerContainer.Get<LabelParameterHandlerForFilterJsonDataInvokeFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.CalcCheckSumInvoke] = DIContainerContainer.Get<LabelParameterHandlerForCalcCheckSumInvokeFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.SlaveName] = DIContainerContainer.Get<LabelParameterHandlerForSlaveNameFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.GetJsonDataInvoke] = DIContainerContainer.Get<LabelParameterHandlerForGetJsonDataInvokeFactory>();
 
             GetSeparatorServiceSelector.GetSeparatorServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSeparatorServiceForLocustFactory>();
 

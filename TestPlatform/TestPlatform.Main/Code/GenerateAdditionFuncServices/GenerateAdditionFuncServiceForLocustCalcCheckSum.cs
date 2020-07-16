@@ -19,7 +19,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    # print(\"CalcCheckSum\")");
             sbCode.AppendLine("    sum = 0");
             sbCode.AppendLine("");
-            sbCode.AppendLine("    if msg is not None:");
+            sbCode.AppendLine("    if msg:");
             sbCode.AppendLine("        for letter in msg:");
             sbCode.AppendLine("            sum += ord(letter)");
             sbCode.AppendLine("");
