@@ -95,7 +95,95 @@
                      class="col-xs-12"
                      @dblclick="masterHost" /> -->
           </div>
+          <span style="font-size:14px">参数配置:</span>
           <div class="row input_row">
+            <!-- 压测用户总数 -->
+            <q-input filled
+                     bottom-slots
+                     v-model.number="paraConfig.UserCount"
+                     class="col"
+                     :dense="false"
+                     @keyup="paraConfig.UserCount=paraConfig.UserCount.replace(/[^\d]/g,'')">
+              <template v-slot:before>
+                <span style="font-size:14px;width:100px">压测用户总数:</span>
+              </template>
+              <template v-slot:append>
+                <span style="font-size:14px">个</span>
+              </template>
+            </q-input>
+            <!-- 每秒加载用户数 -->
+            <q-input filled
+                     bottom-slots
+                     v-model.number="paraConfig.PerSecondUserCount"
+                     class="col"
+                     :dense="false"
+                     @keyup="paraConfig.PerSecondUserCount=paraConfig.PerSecondUserCount.replace(/[^\d]/g,'')">
+              <template v-slot:before>
+                <span style="font-size:14px;width:105px;margin-left:10px;">每秒加载用户数:</span>
+              </template>
+              <template v-slot:append>
+                <span style="font-size:14px">个/秒</span>
+              </template>
+            </q-input>
+          </div>
+
+          <div class="row input_row">
+            <!-- 被测服务器 -->
+            <q-input filled
+                     bottom-slots
+                     v-model="paraConfig.Address"
+                     class="col"
+                     :dense="false"
+                     @keyup="paraConfig.Address=paraConfig.Address.replace(/[^\d^\.]+/g,'')">
+              <template v-slot:before>
+                <span style="font-size:14px;width:100px">被测服务器:</span>
+              </template>
+              <template v-slot:append>
+                <span style="font-size:14px">ip地址</span>
+              </template>
+            </q-input>
+            <!-- 被测服务器端口 -->
+            <q-input filled
+                     bottom-slots
+                     v-model.number="paraConfig.Port"
+                     class="col"
+                     :dense="false"
+                     @input="paraConfig.Port=paraConfig.Port.replace(/[^\d]/g,'')">
+              <template v-slot:before>
+                <span style="font-size:14px;width:105px;margin-left:10px;">被测服务器端口:</span>
+              </template>
+              <template v-slot:append>
+                <span style="font-size:14px">端口</span>
+              </template>
+            </q-input>
+          </div>
+
+          <div class="row input_row">
+            <!-- 压测时间 -->
+            <q-input filled
+                     bottom-slots
+                     v-model.number="paraConfig.Duration"
+                     class="col-6"
+                     :dense="false"
+                     @keyup="paraConfig.Duration=paraConfig.Duration.replace(/[^\d]/g,'')">
+              <template v-slot:before>
+                <span style="font-size:14px;width:100px">压测时间:</span>
+              </template>
+              <template v-slot:append>
+                <span style="font-size:14px">秒</span>
+              </template>
+            </q-input>
+            <div class="col offset-md-4">
+              <q-btn class="btn "
+                     color="primary"
+                     style="margin-top:10px"
+                     label="生 成"
+                     @click="CreateJson" />
+            </div>
+          </div>
+
+          <div class="row input_row">
+            <!-- 配置 -->
             <q-input v-model="Configuration"
                      :dense="false"
                      class="col-xs-12"
@@ -106,6 +194,7 @@
               </template>
             </q-input>
           </div>
+
         </div>
 
         <q-separator />
@@ -170,6 +259,16 @@ export default {
         page: 1,          //页码
         rowsNumber: 1     //总页数
       },
+
+      //Configuration参数配置
+      paraConfig: {
+        UserCount: '',//压测用户总数
+        PerSecondUserCount: '',//每秒加载用户数
+        Address: '',//被测服务器
+        Port: '',//被测服务器端口
+        Duration: '',//压测时间
+      }
+
     }
   },
   mounted () {
@@ -277,7 +376,7 @@ export default {
         EngineType: this.EngineType,
         MasterHostID: this.MasterHostID
       }
-      if (this.Name && this.Configuration && this.EngineType && this.MasterHostID) {
+      if (this.Name && this.isJSON(this.Configuration) && this.EngineType && this.MasterHostID) {
         this.$q.loading.show()
         Apis.postCreateTestCase(para).then((res) => {
           console.log(res)
@@ -313,7 +412,56 @@ export default {
           id: evt.row.id
         },
       })
-    }
+    },
+    //生成JSON
+    CreateJson () {
+      if (this.Configuration == '') {
+        this.Configuration = JSON.stringify(this.paraConfig, null, 2);
+      } else if (this.isJSON(this.Configuration)) {
+        this.Configuration = JSON.parse(this.Configuration);
+        this.Configuration.UserCount = this.paraConfig.UserCount;
+        this.Configuration.PerSecondUserCount = this.paraConfig.PerSecondUserCount;
+        this.Configuration.Address = this.paraConfig.Address;
+        this.Configuration.Port = this.paraConfig.Port;
+        this.Configuration.Duration = this.paraConfig.Duration;
+        this.Configuration = JSON.stringify(this.Configuration, null, 2);
+      }
+    },
+    //判断是否是JSON格式
+    isJSON (str) {
+      if (typeof str == 'string') {
+        try {
+          var obj = JSON.parse(str);
+          if (typeof obj == 'object' && obj) {
+            if (str.substr(0, 1) == '{' && str.substr(-1) == '}') {
+              return true;
+            } else {
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: '配置不是正确的JSON格式',
+                color: 'red',
+              })
+            }
+          } else {
+            this.$q.notify({
+              position: 'top',
+              message: '提示',
+              caption: '配置不是正确的JSON格式',
+              color: 'red',
+            })
+          }
+
+        } catch (e) {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '配置不是正确的JSON格式',
+            color: 'red',
+          })
+        }
+      }
+    },
   }
 }
 </script>
@@ -350,11 +498,12 @@ export default {
   }
 }
 .q-textarea .q-field__native {
+  height: 400px;
   resize: none;
 }
 @media (min-width: 600px) {
   .q-dialog__inner--minimized > div {
-    max-width: 700px;
+    max-width: 800px;
   }
 }
 </style>
