@@ -24,6 +24,12 @@ SET configuration = '{
             "Data": ""
         },
         {
+            "Name": "json_user_account_list",
+            "Type": "",
+            "DataSourceName": "datasource_json_user_account_list",
+            "Data": ""
+        },
+        {
             "Name": "user_parameter_list",
             "Type": "",
             "DataSourceName": "datasource_user_parameter_list",
