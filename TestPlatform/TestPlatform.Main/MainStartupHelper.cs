@@ -310,8 +310,8 @@ namespace FW.TestPlatform.Main
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.CalcCheckSum}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustCalcCheckSumFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.GetJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustGetJsonDataFactory>();
 
-            LabelParameterIMP.HandlerFactories[LabelParameterTypes.AdditionFunc] = DIContainerContainer.Get<LabelParameterHandlerForDataVarDeclareInitFactory>();
-            LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataVarDeclareInit] = DIContainerContainer.Get<LabelParameterHandlerForAdditionFuncFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.AdditionFunc] = DIContainerContainer.Get<LabelParameterHandlerForAdditionFuncFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataVarDeclareInit] = DIContainerContainer.Get<LabelParameterHandlerForDataVarDeclareInitFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.ConnectInit] = DIContainerContainer.Get<LabelParameterHandlerForConnectInitFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.SendInit] = DIContainerContainer.Get<LabelParameterHandlerForSendInitFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.StopInit] = DIContainerContainer.Get<LabelParameterHandlerForStopInitFactory>();
