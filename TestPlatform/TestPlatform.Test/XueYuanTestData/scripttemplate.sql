@@ -39,11 +39,6 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 # -----------------------------------------------------------
 
 
-# -----------------------------------------------------------
-{$datavardeclareinit(0)}
-# -----------------------------------------------------------
-
-
 setup_logging("INFO", None)
 
 host = "{Address}"
@@ -88,6 +83,11 @@ second_unit = 1000000000
 # default is 2 seconds
 all_locusts_spawned = Semaphore()
 lock = threading.Lock()
+
+
+# -----------------------------------------------------------
+{$datavardeclareinit(0)}
+# -----------------------------------------------------------
 
 
 class TcpSocketClient(socket.socket):
@@ -166,15 +166,18 @@ class TcpTestUser(User):
     # 连接的TCP服务的端口
     port = port
     ADDR = (host, port)
+    request_body = ""
+    worker_report_time = datetime.datetime.now()
+    environment = None
+    is_login = False
+    is_need_login = True
+
     user_id = ""
     user_password = ""
     user_token = ""
-    request_body = ""
     senddata = ""
-    recv_data = ""
-    worker_report_time = datetime.datetime.now()
-    is_login = False
-    environment = None
+    recvdata = ""
+    is_success = False
 
     # 自定义变量集合
     currconnectkv = {
@@ -191,80 +194,92 @@ class TcpTestUser(User):
     def connect(self):
         is_success = self.client.connect(self.ADDR)
 
-        if is_success is False:
+        if is_success:
+            print("[%s] %s: Connect success, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.host, self.port))
+        else:
             print("[%s] %s: Connect fail, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.host, self.port))
-            return is_success
 
-        print("[%s] %s: Connect success, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.host, self.port))
         return is_success
 
     def login(self):
+        self.user_id = None
+        self.user_password = None
+        self.user_token = None
+        self.is_success = False
+
         #--------------------------------------------------        
         {$connectinit(8)}
         #--------------------------------------------------
 
-        is_success = False
-
-        if self.user_token is None or self.user_token == "":
-            is_success = False
+        if self.user_token:
+            self.is_success = True
+        elif self.is_success:
+            self.is_success = True
         else:
-            is_success = True
+            self.is_success = False
 
-        if is_success is False:
+        if self.is_success:
+            print("[%s] %s: Login success, %s: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_id, self.user_password))
+        else:
             print("[%s] %s: Login fail, %s: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_id, self.user_password))
-            return is_success
 
-        print("[%s] %s: Login success, %s: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_id, self.user_password))
-        return is_success
-    
+        return self.is_success
+
     def get_package(self):
         #--------------------------------------------------
-        self.request_body = {$senddata()}
+        # self.request_body = {$requestbody()}
         #--------------------------------------------------
 
         self.senddata = self.request_body
-        package = DesSecurity(self.senddata, "abcdefghjhijklmn")
+        # package = DesSecurity(self.senddata, "abcdefghjhijklmn")
         # package = ed.encrypt(self.senddata)
 
         return package
 
     def send_data(self):
+        self.recvdata = None
+        self.is_success = False
+
         #--------------------------------------------------
         {$sendinit(8)}
         #--------------------------------------------------
 
-        is_success = False
-
-        if self.recv_data is None or self.recv_data == "":
-            is_success = False
+        if self.recvdata:
+            self.is_success = True
+        elif self.is_success:
+            self.is_success = True
         else:
-            is_success = True
+            self.is_success = False
 
-        if is_success is False:
+        if self.is_success:
+            pass
+            # print("[%s] %s: Send success, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, package))
+        else:
             print("[%s] %s: Send fail, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, package))
-            return is_success
 
-        # print("[%s] %s: Send success, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, package))
-        return is_success
+        return self.is_success
 
     def stop_data(self):
+        self.recvdata = None
+        self.is_success = False
+
         #--------------------------------------------------
         {$stopinit(8)}
         #--------------------------------------------------
 
-        is_success = False
-
-        if self.recv_data is None or self.recv_data == "":
-            is_success = False
+        if self.recvdata:
+            self.is_success = True
+        elif self.is_success:
+            self.is_success = True
         else:
-            is_success = True
+            self.is_success = False
 
-        if is_success is False:
+        if self.is_success:
+            print("[%s] %s: Stop success, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, package))
+        else:
             print("[%s] %s: Stop fail, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, package))
-            return is_success
 
-        print("[%s] %s: Stop success, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, package))
-        return is_success
+        return self.is_success
 
     def recv_data_thread_nothing(self):
         while True:
@@ -279,7 +294,7 @@ class TcpTestUser(User):
                 # print("Data: %s" % data)
 
             except Exception as e:
-                print("[%s] %s: Error: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
+                print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
 
                 break
 
@@ -342,7 +357,7 @@ class TcpTestUser(User):
             stats_connect = stats.entries[("connect", "tcpsocket")]
             stats_send = stats.entries[("send_data", "tcpsocket")]
 
-            if stats_connect is not None and stats_send is not None:
+            if stats_connect and stats_send:
                 master_data = {}
                 master_data["CaseID"] = case_id
                 master_data["ConnectCount"] = str(stats_connect.num_requests)
@@ -356,7 +371,7 @@ class TcpTestUser(User):
                 # print(master_data)
                 TcpTestUser.post_api("api/monitor/addmasterdata", master_data)
         except Exception as e:
-            print("[%s] %s: Error: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
+            print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
 
     def add_worker_data():
         # print("add_worker_data")
@@ -365,7 +380,7 @@ class TcpTestUser(User):
             stats = TcpTestUser.environment.runner.stats
             stats_send = stats.entries[("send_data", "tcpsocket")]
 
-            if stats_send is not None:
+            if stats_send:
                 worker_data_data = {}
                 worker_data_data["CaseID"] = case_id
                 worker_data_data["SlaveID"] = client_id
@@ -380,7 +395,7 @@ class TcpTestUser(User):
 
                 TcpTestUser.setQPS(stats_send.current_rps)             
         except Exception as e:
-            print("[%s] %s: Error: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
+            print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
 
     def add_history_data():
         # print("add_history_data")
@@ -390,7 +405,7 @@ class TcpTestUser(User):
             stats_connect = stats.entries[("connect", "tcpsocket")]
             stats_send = stats.entries[("send_data", "tcpsocket")]
 
-            if stats_connect is not None and stats_send is not None:
+            if stats_connect and stats_send:
                 history_data = {}
                 history_data["CaseID"] = case_id
                 history_data["ConnectCount"] = stats_connect.num_requests
@@ -407,7 +422,7 @@ class TcpTestUser(User):
                 # print(history_data)
                 TcpTestUser.post_api("api/report/addhistory", history_data)            
         except Exception as e:
-            print("[%s] %s: Error: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
+            print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
 
             history_data = {}
             history_data["CaseID"] = case_id
@@ -438,7 +453,7 @@ class TcpTestUser(User):
             # print("Url: %s" % github_url)
             # print("Result: %s" % result.text)
         except Exception as e:
-            print("[%s] %s: Error: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
+            print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
 
             return
 
@@ -526,6 +541,7 @@ class TcpTestUser(User):
         self.client.close()
         print("[%s] %s: Connect close." % (datetime.datetime.now().strftime(datetime_format), client_id))
         self.is_login = False
+        self.is_login = True
 
     @task(1)
     def send(self):
@@ -545,8 +561,9 @@ class TcpTestUser(User):
                 self.environment.events.request_success.fire(
                     request_type="tcpsocket", name="send_data",
                     response_time=total_time, response_length=0)
-        else:
+        elif self.is_need_login:
             self.is_login = self.login()
+            self.is_need_login = False
 '
 WHERE id = '9adb8033-f28a-43a1-b396-0f36307b213b';
 

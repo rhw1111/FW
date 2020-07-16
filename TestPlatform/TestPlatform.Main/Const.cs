@@ -216,6 +216,8 @@ namespace FW.TestPlatform.Main
         public const string SendInit = "sendinit";
         public const string StopInit = "stopinit";
         public const string SendData = "senddata";
+        public const string RecvData = "recvdata";
+        public const string RequestBody = "requestbody";
         public const string HostName = "hostname";
         public const string CurConnectID = "curconnectid";
         public const string CurConnect = "curconnect";
@@ -237,6 +239,7 @@ namespace FW.TestPlatform.Main
         public const string FilterJsonDataInvoke = "filterjsondatainvoke";
         public const string CalcCheckSumInvoke = "calcchecksuminvoke";
         public const string SlaveName = "slavename";
+        public const string GetJsonDataInvoke = "getjsondatainvoke";
     }
 
     /// <summary>
@@ -266,6 +269,7 @@ namespace FW.TestPlatform.Main
         public const string DesSecurity = "DesSecurity";
         public const string FilterJsonData = "FilterJsonData";
         public const string CalcCheckSum = "CalcCheckSum";
+        public const string GetJsonData = "GetJsonData";
     }
 
     /// <summary>

@@ -13,16 +13,20 @@ SET configuration = '{
     "UserCount": 10,
     "PerSecondUserCount": 10,
     "Duration": 100,
-    "ReadyTime": 0,
     "Address": "127.0.0.1",
     "Port": 12345,
     "ResponseSeparator": "</package>",    
-    "RequestBody": "{\'UserName\': {$currconnectkv(\'user_id\')}, \'UserToken\': {$currconnectkv(\'user_token\')}, \'a\': \'a\'}",
     "DataSourceVars": [
         {
             "Name": "user_account_list",
             "Type": "",
             "DataSourceName": "datasource_user_account_list",
+            "Data": ""
+        },
+        {
+            "Name": "json_user_account_list",
+            "Type": "",
+            "DataSourceName": "datasource_json_user_account_list",
             "Data": ""
         },
         {
@@ -103,7 +107,7 @@ SET configuration = '{
                 "Content": "{$dessecurity(package,\'abcdefghjhijklmn\')}"
             },
             {
-                "Name": "self.recv_data",
+                "Name": "self.recvdata",
                 "Content": "{$tcprrwithconnectinvoke({$curconnect()},package,\'.*\')}"
             }
         ]
@@ -123,7 +127,7 @@ SET configuration = '{
                 "Content": "{$dessecurity(package,\'abcdefghjhijklmn\')}"
             },
             {
-                "Name": "self.recv_data",
+                "Name": "self.recvdata",
                 "Content": "{$tcprrwithconnectinvoke({$curconnect()},package,\'.*\')}"
             }
         ]

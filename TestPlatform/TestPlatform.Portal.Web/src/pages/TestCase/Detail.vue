@@ -94,7 +94,7 @@
                    v-model="paraConfig.UserCount"
                    class="col"
                    :dense="false"
-                   @keyup="paraConfig.UserCount=Number(paraConfig.UserCount.toString().replace(/[^\d]/g,''))">
+                   @keyup="paraConfig.UserCount=paraConfig.UserCount.replace(/[^\d]/g,'')">
             <template v-slot:before>
               <span style="font-size:14px;width:100px">压测用户总数:</span>
             </template>
@@ -108,12 +108,26 @@
                    v-model="paraConfig.PerSecondUserCount"
                    class="col"
                    :dense="false"
-                   @keyup="paraConfig.PerSecondUserCount=Number(paraConfig.PerSecondUserCount.toString().replace(/[^\d]/g,''))">
+                   @keyup="paraConfig.PerSecondUserCount=paraConfig.PerSecondUserCount.replace(/[^\d]/g,'')">
             <template v-slot:before>
               <span style="font-size:14px;width:105px;margin-left:10px;">每秒加载用户数:</span>
             </template>
             <template v-slot:append>
               <span style="font-size:14px">个/秒</span>
+            </template>
+          </q-input>
+          <!-- 压测时间 -->
+          <q-input filled
+                   bottom-slots
+                   v-model="paraConfig.Duration"
+                   class="col"
+                   :dense="false"
+                   @keyup="paraConfig.Duration=paraConfig.Duration.replace(/[^\d]/g,'')">
+            <template v-slot:before>
+              <span style="font-size:14px;width:100px;margin-left:10px;">压测时间:</span>
+            </template>
+            <template v-slot:append>
+              <span style="font-size:14px">秒</span>
             </template>
           </q-input>
         </div>
@@ -123,9 +137,8 @@
           <q-input filled
                    bottom-slots
                    v-model="paraConfig.Address"
-                   class="col"
-                   :dense="false"
-                   @keyup="paraConfig.Address=paraConfig.Address.replace(/[^\d^\.]+/g,'')">
+                   class="col-5"
+                   :dense="false">
             <template v-slot:before>
               <span style="font-size:14px;width:100px">被测服务器:</span>
             </template>
@@ -137,9 +150,9 @@
           <q-input filled
                    bottom-slots
                    v-model="paraConfig.Port"
-                   class="col"
+                   class="col-5"
                    :dense="false"
-                   @keyup="paraConfig.Port=Number(paraConfig.Port.toString().replace(/[^\d]/g,''))">
+                   @keyup="paraConfig.Port=paraConfig.Port.replace(/[^\d]/g,'')">
             <template v-slot:before>
               <span style="font-size:14px;width:105px;margin-left:10px;">被测服务器端口:</span>
             </template>
@@ -147,27 +160,11 @@
               <span style="font-size:14px">端口</span>
             </template>
           </q-input>
-        </div>
 
-        <div class="row input_row">
-          <!-- 压测时间 -->
-          <q-input filled
-                   bottom-slots
-                   v-model="paraConfig.Duration"
-                   class="col-6"
-                   :dense="false"
-                   @keyup="paraConfig.Duration=Number(paraConfig.Duration.toString().replace(/[^\d]/g,''))">
-            <template v-slot:before>
-              <span style="font-size:14px;width:100px">压测时间:</span>
-            </template>
-            <template v-slot:append>
-              <span style="font-size:14px">秒</span>
-            </template>
-          </q-input>
-          <div class="col offset-md-4">
+          <div class="col-2">
             <q-btn class="btn "
                    color="primary"
-                   style="margin-top:10px"
+                   style="margin:10px 0 0 20px"
                    label="生 成"
                    @click="CreateJson" />
           </div>
@@ -258,6 +255,7 @@
                  row-key="id"
                  selection="multiple"
                  :selected.sync="SlaveHostSelected"
+                 table-style="max-height: 500px"
                  :rows-per-page-options=[0]
                  no-data-label="暂无数据更新">
           <template v-slot:body-cell-id="props">
@@ -296,6 +294,7 @@
                  selection="multiple"
                  :selected.sync="HistorySelected"
                  :rows-per-page-options=[0]
+                 table-style="max-height: 500px"
                  no-data-label="暂无数据更新">
           <template v-slot:top-right>
             <q-btn class="btn"
@@ -874,22 +873,47 @@ export default {
     //查看MonitorUrl
     lookMonitorUrl () {
       window.open(this.detailData.monitorUrl);
-      // this.$q.dialog({
-      //   title: '提示',
-      //   message: `<a href="${this.detailData.monitorUrl}"  target="_blank" style="text-decoration:none">${this.detailData.monitorUrl}</a>`,
-      //   html: true
-      // })
     },//生成JSON
     CreateJson () {
       if (this.Configuration == '') {
-        this.Configuration = JSON.stringify(this.paraConfig, null, 2);
+        //验证ip地址是否正确
+        if (this.paraConfig.Address != '') {
+          if (!this.isValidIp(this.paraConfig.Address)) {
+            this.$q.notify({
+              position: 'top',
+              message: '提示',
+              caption: '被测服务器ip地址不正确',
+              color: 'red',
+            })
+            return;
+          }
+        }
+        this.Configuration = JSON.stringify({
+          UserCount: this.paraConfig.UserCount ? Number(this.paraConfig.UserCount) : '',//压测用户总数
+          PerSecondUserCount: this.paraConfig.PerSecondUserCount ? Number(this.paraConfig.PerSecondUserCount) : '',//每秒加载用户数
+          Address: this.paraConfig.Address,//被测服务器
+          Port: this.paraConfig.Port ? Number(this.paraConfig.Port) : '',//被测服务器端口
+          Duration: this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '',//压测时间
+        }, null, 2);
       } else if (this.isJSON(this.Configuration)) {
+        //验证ip地址是否正确
+        if (this.paraConfig.Address != '') {
+          if (!this.isValidIp(this.paraConfig.Address)) {
+            this.$q.notify({
+              position: 'top',
+              message: '提示',
+              caption: '被测服务器ip地址不正确',
+              color: 'red',
+            })
+            return;
+          }
+        }
         this.Configuration = JSON.parse(this.Configuration);
-        this.Configuration.UserCount = Number(this.paraConfig.UserCount);
-        this.Configuration.PerSecondUserCount = Number(this.paraConfig.PerSecondUserCount);
+        this.Configuration.UserCount = this.paraConfig.UserCount ? Number(this.paraConfig.UserCount) : '';
+        this.Configuration.PerSecondUserCount = this.paraConfig.PerSecondUserCount ? Number(this.paraConfig.PerSecondUserCount) : '';
         this.Configuration.Address = this.paraConfig.Address;
-        this.Configuration.Port = Number(this.paraConfig.Port);
-        this.Configuration.Duration = Number(this.paraConfig.Duration);
+        this.Configuration.Port = this.paraConfig.Port ? Number(this.paraConfig.Port) : '';
+        this.Configuration.Duration = this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '';
         this.Configuration = JSON.stringify(this.Configuration, null, 2);
       }
     },
@@ -928,6 +952,10 @@ export default {
         }
       }
     },
+    //判断ip地址是否正确
+    isValidIp (e) {
+      return /^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(e)
+    }
   }
 }
 </script>
