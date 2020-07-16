@@ -86,24 +86,16 @@
                 <span style="font-size:14px">主机:</span>
               </template>
             </q-input>
-            <!-- <q-input outlined
-                     readonly
-                     v-model="masterHostSelect"
-                     label="主机："
-                     stack-label
-                     :dense="false"
-                     class="col-xs-12"
-                     @dblclick="masterHost" /> -->
           </div>
           <span style="font-size:14px">参数配置:</span>
           <div class="row input_row">
             <!-- 压测用户总数 -->
             <q-input filled
                      bottom-slots
-                     v-model.number="paraConfig.UserCount"
+                     v-model="paraConfig.UserCount"
                      class="col"
                      :dense="false"
-                     @keyup="paraConfig.UserCount=paraConfig.UserCount.replace(/[^\d]/g,'')">
+                     @keyup="paraConfig.UserCount=Number(paraConfig.UserCount.toString().replace(/[^\d]/g,''))">
               <template v-slot:before>
                 <span style="font-size:14px;width:100px">压测用户总数:</span>
               </template>
@@ -114,10 +106,10 @@
             <!-- 每秒加载用户数 -->
             <q-input filled
                      bottom-slots
-                     v-model.number="paraConfig.PerSecondUserCount"
+                     v-model="paraConfig.PerSecondUserCount"
                      class="col"
                      :dense="false"
-                     @keyup="paraConfig.PerSecondUserCount=paraConfig.PerSecondUserCount.replace(/[^\d]/g,'')">
+                     @keyup="paraConfig.PerSecondUserCount=Number(paraConfig.PerSecondUserCount.toString().replace(/[^\d]/g,''))">
               <template v-slot:before>
                 <span style="font-size:14px;width:105px;margin-left:10px;">每秒加载用户数:</span>
               </template>
@@ -145,10 +137,10 @@
             <!-- 被测服务器端口 -->
             <q-input filled
                      bottom-slots
-                     v-model.number="paraConfig.Port"
+                     v-model="paraConfig.Port"
                      class="col"
                      :dense="false"
-                     @input="paraConfig.Port=paraConfig.Port.replace(/[^\d]/g,'')">
+                     @input="paraConfig.Port=Number(paraConfig.Port.toString().replace(/[^\d]/g,''))">
               <template v-slot:before>
                 <span style="font-size:14px;width:105px;margin-left:10px;">被测服务器端口:</span>
               </template>
@@ -162,10 +154,10 @@
             <!-- 压测时间 -->
             <q-input filled
                      bottom-slots
-                     v-model.number="paraConfig.Duration"
+                     v-model="paraConfig.Duration"
                      class="col-6"
                      :dense="false"
-                     @keyup="paraConfig.Duration=paraConfig.Duration.replace(/[^\d]/g,'')">
+                     @keyup="paraConfig.Duration=Number(paraConfig.Duration.toString().replace(/[^\d]/g,''))">
               <template v-slot:before>
                 <span style="font-size:14px;width:100px">压测时间:</span>
               </template>
@@ -367,6 +359,12 @@ export default {
       this.masterHostSelect = '';
       this.$refs.lookUp.selectIndex = -1;
       this.createFixed = false;
+
+      this.paraConfig.UserCount = '';
+      this.paraConfig.PerSecondUserCount = '';
+      this.paraConfig.Address = '';
+      this.paraConfig.Port = '';
+      this.paraConfig.Duration = '';
     },
     //新增弹窗创建按钮
     newCreate () {
@@ -381,19 +379,13 @@ export default {
         Apis.postCreateTestCase(para).then((res) => {
           console.log(res)
           this.getTestCaseList();
-          this.createFixed = false;
           this.$q.notify({
             position: 'top',
             message: '提示',
             caption: '创建成功',
             color: 'secondary',
           })
-          this.Name = '';
-          this.Configuration = '';
-          this.EngineType = '';
-          this.MasterHostID = '';
-          this.masterHostSelect = '';
-          this.$refs.lookUp.selectIndex = -1;
+          this.newCancel()
         })
       } else {
         this.$q.notify({
@@ -419,11 +411,11 @@ export default {
         this.Configuration = JSON.stringify(this.paraConfig, null, 2);
       } else if (this.isJSON(this.Configuration)) {
         this.Configuration = JSON.parse(this.Configuration);
-        this.Configuration.UserCount = this.paraConfig.UserCount;
-        this.Configuration.PerSecondUserCount = this.paraConfig.PerSecondUserCount;
+        this.Configuration.UserCount = Number(this.paraConfig.UserCount);
+        this.Configuration.PerSecondUserCount = Number(this.paraConfig.PerSecondUserCount);
         this.Configuration.Address = this.paraConfig.Address;
-        this.Configuration.Port = this.paraConfig.Port;
-        this.Configuration.Duration = this.paraConfig.Duration;
+        this.Configuration.Port = Number(this.paraConfig.Port);
+        this.Configuration.Duration = Number(this.paraConfig.Duration);
         this.Configuration = JSON.stringify(this.Configuration, null, 2);
       }
     },
