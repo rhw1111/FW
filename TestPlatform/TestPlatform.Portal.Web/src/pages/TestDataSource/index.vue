@@ -9,6 +9,7 @@
                :selected.sync="selected"
                row-key="id"
                :rows-per-page-options=[0]
+               table-style="max-height: 500px"
                no-data-label="暂无数据更新">
 
         <template v-slot:top-right>
