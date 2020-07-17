@@ -27,12 +27,19 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("            return None");
             sbCode.AppendLine("        else:");
             sbCode.AppendLine("            length = len(data)");
-            sbCode.AppendLine("            i = length // piece");
-            sbCode.AppendLine("            result = data[0:i]");
-            sbCode.AppendLine("            del(data[0:i])");
+            sbCode.AppendLine("            count = length // piece");
+            sbCode.AppendLine("            result = []");
+            sbCode.AppendLine("");
+            sbCode.AppendLine("            for row in data:");
+            sbCode.AppendLine("                if not row.get(\"_SplitJsonData_\"):");
+            sbCode.AppendLine("                    row[\"_SplitJsonData_\"] = True");
+            sbCode.AppendLine("                    result.append(row)");
+            sbCode.AppendLine("                ");
+            sbCode.AppendLine("                if(len(result) >= count):");
+            sbCode.AppendLine("                    break");
             sbCode.AppendLine("");
             sbCode.AppendLine("            return result");
-            sbCode.AppendLine("        ");
+            sbCode.AppendLine("");
             sbCode.AppendLine("    return None");
             sbCode.AppendLine("");
 
