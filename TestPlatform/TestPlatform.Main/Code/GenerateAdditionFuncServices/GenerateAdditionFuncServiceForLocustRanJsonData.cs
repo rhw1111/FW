@@ -19,7 +19,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    # print(\"RanJsonData\")");
             sbCode.AppendLine("    import random");
             sbCode.AppendLine("");
-            sbCode.AppendLine("    if data and type(data).__name__ == \"dict\":");
+            sbCode.AppendLine("    if data and type(data) == dict:");
             sbCode.AppendLine("        return data[name]");
             sbCode.AppendLine("    elif data and len(data) > 0:");
             sbCode.AppendLine("        index = random.randint(0, len(data) - 1)");

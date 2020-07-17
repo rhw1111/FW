@@ -19,7 +19,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    # print(\"GetJsonData\")");
             sbCode.AppendLine("    import random");
             sbCode.AppendLine("");
-            sbCode.AppendLine("    if data and type(data).__name__ == \"dict\":");
+            sbCode.AppendLine("    if data and type(data) == dict:");
             sbCode.AppendLine("        return data");
             sbCode.AppendLine("    elif data and len(data) > 0:");
             sbCode.AppendLine("        if gettype == 0 or gettype == 1:");

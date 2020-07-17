@@ -207,9 +207,13 @@ class TcpTestUser(User):
         self.user_token = None
         self.is_success = False
 
-        #--------------------------------------------------        
-        {$connectinit(8)}
-        #--------------------------------------------------
+        try:
+            #--------------------------------------------------
+            pass   
+            {$connectinit(12)}
+            #--------------------------------------------------
+        except Exception as e:
+            print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
 
         if self.user_token:
             self.is_success = True
@@ -226,9 +230,13 @@ class TcpTestUser(User):
         return self.is_success
 
     def get_package(self):
-        #--------------------------------------------------
-        # self.request_body = {$requestbody()}
-        #--------------------------------------------------
+        try:
+            #--------------------------------------------------
+            pass
+            # self.request_body = {$requestbody()}
+            #--------------------------------------------------
+        except Exception as e:
+            print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
 
         self.senddata = self.request_body
         # package = DesSecurity(self.senddata, "abcdefghjhijklmn")
@@ -240,9 +248,13 @@ class TcpTestUser(User):
         self.recvdata = None
         self.is_success = False
 
-        #--------------------------------------------------
-        {$sendinit(8)}
-        #--------------------------------------------------
+        try:
+            #--------------------------------------------------
+            pass
+            {$sendinit(12)}
+            #--------------------------------------------------
+        except Exception as e:
+            print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
 
         if self.recvdata:
             self.is_success = True
@@ -263,9 +275,13 @@ class TcpTestUser(User):
         self.recvdata = None
         self.is_success = False
 
-        #--------------------------------------------------
-        {$stopinit(8)}
-        #--------------------------------------------------
+        try:
+            #--------------------------------------------------
+            pass
+            {$stopinit(12)}
+            #--------------------------------------------------
+        except Exception as e:
+            print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
 
         if self.recvdata:
             self.is_success = True
@@ -551,6 +567,7 @@ class TcpTestUser(User):
             try:
                 is_success = self.send_data()
             except Exception as e:
+                print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
                 total_time = int((time.time() - start_time) * second_unit)
                 self.environment.events.request_failure.fire(
                     request_type="tcpsocket", name="send_data",
