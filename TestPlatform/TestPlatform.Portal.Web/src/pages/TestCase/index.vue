@@ -408,7 +408,7 @@ export default {
     },
     //生成JSON
     CreateJson () {
-      if (this.Configuration == '') {
+      if (this.Configuration.trim() == '') {
         //验证ip地址是否正确
         if (this.paraConfig.Address != '') {
           if (!this.isValidIp(this.paraConfig.Address)) {
