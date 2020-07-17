@@ -59,41 +59,43 @@ namespace MSLibrary.Survey
         /// {0}：ID
         /// </summary>
         public static string NotFoundSurveyMonkeyWebhookByID = "NotFoundSurveyMonkeyWebhookByID";
+
+
         /// <summary>
-        /// 找不到指定类型的Survey响应收集器工厂
-        /// 格式为“找不到类型为{0}的Survey响应收集器工厂，发生位置为{1}”
+        /// 找不到指定类型的Survey收集器工厂
+        /// 格式为“找不到类型为{0}的Survey收集器工厂，发生位置为{1}”
         /// {0}：类型
         /// {1}：发生的位置
         /// </summary>
-        public static string NotFoundSurveyResponseCollectorFactoryByType = "NotFoundSurveyResponseCollectorFactoryByType";
+        public static string NotFoundSurveyCollectorFactoryByType = "NotFoundSurveyCollectorFactoryByType";
         /// <summary>
-        /// 找不到指定类型的Survey响应收集器绑定服务
-        /// 格式为“找不到类型为{0}的Survey响应收集器绑定服务，发生位置为{1}”
+        /// 找不到指定类型的Survey收集器绑定服务
+        /// 格式为“找不到类型为{0}的Survey收集器绑定服务，发生位置为{1}”
         /// {0}：类型
         /// {1}：发生的位置
         /// </summary>
-        public static string NotFoundSurveyResponseCollectorBindServiceByType = "NotFoundSurveyResponseCollectorBindServiceByType";
+        public static string NotFoundSurveyCollectorBindServiceByType = "NotFoundSurveyCollectorBindServiceByType";
         /// <summary>
-        /// 找不到指定类型的Survey响应收集器终结点终止服务
-        /// 格式为“找不到类型为{0}的Survey响应收集器终结点终止服务，发生位置为{1}”
+        /// 找不到指定类型的Survey终结点终止服务
+        /// 格式为“找不到类型为{0}的Survey终结点终止服务，发生位置为{1}”
         /// {0}：类型
         /// {1}：发生的位置
         /// </summary>
-        public static string NotFoundSurveyResponseCollectorEndpointFinanlyServiceByType = "NotFoundSurveyResponseCollectorEndpointFinanlyServiceByType";
+        public static string NotFoundSurveyEndpointFinanlyServiceByType = "NotFoundSurveyEndpointFinanlyServiceByType";
         /// <summary>
-        /// 找不到指定类型的Survey响应收集器终结点初始化服务
-        /// 格式为“找不到类型为{0}的Survey响应收集器终结点初始化服务，发生位置为{1}”
+        /// 找不到指定类型的Survey终结点初始化服务
+        /// 格式为“找不到类型为{0}的Survey终结点初始化服务，发生位置为{1}”
         /// {0}：类型
         /// {1}：发生的位置
         /// </summary>
-        public static string NotFoundSurveyResponseCollectorEndpointInitServiceByType = "NotFoundSurveyResponseCollectorEndpointInitServiceByType";
+        public static string NotFoundSurveyEndpointInitServiceByType = "NotFoundSurveyEndpointInitServiceByType";
         /// <summary>
-        /// 找不到指定类型的Survey响应收集器数据查询服务
-        /// 格式为“找不到类型为{0}的Survey响应收集器数据查询服务，发生位置为{1}”
+        /// 找不到指定类型的Survey收集器数据查询服务
+        /// 格式为“找不到类型为{0}的Survey收集器数据查询服务，发生位置为{1}”
         /// {0}：类型
         /// {1}：发生的位置
         /// </summary>
-        public static string NotFoundSurveyResponseCollectorDataQueryServiceByType = "NotFoundSurveyResponseCollectorDataQueryServiceByType";
+        public static string NotFoundSurveyCollectorDataQueryServiceByType = "NotFoundSurveyCollectorDataQueryServiceByType";
         /// <summary>
         /// 找不到指定类型的Survey响应数据查询服务
         /// 格式为“找不到类型为{0}的Survey响应数据查询服务，发生位置为{1}”
@@ -128,6 +130,25 @@ namespace MSLibrary.Survey
         /// {0}：终结点名称
         /// </summary>
         public static string NotFoundSurveyMonkeyEndpointByName = "NotFoundSurveyMonkeyEndpointByName";
-
+        /// <summary>
+        /// 找不到指定ID的SurveyMonkey的Survey
+        /// 格式为“找不到ID为{0}的SurveyMonkey的Survey”
+        /// {0}：SurveyID
+        /// </summary>
+        public static string NotFoundSurveyMonkeySurveyByID = "NotFoundSurveyMonkeySurveyByID";
+        /// <summary>
+        /// 找不到指定类型的Survey收集器可用性检查服务
+        /// 格式为“找不到类型为{0}的Survey收集器可用性检查服务，发生位置为{1}”
+        /// {0}：类型
+        /// {1}：发生的位置
+        /// </summary>
+        public static string NotFoundSurveyCollectorEnableCheckServiceByType = "NotFoundSurveyCollectorEnableCheckServiceByType";
+        /// <summary>
+        /// 找不到指定类型的Survey接收者生成服务
+        /// 格式为“找不到类型为{0}的Survey接收者生成服务，发生位置为{1}”
+        /// {0}：类型
+        /// {1}：发生的位置
+        /// </summary>
+        public static string NotFoundSurveyRecipientGenerateServiceByType = "NotFoundSurveyRecipientGenerateServiceByType";
     }
 }

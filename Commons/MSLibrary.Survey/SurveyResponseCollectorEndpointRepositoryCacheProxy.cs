@@ -29,7 +29,7 @@ namespace MSLibrary.Survey
 
         private KVCacheVisitor _kvcacheVisitor;
 
-        public async Task<SurveyResponseCollectorEndpoint?> QueryByTypeName(string type, string name, CancellationToken cancellationToken = default)
+        public async Task<SurveyEndpoint?> QueryByTypeName(string type, string name, CancellationToken cancellationToken = default)
         {
             return await _kvcacheVisitor.Get(
                 async (k) =>

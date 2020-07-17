@@ -42,25 +42,31 @@ namespace MSLibrary.Survey
         /// </summary>
         NotFoundSurveyMonkeyEndpointByName = 315000332,
         /// <summary>
-        /// 找不到指定类型的Survey响应收集器工厂
+        /// 找不到指定ID的SurveyMonkey的Survey
         /// </summary>
-        NotFoundSurveyResponseCollectorFactoryByType = 315000340,
+        NotFoundSurveyMonkeySurveyByID = 315000333,
+
+
         /// <summary>
-        /// 找不到指定类型的Survey响应收集器绑定服务
+        /// 找不到指定类型的Survey收集器工厂
         /// </summary>
-        NotFoundSurveyResponseCollectorBindServiceByType = 315000341,
+        NotFoundSurveyCollectorFactoryByType = 315000340,
         /// <summary>
-        /// 找不到指定类型的Survey响应收集器终结点终止服务
+        /// 找不到指定类型的Survey收集器绑定服务
         /// </summary>
-        NotFoundSurveyResponseCollectorEndpointFinanlyServiceByType = 315000342,
+        NotFoundSurveyCollectorBindServiceByType = 315000341,
         /// <summary>
-        /// 找不到指定类型的Survey响应收集器终结点初始化服务
+        /// 找不到指定类型的Survey终结点终止服务
         /// </summary>
-        NotFoundSurveyResponseCollectorEndpointInitServiceByType = 315000343,
+        NotFoundSurveyEndpointFinanlyServiceByType = 315000342,
         /// <summary>
-        /// 找不到指定类型的Survey响应收集器数据查询服务
+        /// 找不到指定类型的Survey终结点初始化服务
         /// </summary>
-        NotFoundSurveyResponseCollectorDataQueryServiceByType = 315000344,
+        NotFoundSurveyEndpointInitServiceByType = 315000343,
+        /// <summary>
+        /// 找不到指定类型的Survey收集器数据查询服务
+        /// </summary>
+        NotFoundSurveyCollectorDataQueryServiceByType = 315000344,
         /// <summary>
         /// 找不到指定类型的Survey响应数据查询服务
         /// </summary>
@@ -77,6 +83,14 @@ namespace MSLibrary.Survey
         /// 找不到指定类型的Survey的Http回调处理服务
         /// </summary>
         NotFoundSurveyHttpCallbackHandleServiceByType = 315000351,
-        
+        /// <summary>
+        /// 找不到指定类型的Survey收集器可用性检查服务
+        /// </summary>
+        NotFoundSurveyCollectorEnableCheckServiceByType = 315000352,
+        /// <summary>
+        /// 找不到指定类型的Survey接收者生成服务
+        /// </summary>
+        NotFoundSurveyRecipientGenerateServiceByType = 315000353,
+
     }
 }
