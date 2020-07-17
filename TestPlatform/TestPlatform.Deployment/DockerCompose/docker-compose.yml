@@ -5,6 +5,7 @@ services:
     build:
         context: DockerFiles
         dockerfile: Dockerfile-PortalApi
+    restart: always
     ports:
       - "8081:80"
     ulimits:
@@ -16,6 +17,7 @@ services:
     build:
         context: DockerFiles
         dockerfile: Dockerfile-CaseService
+    restart: always
     ports:
       - "8082:80"
     ulimits:
@@ -27,6 +29,7 @@ services:
     build:
         context: DockerFiles
         dockerfile: Dockerfile-PortalWeb
+    restart: always
     ports:
       - "80:80"
     privileged: true
