@@ -88,13 +88,14 @@
             </q-input>
           </div>
           <span style="font-size:14px">参数配置:</span>
-          <div class="row input_row">
+          <div class="row"
+               style="margin-bottom:10px;">
             <!-- 压测用户总数 -->
             <q-input filled
                      bottom-slots
                      v-model="paraConfig.UserCount"
                      class="col"
-                     :dense="false"
+                     :dense="true"
                      @keyup="paraConfig.UserCount=paraConfig.UserCount.replace(/[^\d]/g,'')">
               <template v-slot:before>
                 <span style="font-size:14px;width:100px">压测用户总数:</span>
@@ -108,7 +109,7 @@
                      bottom-slots
                      v-model="paraConfig.PerSecondUserCount"
                      class="col"
-                     :dense="false"
+                     :dense="true"
                      @keyup="paraConfig.PerSecondUserCount=paraConfig.PerSecondUserCount.toString().replace(/[^\d]/g,'')">
               <template v-slot:before>
                 <span style="font-size:14px;width:105px;margin-left:10px;">每秒加载用户数:</span>
@@ -123,7 +124,7 @@
                      bottom-slots
                      v-model="paraConfig.Duration"
                      class="col"
-                     :dense="false"
+                     :dense="true"
                      @keyup="paraConfig.Duration=paraConfig.Duration.toString().replace(/[^\d]/g,'')">
               <template v-slot:before>
                 <span style="font-size:14px;width:100px;margin-left:10px;">压测时间:</span>
@@ -134,13 +135,14 @@
             </q-input>
           </div>
 
-          <div class="row input_row">
+          <div class="row"
+               style="margin-bottom:10px;">
             <!-- 被测服务器 -->
             <q-input filled
                      bottom-slots
                      v-model="paraConfig.Address"
                      class="col-5"
-                     :dense="false">
+                     :dense="true">
               <template v-slot:before>
                 <span style="font-size:14px;width:100px;">被测服务器:</span>
               </template>
@@ -153,7 +155,7 @@
                      bottom-slots
                      v-model="paraConfig.Port"
                      class="col-5"
-                     :dense="false"
+                     :dense="true"
                      @input="paraConfig.Port=paraConfig.Port.toString().replace(/[^\d]/g,'')">
               <template v-slot:before>
                 <span style="font-size:14px;width:105px;margin-left:10px;">被测服务器端口:</span>
@@ -165,19 +167,20 @@
             <div class="col-2">
               <q-btn class="btn "
                      color="primary"
-                     style="margin:10px 0px 0px 20px;"
+                     style="margin:0px 0px 0px 20px;"
                      label="生 成"
                      @click="CreateJson" />
             </div>
           </div>
 
-          <div class="row input_row">
+          <div class="row"
+               style="margin-bottom:10px;">
             <!-- 配置 -->
             <q-input v-model="Configuration"
                      :dense="false"
                      class="col-xs-12"
                      type="textarea"
-                     :input-style="{height:'200px'}"
+                     :input-style="{height:'300px'}"
                      outlined>
               <template v-slot:before>
                 <span style="font-size:14px">配置:</span>
