@@ -18,7 +18,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("def FilterJsonData(data, name, value):");
             sbCode.AppendLine("    # print(\"FilterJsonData\")");
             sbCode.AppendLine("");
-            sbCode.AppendLine("    if data and type(data).__name__ == \"dict\":");
+            sbCode.AppendLine("    if data and type(data) == dict:");
             sbCode.AppendLine("        if data[name] == value:");
             sbCode.AppendLine("            return [data]");
             sbCode.AppendLine("        else:");
