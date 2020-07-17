@@ -294,7 +294,8 @@ namespace FW.TestPlatform.Main
                 AdditionFuncNames.DesSecurity,
                 AdditionFuncNames.FilterJsonData,
                 AdditionFuncNames.CalcCheckSum,
-                AdditionFuncNames.GetJsonData };
+                AdditionFuncNames.GetJsonData,
+                AdditionFuncNames.SplitJsonData };
 
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.NameOnceJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustNameOnceJsonDataFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.TcpRR}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustTcpRRFactory>();
@@ -309,6 +310,7 @@ namespace FW.TestPlatform.Main
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.FilterJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustFilterJsonDataFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.CalcCheckSum}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustCalcCheckSumFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.GetJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustGetJsonDataFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.SplitJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustSplitJsonDataFactory>();
 
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.AdditionFunc] = DIContainerContainer.Get<LabelParameterHandlerForAdditionFuncFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataVarDeclareInit] = DIContainerContainer.Get<LabelParameterHandlerForDataVarDeclareInitFactory>();
@@ -340,6 +342,7 @@ namespace FW.TestPlatform.Main
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.CalcCheckSumInvoke] = DIContainerContainer.Get<LabelParameterHandlerForCalcCheckSumInvokeFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.SlaveName] = DIContainerContainer.Get<LabelParameterHandlerForSlaveNameFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.GetJsonDataInvoke] = DIContainerContainer.Get<LabelParameterHandlerForGetJsonDataInvokeFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.SplitJsonDataInvoke] = DIContainerContainer.Get<LabelParameterHandlerForSplitJsonDataInvokeFactory>();
 
             GetSeparatorServiceSelector.GetSeparatorServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSeparatorServiceForLocustFactory>();
 

@@ -13,8 +13,6 @@ using MSLibrary.DI;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.Serializer;
 using MSLibrary.Survey.SurveyMonkey.Message;
-using System.Diagnostics;
-using Microsoft.OData.Edm.Vocabularies;
 
 namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
 {
@@ -138,7 +136,7 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
             public int PageSize { get; set; }
             [DataMember(Name = "total")]
             public int Total { get; set; }
-            [DataMember(Name = "Data")]
+            [DataMember(Name = "data")]
             public List<Data> Data { get; set; } = null!;
         }
 

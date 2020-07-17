@@ -8,6 +8,6 @@ namespace MSLibrary.Survey
 {
     public interface ISurveyResponseCollectorEndpointRepository
     {
-        Task<SurveyResponseCollectorEndpoint?> QueryByTypeName(string type, string name, CancellationToken cancellationToken = default);
+        Task<SurveyEndpoint?> QueryByTypeName(string type, string name, CancellationToken cancellationToken = default);
     }
 }

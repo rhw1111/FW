@@ -59,6 +59,10 @@ SET configuration = '{
                 "Content": "{$filterjsondatainvoke({$datasource(user_parameter_list)},\'UserName\',{$currconnectkv(\'user_id\')})}"
             },
             {
+                "Name": "json_user_parameter_list",
+                "Content": "{$splitjsondatainvoke({$datasource(user_parameter_list)},1)}"
+            },
+            {
                 "Name": "{$currconnectkv(\'user_parameter\')}",
                 "Content": "{$getjsonrowdatainvoke(json_user_parameter_list)}"
             },
