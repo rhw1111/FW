@@ -102,7 +102,9 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
                 var funService = _generateAdditionFuncServiceFactorySelector.Choose($"{engineType}-{item}").Create();
                 string strTemp = await funService.Generate();
+                // 换行符转换一下
                 strTemp = strTemp.Replace("\r\n", strFuncSeparator);
+                // 加上缩进
                 strTemp = strTemp.Replace(strFuncSeparator, strFuncSeparator + strSpace);
                 strCode.Append(strTemp);
                 strCode.Append(strFuncSeparator);

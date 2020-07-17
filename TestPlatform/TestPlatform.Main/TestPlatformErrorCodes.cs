@@ -111,8 +111,24 @@ namespace FW.TestPlatform.Main
         /// </summary>
         NotFoundSSHEndPointByID = 325710207,
         /// <summary>
-        /// 已经存在指定名称的SSH终端
+        /// 已经存在指定名称的SSH终结点
         /// </summary>
-        ExistSSHEndPointByName = 325710208
+        ExistSSHEndPointByName = 325710208,
+        /// <summary>
+        /// 已经存在指定名称的主机
+        /// </summary>
+        ExistTestHostByName = 325710209,
+        /// <summary>
+        /// 指定地址的主机正在被其它的测试用例使用，不能被删除
+        /// </summary>
+        TestHostIsUsedByTestCases = 325710210,
+        /// <summary>
+        /// 指定地址的主机正在被其它的从主机使用，不能被删除
+        /// </summary>
+        TestHostIsUsedBySlaves = 325710211,
+        /// <summary>
+        /// 指定名称的SSH终结点正在被其它的主机使用，不能被删除
+        /// </summary>
+        SSHEndPointIsUsedByTestHosts = 325710212
     }
 }

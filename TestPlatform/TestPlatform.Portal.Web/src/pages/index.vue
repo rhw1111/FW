@@ -19,6 +19,8 @@
                        label="测试用例" />
           <q-route-tab to="/TestDataSource"
                        label="测试数据源" />
+          <q-route-tab to="/MasterHost"
+                       label="主机" />
         </q-tabs>
       </q-header>
 

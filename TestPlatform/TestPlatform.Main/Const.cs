@@ -18,6 +18,7 @@ namespace FW.TestPlatform.Main
         public const string DataSourceVars = "DataSourceVars";
         public const string ConnectInit = "ConnectInit";
         public const string SendInit = "SendInit";
+        public const string StopInit = "StopInit";
 
         public const string CaseServiceBaseAddress = "CaseServiceBaseAddress";
         public const string CaseID = "CaseID";
@@ -213,7 +214,10 @@ namespace FW.TestPlatform.Main
         public const string DataVarDeclareInit = "datavardeclareinit";
         public const string ConnectInit = "connectinit";
         public const string SendInit = "sendinit";
+        public const string StopInit = "stopinit";
         public const string SendData = "senddata";
+        public const string RecvData = "recvdata";
+        public const string RequestBody = "requestbody";
         public const string HostName = "hostname";
         public const string CurConnectID = "curconnectid";
         public const string CurConnect = "curconnect";
@@ -232,6 +236,10 @@ namespace FW.TestPlatform.Main
         public const string CurrConnectKV = "currconnectkv";
         public const string CaseID = "caseid";
         public const string CaseServiceBaseAddress = "caseservicebaseaddress";
+        public const string FilterJsonDataInvoke = "filterjsondatainvoke";
+        public const string CalcCheckSumInvoke = "calcchecksuminvoke";
+        public const string SlaveName = "slavename";
+        public const string GetJsonDataInvoke = "getjsondatainvoke";
     }
 
     /// <summary>
@@ -259,6 +267,9 @@ namespace FW.TestPlatform.Main
         public const string DecimalRange = "DecimalRange";
         public const string RanJsonData = "RanJsonData";
         public const string DesSecurity = "DesSecurity";
+        public const string FilterJsonData = "FilterJsonData";
+        public const string CalcCheckSum = "CalcCheckSum";
+        public const string GetJsonData = "GetJsonData";
     }
 
     /// <summary>

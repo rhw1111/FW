@@ -20,12 +20,18 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    import socket");
             sbCode.AppendLine("    import re");
             sbCode.AppendLine("");
-            sbCode.AppendLine("    bufsize = 2048");
+            sbCode.AppendLine("    if senddata is None or senddata == \"\":");
+            sbCode.AppendLine("        return None");
+            sbCode.AppendLine("");
+            sbCode.AppendLine("    if type(senddata) != str:");
+            sbCode.AppendLine("        senddata = str(senddata)");
+            sbCode.AppendLine("");
+            sbCode.AppendLine("    buffsize = 10240");
             sbCode.AppendLine("");
             sbCode.AppendLine("    try:");
             sbCode.AppendLine("        connect.send(senddata)");
             sbCode.AppendLine("");
-            sbCode.AppendLine("        data = connect.recv(bufsize)");
+            sbCode.AppendLine("        data = connect.recv(buffsize)");
             sbCode.AppendLine("");
             sbCode.AppendLine("        p = re.compile(receivereg, re.S)");
             sbCode.AppendLine("        result = re.findall(p, data)");
@@ -35,10 +41,9 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("        else:");
             sbCode.AppendLine("            return \"\"");
             sbCode.AppendLine("    except Exception as e:");
-            sbCode.AppendLine("        print(str(e))");
-            sbCode.AppendLine("        return None");
+            sbCode.AppendLine("        print(\"[% s] % s: Error, % s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))");
             sbCode.AppendLine("");
-            sbCode.AppendLine("    return \"\"");
+            sbCode.AppendLine("        return None");
             sbCode.AppendLine("");
 
             return await Task.FromResult(sbCode.ToString());

@@ -99,7 +99,20 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                     strCode.Append(strSpace);
                 }
 
-                strCode.Append($"{item.Name} = {item.Content}");
+                // 如果Content里有换行的话，需事先处理一下
+                string strContent = item.Content.Replace("\r\n", strFuncSeparator);
+                // 加上缩进
+                strContent = strContent.Replace(strFuncSeparator, strFuncSeparator + strSpace);
+
+                if (string.IsNullOrEmpty(item.Name))
+                {
+                    strCode.Append($"{strContent}");
+                }
+                else
+                {
+                    strCode.Append($"{item.Name} = {strContent}");
+                }
+
                 strCode.Append(strFuncSeparator);
                 isFirstLine = false;
             }

@@ -248,7 +248,7 @@ namespace FW.TestPlatform.Main.Entities
 
         public async Task Update(TestCaseSlaveHost caseSlaveHost, CancellationToken cancellationToken = default)
         {
-            TestCaseSlaveHost testCaseSlaveHost = await _testCaseSlaveHostStore.QueryByID(caseSlaveHost.ID, cancellationToken);
+            TestCaseSlaveHost? testCaseSlaveHost = await _testCaseSlaveHostStore.QueryByID(caseSlaveHost.ID, cancellationToken);
             if (testCaseSlaveHost != null)
             {
                 await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))

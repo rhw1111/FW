@@ -40,6 +40,7 @@ import {
   QTd,
   QPagination,
   QBadge,
+  QSelect,
   // 事件
   Ripple,
   ClosePopup,
@@ -85,6 +86,7 @@ Vue.use(Quasar, {
     QTd,
     QPagination,
     QBadge,
+    QSelect,
   },
   directives: {
     Ripple,

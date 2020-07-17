@@ -34,7 +34,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
         {
             StringBuilder strCode = new StringBuilder();
 
-            strCode.Append($"{context.Parameters[TemplateContextParameterNames.RequestBody]}");
+            strCode.Append($"self.senddata");
 
             return strCode.ToString();
         }

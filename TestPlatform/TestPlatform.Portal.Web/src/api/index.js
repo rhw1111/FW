@@ -251,6 +251,115 @@ export const getTestCaseStatus = payload =>
     payload
   })
 
+// ------------------------------------------- SSHEndpoint ----------------------------------------------
+//获得SSHEndpoint列表
+export const getSSHEndpointList = payload =>
+  action({
+    apiName: 'getSSHEndpointList',
+    payload
+  })
+
+//获得SSHEndpoint数据
+export const getSSHEndpointData = payload =>
+  action({
+    apiName: 'getSSHEndpointData',
+    payload
+  })
+
+//创建SSHEndpoint
+export const postCreateSSHEndpoint = payload =>
+  action({
+    apiName: 'postCreateSSHEndpoint',
+    payload
+  })
+
+//单个删除SSHEndpoint
+export const deleteSSHEndpoint = postfix =>
+  action({
+    apiName: 'deleteSSHEndpoint',
+    postfix
+  })
+
+//批量删除SSHEndpoint
+export const deleteSSHEndpointArr = payload =>
+  action({
+    apiName: 'deleteSSHEndpointArr',
+    payload
+  })
+
+//获得SSH端口详情
+export const getSSHEndpointDetail = payload =>
+  action({
+    apiName: 'getSSHEndpointDetail',
+    payload
+  })
+
+// 更新SSH端口
+export const putSSHEndpoint = payload =>
+  action({
+    apiName: 'putSSHEndpoint',
+    payload
+  })
+
+// ------------------------------------------- TestHost ----------------------------------------------
+//获得测试机列表
+export const getTestHostList = payload =>
+  action({
+    apiName: 'getTestHostList',
+    payload
+  })
+
+//获得测试机详情
+export const getTestHostDetail = payload =>
+  action({
+    apiName: 'getTestHostDetail',
+    payload
+  })
+
+//创建测试机详情
+export const postCreateTestHost = payload =>
+  action({
+    apiName: 'postCreateTestHost',
+    payload
+  })
+
+//更新测试机
+export const putTestHost = payload =>
+  action({
+    apiName: 'putTestHost',
+    payload
+  })
+
+//单个删除测试机
+export const deleteTestHost = postfix =>
+  action({
+    apiName: 'deleteTestHost',
+    postfix
+  })
+
+//批量删除测试机
+export const deleteTestHostArr = payload =>
+  action({
+    apiName: 'deleteTestHostArr',
+    payload
+  })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

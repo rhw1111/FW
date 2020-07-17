@@ -28,6 +28,22 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<Guid>(nameof(ID), value);
             }
         }
+
+        /// <summary>
+        /// Id
+        /// </summary>
+        public string Address
+        {
+            get
+            {
+
+                return GetAttribute<string>(nameof(Address));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(Address), value);
+            }
+        }
         /// <summary>
         /// 创建时间
         /// </summary>

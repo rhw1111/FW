@@ -8,8 +8,8 @@
                selection="multiple"
                :selected.sync="selected"
                row-key="id"
-               @row-dblclick="toDetail"
                :rows-per-page-options=[0]
+               table-style="max-height: 500px"
                no-data-label="暂无数据更新">
 
         <template v-slot:top-right>
@@ -21,6 +21,16 @@
                  style="background: #FF0000; color: white"
                  label="删 除"
                  @click="deleteTestDataSource" />
+        </template>
+
+        <template v-slot:body-cell-id="props">
+          <q-td class="text-left"
+                :props="props">
+            <q-btn class="btn"
+                   color="primary"
+                   label="更 新"
+                   @click="toDetail(props)" />
+          </q-td>
         </template>
         <template v-slot:bottom
                   class="row">
@@ -43,7 +53,7 @@
 
         <q-separator />
         <div class="new_input">
-          <div class="row">
+          <div class="row input_row">
             <q-input v-model="Name"
                      :dense="false"
                      class="col">
@@ -60,7 +70,7 @@
               </template>
             </q-input>
           </div>
-          <div class="row">
+          <div class="row input_row">
             <q-input v-model="Data"
                      :dense="false"
                      class="col-xs-12"
@@ -116,6 +126,7 @@ export default {
         },
         { name: 'type', align: 'left', label: '类型', field: 'type', },
         { name: 'data', label: '数据', align: 'left', field: 'data', },
+        { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center', style: 'width: 10%', },
       ],
       //分页配置
       pagination: {
@@ -153,11 +164,11 @@ export default {
       this.createFixed = true;
     },
     //跳转到详情
-    toDetail (env, row) {
+    toDetail (env) {
       this.$router.push({
         name: 'TestDataSourceDetail',
         query: {
-          id: row.id
+          id: env.row.id
         }
       })
     },
@@ -226,6 +237,7 @@ export default {
           this.$q.loading.show()
           let para = `?id=${this.selected[0].id}`;
           Apis.deleteTestDataSource(para).then(() => {
+            this.selected = [];
             this.getTestDataSource();
           })
         } else if (this.selected.length > 1) {
@@ -239,6 +251,7 @@ export default {
             delArr: delArr
           };
           Apis.deleteTestDataSourceArr(para).then(() => {
+            this.selected = [];
             this.getTestDataSource();
           })
         }
@@ -300,7 +313,7 @@ export default {
 .new_input {
   width: 100%;
   padding: 10px 30px;
-  .row {
+  .input_row {
     margin-bottom: 10px;
   }
 }

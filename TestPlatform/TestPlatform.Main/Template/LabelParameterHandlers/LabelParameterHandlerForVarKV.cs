@@ -43,7 +43,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
             }
 
-            strCode.Append($"{parameters[0]}[{parameters[1]}]");
+            strCode.Append($"({parameters[0]}[{parameters[1]}] if {parameters[0]} else None)");
 
             return strCode.ToString();
         }

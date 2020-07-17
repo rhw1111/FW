@@ -15,6 +15,7 @@ using MSLibrary.LanguageTranslate;
 using MSLibrary.CommandLine.SSH;
 using FW.TestPlatform.Main.Template.LabelParameterHandlers;
 using FW.TestPlatform.Main.Configuration;
+using System.Text.RegularExpressions;
 
 namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 {
@@ -101,7 +102,10 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task Run(TestCase tCase, CancellationToken cancellationToken = default)
         {
-            var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
+            //\加bfrnt\/‘"为合法分隔符，其它不是，替换
+            string pattern = @"(\\[^bfrnt\\/‘\""])";
+            string config = Regex.Replace(tCase.Configuration, pattern, "\\$1");
+            var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(config);
 
 
             var scriptTemplate=await _scriptTemplateRepository.QueryByName(ScriptTemplateNames.LocustTcp, cancellationToken);
@@ -147,7 +151,9 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             contextDict.Add(TemplateContextParameterNames.ConnectInit, configuration.ConnectInit);
             //将Tcp发送前初始化脚本配置加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.SendInit, configuration.SendInit);
-            
+            //将Tcp停止前初始化脚本配置加入到模板上下文中
+            contextDict.Add(TemplateContextParameterNames.StopInit, configuration.StopInit);
+
 
 
             //为DataSourceVars补充Data属性
@@ -385,6 +391,14 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             get; set;
         } = null!;
 
+        /// <summary>
+        /// Tcp发送前初始化脚本配置
+        /// </summary>
+        [DataMember]
+        public ConfigurationDataForTcpStopInit StopInit
+        {
+            get; set;
+        } = null!;
 
         /// <summary>
         /// 请求体内容
@@ -446,7 +460,21 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         } = new List<ConfigurationDataForVar>();
     }
 
-
+    /// <summary>
+    /// Tcp发送前初始化脚本配置
+    /// </summary>
+    [DataContract]
+    public class ConfigurationDataForTcpStopInit
+    {
+        /// <summary>
+        /// 变量赋值配置
+        /// </summary>
+        [DataMember]
+        public List<ConfigurationDataForVar> VarSettings
+        {
+            get; set;
+        } = new List<ConfigurationDataForVar>();
+    }
 
     /// <summary>
     /// 变量赋值配置
