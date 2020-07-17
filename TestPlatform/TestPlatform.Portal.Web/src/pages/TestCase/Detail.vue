@@ -564,11 +564,11 @@ export default {
       let para = {
         ID: this.detailData.id,
         Name: this.Name,
-        Configuration: this.Configuration,
+        Configuration: this.Configuration.trim(),
         EngineType: this.EngineType,
         MasterHostID: this.MasterHostID
       }
-      if (this.detailData.id && this.Name && this.isJSON(this.Configuration) && this.EngineType && this.MasterHostID) {
+      if (this.detailData.id && this.Name && this.isJSON(this.Configuration.trim()) && this.EngineType && this.MasterHostID) {
         this.$q.loading.show()
         Apis.putTestCase(para).then((res) => {
           console.log(res)
@@ -875,7 +875,7 @@ export default {
       window.open(this.detailData.monitorUrl);
     },//生成JSON
     CreateJson () {
-      if (this.Configuration == '') {
+      if (this.Configuration.trim() == '') {
         //验证ip地址是否正确
         if (this.paraConfig.Address != '') {
           if (!this.isValidIp(this.paraConfig.Address)) {
@@ -895,7 +895,7 @@ export default {
           Port: this.paraConfig.Port ? Number(this.paraConfig.Port) : '',//被测服务器端口
           Duration: this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '',//压测时间
         }, null, 2);
-      } else if (this.isJSON(this.Configuration)) {
+      } else if (this.isJSON(this.Configuration.trim())) {
         //验证ip地址是否正确
         if (this.paraConfig.Address != '') {
           if (!this.isValidIp(this.paraConfig.Address)) {

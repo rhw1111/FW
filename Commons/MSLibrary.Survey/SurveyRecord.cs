@@ -14,14 +14,23 @@ using MSLibrary.Logger;
 namespace MSLibrary.Survey
 {
     /// <summary>
-    /// Survey响应收集器
+    /// Survey收集器
     /// EndpointID+SurveyID唯一
     /// </summary>
-    public class SurveyResponseCollector : EntityBase<ISurveyResponseCollectorIMP>
+    public class SurveyRecord : EntityBase<ISurveyRecordIMP>
     {
-        public override IFactory<ISurveyResponseCollectorIMP>? GetIMPFactory()
+        private static IFactory<ISurveyRecordIMP>? _surveyRecordIMPFactory;
+
+        public static IFactory<ISurveyRecordIMP> SurveyRecordIMPFactory
         {
-            throw new NotImplementedException();
+            set
+            {
+                _surveyRecordIMPFactory = value;
+            }
+        }
+        public override IFactory<ISurveyRecordIMP>? GetIMPFactory()
+        {
+            return _surveyRecordIMPFactory;
         }
 
         /// <summary>
@@ -41,6 +50,22 @@ namespace MSLibrary.Survey
         }
 
         /// <summary>
+        /// 名称
+        /// </summary>
+        public string Name
+        {
+            get
+            {
+
+                return GetAttribute<string>(nameof(Name));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(Name), value);
+            }
+        }
+
+        /// <summary>
         /// 所属组
         /// </summary>
         public string Group
@@ -55,6 +80,8 @@ namespace MSLibrary.Survey
                 SetAttribute<string>(nameof(Group), value);
             }
         }
+
+
 
         /// <summary>
         /// Survey标识
@@ -88,31 +115,40 @@ namespace MSLibrary.Survey
             }
         }
 
-        public SurveyResponseCollectorEndpoint Endpoint
+        /// <summary>
+        /// Survey终结点
+        /// </summary>
+        public SurveyEndpoint Endpoint
         {
             get
             {
 
-                return GetAttribute<SurveyResponseCollectorEndpoint>(nameof(Endpoint));
+                return GetAttribute<SurveyEndpoint>(nameof(Endpoint));
             }
             set
             {
-                SetAttribute<SurveyResponseCollectorEndpoint>(nameof(Endpoint), value);
+                SetAttribute<SurveyEndpoint>(nameof(Endpoint), value);
             }
         }
 
-        public DateTime LatestHandleTime
+        /// <summary>
+        /// 最后接收处理时间
+        /// </summary>
+        public DateTime LatestResponseHandleTime
         {
             get
             {
-                return GetAttribute<DateTime>("LatestHandleTime");
+                return GetAttribute<DateTime>("LatestResponseHandleTime");
             }
             set
             {
-                SetAttribute<DateTime>("LatestHandleTime", value);
+                SetAttribute<DateTime>("LatestResponseHandleTime", value);
             }
         }
 
+        /// <summary>
+        /// 绑定信息
+        /// </summary>
         public string BindingInfo
         {
             get
@@ -124,6 +160,73 @@ namespace MSLibrary.Survey
                 SetAttribute<string>("BindingInfo", value);
             }
         }
+
+
+        /// <summary>
+        /// 接收者配置类型
+        /// 不同的类型有不同的配置
+        /// </summary>
+        public string RecipientConfigurationType
+        {
+            get
+            {
+
+                return GetAttribute<string>(nameof(RecipientConfigurationType));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(RecipientConfigurationType), value);
+            }
+        }
+
+        /// <summary>
+        /// 接收者配置
+        /// </summary>
+        public string RecipientConfiguration
+        {
+            get
+            {
+
+                return GetAttribute<string>(nameof(RecipientConfiguration));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(RecipientConfiguration), value);
+            }
+        }
+
+        /// <summary>
+        /// 最后一次接收者生成时间
+        /// </summary>
+        public DateTime? LatestRecipientGenerateTime
+        {
+            get
+            {
+
+                return GetAttribute<DateTime?>(nameof(LatestRecipientGenerateTime));
+            }
+            set
+            {
+                SetAttribute<DateTime?>(nameof(LatestRecipientGenerateTime), value);
+            }
+        }
+
+        /// <summary>
+        /// 附加信息
+        /// </summary>
+        public string AdditionalInfo
+        {
+            get
+            {
+
+                return GetAttribute<string>(nameof(AdditionalInfo));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(AdditionalInfo), value);
+            }
+        }
+
 
 
         /// <summary>
@@ -177,12 +280,30 @@ namespace MSLibrary.Survey
         {
             await _imp.CollectResponse(this, response, responseHandle, cancellationToken);
         }
+
+        /// <summary>
+        /// 生成接收者
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task GenerateRecipient(CancellationToken cancellationToken = default)
+        {
+            await _imp.GenerateRecipient(this, cancellationToken);
+        }
     }
 
-    public interface ISurveyResponseCollectorIMP
+    public interface ISurveyRecordIMP
     {
-        Task CollectResponse(SurveyResponseCollector collector,Func<string,Task> responseHandle, CancellationToken cancellationToken = default);
-        Task CollectResponse(SurveyResponseCollector collector, string response, Func<string, Task> responseHandle, CancellationToken cancellationToken = default);
+        Task UpdateRecipientConfiguration(SurveyRecord record, string type, string configuration);
+        /// <summary>
+        /// 生成接收者
+        /// </summary>
+        /// <param name="record"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task GenerateRecipient(SurveyRecord record, CancellationToken cancellationToken = default);
+        Task CollectResponse(SurveyRecord collector,Func<string,Task> responseHandle, CancellationToken cancellationToken = default);
+        Task CollectResponse(SurveyRecord collector, string response, Func<string, Task> responseHandle, CancellationToken cancellationToken = default);
     }
 
     /// <summary>
@@ -191,6 +312,22 @@ namespace MSLibrary.Survey
     public interface ISurveyResponseDataQueryService
     {
         IAsyncEnumerable<string> Query(string endpointConfiguration,string surveyID,DateTime minTime, CancellationToken cancellationToken = default);
+    }
+
+    /// <summary>
+    /// Survey接收者生成服务
+    /// </summary>
+    public interface ISurveyRecipientGenerateService
+    {
+        Task<string> Generate(string endpointConfiguration, string recipientConfiguration, CancellationToken cancellationToken = default);
+    }
+
+    /// <summary>
+    /// Surve收集器可用性检查服务
+    /// </summary>
+    public interface ISurveyCollectorEnableCheckService
+    {
+        Task<bool> Check(string endpointConfiguration, string surveyID, CancellationToken cancellationToken = default);
     }
 
     /// <summary>
@@ -203,29 +340,38 @@ namespace MSLibrary.Survey
     }
 
 
-    [Injection(InterfaceType = typeof(ISurveyResponseCollectorIMP), Scope = InjectionScope.Transient)]
-    public class SurveyResponseCollectorIMP : ISurveyResponseCollectorIMP
+    [Injection(InterfaceType = typeof(ISurveyRecordIMP), Scope = InjectionScope.Transient)]
+    public class SurveyRecordIMP : ISurveyRecordIMP
     {
         public static string ErrorLoggerCategoryName { get; set; } = null!;
 
         public static int BatchSize { get; set; } = 50;
 
-        private readonly ISurveyResponseCollectorStore _surveyResponseCollectorStore;
+        private readonly ISurveyRecordStore _surveyRecordStore;
         private readonly ISurveyResponseLogStore _surveyResponseLogStore;
 
-        public SurveyResponseCollectorIMP(ISurveyResponseCollectorStore surveyResponseCollectorStore,ISurveyResponseLogStore surveyResponseLogStore)
+        public SurveyRecordIMP(ISurveyRecordStore surveyRecordStore,ISurveyResponseLogStore surveyResponseLogStore)
         {
-            _surveyResponseCollectorStore = surveyResponseCollectorStore;
+            _surveyRecordStore = surveyRecordStore;
             _surveyResponseLogStore = surveyResponseLogStore;
         }
 
-        public async Task CollectResponse(SurveyResponseCollector collector, Func<string, Task> responseHandle, CancellationToken cancellationToken = default)
+        public async Task CollectResponse(SurveyRecord collector, Func<string, Task> responseHandle, CancellationToken cancellationToken = default)
         {
-            var responseIDResolveService = SurveyResponseExtensionCollection.GetSurveyResponseIDResolveService(collector.Endpoint.Type);
-            var responseDataQueryService = SurveyResponseExtensionCollection.GetSurveyResponseDataQueryService(collector.Endpoint.Type);
+            var responseIDResolveService = SurveyExtensionCollection.GetSurveyResponseIDResolveService(collector.Endpoint.Type);
+            var responseDataQueryService = SurveyExtensionCollection.GetSurveyResponseDataQueryService(collector.Endpoint.Type);
+            var responseCollectorEnableCheckService = SurveyExtensionCollection.GetSurveyCollectorEnableCheckService(collector.Endpoint.Type);
+
+            //检查收集器是否可用，如果不可用，则直接结束
+            var enabled=await responseCollectorEnableCheckService.Check(collector.Endpoint.Configuration, collector.SurveyID, cancellationToken);
+
+            if (!enabled)
+            {
+                return;
+            }
 
             //从源中获取从上一次处理后的所有响应
-            var responseDatas=responseDataQueryService.Query(collector.Endpoint.Configuration, collector.SurveyID, collector.LatestHandleTime, cancellationToken);
+            var responseDatas=responseDataQueryService.Query(collector.Endpoint.Configuration, collector.SurveyID, collector.LatestResponseHandleTime, cancellationToken);
             DateTime latestTime=DateTime.MinValue;
             DateTime? errorLatestTime = null;
             object lockObj=new object();
@@ -307,13 +453,13 @@ namespace MSLibrary.Survey
                 }
                 );
 
-            await _surveyResponseCollectorStore.UpdateLatestHandleTime(collector.ID, latestTime, cancellationToken);
+            await _surveyRecordStore.UpdateLatestHandleTime(collector.ID, latestTime, cancellationToken);
         }
 
-        public async Task CollectResponse(SurveyResponseCollector collector, string response, Func<string, Task> responseHandle, CancellationToken cancellationToken = default)
+        public async Task CollectResponse(SurveyRecord collector, string response, Func<string, Task> responseHandle, CancellationToken cancellationToken = default)
         {
-            var responseIDResolveService = SurveyResponseExtensionCollection.GetSurveyResponseIDResolveService(collector.Endpoint.Type);
-            var responseDataQueryService= SurveyResponseExtensionCollection.GetSurveyResponseDataQueryService(collector.Endpoint.Type);
+            var responseIDResolveService = SurveyExtensionCollection.GetSurveyResponseIDResolveService(collector.Endpoint.Type);
+            var responseDataQueryService= SurveyExtensionCollection.GetSurveyResponseDataQueryService(collector.Endpoint.Type);
 
             var responseObj=await responseIDResolveService.Resolve(response, cancellationToken);
 
@@ -351,6 +497,19 @@ namespace MSLibrary.Survey
 
                 }
             }
+        }
+
+        public async Task GenerateRecipient(SurveyRecord record, CancellationToken cancellationToken = default)
+        {
+            var recipientGenerateService = SurveyExtensionCollection.GetSurveyRecordRecipientGenerateService($"{record.Endpoint.Type}-{record.RecipientConfigurationType}");
+
+            await recipientGenerateService.Generate(record.Endpoint.Configuration, record.RecipientConfiguration, cancellationToken);
+            await _surveyRecordStore.UpdateLatestRecipientGenerateTime(record.ID, DateTime.UtcNow, cancellationToken);
+        }
+
+        public async Task UpdateRecipientConfiguration(SurveyRecord record, string type, string configuration)
+        {
+            await _surveyRecordStore.UpdateRecipientConfiguration(record.ID, type, configuration);
         }
     }
 }

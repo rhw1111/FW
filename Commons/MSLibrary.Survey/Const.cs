@@ -5,6 +5,7 @@ using System.Text;
 
 namespace MSLibrary.Survey
 {
+
     /// <summary>
     /// SurveyMonkey请求的类型集合
     /// </summary>
@@ -42,6 +43,18 @@ namespace MSLibrary.Survey
         /// Survey查询
         /// </summary>
         public const string SurveyQuery = "SurveyQuery";
+        /// <summary>
+        /// Survey查询(单个)
+        /// </summary>
+        public const string SurveyQuerySingle = "SurveyQuerySingle";
+        /// <summary>
+        /// Survey关联的收集器查询
+        /// </summary>
+        public const string SurveyCollectorQuery = "SurveyCollectorQuery";
+        /// <summary>
+        /// Survey关联的消息查询
+        /// </summary>
+        public const string SurveyMessageQuery = "SurveyMessageQuery";
     }
 
     /// <summary>
@@ -80,5 +93,55 @@ namespace MSLibrary.Survey
         public const string Collector = "collector";
     }
 
+    /// <summary>
+    /// SurveyMonkey的收集器状态集合
+    /// </summary>
+    public static class SurveyMonkeyCollectorStatuses
+    {
+        public const string Open = "open";
+        public const string Closed = "closed";
+    }
 
+    /// <summary>
+    ///  SurveyMonkey的收集器类型集合
+    /// </summary>
+    public static class SurveyMonkeyCollectorTypes
+    {
+        public const string SMS = "sms";
+        public const string WebLink = "weblink";
+        public const string Email = "email";
+    }
+
+    /// <summary>
+    /// SurveyMonkey的消息类型集合
+    /// </summary>
+    public static class SurveyMonkeyMessageTypes
+    {
+        public const string SMS = "sms";
+        public const string Invite = "invite";
+        public const string Reminder = "reminder";
+        public const string ThankYou = "thank_you";
+    }
+
+    /// <summary>
+    /// SurveyMonkey的消息状态集合
+    /// </summary>
+    public static class SurveyMonkeyMessageStatuses
+    {
+        public const string Sent = "sent";
+        public const string NotSent = "not_sent";
+        public const string Processing = "processing";
+    }
+
+
+    /// <summary>
+    /// SurveyMonkey的消息接收者状态集合
+    /// </summary>
+    public static class SurveyMonkeyMessageRecipientStatuses
+    {
+        public const string HasNotResponded = "has_not_responded";
+        public const string PartiallyResponded = "partially_responded";
+        public const string Completed = "completed";
+
+    }
 }

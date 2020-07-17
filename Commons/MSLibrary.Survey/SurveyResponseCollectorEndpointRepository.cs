@@ -11,15 +11,15 @@ namespace MSLibrary.Survey
     [Injection(InterfaceType = typeof(ISurveyResponseCollectorEndpointRepository), Scope = InjectionScope.Singleton)]
     public class SurveyResponseCollectorEndpointRepository : ISurveyResponseCollectorEndpointRepository
     {
-        private readonly ISurveyResponseCollectorEndpointStore _surveyResponseCollectorEndpointStore;
+        private readonly ISurveyEndpointStore _surveyEndpointStore;
 
-        public SurveyResponseCollectorEndpointRepository(ISurveyResponseCollectorEndpointStore surveyResponseCollectorEndpointStore)
+        public SurveyResponseCollectorEndpointRepository(ISurveyEndpointStore surveyEndpointStore)
         {
-            _surveyResponseCollectorEndpointStore = surveyResponseCollectorEndpointStore;
+            _surveyEndpointStore = surveyEndpointStore;
         }
-        public async Task<SurveyResponseCollectorEndpoint?> QueryByTypeName(string type, string name, CancellationToken cancellationToken = default)
+        public async Task<SurveyEndpoint?> QueryByTypeName(string type, string name, CancellationToken cancellationToken = default)
         {
-            return await _surveyResponseCollectorEndpointStore.QueryByTypeName(type, name,cancellationToken);
+            return await _surveyEndpointStore.QueryByTypeName(type, name,cancellationToken);
         }
     }
 }

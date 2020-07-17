@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace MSLibrary.Survey.DAL
 {
-    public interface ISurveyResponseCollectorEndpointStore
+    public interface ISurveyEndpointStore
     {
         Task UpdateInitInfo(Guid id,string initInfo, CancellationToken cancellationToken = default);
-        Task<SurveyResponseCollectorEndpoint?> QueryByTypeName(string type, string name, CancellationToken cancellationToken = default);
+        Task<SurveyEndpoint?> QueryByTypeName(string type, string name, CancellationToken cancellationToken = default);
     }
 }
