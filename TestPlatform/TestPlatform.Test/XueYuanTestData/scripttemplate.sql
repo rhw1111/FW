@@ -414,7 +414,7 @@ class TcpTestUser(User):
             print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
 
     def add_history_data():
-        # print("add_history_data")
+        print("add_history_data")
 
         try:
             stats = TcpTestUser.environment.runner.stats
@@ -435,7 +435,7 @@ class TcpTestUser(User):
                 history_data["MinDurartion"] = stats_send.min_response_time
                 history_data["AvgDuration"] = stats_send.avg_response_time
 
-                # print(history_data)
+                print(history_data)
                 TcpTestUser.post_api("api/report/addhistory", history_data)            
         except Exception as e:
             print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
@@ -453,7 +453,7 @@ class TcpTestUser(User):
             history_data["MinDurartion"] = 0.0
             history_data["AvgDuration"] = 0.0
 
-            # print(history_data)
+            print(history_data)
             TcpTestUser.post_api("api/report/addhistory", history_data)
 
     def post_api(path, data):
@@ -557,7 +557,7 @@ class TcpTestUser(User):
         self.client.close()
         print("[%s] %s: Connect close." % (datetime.datetime.now().strftime(datetime_format), client_id))
         self.is_login = False
-        self.is_login = True
+        self.is_need_login = True
 
     @task(1)
     def send(self):
