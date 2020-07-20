@@ -104,14 +104,16 @@
                 <span style="font-size:14px">名称:</span>
               </template>
             </q-input>
-            <q-input v-model="Type"
-                     :dense="false"
-                     class="col"
-                     style="margin-left:50px;">
+            <q-select v-model="Type"
+                      :options="['Default']"
+                      class="col"
+                      :dense="false">
               <template v-slot:before>
                 <span style="font-size:14px">类型:</span>
               </template>
-            </q-input>
+              <template v-slot:prepend>
+              </template>
+            </q-select>
           </div>
           <div class="row input_row">
             <q-input v-model="Configuration"
@@ -165,9 +167,16 @@
                      class="col col-xs-12"
                      readonly
                      v-model="SSHSelect"
-                     @dblclick="openSSH">
+                     placeholder="点击右侧加号选择SSH终结点">
               <template v-slot:before>
                 <span style="font-size:14px">SSH终结点:</span>
+              </template>
+              <template v-slot:append>
+                <q-btn round
+                       dense
+                       flat
+                       icon="add"
+                       @click="openSSH" />
               </template>
             </q-input>
           </div>
@@ -310,29 +319,29 @@ export default {
         Type: this.Type,
         Configuration: this.Configuration,
       }
-      if (!this.Name && !this.Type && !this.Configuration) {
+      if (this.Name && this.Type && this.Configuration) {
+        this.$q.loading.show()
+        console.log(para)
+        Apis.postCreateSSHEndpoint(para).then((res) => {
+          console.log(res)
+          this.newSSHCancel();
+          this.getSSHEndpointList();
+          this.getSSHEndpointData();
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '创建成功',
+            color: 'secondary',
+          })
+        })
+      } else {
         this.$q.notify({
           position: 'top',
           message: '提示',
           caption: '请填写完整信息',
           color: 'red',
         })
-        return;
       }
-      this.$q.loading.show()
-      console.log(para)
-      Apis.postCreateSSHEndpoint(para).then((res) => {
-        console.log(res)
-        this.newSSHCancel();
-        this.getSSHEndpointList();
-        this.getSSHEndpointData();
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '创建成功',
-          color: 'secondary',
-        })
-      })
     },
     //删除SSH端口
     deleteSSH () {

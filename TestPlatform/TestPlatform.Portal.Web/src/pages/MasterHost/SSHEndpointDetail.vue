@@ -23,14 +23,16 @@
               <span style="font-size:14px">名称:</span>
             </template>
           </q-input>
-          <q-input v-model="Type"
-                   :dense="false"
-                   class="col"
-                   style="margin-left:50px;">
+          <q-select v-model="Type"
+                    :options="['Default']"
+                    class="col"
+                    :dense="false">
             <template v-slot:before>
               <span style="font-size:14px">类型:</span>
             </template>
-          </q-input>
+            <template v-slot:prepend>
+            </template>
+          </q-select>
         </div>
 
         <div class="row input_row">
