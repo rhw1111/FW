@@ -23,6 +23,8 @@ namespace MSLibrary.Survey.DAL
 
         Task UpdateLatestRecipientGenerateTime(Guid id,DateTime time, CancellationToken cancellationToken = default);
 
-        Task UpdateRecipientConfiguration(Guid id,string type,string configuration);
+        Task UpdateRecipientConfiguration(Guid id,string type,string configuration, CancellationToken cancellationToken = default);
+
+        Task Update(SurveyRecord collector, CancellationToken cancellationToken = default);
     }
 }

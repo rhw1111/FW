@@ -67,6 +67,11 @@ namespace MSLibrary.Survey
         /// </summary>
         public static IDictionary<string, IFactory<ISurveyRecipientGenerateService>> SurveyRecipientGenerateServiceFactories { get; } = new Dictionary<string, IFactory<ISurveyRecipientGenerateService>>();
 
+        /// <summary>
+        /// Survey响应数据转换服务键值对
+        /// 键为SurveyEndpoint.Type
+        /// </summary>
+        public static IDictionary<string, IFactory<ISurveyResponseConvertService>> SurveyResponseConvertServiceFactories { get; } = new Dictionary<string, IFactory<ISurveyResponseConvertService>>();
 
 
         public static ISurveyCollectorBindService GetSurveyCollectorBindService(string type)
@@ -212,6 +217,25 @@ namespace MSLibrary.Survey
 
             return surveyRecipientGenerateServiceFactory.Create();
         }
+
+
+        public static ISurveyResponseConvertService GetSurveyResponseConvertService(string type)
+        {
+            
+            if (!SurveyResponseConvertServiceFactories.TryGetValue(type, out IFactory<ISurveyResponseConvertService> surveyResponseConvertServiceFactory))
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = SurveyTextCodes.NotFoundSurveyResponseConvertServiceByType,
+                    DefaultFormatting = "找不到类型为{0}的Survey响应转换服务，发生位置为{1}",
+                    ReplaceParameters = new List<object>() { type, "SurveyExtensionCollection.SurveyCollectorBindServiceFactories" }
+                };
+                throw new UtilityException((int)SurveyErrorCodes.NotFoundSurveyResponseConvertServiceByType, fragment, 1, 0);
+            }
+
+            return surveyResponseConvertServiceFactory.Create();
+        }
+
     }
 
 

@@ -441,7 +441,7 @@ namespace FW.TestPlatform.Main.Entities
 
             //    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
             //}
-            Guid? newId = await _testCaseSlaveHostStore.QueryByNameNoLock(slaveHost.SlaveName, cancellationToken);
+            Guid? newId = await _testCaseSlaveHostStore.QueryByNameNoLock(tCase.ID, slaveHost.SlaveName, cancellationToken);
             if(newId != null)
             {
                 var fragment = new TextFragment()

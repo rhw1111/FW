@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Quartz.Impl.Triggers;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -150,5 +151,19 @@ namespace MSLibrary.Survey
         /// {1}：发生的位置
         /// </summary>
         public static string NotFoundSurveyRecipientGenerateServiceByType = "NotFoundSurveyRecipientGenerateServiceByType";
+        /// <summary>
+        /// 找不到指定类型的Survey响应转换服务
+        /// 格式为“找不到类型为{0}的Survey响应转换服务，发生位置为{1}”
+        /// {0}：类型
+        /// {1}：发生的位置
+        /// </summary>
+        public static string NotFoundSurveyResponseConvertServiceByType = "NotFoundSurveyResponseConvertServiceByType";
+        /// <summary>
+        /// 在SurveyMonkey的webhook回调中找不到指定的信息
+        /// 格式为“在SurveyMonkey的webhook回调中找不到名称为{0}的信息，回调数据为{1}”
+        /// {0}：名称
+        /// {1}：回调数据
+        /// </summary>
+        public static string NotFoundInfoInSurveyMonkeyWebhookCallback = "NotFoundInfoInSurveyMonkeyWebhookCallback";
     }
 }

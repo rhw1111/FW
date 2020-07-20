@@ -169,9 +169,9 @@ namespace MSLibrary.Survey
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task ManageCollector(CancellationToken cancellationToken = default)
+        public async Task ManageCollector(Func<SurveyRecord, Task> addCallback, Func<SurveyRecord, Task> updateCallback, Func<SurveyRecord, Task> deleteCallback,CancellationToken cancellationToken = default)
         {
-            await _imp.ManageCollector(this, cancellationToken);
+            await _imp.ManageCollector(this, addCallback,updateCallback,deleteCallback, cancellationToken);
         }
 
         /// <summary>
@@ -274,7 +274,7 @@ namespace MSLibrary.Survey
         /// <param name="endpoint"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task ManageCollector(SurveyEndpoint endpoint,CancellationToken cancellationToken = default);
+        Task ManageCollector(SurveyEndpoint endpoint,Func<SurveyRecord,Task> addCallback,Func<SurveyRecord,Task> updateCallback,Func<SurveyRecord,Task> deleteCallback,CancellationToken cancellationToken = default);
         /// <summary>
         /// 绑定收集器
         /// </summary>
@@ -350,6 +350,7 @@ namespace MSLibrary.Survey
     public interface ISurveyCollectorFactory
     {
         Task<SurveyRecord> Create(string endpointConfiguration,string collectorData, CancellationToken cancellationToken = default);
+        Task<SurveyRecord> CreateFromDirect(string endpointConfiguration, string collectorData, CancellationToken cancellationToken = default);
     }
 
 
@@ -419,7 +420,7 @@ namespace MSLibrary.Survey
             var collectorBindService= SurveyExtensionCollection.GetSurveyCollectorBindService(endpoint.Type);
 
 
-            var collector = await collectorFactory.Create(endpoint.Configuration,collectorData, cancellationToken);
+            var collector = await collectorFactory.CreateFromDirect(endpoint.Configuration,collectorData, cancellationToken);
 
             var existCollector = await GetCollector(endpoint, collector.SurveyID, cancellationToken);
 
@@ -441,6 +442,11 @@ namespace MSLibrary.Survey
                     scope.Complete();
                 }
             }
+            else
+            {
+                existCollector.Name = collector.Name;
+                await existCollector.Update(cancellationToken);
+            }
         }
 
         private async Task deleteResponseCollector(SurveyEndpoint endpoint, Guid collectorID, CancellationToken cancellationToken = default)
@@ -450,6 +456,19 @@ namespace MSLibrary.Survey
 
         public async Task Finanly(SurveyEndpoint endpoint, CancellationToken cancellationToken = default)
         {
+            var collectorBindService = SurveyExtensionCollection.GetSurveyCollectorBindService(endpoint.Type);
+
+            //解绑所有collector
+            var currentCollectors = GetAllCollector(endpoint, cancellationToken);
+            await ParallelHelper.ForEach(currentCollectors, 5,
+                async (collector) =>
+                {
+                    await collectorBindService.UnBinding(endpoint.Configuration, collector, cancellationToken);
+                    await deleteResponseCollector(endpoint, collector.ID, cancellationToken);
+                }
+            );
+
+
             var service=SurveyExtensionCollection.GetSurveyEndpointFinanlyService(endpoint.Type);
             await service.Execute(endpoint.Configuration, endpoint.InitInfo, cancellationToken);
         }
@@ -491,7 +510,7 @@ namespace MSLibrary.Survey
           
         }
 
-        public async Task ManageCollector(SurveyEndpoint endpoint, CancellationToken cancellationToken = default)
+        public async Task ManageCollector(SurveyEndpoint endpoint, Func<SurveyRecord, Task> addCallback, Func<SurveyRecord, Task> updateCallback, Func<SurveyRecord, Task> deleteCallback, CancellationToken cancellationToken = default)
         {
             var collectorFactoryService = SurveyExtensionCollection.GetSurveyCollectorFactory(endpoint.Type);
             var collectorDataQueryService = SurveyExtensionCollection.GetSurveyCollectorDataQueryService(endpoint.Type);
@@ -521,6 +540,7 @@ namespace MSLibrary.Survey
                     await using (DBTransactionScope scope = new DBTransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
                     {                
                         await collectorBindService.UnBinding(endpoint.Configuration, collector, cancellationToken);
+                        await deleteCallback(collector);
                         await deleteResponseCollector(endpoint, collector.ID, cancellationToken);
                         scope.Complete();
                     }
@@ -554,6 +574,19 @@ namespace MSLibrary.Survey
                             {
                                 await _surveyRecordStore.UpdateBindingInfo(newCollector.ID, bindingInfo, cancellationToken);
                             }
+
+                            await addCallback(newCollector);
+                            scope.Complete();
+                        }
+                    }
+                    else
+                    {
+                        await using (DBTransactionScope scope = new DBTransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
+                        {
+
+                            existCollector.Name = newCollector.Name;
+                            await existCollector.Update(cancellationToken);
+                            await addCallback(existCollector);
                             scope.Complete();
                         }
                     }
@@ -567,7 +600,7 @@ namespace MSLibrary.Survey
             var collectorFactoryService = SurveyExtensionCollection.GetSurveyCollectorFactory(endpoint.Type);
             var collectorBindService = SurveyExtensionCollection.GetSurveyCollectorBindService(endpoint.Type);
 
-            var collector = await collectorFactoryService.Create(endpoint.Configuration,collectorData, cancellationToken);
+            var collector = await collectorFactoryService.CreateFromDirect(endpoint.Configuration,collectorData, cancellationToken);
 
             collector.Endpoint = endpoint;
             collector.EndpointID = endpoint.ID;
