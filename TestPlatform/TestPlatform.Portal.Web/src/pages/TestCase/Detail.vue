@@ -56,7 +56,7 @@
     <!-- 创建从机 -->
     <q-dialog v-model="createFixed"
               persistent>
-      <q-card style="width:100%">
+      <q-card style="width: 100%; max-width: 60vw;">
         <q-card-section>
           <div class="text-h6">创建从主机</div>
         </q-card-section>
@@ -68,13 +68,14 @@
                      :dense="false"
                      class="col">
               <template v-slot:before>
-                <span style="font-size:14px">名称:</span>
+                <span style="font-size:14px">从主机名称:</span>
               </template>
             </q-input>
             <q-input v-model="SlaveCount"
                      :dense="false"
                      class="col"
-                     @keyup="SlaveCount=SlaveCount.replace(/[^\d]/g,'')">
+                     @keyup="SlaveCount=SlaveCount.replace(/[^\d]/g,'')"
+                     placeholder="副本数">
               <template v-slot:before>
                 <span style="font-size:14px">数量:</span>
               </template>
@@ -83,9 +84,16 @@
                      class="col"
                      readonly
                      v-model="SlaveHostHostSelect"
-                     @dblclick="dblSlaveHostHost">
+                     placeholder="点击右侧加号选择主机">
               <template v-slot:before>
                 <span style="font-size:14px">主机:</span>
+              </template>
+              <template v-slot:append>
+                <q-btn round
+                       dense
+                       flat
+                       icon="add"
+                       @click="dblSlaveHostHost" />
               </template>
             </q-input>
           </div>
