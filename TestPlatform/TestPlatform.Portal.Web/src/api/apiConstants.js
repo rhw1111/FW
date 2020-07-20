@@ -55,6 +55,8 @@ const apiConstants = {
 
   putTestDataSource: 'api/testdatasource/update',//更新TestDataSource
 
+  getDataSourceName: 'api/testdatasource/datasources',//获得 数据源名称
+
   // ------------------------------------------------ SSHEndpoint ------------------------------------------------------
   getSSHEndpointList: 'api/sshendpoint/querybypage',//获得SSH端口列表
 

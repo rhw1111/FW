@@ -345,6 +345,17 @@ export const deleteTestHostArr = payload =>
   })
 
 
+//获得数据源名称
+export const getDataSourceName = payload =>
+  action({
+    apiName: 'getDataSourceName',
+    payload
+  })
+
+
+
+
+
 
 
 
