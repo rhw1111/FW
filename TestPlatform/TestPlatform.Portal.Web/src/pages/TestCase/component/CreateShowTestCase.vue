@@ -165,7 +165,7 @@
             <q-card-section v-show="paraConfig.DataSourceVars.length==0">暂无参数配置，请点击添加数据源参数按钮进行添加。</q-card-section>
             <q-card-section v-for="(val,ind) in paraConfig.DataSourceVars"
                             :key="ind">
-              <span style="font-size:14px">参数配置{{ind+1}}:</span>
+              <span style="font-size:14px">参数{{ind+1}}:</span>
               <div class="row">
                 <q-input v-model="paraConfig.DataSourceVars[ind].Name"
                          filled
@@ -220,7 +220,7 @@
             <q-card-section v-show="paraConfig.ConnectInit.VarSettings.length==0">暂无参数配置，请点击添加初始化参数按钮进行添加。</q-card-section>
             <q-card-section v-for="(val,ind) in paraConfig.ConnectInit.VarSettings"
                             :key="ind">
-              <span style="font-size:14px">参数配置{{ind+1}}:</span>
+              <span style="font-size:14px">参数{{ind+1}}:</span>
               <div class="row">
                 <q-input v-model="paraConfig.ConnectInit.VarSettings[ind].Name"
                          filled
@@ -273,7 +273,7 @@
             <q-card-section v-show="paraConfig.SendInit.VarSettings.length==0">暂无参数配置，请点击添加初始化参数按钮进行添加。</q-card-section>
             <q-card-section v-for="(val,ind) in paraConfig.SendInit.VarSettings"
                             :key="ind">
-              <span style="font-size:14px">参数配置{{ind+1}}:</span>
+              <span style="font-size:14px">参数{{ind+1}}:</span>
               <div class="row">
                 <q-input v-model="paraConfig.SendInit.VarSettings[ind].Name"
                          filled
@@ -326,7 +326,7 @@
             <q-card-section v-show="paraConfig.StopInit.VarSettings.length==0">暂无参数配置，请点击添加初始化参数按钮进行添加。</q-card-section>
             <q-card-section v-for="(val,ind) in paraConfig.StopInit.VarSettings"
                             :key="ind">
-              <span style="font-size:14px">参数配置{{ind+1}}:</span>
+              <span style="font-size:14px">参数{{ind+1}}:</span>
               <div class="row">
                 <q-input v-model="paraConfig.StopInit.VarSettings[ind].Name"
                          filled
@@ -356,6 +356,39 @@
           </q-card>
         </q-expansion-item>
       </q-list>
+      <div class="row">
+        <div class="col-2  offset-md-10">
+
+          <q-btn class="btn"
+                 color="primary"
+                 style="margin:10px 0 10px 20px;float:right"
+                 label="生 成"
+                 @click="CreateJson" />
+        </div>
+      </div>
+      <div class="row input_row">
+        <q-input v-model="Configuration"
+                 :dense="false"
+                 style="overflow:hidden"
+                 autogrow
+                 class="col-12"
+                 type="textarea"
+                 outlined>
+          <template v-slot:before>
+            <span style="font-size:14px">配置文本:</span>
+          </template>
+        </q-input>
+        <!-- <div class="col-xs-12">
+          <q-input v-model="Configuration"
+                   filled
+                   autogrow
+                   placeholder="点击生成按钮生成参数文本">
+            <template v-slot:before>
+              <span style="font-size:14px">配置文本:</span>
+            </template>
+          </q-input>
+        </div> -->
+      </div>
     </div>
   </div>
 </template>
@@ -491,11 +524,7 @@ export default {
         EngineType: this.EngineType,
         MasterHostID: this.MasterHostID
       }
-      if (this.Name && this.EngineType && this.MasterHostID) {
-        //验证ip地址是否正确
-        if (!this.isValidIp(this.paraConfig.Address)) { return false; }
-        //验证端口号是否正确
-        if (!this.isPort(this.paraConfig.Port)) { return false; }
+      if (this.Name && this.isJSON(this.Configuration) && this.EngineType && this.MasterHostID) {
         return para
       } else {
         if (this.Name == '') {
@@ -531,20 +560,44 @@ export default {
         if (!this.isValidIp(this.paraConfig.Address)) { return; }
         //验证端口号是否正确
         if (!this.isPort(this.paraConfig.Port)) { return; }
-        this.Configuration = JSON.stringify(this.paraConfig, null, 2);
+        if (!this.ifDataVars()) { return; }
+        this.Configuration = JSON.stringify({
+          UserCount: Number(this.paraConfig.UserCount),//压测用户总数
+          PerSecondUserCount: Number(this.paraConfig.PerSecondUserCount),//每秒加载用户数
+          Address: this.paraConfig.Address,//被测服务器
+          Port: Number(this.paraConfig.Port),//被测服务器端口
+          Duration: Number(this.paraConfig.Duration),//压测时间
+          ResponseSeparator: this.paraConfig.ResponseSeparator,//结束分隔符
+          DataSourceVars: this.paraConfig.DataSourceVars,//数据源
+          ConnectInit: {
+            VarSettings: this.paraConfig.ConnectInit.VarSettings
+          },//连接初始化
+          SendInit: {
+            VarSettings: this.paraConfig.SendInit.VarSettings
+          },//发送初始化
+          StopInit: {
+            VarSettings: this.paraConfig.StopInit.VarSettings
+          }//停止初始化
+        }, null, 2);
       } else if (this.isJSON(this.Configuration.trim())) {
         //验证ip地址是否正确
         if (!this.isValidIp(this.paraConfig.Address)) { return; }
         //验证端口号是否正确
         if (!this.isPort(this.paraConfig.Port)) { return; }
-
+        if (!this.ifDataVars()) { return; }
         this.Configuration = JSON.parse(this.Configuration);
-        this.Configuration.UserCount = this.paraConfig.UserCount;
-        this.Configuration.PerSecondUserCount = this.paraConfig.PerSecondUserCount;
+        this.Configuration.UserCount = Number(this.paraConfig.UserCount);
+        this.Configuration.PerSecondUserCount = Number(this.paraConfig.PerSecondUserCount);
         this.Configuration.Address = this.paraConfig.Address;
-        this.Configuration.Port = this.paraConfig.Port;
-        this.Configuration.Duration = this.paraConfig.Duration;
+        this.Configuration.Port = Number(this.paraConfig.Port);
+        this.Configuration.Duration = Number(this.paraConfig.Duration);
+        this.Configuration.ResponseSeparator = this.paraConfig.ResponseSeparator;
+        this.Configuration.DataSourceVars = this.paraConfig.DataSourceVars;
+        this.Configuration.ConnectInit.VarSettings = this.paraConfig.ConnectInit.VarSettings;
+        this.Configuration.SendInit.VarSettings = this.paraConfig.SendInit.VarSettings;
+        this.Configuration.StopInit.VarSettings = this.paraConfig.StopInit.VarSettings;
         this.Configuration = JSON.stringify(this.Configuration, null, 2);
+
       }
     },
     //判断是否是JSON格式
@@ -626,7 +679,66 @@ export default {
         }
       })
     },
-
+    //判断数据源数据是否正确
+    ifDataVars () {
+      //数据源数组 
+      for (let i = 0; i < this.paraConfig.DataSourceVars.length; i++) {
+        let DataSourceVars = this.paraConfig.DataSourceVars[i];
+        console.log(DataSourceVars)
+        if (DataSourceVars.Name == '' || DataSourceVars.DataSourceName == '') {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: `数据源参数${i + 1}名称和数据源名称为必填`,
+            color: 'red',
+          })
+          return false;
+        }
+      }
+      //发送初始化数组
+      for (let i = 0; i < this.paraConfig.ConnectInit.VarSettings.length; i++) {
+        let ConnectVarSettings = this.paraConfig.ConnectInit.VarSettings[i];
+        console.log(ConnectVarSettings)
+        if (ConnectVarSettings.Content == '') {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: `连接初始化参数${i + 1}内容为必填`,
+            color: 'red',
+          })
+          return false;
+        }
+      }
+      //发送初始化
+      for (let i = 0; i < this.paraConfig.SendInit.VarSettings.length; i++) {
+        let SendVarSettings = this.paraConfig.SendInit.VarSettings[i];
+        console.log(SendVarSettings)
+        if (SendVarSettings.Content == '') {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: `发送初始化参数${i + 1}内容为必填`,
+            color: 'red',
+          })
+          return false;
+        }
+      }
+      //暂停初始化
+      for (let i = 0; i < this.paraConfig.StopInit.VarSettings.length; i++) {
+        let StopVarSettings = this.paraConfig.StopInit.VarSettings[i];
+        console.log(StopVarSettings)
+        if (StopVarSettings.Content == '') {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: `停止初始化参数${i + 1}内容为必填`,
+            color: 'red',
+          })
+          return false;
+        }
+      }
+      return true;
+    },
     //增加数据DataVars 
     addDataVars (val) {
       if (val == 'DataSource') {             //数据源
@@ -663,7 +775,7 @@ export default {
     deleteDataVars (val, index) {
       this.$q.dialog({
         title: '提示',
-        message: `您确定要删除当前参数配置${index + 1}吗`,
+        message: `您确定要删除当前参数${index + 1}吗`,
         persistent: true,
         ok: {
           push: true,
@@ -696,5 +808,8 @@ export default {
   .input_row {
     margin-bottom: 30px;
   }
+}
+.q-textarea .q-field__native {
+  resize: none;
 }
 </style>
