@@ -61,14 +61,16 @@
                 <span style="font-size:14px">名称:</span>
               </template>
             </q-input>
-            <q-input v-model="Type"
-                     :dense="false"
-                     class="col"
-                     style="margin-left:50px;">
+            <q-select v-model="Type"
+                      :options="['String','Int','Json']"
+                      class="col"
+                      :dense="false">
               <template v-slot:before>
                 <span style="font-size:14px">类型:</span>
               </template>
-            </q-input>
+              <template v-slot:prepend>
+              </template>
+            </q-select>
           </div>
           <div class="row input_row">
             <q-input v-model="Data"
@@ -184,6 +186,7 @@ export default {
         Data: this.Data,
       }
       if (this.Name && this.Type && this.Data) {
+        if (!this.isDataType(this.Type)) { return; }
         this.$q.loading.show()
         Apis.postCreateTestDataSource(para).then(() => {
           this.getTestDataSource();
@@ -256,7 +259,62 @@ export default {
           })
         }
       })
-    }
+    },
+    //判断类型是否正确
+    isDataType (type) {
+      if (type == 'Int') {
+        if (!Number(this.Data)) {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '当前数据不是Int类型',
+            color: 'red',
+          })
+          return false;
+        }
+        return true;
+      } else if (type == 'Json') {
+        if (!this.isJSON(this.Data)) {
+          return false;
+        }
+        return true
+      }
+    },
+    //判断是否是JSON格式
+    isJSON (str) {
+      if (typeof str == 'string') {
+        try {
+          var obj = JSON.parse(str);
+          if (typeof obj == 'object' && obj) {
+            if (str.substr(0, 1) == '{' && str.substr(-1) == '}') {
+              return true;
+            } else {
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: '配置不是正确的JSON格式',
+                color: 'red',
+              })
+            }
+          } else {
+            this.$q.notify({
+              position: 'top',
+              message: '提示',
+              caption: '配置不是正确的JSON格式',
+              color: 'red',
+            })
+          }
+
+        } catch (e) {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '配置不是正确的JSON格式',
+            color: 'red',
+          })
+        }
+      }
+    },
   }
 }
 </script>
@@ -299,12 +357,10 @@ export default {
 <style lang="scss">
 .q-table {
   table-layout: fixed;
-  .cursor-pointer {
-    .text-left {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+  .text-left {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 .q-table--col-auto-width {

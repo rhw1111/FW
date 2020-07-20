@@ -240,6 +240,7 @@ namespace FW.TestPlatform.Main
         public const string CalcCheckSumInvoke = "calcchecksuminvoke";
         public const string SlaveName = "slavename";
         public const string GetJsonDataInvoke = "getjsondatainvoke";
+        public const string SplitJsonDataInvoke = "splitjsondatainvoke";
     }
 
     /// <summary>
@@ -247,6 +248,7 @@ namespace FW.TestPlatform.Main
     /// </summary>
     public static class DataSourceTypes
     {
+        public const string Label = "Label";
         public const string String = "String";
         public const string Int = "Int";
         public const string Json = "Json";
@@ -270,6 +272,7 @@ namespace FW.TestPlatform.Main
         public const string FilterJsonData = "FilterJsonData";
         public const string CalcCheckSum = "CalcCheckSum";
         public const string GetJsonData = "GetJsonData";
+        public const string SplitJsonData = "SplitJsonData";
     }
 
     /// <summary>

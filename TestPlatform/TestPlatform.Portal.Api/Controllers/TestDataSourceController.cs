@@ -24,9 +24,10 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppDeleteTestDataSource _appDeleteTestDataSource;
         private readonly IAppQuerySingleTestDataSource _appQuerySingleTestDataSource;
         private readonly IAppDeleteMultipleTestDataSource _appDeleteMultipleTestDataSource;
+        private readonly IAppQueryTestDataSources _appQueryTestDataSources;
 
         public TestDataSourceController(IAppQueryTestDataSource appQueryTestDataSource, IAppAddTestDataSource appAddTestDataSource, IAppUpdateTestDataSource appUpdateTestDataSource, IAppDeleteTestDataSource appDeleteTestDataSource, 
-            IAppQuerySingleTestDataSource appQuerySingleTestDataSource, IAppDeleteMultipleTestDataSource appDeleteMultipleTestDataSource)
+            IAppQuerySingleTestDataSource appQuerySingleTestDataSource, IAppDeleteMultipleTestDataSource appDeleteMultipleTestDataSource, IAppQueryTestDataSources appQueryTestDataSources)
         {
             _appQueryTestDataSource = appQueryTestDataSource;
             _appAddTestDataSource = appAddTestDataSource;
@@ -34,6 +35,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _appDeleteTestDataSource = appDeleteTestDataSource;
             _appQuerySingleTestDataSource = appQuerySingleTestDataSource;
             _appDeleteMultipleTestDataSource = appDeleteMultipleTestDataSource;
+            _appQueryTestDataSources = appQueryTestDataSources;
         }
 
         [HttpGet("querybypage")]
@@ -74,6 +76,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         public async Task DeleteMutiple(List<Guid> ids)
         {
             await _appDeleteMultipleTestDataSource.Do(ids);
+        }
+
+        [HttpGet("datasources")]
+        public async Task<List<TestDataSourceNameAndIDList>> GetTestDataSources()
+        {
+            return await _appQueryTestDataSources.Do();
         }
     }
 }

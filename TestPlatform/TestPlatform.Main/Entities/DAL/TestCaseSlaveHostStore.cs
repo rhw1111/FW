@@ -176,7 +176,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
             return result;
         }
-        public async Task<Guid?> QueryByNameNoLock(string name, CancellationToken cancellationToken = default)
+        public async Task<Guid?> QueryByNameNoLock(Guid caseId, string name, CancellationToken cancellationToken = default)
         {
             Guid? result = null;
             await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.RequiresNew, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted, Timeout = new TimeSpan(0, 0, 30) }))
@@ -192,7 +192,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         }
 
                         var dataSourceItem = await (from item in dbContext.TestCaseSlaveHosts
-                                                    where item.SlaveName == name
+                                                    where item.TestCaseID == caseId && item.SlaveName == name
                                                     orderby EF.Property<long>(item, "Sequence")
                                                     select item).FirstOrDefaultAsync();
                         if (dataSourceItem != null)

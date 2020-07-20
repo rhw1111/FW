@@ -18,20 +18,28 @@
         <div class="row input_row">
           <q-input v-model="Name"
                    :dense="false"
-                   class="col">
+                   class="col-6">
             <template v-slot:before>
-              <span style="font-size:14px">地址:</span>
+              <span style="font-size:14px;width:80px;">地址:</span>
             </template>
           </q-input>
         </div>
         <div class="row input_row">
           <q-input :dense="false"
-                   class="col col-xs-12"
+                   class="col-6 col-xs-6"
                    readonly
                    v-model="SSHSelect"
-                   @dblclick="openSSH">
+                   placeholder="点击右侧加号选择主机">
             <template v-slot:before>
-              <span style="font-size:14px">SSH终结点:</span>
+              <span style="font-size:14px;width:80px;">SSH终结点:</span>
+            </template>
+            <template v-slot:append>
+              <q-btn round
+                     dense
+                     flat
+                     icon="
+                    add"
+                     @click="openSSH" />
             </template>
           </q-input>
         </div>

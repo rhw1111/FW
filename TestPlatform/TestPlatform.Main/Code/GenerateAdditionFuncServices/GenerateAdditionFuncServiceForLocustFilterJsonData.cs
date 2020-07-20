@@ -24,13 +24,13 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("        else:");
             sbCode.AppendLine("            return []");
             sbCode.AppendLine("    elif data and len(data) > 0:");
-            sbCode.AppendLine("        filterJsonData = []");
+            sbCode.AppendLine("        result = []");
             sbCode.AppendLine("");
             sbCode.AppendLine("        for row in data:");
             sbCode.AppendLine("            if row[name] == value:");
-            sbCode.AppendLine("                filterJsonData.append(row)");
+            sbCode.AppendLine("                result.append(row)");
             sbCode.AppendLine("");
-            sbCode.AppendLine("        return filterJsonData");
+            sbCode.AppendLine("        return result");
             sbCode.AppendLine("");
             sbCode.AppendLine("    return None");
             sbCode.AppendLine("");
