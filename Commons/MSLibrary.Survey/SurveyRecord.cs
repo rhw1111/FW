@@ -265,7 +265,7 @@ namespace MSLibrary.Survey
         /// <param name="responseHandle"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task CollectResponse(Func<string, Task> responseHandle, CancellationToken cancellationToken = default)
+        public async Task CollectResponse(Func<object, Task> responseHandle, CancellationToken cancellationToken = default)
         {
             await _imp.CollectResponse(this, responseHandle, cancellationToken);
         }
@@ -276,7 +276,7 @@ namespace MSLibrary.Survey
         /// <param name="responseHandle"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task CollectResponse(string response, Func<string, Task> responseHandle, CancellationToken cancellationToken = default)
+        public async Task CollectResponse(string response, Func<object, Task> responseHandle, CancellationToken cancellationToken = default)
         {
             await _imp.CollectResponse(this, response, responseHandle, cancellationToken);
         }
@@ -290,11 +290,21 @@ namespace MSLibrary.Survey
         {
             await _imp.GenerateRecipient(this, cancellationToken);
         }
+
+        public async Task UpdateRecipientConfiguration(string type, string configuration, CancellationToken cancellationToken = default)
+        {
+            await _imp.UpdateRecipientConfiguration(this,type,configuration, cancellationToken);
+        }
+
+        public async Task Update(CancellationToken cancellationToken = default)
+        {
+            await _imp.Update(this, cancellationToken);
+        }
     }
 
     public interface ISurveyRecordIMP
     {
-        Task UpdateRecipientConfiguration(SurveyRecord record, string type, string configuration);
+        Task UpdateRecipientConfiguration(SurveyRecord record, string type, string configuration, CancellationToken cancellationToken = default);
         /// <summary>
         /// 生成接收者
         /// </summary>
@@ -302,8 +312,10 @@ namespace MSLibrary.Survey
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task GenerateRecipient(SurveyRecord record, CancellationToken cancellationToken = default);
-        Task CollectResponse(SurveyRecord collector,Func<string,Task> responseHandle, CancellationToken cancellationToken = default);
-        Task CollectResponse(SurveyRecord collector, string response, Func<string, Task> responseHandle, CancellationToken cancellationToken = default);
+        Task CollectResponse(SurveyRecord collector,Func<object,Task> responseHandle, CancellationToken cancellationToken = default);
+        Task CollectResponse(SurveyRecord collector, string response, Func<object, Task> responseHandle, CancellationToken cancellationToken = default);
+
+        Task Update(SurveyRecord collector, CancellationToken cancellationToken = default);
     }
 
     /// <summary>
@@ -337,6 +349,18 @@ namespace MSLibrary.Survey
     public interface ISurveyResponseIDResolveService
     {
         Task<(string,DateTime)> Resolve(string responseData, CancellationToken cancellationToken = default);
+        Task<(string, DateTime)> ResolveFromDirect(string responseData, CancellationToken cancellationToken = default);
+
+    }
+
+    /// <summary>
+    /// Survey响应数据转换服务
+    /// 将原始数据转换成需要的对象
+    /// </summary>
+    public interface ISurveyResponseConvertService
+    {
+        Task<object> Convert(string responseData, CancellationToken cancellationToken = default);
+        Task<object> ConvertFromDirect(string responseData, CancellationToken cancellationToken = default);
     }
 
 
@@ -356,11 +380,13 @@ namespace MSLibrary.Survey
             _surveyResponseLogStore = surveyResponseLogStore;
         }
 
-        public async Task CollectResponse(SurveyRecord collector, Func<string, Task> responseHandle, CancellationToken cancellationToken = default)
+        public async Task CollectResponse(SurveyRecord collector, Func<object, Task> responseHandle, CancellationToken cancellationToken = default)
         {
             var responseIDResolveService = SurveyExtensionCollection.GetSurveyResponseIDResolveService(collector.Endpoint.Type);
             var responseDataQueryService = SurveyExtensionCollection.GetSurveyResponseDataQueryService(collector.Endpoint.Type);
             var responseCollectorEnableCheckService = SurveyExtensionCollection.GetSurveyCollectorEnableCheckService(collector.Endpoint.Type);
+            var responseConvertService = SurveyExtensionCollection.GetSurveyResponseConvertService(collector.Endpoint.Type);
+
 
             //检查收集器是否可用，如果不可用，则直接结束
             var enabled=await responseCollectorEnableCheckService.Check(collector.Endpoint.Configuration, collector.SurveyID, cancellationToken);
@@ -411,8 +437,9 @@ namespace MSLibrary.Survey
 
                                 if (canContinue)
                                 {
+                                    var realResponseObj=responseConvertService.Convert(data);
                                     //执行响应处理
-                                    await responseHandle(data);
+                                    await responseHandle(realResponseObj);
                                     scope.Complete();
                                 }
 
@@ -456,12 +483,14 @@ namespace MSLibrary.Survey
             await _surveyRecordStore.UpdateLatestHandleTime(collector.ID, latestTime, cancellationToken);
         }
 
-        public async Task CollectResponse(SurveyRecord collector, string response, Func<string, Task> responseHandle, CancellationToken cancellationToken = default)
+        public async Task CollectResponse(SurveyRecord collector, string response, Func<object, Task> responseHandle, CancellationToken cancellationToken = default)
         {
             var responseIDResolveService = SurveyExtensionCollection.GetSurveyResponseIDResolveService(collector.Endpoint.Type);
             var responseDataQueryService= SurveyExtensionCollection.GetSurveyResponseDataQueryService(collector.Endpoint.Type);
+            var responseConvertService = SurveyExtensionCollection.GetSurveyResponseConvertService(collector.Endpoint.Type);
 
-            var responseObj=await responseIDResolveService.Resolve(response, cancellationToken);
+
+            var responseObj =await responseIDResolveService.ResolveFromDirect(response, cancellationToken);
 
             var responseLog=await _surveyResponseLogStore.Query(collector.Endpoint.Type, collector.SurveyID, responseObj.Item1, cancellationToken);
             if (responseLog!=null)
@@ -490,8 +519,9 @@ namespace MSLibrary.Survey
                     
                     if (canContinue)
                     {
+                        var realResponseObj = responseConvertService.ConvertFromDirect(response);
                         //执行响应处理
-                        await responseHandle(response);
+                        await responseHandle(realResponseObj);
                         scope.Complete();
                     }
 
@@ -507,9 +537,14 @@ namespace MSLibrary.Survey
             await _surveyRecordStore.UpdateLatestRecipientGenerateTime(record.ID, DateTime.UtcNow, cancellationToken);
         }
 
-        public async Task UpdateRecipientConfiguration(SurveyRecord record, string type, string configuration)
+        public async Task UpdateRecipientConfiguration(SurveyRecord record, string type, string configuration, CancellationToken cancellationToken = default)
         {
-            await _surveyRecordStore.UpdateRecipientConfiguration(record.ID, type, configuration);
+            await _surveyRecordStore.UpdateRecipientConfiguration(record.ID, type, configuration, cancellationToken);
+        }
+
+        public async Task Update(SurveyRecord record, CancellationToken cancellationToken = default)
+        {
+            await _surveyRecordStore.Update(record, cancellationToken);
         }
     }
 }

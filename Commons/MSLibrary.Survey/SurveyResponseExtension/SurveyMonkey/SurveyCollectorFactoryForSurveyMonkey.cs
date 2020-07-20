@@ -7,6 +7,8 @@ using MSLibrary.DI;
 using MSLibrary.Survey.SurveyMonkey;
 using MSLibrary.Serializer;
 using MSLibrary.LanguageTranslate;
+using MSLibrary.Survey.SurveyMonkey.Message;
+
 
 namespace MSLibrary.Survey.SurveyResponseExtension.SurveyMonkey
 {
@@ -34,12 +36,45 @@ namespace MSLibrary.Survey.SurveyResponseExtension.SurveyMonkey
             SurveyRecord collector = new SurveyRecord()
             {
                 ID = Guid.NewGuid(),
-                SurveyID = surveyData.ID
+                SurveyID = surveyData.ID,
+                 Name=surveyData.Title            
             };
 
             return await Task.FromResult(collector);
         }
 
+        public async Task<SurveyRecord> CreateFromDirect(string endpointConfiguration, string collectorData, CancellationToken cancellationToken = default)
+        {
+            var (configurationObj, surveyMonkeyEndpoint) = await EndpointConfigurationService.GetSurveyMonkeyEndpoint(_surveyMonkeyEndpointRepositoryCacheProxy, endpointConfiguration, cancellationToken);
 
+            var webhookCallbackData = JsonSerializerHelper.Deserialize<WebhookCallbackData>(collectorData);
+
+            if (webhookCallbackData.Resources.SurveyID==null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = SurveyTextCodes.NotFoundInfoInSurveyMonkeyWebhookCallback,
+                    DefaultFormatting = "在SurveyMonkey的webhook回调中找不到名称为{0}的信息，回调数据为{1}",
+                    ReplaceParameters = new List<object>() { "survey_id", collectorData }
+                };
+                throw new UtilityException((int)SurveyErrorCodes.NotFoundInfoInSurveyMonkeyWebhookCallback, fragment, 1, 0);
+            }
+
+            SurveyQuerySingleRequest surveySingleQueryRequest = new SurveyQuerySingleRequest()
+            {
+                 ID= webhookCallbackData.Resources.SurveyID
+            };
+
+            var surveySingleQueryResponse=(SurveyQuerySingleResponse)await surveyMonkeyEndpoint.Execute(surveySingleQueryRequest,cancellationToken);
+
+            SurveyRecord record = new SurveyRecord()
+            {
+                ID = Guid.NewGuid(),
+                SurveyID = webhookCallbackData.Resources.SurveyID,
+                Name = surveySingleQueryResponse.Title
+            };
+
+            return record;
+        }
     }
 }

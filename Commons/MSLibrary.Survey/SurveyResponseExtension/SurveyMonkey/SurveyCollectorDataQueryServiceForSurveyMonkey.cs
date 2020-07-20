@@ -71,7 +71,7 @@ namespace MSLibrary.Survey.SurveyResponseExtension.SurveyMonkey
                     SurveyQueryResponse queryResponse = (SurveyQueryResponse)await surveyMonkeyEndpoint.Execute(queryRequest, cancellationToken);
 
                     var queryResult = (from item in queryResponse.SurveyItems
-                                       select JsonSerializerHelper.Serializer(new SurveyData() { ID = item.ID })).ToList();
+                                       select JsonSerializerHelper.Serializer(new SurveyData() { ID = item.ID, Title=item.Title, NickName=item.NickName })).ToList();
 
                     return queryResult;
                 }
