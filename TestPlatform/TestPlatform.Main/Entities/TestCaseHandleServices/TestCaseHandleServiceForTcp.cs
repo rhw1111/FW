@@ -102,10 +102,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task Run(TestCase tCase, CancellationToken cancellationToken = default)
         {
-            //\加bfrnt\/‘"为合法分隔符，其它不是，替换
-            string pattern = @"(\\[^bfrnt\\/‘\""])";
-            string config = Regex.Replace(tCase.Configuration, pattern, "\\$1");
-            var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(config);
+            var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
 
 
             var scriptTemplate=await _scriptTemplateRepository.QueryByName(ScriptTemplateNames.LocustTcp, cancellationToken);

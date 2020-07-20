@@ -61,14 +61,16 @@
                 <span style="font-size:14px">名称:</span>
               </template>
             </q-input>
-            <q-input v-model="Type"
-                     :dense="false"
-                     class="col"
-                     style="margin-left:50px;">
+            <q-select v-model="Type"
+                      :options="['String','Int','Json']"
+                      class="col"
+                      :dense="false">
               <template v-slot:before>
                 <span style="font-size:14px">类型:</span>
               </template>
-            </q-input>
+              <template v-slot:prepend>
+              </template>
+            </q-select>
           </div>
           <div class="row input_row">
             <q-input v-model="Data"
@@ -299,12 +301,10 @@ export default {
 <style lang="scss">
 .q-table {
   table-layout: fixed;
-  .cursor-pointer {
-    .text-left {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+  .text-left {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 .q-table--col-auto-width {

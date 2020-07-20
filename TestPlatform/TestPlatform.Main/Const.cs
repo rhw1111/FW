@@ -248,6 +248,7 @@ namespace FW.TestPlatform.Main
     /// </summary>
     public static class DataSourceTypes
     {
+        public const string Label = "Label";
         public const string String = "String";
         public const string Int = "Int";
         public const string Json = "Json";

@@ -43,5 +43,10 @@ namespace FW.TestPlatform.Main.Entities
         {
             await _testDataSourceStore.DeleteMutiple(ids, cancellationToken);
         }
+
+        public IAsyncEnumerable<TestDataSource> GetDataSources(CancellationToken cancellationToken = default)
+        {
+            return _testDataSourceStore.GetDataSources(cancellationToken);
+        }
     }
 }

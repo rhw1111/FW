@@ -1,12 +1,5 @@
 <template>
   <div class="detail">
-    <!-- 选择主机框 -->
-    <lookUp :masterHostList="masterHostList"
-            :masterSelectIndex='masterSelectIndex'
-            :fixed="HostFixed"
-            @addMasterHost='addMasterHost'
-            @cancelMasterHost='cancelMasterHost'
-            ref='lookUp' />
     <!-- SlaveHost选择Host -->
     <lookUp :masterHostList="masterHostList"
             :masterSelectIndex='SlaveHostHostIndex'
@@ -54,138 +47,16 @@
              @click="lookMonitorUrl" />
     </div>
     <!-- TestCase字段 -->
-    <div class="q-pa-md row">
-
-      <div class="new_input">
-        <div class="row input_row">
-          <q-input v-model="Name"
-                   :dense="false"
-                   class="col">
-            <template v-slot:before>
-              <span style="font-size:14px">名称:</span>
-            </template>
-          </q-input>
-          <q-select v-model="EngineType"
-                    :options="['Http','Tcp']"
-                    class="col"
-                    :dense="false">
-            <template v-slot:before>
-              <span style="font-size:14px">引擎类型:</span>
-            </template>
-            <template v-slot:prepend>
-            </template>
-          </q-select>
-
-          <q-input :dense="false"
-                   class="col"
-                   readonly
-                   v-model="masterHostSelect"
-                   @dblclick="masterHost">
-            <template v-slot:before>
-              <span style="font-size:14px">主机:</span>
-            </template>
-          </q-input>
-        </div>
-        <span style="font-size:14px">参数配置:</span>
-        <div class="row input_row">
-          <!-- 压测用户总数 -->
-          <q-input filled
-                   bottom-slots
-                   v-model="paraConfig.UserCount"
-                   class="col"
-                   :dense="false"
-                   @keyup="paraConfig.UserCount=paraConfig.UserCount.replace(/[^\d]/g,'')">
-            <template v-slot:before>
-              <span style="font-size:14px;width:100px">压测用户总数:</span>
-            </template>
-            <template v-slot:append>
-              <span style="font-size:14px">个</span>
-            </template>
-          </q-input>
-          <!-- 每秒加载用户数 -->
-          <q-input filled
-                   bottom-slots
-                   v-model="paraConfig.PerSecondUserCount"
-                   class="col"
-                   :dense="false"
-                   @keyup="paraConfig.PerSecondUserCount=paraConfig.PerSecondUserCount.replace(/[^\d]/g,'')">
-            <template v-slot:before>
-              <span style="font-size:14px;width:105px;margin-left:10px;">每秒加载用户数:</span>
-            </template>
-            <template v-slot:append>
-              <span style="font-size:14px">个/秒</span>
-            </template>
-          </q-input>
-          <!-- 压测时间 -->
-          <q-input filled
-                   bottom-slots
-                   v-model="paraConfig.Duration"
-                   class="col"
-                   :dense="false"
-                   @keyup="paraConfig.Duration=paraConfig.Duration.replace(/[^\d]/g,'')">
-            <template v-slot:before>
-              <span style="font-size:14px;width:100px;margin-left:10px;">压测时间:</span>
-            </template>
-            <template v-slot:append>
-              <span style="font-size:14px">秒</span>
-            </template>
-          </q-input>
-        </div>
-
-        <div class="row input_row">
-          <!-- 被测服务器 -->
-          <q-input filled
-                   bottom-slots
-                   v-model="paraConfig.Address"
-                   class="col-5"
-                   :dense="false">
-            <template v-slot:before>
-              <span style="font-size:14px;width:100px">被测服务器:</span>
-            </template>
-            <template v-slot:append>
-              <span style="font-size:14px">ip地址</span>
-            </template>
-          </q-input>
-          <!-- 被测服务器端口 -->
-          <q-input filled
-                   bottom-slots
-                   v-model="paraConfig.Port"
-                   class="col-5"
-                   :dense="false"
-                   @keyup="paraConfig.Port=paraConfig.Port.replace(/[^\d]/g,'')">
-            <template v-slot:before>
-              <span style="font-size:14px;width:105px;margin-left:10px;">被测服务器端口:</span>
-            </template>
-            <template v-slot:append>
-              <span style="font-size:14px">端口</span>
-            </template>
-          </q-input>
-
-          <div class="col-2">
-            <q-btn class="btn "
-                   color="primary"
-                   style="margin:10px 0 0 20px"
-                   label="生 成"
-                   @click="CreateJson" />
-          </div>
-        </div>
-        <div class="row input_row">
-          <q-input v-model="Configuration"
-                   :dense="false"
-                   class="col-xs-12"
-                   type="textarea"
-                   outlined>
-            <template v-slot:before>
-              <span style="font-size:14px">配置:</span>
-            </template>
-          </q-input>
-        </div>
-      </div>
+    <div class="q-pa-md">
+      <CreateShowTestCase :masterHostList="masterHostList"
+                          :dataSourceName="dataSourceName"
+                          ref="CSTestCase"
+                          :detailData="detailData" />
     </div>
     <!-- 创建从机 -->
     <q-dialog v-model="createFixed"
               persistent>
-      <q-card style="width:100%">
+      <q-card style="width: 100%; max-width: 60vw;">
         <q-card-section>
           <div class="text-h6">创建从主机</div>
         </q-card-section>
@@ -197,13 +68,14 @@
                      :dense="false"
                      class="col">
               <template v-slot:before>
-                <span style="font-size:14px">名称:</span>
+                <span style="font-size:14px">从主机名称:</span>
               </template>
             </q-input>
             <q-input v-model="SlaveCount"
                      :dense="false"
                      class="col"
-                     @keyup="SlaveCount=SlaveCount.replace(/[^\d]/g,'')">
+                     @keyup="SlaveCount=SlaveCount.replace(/[^\d]/g,'')"
+                     placeholder="副本数">
               <template v-slot:before>
                 <span style="font-size:14px">数量:</span>
               </template>
@@ -212,9 +84,16 @@
                      class="col"
                      readonly
                      v-model="SlaveHostHostSelect"
-                     @dblclick="dblSlaveHostHost">
+                     placeholder="点击右侧加号选择主机">
               <template v-slot:before>
                 <span style="font-size:14px">主机:</span>
+              </template>
+              <template v-slot:append>
+                <q-btn round
+                       dense
+                       flat
+                       icon="add"
+                       @click="dblSlaveHostHost" />
               </template>
             </q-input>
           </div>
@@ -330,10 +209,12 @@
 <script>
 import * as Apis from "@/api/index"
 import lookUp from "@/components/lookUp.vue"
+import CreateShowTestCase from './component/CreateShowTestCase.vue'
 export default {
   name: 'TestCaseDetail',
   components: {
     lookUp,
+    CreateShowTestCase
   },
   data () {
     return {
@@ -355,27 +236,8 @@ export default {
           EngineType: '3',
         },
       ],
-      datavalue: [],
-      HostFixed: false,   //主机lookUp Flag
       masterHostList: [],//主机列表
-      masterHostSelect: '',//主机已选择列表
-      masterSelectIndex: '',  //主机已选择下标
-
-
-
-      Name: '',           //Name
-      Configuration: '',  //Configuration
-      //Configuration参数配置
-      paraConfig: {
-        UserCount: '',//压测用户总数
-        PerSecondUserCount: '',//每秒加载用户数
-        Address: '',//被测服务器
-        Port: '',//被测服务器端口
-        Duration: '',//压测时间
-      },
-      EngineType: '',     //EngineType
-      MasterHostID: '',   //MasterHostID 主机ID
-
+      dataSourceName: [],//数据源名称列表
 
       SlaveHostFixed: false,//从机Host LookUP Flag
 
@@ -444,23 +306,12 @@ export default {
       this.$q.loading.show()
       Apis.getTestCaseDetail({ id: this.$route.query.id }).then((res) => {
         console.log(res)
-        this.masterHostSelect = res.data.masterHostAddress;
-        this.MasterHostID = res.data.masterHostID;
         this.detailData = res.data;
-        this.Name = res.data.name;
-        this.Configuration = res.data.configuration;
-        this.EngineType = res.data.engineType;
         this.getMasterHostList();
         this.getSlaveHostsList();
         this.getHistoryList();
         this.getTestCaseStatus();
-        //解析Configuration
-        let configJson = JSON.parse(res.data.configuration);
-        this.paraConfig.UserCount = configJson.UserCount || '';
-        this.paraConfig.PerSecondUserCount = configJson.PerSecondUserCount || '';
-        this.paraConfig.Address = configJson.Address || '';
-        this.paraConfig.Port = configJson.Port || '';
-        this.paraConfig.Duration = configJson.Duration || '';
+        this.getDataSourceName();
       })
     },
     //获得从机列表
@@ -502,37 +353,20 @@ export default {
         this.$q.loading.hide()
       })
     },
+    //获得数据源名称
+    getDataSourceName () {
+      let para = {}
+      Apis.getDataSourceName(para).then((res) => {
+        console.log(res)
+        this.dataSourceName = res.data;
+      })
+    },
     //查看TestCase是否运行
     getTestCaseStatus () {
       Apis.getTestCaseStatus({ caseId: this.$route.query.id }).then((res) => {
         this.isNoRun = res.data;
       })
     },
-
-
-    //双击主机
-    masterHost () {
-      this.HostFixed = true;
-    },
-    //添加主机
-    addMasterHost (value) {
-      if (value == undefined) {
-        return false;
-      }
-      this.masterHostSelect = this.masterHostList[value].address;
-      this.MasterHostID = this.masterHostList[value].id;
-      this.masterSelectIndex = value;
-      this.HostFixed = false;
-    },
-    //取消主机选择
-    cancelMasterHost () {
-      this.HostFixed = false;
-      this.$refs.lookUp.selectIndex = this.masterSelectIndex;
-    },
-
-
-
-
 
     //双击从机host
     dblSlaveHostHost () {
@@ -561,33 +395,21 @@ export default {
 
     //保存更新TestCase
     putTestCase () {
-      let para = {
-        ID: this.detailData.id,
-        Name: this.Name,
-        Configuration: this.Configuration.trim(),
-        EngineType: this.EngineType,
-        MasterHostID: this.MasterHostID
-      }
-      if (this.detailData.id && this.Name && this.isJSON(this.Configuration.trim()) && this.EngineType && this.MasterHostID) {
-        this.$q.loading.show()
-        Apis.putTestCase(para).then((res) => {
-          console.log(res)
-          this.$q.notify({
-            position: 'top',
-            message: '提示',
-            caption: '保存成功',
-            color: 'secondary',
-          })
-          this.$q.loading.hide()
-        })
-      } else {
+      if (!this.$refs.CSTestCase.newCreate()) { return; }
+      let para = this.$refs.CSTestCase.newCreate();
+      para.ID = this.detailData.id;
+      this.$q.loading.show()
+      Apis.putTestCase(para).then((res) => {
+        console.log(res)
         this.$q.notify({
           position: 'top',
           message: '提示',
-          caption: '请填写完整信息',
-          color: 'red',
+          caption: '保存成功',
+          color: 'secondary',
         })
-      }
+        this.$q.loading.hide()
+      })
+
     },
     //删除当条TestCase
     deleteTestCase () {
@@ -834,7 +656,8 @@ export default {
         this.$q.loading.hide()
         this.$q.dialog({
           title: '提示',
-          message: res.data
+          message: res.data,
+          style: { 'width': '100%', 'max-width': '65vw' }
         })
       })
     },
@@ -858,7 +681,8 @@ export default {
           this.$q.loading.hide()
           this.$q.dialog({
             title: '提示',
-            message: res.data
+            message: res.data,
+            style: { 'width': '100%', 'max-width': '65vw' }
           })
         })
       } else if (this.SlaveHostSelected.length > 1) {
@@ -873,89 +697,7 @@ export default {
     //查看MonitorUrl
     lookMonitorUrl () {
       window.open(this.detailData.monitorUrl);
-    },//生成JSON
-    CreateJson () {
-      if (this.Configuration.trim() == '') {
-        //验证ip地址是否正确
-        if (this.paraConfig.Address != '') {
-          if (!this.isValidIp(this.paraConfig.Address)) {
-            this.$q.notify({
-              position: 'top',
-              message: '提示',
-              caption: '被测服务器ip地址不正确',
-              color: 'red',
-            })
-            return;
-          }
-        }
-        this.Configuration = JSON.stringify({
-          UserCount: this.paraConfig.UserCount ? Number(this.paraConfig.UserCount) : '',//压测用户总数
-          PerSecondUserCount: this.paraConfig.PerSecondUserCount ? Number(this.paraConfig.PerSecondUserCount) : '',//每秒加载用户数
-          Address: this.paraConfig.Address,//被测服务器
-          Port: this.paraConfig.Port ? Number(this.paraConfig.Port) : '',//被测服务器端口
-          Duration: this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '',//压测时间
-        }, null, 2);
-      } else if (this.isJSON(this.Configuration.trim())) {
-        //验证ip地址是否正确
-        if (this.paraConfig.Address != '') {
-          if (!this.isValidIp(this.paraConfig.Address)) {
-            this.$q.notify({
-              position: 'top',
-              message: '提示',
-              caption: '被测服务器ip地址不正确',
-              color: 'red',
-            })
-            return;
-          }
-        }
-        this.Configuration = JSON.parse(this.Configuration);
-        this.Configuration.UserCount = this.paraConfig.UserCount ? Number(this.paraConfig.UserCount) : '';
-        this.Configuration.PerSecondUserCount = this.paraConfig.PerSecondUserCount ? Number(this.paraConfig.PerSecondUserCount) : '';
-        this.Configuration.Address = this.paraConfig.Address;
-        this.Configuration.Port = this.paraConfig.Port ? Number(this.paraConfig.Port) : '';
-        this.Configuration.Duration = this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '';
-        this.Configuration = JSON.stringify(this.Configuration, null, 2);
-      }
     },
-    //判断是否是JSON格式
-    isJSON (str) {
-      if (typeof str == 'string') {
-        try {
-          var obj = JSON.parse(str);
-          if (typeof obj == 'object' && obj) {
-            if (str.substr(0, 1) == '{' && str.substr(-1) == '}') {
-              return true;
-            } else {
-              this.$q.notify({
-                position: 'top',
-                message: '提示',
-                caption: '配置不是正确的JSON格式',
-                color: 'red',
-              })
-            }
-          } else {
-            this.$q.notify({
-              position: 'top',
-              message: '提示',
-              caption: '配置不是正确的JSON格式',
-              color: 'red',
-            })
-          }
-
-        } catch (e) {
-          this.$q.notify({
-            position: 'top',
-            message: '提示',
-            caption: '配置不是正确的JSON格式',
-            color: 'red',
-          })
-        }
-      }
-    },
-    //判断ip地址是否正确
-    isValidIp (e) {
-      return /^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(e)
-    }
   }
 }
 </script>
@@ -1019,9 +761,9 @@ export default {
   height: 400px;
   resize: none;
 }
-@media (min-width: 600px) {
-  .q-dialog__inner--minimized > div {
-    max-width: 700px;
-  }
-}
+// @media (min-width: 600px) {
+//   .q-dialog__inner--minimized > div {
+//     max-width: 900px;
+//   }
+// }
 </style>
