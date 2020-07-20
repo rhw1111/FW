@@ -15,7 +15,7 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
             builder.ToTable("testcase").HasKey((entity) => entity.ID);
             builder.Property((entity) => entity.Name).IsRequired().HasColumnType("varchar(150)");
             builder.Property((entity) => entity.EngineType).IsRequired().HasColumnType("varchar(150)");
-            builder.Property((entity) => entity.Configuration).IsRequired().HasColumnType("mediumtext");
+            builder.Property((entity) => entity.Configuration).IsRequired().HasColumnType("mediumtext"); 
             builder.Property((entity) => entity.Status).IsRequired().HasColumnType("int")
                 .HasConversion<int>((v) => (int)v,
                 (v) => (TestCaseStatus)v);
