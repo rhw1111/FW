@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using MSLibrary.DI;
 using MSLibrary.Transaction;
 using FW.TestPlatform.Main.DAL;
+using MSLibrary.Collections;
 
 namespace FW.TestPlatform.Main.Entities.DAL
 {
@@ -260,6 +261,40 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }
             });
+        }
+
+        public IAsyncEnumerable<TestDataSource> GetDataSources(CancellationToken cancellationToken = default)
+        {
+            AsyncInteration<TestDataSource> interation = new AsyncInteration<TestDataSource>(
+                async (index) =>
+                {
+                    List<TestDataSource>? datas = null;
+                    await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+                    {
+                        await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                        {
+                            if (transaction != null)
+                            {
+                                await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                            }
+
+                            var ids = (from item in dbContext.TestDataSources
+                                       orderby EF.Property<long>(item, "Sequence")
+                                       select item.ID
+                                                ).Skip((index) * 500).Take(500);
+
+                            datas = await (from item in dbContext.TestDataSources
+                                           join idItem in ids
+                                           on item.ID equals idItem
+                                           orderby EF.Property<long>(item, "Sequence")
+                                           select item).ToListAsync();
+                        }
+                    });
+
+                    return datas;
+                }
+                );
+            return interation;
         }
     }
 }

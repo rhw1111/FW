@@ -20,5 +20,6 @@ namespace FW.TestPlatform.Main.Entities.DAL
         Task<IList<TestDataSource>> QueryByNames(IList<string> names, CancellationToken cancellationToken = default);
         Task<QueryResult<TestDataSource>> QueryByPage(string matchName, int page, int pageSize, CancellationToken cancellationToken = default);
         Task DeleteMutiple(List<Guid> ids, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<TestDataSource> GetDataSources(CancellationToken cancellationToken = default);
     }
 }
