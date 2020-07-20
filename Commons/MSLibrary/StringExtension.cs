@@ -207,6 +207,16 @@ namespace MSLibrary
         }
 
         /// <summary>
+        /// 转义MySql格式
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static string ToMySql(this string text)
+        {
+            return text.Replace("'", "''").Replace(@"\",@"\\");
+        }
+
+        /// <summary>
         /// 转义Sql中的like字符串
         /// </summary>
         /// <param name="text"></param>
@@ -214,6 +224,16 @@ namespace MSLibrary
         public static string ToSqlLike(this string text)
         {
             return text.Replace("[", "[[]").Replace("_", "[_]").Replace("%", "[%]").Replace("^", "[^]");
+        }
+
+        /// <summary>
+        /// 转义MySql中的like字符串
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static string ToMySqlLike(this string text)
+        {
+            return text.Replace(@"\", @"\\").Replace("_", @"\_").Replace("%", @"\%");
         }
 
 

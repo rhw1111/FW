@@ -10,5 +10,10 @@ namespace MSLibrary.Survey.SurveyResponseExtension.SurveyMonkey
     {
         [DataMember]
         public string ID { get; set; } = null!;
+
+        [DataMember]
+        public string Title { get; set; } = null!;
+        [DataMember]
+        public string NickName { get; set; } = null!;
     }
 }

@@ -24,7 +24,7 @@ namespace FW.TestPlatform.Main.Context.HttpExtensionContextHandleServices
         public async Task<object> GetInfo(HttpRequest request)
         {
             int lang = 2052;
-            int to = -480;
+            int to = 8;
             if (request.Headers.TryGetValue("lc", out StringValues langValues))
             {
                 var strLang = langValues[0].Trim();
@@ -40,7 +40,7 @@ namespace FW.TestPlatform.Main.Context.HttpExtensionContextHandleServices
                 var strTO = langValues[0].Trim();
                 if (!int.TryParse(strTO, out to))
                 {
-                    to = 480;
+                    to = 8;
                 }
             }
 

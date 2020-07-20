@@ -45,7 +45,10 @@ namespace MSLibrary.Survey
         /// 找不到指定ID的SurveyMonkey的Survey
         /// </summary>
         NotFoundSurveyMonkeySurveyByID = 315000333,
-
+        /// <summary>
+        /// 在SurveyMonkey的webhook回调中找不到指定的信息
+        /// </summary>
+        NotFoundInfoInSurveyMonkeyWebhookCallback = 315000334,
 
         /// <summary>
         /// 找不到指定类型的Survey收集器工厂
@@ -91,6 +94,12 @@ namespace MSLibrary.Survey
         /// 找不到指定类型的Survey接收者生成服务
         /// </summary>
         NotFoundSurveyRecipientGenerateServiceByType = 315000353,
+        /// <summary>
+        /// 找不到指定类型的Survey响应转换服务
+        /// </summary>
+        NotFoundSurveyResponseConvertServiceByType = 315000354,
+
+
 
     }
 }
