@@ -301,12 +301,10 @@ export default {
 <style lang="scss">
 .q-table {
   table-layout: fixed;
-  .cursor-pointer {
-    .text-left {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+  .text-left {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 .q-table--col-auto-width {
