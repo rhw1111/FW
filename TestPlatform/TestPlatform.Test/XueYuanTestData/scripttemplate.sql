@@ -209,8 +209,8 @@ class TcpTestUser(User):
 
         try:
             #--------------------------------------------------
-            pass   
             {$connectinit(12)}
+            pass   
             #--------------------------------------------------
         except Exception as e:
             print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
@@ -232,8 +232,8 @@ class TcpTestUser(User):
     def get_package(self):
         try:
             #--------------------------------------------------
-            pass
             # self.request_body = {$requestbody()}
+            pass
             #--------------------------------------------------
         except Exception as e:
             print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
@@ -250,8 +250,8 @@ class TcpTestUser(User):
 
         try:
             #--------------------------------------------------
-            pass
             {$sendinit(12)}
+            pass
             #--------------------------------------------------
         except Exception as e:
             print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
@@ -277,8 +277,8 @@ class TcpTestUser(User):
 
         try:
             #--------------------------------------------------
-            pass
             {$stopinit(12)}
+            pass
             #--------------------------------------------------
         except Exception as e:
             print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
