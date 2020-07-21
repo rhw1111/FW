@@ -408,7 +408,7 @@ export default {
         this.Name = val.name;
         this.paraConfig = JSON.parse(val.configuration);
         this.EngineType = val.engineType;
-
+        this.Configuration = JSON.stringify(JSON.parse(val.configuration), null, 2);
         this.masterHostSelect = val.masterHostAddress;
         this.MasterHostID = val.masterHostID;
       }
@@ -520,10 +520,11 @@ export default {
     newCreate () {
       let para = {
         Name: this.Name,
-        Configuration: JSON.stringify(this.paraConfig).trim(),
+        Configuration: this.Configuration.trim(),
         EngineType: this.EngineType,
         MasterHostID: this.MasterHostID
       }
+      console.log(para)
       if (this.Name && this.isJSON(this.Configuration) && this.EngineType && this.MasterHostID) {
         return para
       } else {
