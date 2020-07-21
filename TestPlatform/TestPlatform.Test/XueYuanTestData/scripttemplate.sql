@@ -204,15 +204,17 @@ class TcpTestUser(User):
         return is_success
 
     def login(self):
-        self.user_id = None
-        self.user_password = None
-        self.user_token = None
+        self.user_id = ""
+        self.user_password = ""
+        self.user_token = ""
+        self.senddata = ""
+        self.recvdata = ""
         self.is_success = False
 
         try:
             #--------------------------------------------------
             {$connectinit(12)}
-            pass   
+            pass
             #--------------------------------------------------
         except Exception as e:
             print("[%s] %s: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
@@ -247,7 +249,8 @@ class TcpTestUser(User):
         return package
 
     def send_data(self):
-        self.recvdata = None
+        self.senddata = ""
+        self.recvdata = ""
         self.is_success = False
 
         try:
@@ -267,14 +270,15 @@ class TcpTestUser(User):
 
         if self.is_success:
             pass
-            # print("[%s] %s: Send success, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, package))
+            # print("[%s] %s: Send success, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.senddata))
         else:
-            print("[%s] %s: Send fail, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, package))
+            print("[%s] %s: Send fail, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.senddata))
 
         return self.is_success
 
     def stop_data(self):
-        self.recvdata = None
+        self.senddata = ""
+        self.recvdata = ""
         self.is_success = False
 
         try:
@@ -293,9 +297,9 @@ class TcpTestUser(User):
             self.is_success = False
 
         if self.is_success:
-            print("[%s] %s: Stop success, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, package))
+            print("[%s] %s: Stop success, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.senddata))
         else:
-            print("[%s] %s: Stop fail, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, package))
+            print("[%s] %s: Stop fail, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.senddata))
 
         return self.is_success
 
