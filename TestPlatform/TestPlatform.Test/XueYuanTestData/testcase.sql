@@ -15,7 +15,8 @@ SET configuration = '{
     "Duration": 100,
     "Address": "127.0.0.1",
     "Port": 12345,
-    "ResponseSeparator": "</package>",    
+    "ResponseSeparator": "</package>",
+    "IsPrintLog": true,
     "DataSourceVars": [
         {
             "Name": "user_account_list",

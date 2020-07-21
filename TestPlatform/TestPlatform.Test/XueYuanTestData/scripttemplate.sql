@@ -41,6 +41,8 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 setup_logging("INFO", None)
 
+# 是否打印日志
+is_print_log = {IsPrintLog}
 host = "{Address}"
 port = {Port}
 # client_id

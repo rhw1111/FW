@@ -188,6 +188,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             strCode = strCode.Replace("{CaseID}", tCase.ID.ToString());
             strCode = strCode.Replace("{ResponseSeparator}", configuration.ResponseSeparator);
             strCode = strCode.Replace("{CaseServiceBaseAddress}", caseServiceBaseAddress);
+            strCode = strCode.Replace("{IsPrintLog}", configuration.IsPrintLog ? "True" : "False");
 
             //代码模板必须有一个格式为{SlaveName}的替换符，该替换符标识每个Slave
 
@@ -423,6 +424,15 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         {
             get; set;
         } = null!;
+
+        /// <summary>
+        /// 是否打印日志
+        /// </summary>
+        [DataMember]
+        public bool IsPrintLog
+        {
+            get; set;
+        } = false;
     }
 
     /// <summary>
