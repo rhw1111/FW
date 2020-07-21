@@ -15,7 +15,8 @@ SET configuration = '{
     "Duration": 100,
     "Address": "127.0.0.1",
     "Port": 12345,
-    "ResponseSeparator": "</package>",    
+    "ResponseSeparator": "</package>",
+    "IsPrintLog": true,
     "DataSourceVars": [
         {
             "Name": "user_account_list",
@@ -75,8 +76,16 @@ SET configuration = '{
                 "Content": "{\'UserName\': {$currconnectkv(\'user_id\')}, \'PassWord\': {$currconnectkv(\'user_password\')}, \'a\': parameter}"
             },
             {
+                "Name": "self.senddata",
+                "Content": "login_send_data"
+            },
+            {
+                "Name": "self.recvdata",
+                "Content": "{$tcprrwithconnectinvoke({$curconnect()},self.senddata,\'.*\')}"
+            },
+            {
                 "Name": "{$currconnectkv(\'user_token\')}",
-                "Content": "{$tcprrwithconnectinvoke({$curconnect()},login_send_data,\'.*\')}"
+                "Content": "self.recvdata"
             },
             {
                 "Name": "self.user_id",
@@ -135,8 +144,12 @@ SET configuration = '{
                 "Content": "{$dessecurity(package,\'abcdefghjhijklmn\')}"
             },
             {
+                "Name": "self.senddata",
+                "Content": "package"
+            },
+            {
                 "Name": "self.recvdata",
-                "Content": "{$tcprrwithconnectinvoke({$curconnect()},package,\'.*\')}"
+                "Content": "{$tcprrwithconnectinvoke({$curconnect()},self.senddata,\'.*\')}"
             }
         ]
     },
@@ -155,8 +168,12 @@ SET configuration = '{
                 "Content": "{$dessecurity(package,\'abcdefghjhijklmn\')}"
             },
             {
+                "Name": "self.senddata",
+                "Content": "package"
+            },
+            {
                 "Name": "self.recvdata",
-                "Content": "{$tcprrwithconnectinvoke({$curconnect()},package,\'.*\')}"
+                "Content": "{$tcprrwithconnectinvoke({$curconnect()},self.senddata,\'.*\')}"
             }
         ]
     }

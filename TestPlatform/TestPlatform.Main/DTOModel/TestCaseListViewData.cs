@@ -77,6 +77,24 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<string>(nameof(Configuration), value);
             }
         }
+
+        /// <summary>
+        /// 测试用例状态
+        /// </summary>
+        [DataMember]
+        public string Status
+        {
+            get
+            {
+
+                return GetAttribute<string>(nameof(Status));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(Status), value);
+            }
+        }
+
         /// <summary>
         /// 创建时间
         /// </summary>

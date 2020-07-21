@@ -241,6 +241,7 @@ namespace FW.TestPlatform.Main
         public const string SlaveName = "slavename";
         public const string GetJsonDataInvoke = "getjsondatainvoke";
         public const string SplitJsonDataInvoke = "splitjsondatainvoke";
+        public const string PrintInvoke = "printinvoke";
     }
 
     /// <summary>
@@ -273,6 +274,7 @@ namespace FW.TestPlatform.Main
         public const string CalcCheckSum = "CalcCheckSum";
         public const string GetJsonData = "GetJsonData";
         public const string SplitJsonData = "SplitJsonData";
+        public const string Print = "Print";
     }
 
     /// <summary>

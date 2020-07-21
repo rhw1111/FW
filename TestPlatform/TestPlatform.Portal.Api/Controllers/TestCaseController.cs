@@ -179,7 +179,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             await _appDeleteSlaveHosts.Do(model.CaseID, model.IDS);
         }
 
-        //查询修改删除History
+        //获得历史记录列表
         [HttpGet("histories")]
         public async Task<QueryResult<TestCaseHistoryListViewData>> GetHistories(Guid caseID, int page, int pageSize)
         {
