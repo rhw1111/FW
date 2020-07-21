@@ -140,7 +140,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     var datas = await (from item in dbContext.TestCaseHistories
                                        join idItem in ids
                                   on item.ID equals idItem
-                                       orderby EF.Property<long>(item, "Sequence")
+                                       orderby item.CreateTime descending
                                        select item).ToListAsync();
                     result.Results.AddRange(datas);
                 }

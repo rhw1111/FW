@@ -39,22 +39,7 @@ namespace FW.TestPlatform.Main.Application
             if(result != null && result.Results != null && result.Results.Count > 0)
             {
                 foreach (TestCaseHistory history in result.Results)
-                {
-                    //TestCaseHistorySummyAddModel addModel = JsonSerializerHelper.Deserialize<TestCaseHistorySummyAddModel>(history.Summary);
-                    //TestCaseHistoryViewData viewHistory = new TestCaseHistoryViewData()
-                    //{
-                    //    AvgDuration = addModel.AvgDuration,
-                    //    ConnectCount = addModel.ConnectCount,
-                    //    AvgQPS = addModel.AvgQPS,
-                    //    CaseID = addModel.CaseID,
-                    //    MaxDuration = addModel.MaxDuration,
-                    //    MinDurartion = addModel.MinDurartion,
-                    //    MinQPS = addModel.MinQPS,
-                    //    ReqFailCount = addModel.ReqFailCount,
-                    //    ReqCount = addModel.ReqCount,
-                    //    ModifyTime = history.ModifyTime,
-                    //    ID = history.ID
-                    //};                    
+                {           
                     histories.Results.Add(new TestCaseHistoryListViewData()
                     {
                         ID = history.ID,
