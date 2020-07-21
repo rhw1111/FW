@@ -139,6 +139,22 @@
           </template>
         </q-input>
       </div>
+      <div class="row"
+           style="margin-bottom:10px;">
+        <q-select v-model="paraConfig.IsPrintLog"
+                  :options="PrintLogOptions"
+                  class="col-4"
+                  emit-value
+                  map-options
+                  :dense="false">
+          <template v-slot:before>
+            <span style="font-size:14px">是否打印日志:</span>
+          </template>
+          <template v-slot:prepend>
+          </template>
+        </q-select>
+
+      </div>
       <q-list bordered
               class="rounded-borders">
         <!-- 数据源 -->
@@ -407,6 +423,7 @@ export default {
         console.log(val)
         this.Name = val.name;
         this.paraConfig = JSON.parse(val.configuration);
+        this.paraConfig.IsPrintLog = this.paraConfig.IsPrintLog == true ? '是' : '否';
         this.EngineType = val.engineType;
         this.Configuration = JSON.stringify(JSON.parse(val.configuration), null, 2);
         this.masterHostSelect = val.masterHostAddress;
@@ -450,6 +467,7 @@ export default {
         Duration: '',//压测时间
         ResponseSeparator: '',//结束分隔符
         DataSourceVars: [],//数据源
+        IsPrintLog: '否',//是否打印日志
         ConnectInit: {
           VarSettings: []
         },//连接初始化
@@ -460,7 +478,17 @@ export default {
           VarSettings: []
         }//停止初始化
       },
-
+      //是否打印日志
+      PrintLogOptions: [
+        {
+          label: '是',
+          value: true,
+        },
+        {
+          label: '否',
+          value: false,
+        }
+      ],
       DataSourceExpanded: false, //DataSourceVars 扩展框flag
       ConnectInitExpanded: false,//ConnectInit扩展框flag
       SendInitExpanded: false,//SendInit扩展框flag
@@ -562,6 +590,7 @@ export default {
         //验证端口号是否正确
         if (!this.isPort(this.paraConfig.Port)) { return; }
         if (!this.ifDataVars()) { return; }
+        console.log(this.paraConfig.IsPrintLog)
         this.Configuration = JSON.stringify({
           UserCount: Number(this.paraConfig.UserCount),//压测用户总数
           PerSecondUserCount: Number(this.paraConfig.PerSecondUserCount),//每秒加载用户数
@@ -570,6 +599,7 @@ export default {
           Duration: Number(this.paraConfig.Duration),//压测时间
           ResponseSeparator: this.paraConfig.ResponseSeparator,//结束分隔符
           DataSourceVars: this.paraConfig.DataSourceVars,//数据源
+          IsPrintLog: this.paraConfig.IsPrintLog == true || this.paraConfig.IsPrintLog == '是' ? true : false,//是否打印日志
           ConnectInit: {
             VarSettings: this.paraConfig.ConnectInit.VarSettings
           },//连接初始化
@@ -594,6 +624,7 @@ export default {
         this.Configuration.Duration = Number(this.paraConfig.Duration);
         this.Configuration.ResponseSeparator = this.paraConfig.ResponseSeparator;
         this.Configuration.DataSourceVars = this.paraConfig.DataSourceVars;
+        this.Configuration.IsPrintLog = this.paraConfig.IsPrintLog == true ? true : false;
         this.Configuration.ConnectInit.VarSettings = this.paraConfig.ConnectInit.VarSettings;
         this.Configuration.SendInit.VarSettings = this.paraConfig.SendInit.VarSettings;
         this.Configuration.StopInit.VarSettings = this.paraConfig.StopInit.VarSettings;

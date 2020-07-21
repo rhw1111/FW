@@ -43,10 +43,16 @@
           <q-input :dense="false"
                    class="col"
                    readonly
-                   v-model="masterHostSelect"
-                   @dblclick="masterHost">
+                   v-model="masterHostSelect">
             <template v-slot:before>
               <span style="font-size:14px">主机:</span>
+            </template>
+            <template v-slot:append>
+              <q-btn round
+                     dense
+                     flat
+                     icon="add"
+                     @click="masterHost" />
             </template>
           </q-input>
         </div>
@@ -55,6 +61,7 @@
           <q-input v-model="SlaveExtensionInfo"
                    :dense="false"
                    class="col-xs-12"
+                   autogrow
                    type="textarea"
                    outlined>
             <template v-slot:before>

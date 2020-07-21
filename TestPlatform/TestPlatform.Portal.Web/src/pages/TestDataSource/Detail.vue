@@ -38,6 +38,7 @@
                    :dense="false"
                    class="col-xs-12"
                    type="textarea"
+                   autogrow
                    outlined>
             <template v-slot:before>
               <span style="font-size:14px">数据:</span>
