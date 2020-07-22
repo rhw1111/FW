@@ -35,7 +35,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    serial_no = {");
             sbCode.AppendLine("        \"Name\": name,");
             sbCode.AppendLine("        \"Type\": type,");
-            sbCode.AppendLine("        \"SerialNo\": start + 1");
+            sbCode.AppendLine("        \"SerialNo\": start");
             sbCode.AppendLine("    }");
             sbCode.AppendLine("");
             sbCode.AppendLine("    serial_no_s.append(serial_no)");
