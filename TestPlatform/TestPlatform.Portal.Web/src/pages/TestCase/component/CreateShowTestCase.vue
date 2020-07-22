@@ -666,13 +666,12 @@ export default {
         //验证端口号是否正确
         if (!this.isPort(this.paraConfig.Port)) { return; }
         if (!this.ifDataVars()) { return; }
-        console.log(this.paraConfig.IsPrintLog)
         this.Configuration = JSON.stringify({
-          UserCount: Number(this.paraConfig.UserCount),//压测用户总数
-          PerSecondUserCount: Number(this.paraConfig.PerSecondUserCount),//每秒加载用户数
+          UserCount: this.paraConfig.UserCount ? Number(this.paraConfig.UserCount) : '',//压测用户总数
+          PerSecondUserCount: this.paraConfig.PerSecondUserCount ? Number(this.paraConfig.PerSecondUserCount) : '',//每秒加载用户数
           Address: this.paraConfig.Address,//被测服务器
-          Port: Number(this.paraConfig.Port),//被测服务器端口
-          Duration: Number(this.paraConfig.Duration),//压测时间
+          Port: this.paraConfig.Port ? Number(this.paraConfig.Port) : '',//被测服务器端口
+          Duration: this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '',//压测时间
           ResponseSeparator: this.paraConfig.ResponseSeparator,//结束分隔符
           DataSourceVars: this.paraConfig.DataSourceVars,//数据源
           IsPrintLog: this.paraConfig.IsPrintLog == true || this.paraConfig.IsPrintLog == '是' ? true : false,//是否打印日志
@@ -694,11 +693,11 @@ export default {
         if (!this.isPort(this.paraConfig.Port)) { return; }
         if (!this.ifDataVars()) { return; }
         this.Configuration = JSON.parse(this.Configuration);
-        this.Configuration.UserCount = Number(this.paraConfig.UserCount);
-        this.Configuration.PerSecondUserCount = Number(this.paraConfig.PerSecondUserCount);
+        this.Configuration.UserCount = this.paraConfig.UserCount ? Number(this.paraConfig.UserCount) : '';
+        this.Configuration.PerSecondUserCount = this.paraConfig.PerSecondUserCount ? Number(this.paraConfig.PerSecondUserCount) : '';
         this.Configuration.Address = this.paraConfig.Address;
-        this.Configuration.Port = Number(this.paraConfig.Port);
-        this.Configuration.Duration = Number(this.paraConfig.Duration);
+        this.Configuration.Port = this.paraConfig.Port ? Number(this.paraConfig.Port) : '';
+        this.Configuration.Duration = this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '';
         this.Configuration.ResponseSeparator = this.paraConfig.ResponseSeparator;
         this.Configuration.DataSourceVars = this.paraConfig.DataSourceVars;
         this.Configuration.IsPrintLog = this.paraConfig.IsPrintLog == true ? true : false;
