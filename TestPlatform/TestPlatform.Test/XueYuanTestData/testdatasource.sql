@@ -8,6 +8,11 @@ VALUES('d46f4d6a-b7c4-11ea-8dae-00ffb1d16cf9', 'Json', 'datasource_user_account_
         "Password": "123456"
     },
     {
+        "SlaveName": "client_id",
+        "UserName": "lisi",
+        "Password": "123456"
+    },
+    {
         "SlaveName": "Master",
         "UserName": "zhangsan",
         "Password": "123456"
