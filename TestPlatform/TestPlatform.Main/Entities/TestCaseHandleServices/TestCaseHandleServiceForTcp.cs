@@ -309,6 +309,12 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         {
             //执行主机杀进程命令
             await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}' | xargs kill -9", cancellationToken);
+            //执行slave杀进程命令
+            var slaveHosts = tCase.GetAllSlaveHosts(cancellationToken);
+            await foreach(var item in slaveHosts)
+            {
+               await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}' | xargs kill -9", cancellationToken);
+            }
         }
     }
 

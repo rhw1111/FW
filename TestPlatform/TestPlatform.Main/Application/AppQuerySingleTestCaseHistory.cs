@@ -39,24 +39,10 @@ namespace FW.TestPlatform.Main.Application
             var history = await queryResult.GetHistory(historyId, cancellationToken);
             if (history != null)
             {
-                //TestCaseHistorySummyAddModel addModel = JsonSerializerHelper.Deserialize<TestCaseHistorySummyAddModel>(history.Summary);
-                //viewHistory.AvgDuration = addModel.AvgDuration;
-                //viewHistory.ConnectCount = addModel.ConnectCount;
-                //viewHistory.AvgQPS = addModel.AvgQPS;
-                //viewHistory.CaseID = addModel.CaseID;
-                //viewHistory.MaxDuration = addModel.MaxDuration;
-                //viewHistory.MinDurartion = addModel.MinDurartion;
-                //viewHistory.MinDurartion = addModel.MaxQPS;
-                //viewHistory.MinQPS = addModel.MinQPS;
-                //viewHistory.ReqFailCount = addModel.ReqFailCount;
-                //viewHistory.ReqCount = addModel.ReqCount;
-                //viewHistory.CreateTime = history.CreateTime;
-                //viewHistory.ModifyTime = history.ModifyTime;
-                //viewHistory.ID = history.ID;
                 viewHistory.ID = history.ID;
                 viewHistory.CaseID = history.CaseID;
                 viewHistory.Summary = history.Summary;
-                viewHistory.CreateTime = history.CreateTime;
+                viewHistory.CreateTime = history.CreateTime.ToCurrentUserTimeZone();
             }
 
             return viewHistory;

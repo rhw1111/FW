@@ -12,7 +12,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@quasar/extras": "^1.0.0",
+    "@quasar/extras": "^1.9.0",
     "axios": "^0.19.2",
     "babel-eslint": "^10.1.0",
     "quasar": "^1.12.12",
