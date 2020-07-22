@@ -924,15 +924,15 @@ export default {
 
         this.paraConfig.DataSourceVars[index] = this.paraConfig.DataSourceVars.splice(index + 1, 1, this.paraConfig.DataSourceVars[index])[0];
 
-      } else if (value == "ConnectInit" && index < this.ConnectInit.VarSettings.length.length - 1) {
+      } else if (value == "ConnectInit" && index < this.paraConfig.ConnectInit.VarSettings.length - 1) {
 
         this.paraConfig.ConnectInit.VarSettings[index] = this.paraConfig.ConnectInit.VarSettings.splice(index + 1, 1, this.paraConfig.ConnectInit.VarSettings[index])[0];
 
-      } else if (value == "SendInit" && index < this.SendInit.VarSettings.length.length - 1) {
+      } else if (value == "SendInit" && index < this.paraConfig.SendInit.VarSettings.length - 1) {
 
         this.paraConfig.SendInit.VarSettings[index] = this.paraConfig.SendInit.VarSettings.splice(index + 1, 1, this.paraConfig.SendInit.VarSettings[index])[0];
 
-      } else if (value == "StopInit" && index < this.paraConfig.StopInit.VarSettings.length.length - 1) {
+      } else if (value == "StopInit" && index < this.paraConfig.StopInit.VarSettings.length - 1) {
 
         this.paraConfig.StopInit.VarSettings[index] = this.paraConfig.StopInit.VarSettings.splice(index + 1, 1, this.paraConfig.StopInit.VarSettings[index])[0];
 
