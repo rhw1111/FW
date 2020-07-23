@@ -21,10 +21,10 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    import re");
             sbCode.AppendLine("");
             sbCode.AppendLine("    if address is None or address == \"\" or port is None or port == \"\":");
-            sbCode.AppendLine("        return None");
+            sbCode.AppendLine("        return \"\"");
             sbCode.AppendLine("");
             sbCode.AppendLine("    if senddata is None or senddata == \"\":");
-            sbCode.AppendLine("        return None");
+            sbCode.AppendLine("        return \"\"");
             sbCode.AppendLine("");
             sbCode.AppendLine("    if type(senddata) != str:");
             sbCode.AppendLine("        senddata = str(senddata)");
@@ -62,7 +62,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    except Exception as e:");
             sbCode.AppendLine("        print(\"[%s] %s: Error, %s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))");
             sbCode.AppendLine("");
-            sbCode.AppendLine("        return None");
+            sbCode.AppendLine("        return \"\"");
             sbCode.AppendLine("    finally:");
             sbCode.AppendLine("        # Print(\"Connect Closeing...\")");
             sbCode.AppendLine("        connect.close()");
