@@ -62,7 +62,7 @@
               </template>
             </q-input>
             <q-select v-model="Type"
-                      :options="['String','Int','Json']"
+                      :options="['String','Int','Json','Label']"
                       class="col"
                       :dense="false">
               <template v-slot:before>
@@ -185,7 +185,7 @@ export default {
         Type: this.Type,
         Data: this.Data,
       }
-      if (this.Name && this.Type && this.Data) {
+      if (this.Name && this.Type && this.Data.trim()) {
         if (!this.isDataType(this.Type)) { return; }
         this.$q.loading.show()
         Apis.postCreateTestDataSource(para).then(() => {
@@ -274,7 +274,7 @@ export default {
         }
         return true;
       } else if (type == 'Json') {
-        if (!this.isJSON(this.Data)) {
+        if (!this.isJSON(this.Data.trim())) {
           return false;
         }
         return true
@@ -286,16 +286,7 @@ export default {
         try {
           var obj = JSON.parse(str);
           if (typeof obj == 'object' && obj) {
-            if (str.substr(0, 1) == '{' && str.substr(-1) == '}') {
-              return true;
-            } else {
-              this.$q.notify({
-                position: 'top',
-                message: '提示',
-                caption: '配置不是正确的JSON格式',
-                color: 'red',
-              })
-            }
+            return true
           } else {
             this.$q.notify({
               position: 'top',
