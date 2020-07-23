@@ -175,9 +175,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     item.Type = dataSource.Type;
                     item.Data = dataSource.Data;
                 }
-            );
-
-          
+            );          
 
             //生成代码
             var strCode=await scriptTemplate.GenerateScript(contextDict, cancellationToken);
@@ -189,6 +187,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             strCode = strCode.Replace("{ResponseSeparator}", configuration.ResponseSeparator);
             strCode = strCode.Replace("{CaseServiceBaseAddress}", caseServiceBaseAddress);
             strCode = strCode.Replace("{IsPrintLog}", configuration.IsPrintLog ? "True" : "False");
+            strCode = strCode.Replace("{SyncType}", configuration.SyncType ? "True" : "False");
 
             //代码模板必须有一个格式为{SlaveName}的替换符，该替换符标识每个Slave
 
@@ -439,6 +438,15 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         {
             get; set;
         } = false;
+
+        /// <summary>
+        /// 同步类型
+        /// </summary>
+        [DataMember]
+        public bool SyncType
+        {
+            get; set;
+        } = true;
     }
 
     /// <summary>
