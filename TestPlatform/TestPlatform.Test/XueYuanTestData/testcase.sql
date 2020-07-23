@@ -16,7 +16,7 @@ SET configuration = '{
     "Address": "127.0.0.1",
     "Port": 12345,
     "ResponseSeparator": "</package>",
-    "IsPrintLog": true,
+    "IsPrintLog": false,
     "SyncType": true,
     "DataSourceVars": [
         {
@@ -40,10 +40,6 @@ SET configuration = '{
     ],
     "ConnectInit": {
         "VarSettings": [
-            {
-                "Name": "json_user_account_list",
-                "Content": "{$filterjsondatainvoke({$datasource(user_account_list)},\'SlaveName\',{$SlaveName()})}"
-            },
             {
                 "Name": "json_user_account",
                 "Content": "{$nameoncejsondatainvoke(json_user_account_list)}"
