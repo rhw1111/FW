@@ -44,19 +44,19 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
             }
 
-            Regex regex = new Regex(@"^(\-|\+)?\d+$");
+            //Regex regex = new Regex(@"^(\-|\+)?\d+$");
 
-            if (!regex.IsMatch(parameters[1]))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TextCodes.LabelParameterTypeError,
-                    DefaultFormatting = "标签{0}要求的参数{1}应为{2}，参数类型错误",
-                    ReplaceParameters = new List<object>() { "{$splitjsondatainvoke(data,piece)}", "piece", "Int" }
-                };
+            //if (!regex.IsMatch(parameters[1]))
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TextCodes.LabelParameterTypeError,
+            //        DefaultFormatting = "标签{0}要求的参数{1}应为{2}，参数类型错误",
+            //        ReplaceParameters = new List<object>() { "{$splitjsondatainvoke(data,piece)}", "piece", "Int" }
+            //    };
 
-                throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
-            }
+            //    throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
+            //}
 
             strCode.Append($"SplitJsonData({parameters[0]},{parameters[1]})");
 
