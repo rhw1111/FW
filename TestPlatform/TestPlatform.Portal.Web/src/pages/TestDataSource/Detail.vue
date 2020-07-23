@@ -154,7 +154,9 @@ export default {
         if (!this.isJSON(this.Data.trim())) {
           return false;
         }
-        return true
+        return true;
+      } else {
+        return true;
       }
     },
     //判断是否是JSON格式
