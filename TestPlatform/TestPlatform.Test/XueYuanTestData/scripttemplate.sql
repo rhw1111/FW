@@ -205,9 +205,9 @@ class TcpTestUser(User):
         is_success = self.client.connect(self.ADDR)
 
         if is_success:
-            print("[%s] [%s]: Connect success, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.host, self.port))
+            print("[%s] [%s]: Connect Success, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.host, self.port))
         else:
-            print("[%s] [%s]: Connect fail, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.host, self.port))
+            print("[%s] [%s]: Connect Fail, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.host, self.port))
 
         return is_success
 
@@ -237,9 +237,13 @@ class TcpTestUser(User):
             self.is_success = False
 
         if self.is_success:
-            print("[%s] [%s] [%s]: Login success, %s: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.user_name, self.user_password))
-        else:
-            print("[%s] [%s] [%s]: Login fail, %s: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.user_name, self.user_password))
+            print("[%s] [%s] [%s]: Login Success." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name))
+            print("[%s] [%s] [%s]: SendData, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.senddata))
+            print("[%s] [%s] [%s]: RecvData, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.recvdata))
+        elif not self.is_success:
+            print("[%s] [%s] [%s]: Login Fail." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name))
+            print("[%s] [%s] [%s]: SendData, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.senddata))
+            print("[%s] [%s] [%s]: RecvData, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.recvdata))
 
         return self.is_success
 
@@ -281,9 +285,13 @@ class TcpTestUser(User):
             self.is_success = False
 
         if self.is_success and is_print_log:
-            print("[%s] [%s] [%s]: Send success, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.senddata))
+            print("[%s] [%s] [%s]: Send Success." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name))
+            print("[%s] [%s] [%s]: SendData, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.senddata))
+            print("[%s] [%s] [%s]: RecvData, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.recvdata))
         elif not self.is_success:
-            print("[%s] [%s] [%s]: Send fail, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.senddata))
+            print("[%s] [%s] [%s]: Send Fail." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name))
+            print("[%s] [%s] [%s]: SendData, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.senddata))
+            print("[%s] [%s] [%s]: RecvData, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.recvdata))
 
         return self.is_success
 
@@ -309,9 +317,13 @@ class TcpTestUser(User):
             self.is_success = False
 
         if self.is_success:
-            print("[%s] [%s] [%s]: Stop success, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.senddata))
-        else:
-            print("[%s] [%s] [%s]: Stop fail, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.senddata))
+            print("[%s] [%s] [%s]: Stop Success." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name))
+            print("[%s] [%s] [%s]: SendData, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.senddata))
+            print("[%s] [%s] [%s]: RecvData, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.recvdata))
+        elif not self.is_success:
+            print("[%s] [%s] [%s]: Stop Fail." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name))
+            print("[%s] [%s] [%s]: SendData, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.senddata))
+            print("[%s] [%s] [%s]: RecvData, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, self.recvdata))
 
         return self.is_success
 
@@ -336,7 +348,7 @@ class TcpTestUser(User):
 
         if is_recv_error_close:
             self.client.close()
-            print("[%s] [%s] [%s]: Connect close." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name))
+            print("[%s] [%s] [%s]: Connect Close." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name))
 
     MaxQPS = 0.0
     MinQPS = 0.0
@@ -467,7 +479,7 @@ class TcpTestUser(User):
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, traceback.format_exc()))
 
     def add_history_data():
-        print("add_history_data")
+        # print("add_history_data")
 
         try:
             if ("send_data", "tcpsocket") in TcpTestUser.environment.runner.stats.entries:
@@ -542,7 +554,7 @@ class TcpTestUser(User):
 
             if response.status_code == 200:
                 result = response.text
-                Print("Http Post：Success, %s" % result)
+                Print("Http Post: Success, %s" % result)
             else:
                 print("[%s] [%s]: Error, Url, %s, StatusCode, %s, Reason, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, url, str(response.status_code), str(response.reason)))
 
@@ -656,7 +668,7 @@ class TcpTestUser(User):
 
         is_success = self.stop_data()
         self.client.close()
-        print("[%s] [%s] [%s]: Connect close." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name))
+        print("[%s] [%s] [%s]: Connect Close." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name))
         self.is_login = False
         self.is_need_login = True
 

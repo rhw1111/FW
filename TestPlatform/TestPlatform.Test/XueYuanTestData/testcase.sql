@@ -169,10 +169,6 @@ SET configuration = '{
                 "Content": "request_body"
             },
             {
-                "Name": "package",
-                "Content": "{$dessecurity(package,\'abcdefghjhijklmn\')}"
-            },
-            {
                 "Name": "self.senddata",
                 "Content": "package"
             },

@@ -29,14 +29,14 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    buffsize = 10240");
             sbCode.AppendLine("");
             sbCode.AppendLine("    try:");
-            sbCode.AppendLine("        Print(\"SendData: %s\" % senddata)");
+            sbCode.AppendLine("        # Print(\"SendData: %s\" % senddata)");
             sbCode.AppendLine("        connect.send(senddata)");
-            sbCode.AppendLine("        Print(\"SendData Success\")");
+            sbCode.AppendLine("        # Print(\"SendData Success\")");
             sbCode.AppendLine("");
             sbCode.AppendLine("        if sync_type:");
-            sbCode.AppendLine("            Print(\"RecvData Waitting...\")");
+            sbCode.AppendLine("            # Print(\"RecvData Waitting...\")");
             sbCode.AppendLine("            data = connect.recv(buffsize)");
-            sbCode.AppendLine("            Print(\"RecvData: %s\" % data)");
+            sbCode.AppendLine("            # Print(\"RecvData: %s\" % data)");
             sbCode.AppendLine("");
             sbCode.AppendLine("            p = re.compile(receivereg, re.S)");
             sbCode.AppendLine("            result = re.findall(p, data)");

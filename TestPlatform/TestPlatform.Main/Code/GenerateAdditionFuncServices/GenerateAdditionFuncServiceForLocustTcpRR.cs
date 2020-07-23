@@ -37,18 +37,18 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)");
             sbCode.AppendLine("");
             sbCode.AppendLine("    try:");
-            sbCode.AppendLine("        Print(\"Connecting %s:%s...\" % (address, port))");
+            sbCode.AppendLine("        # Print(\"Connecting %s:%s...\" % (address, port))");
             sbCode.AppendLine("        connect.connect(ADDR)");
-            sbCode.AppendLine("        Print(\"Connec Success\")");
+            sbCode.AppendLine("        # Print(\"Connec Success\")");
             sbCode.AppendLine("");
-            sbCode.AppendLine("        Print(\"SendData: %s\" % senddata)");
+            sbCode.AppendLine("        # Print(\"SendData: %s\" % senddata)");
             sbCode.AppendLine("        connect.send(senddata.encode())");
-            sbCode.AppendLine("        Print(\"SendData Success\")");
+            sbCode.AppendLine("        # Print(\"SendData Success\")");
             sbCode.AppendLine("");
             sbCode.AppendLine("        if sync_type:");
-            sbCode.AppendLine("            Print(\"RecvData Waitting...\")");
+            sbCode.AppendLine("            # Print(\"RecvData Waitting...\")");
             sbCode.AppendLine("            data = connect.recv(buffsize).decode()");
-            sbCode.AppendLine("            Print(\"RecvData: %s\" % data)");
+            sbCode.AppendLine("            # Print(\"RecvData: %s\" % data)");
             sbCode.AppendLine("");
             sbCode.AppendLine("            p = re.compile(receivereg, re.S)");
             sbCode.AppendLine("            result = re.findall(p, data)");
@@ -64,9 +64,9 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("");
             sbCode.AppendLine("        return None");
             sbCode.AppendLine("    finally:");
-            sbCode.AppendLine("        Print(\"Connect Closeing...\")");
+            sbCode.AppendLine("        # Print(\"Connect Closeing...\")");
             sbCode.AppendLine("        connect.close()");
-            sbCode.AppendLine("        Print(\"Connect Close Success\")");
+            sbCode.AppendLine("        # Print(\"Connect Close Success\")");
             sbCode.AppendLine("");
 
             return await Task.FromResult(sbCode.ToString());
