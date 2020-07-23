@@ -81,6 +81,8 @@ is_current = True
 is_save_interval = 3
 # 发送的数据包是否加密
 is_security_data = True
+# 是否取Master的QPS
+is_qps_master = True
 # 时间单位，秒=1，毫秒=1000，微妙=1000000，纳秒=1000000000
 second_unit = 1000000
 
@@ -395,7 +397,8 @@ class TcpTestUser(User):
         # print("save_data")
 
         if TcpTestUser.environment and TcpTestUser.environment.runner and TcpTestUser.environment.runner.state == locust.runners.STATE_RUNNING:
-            TcpTestUser.add_worker_data()
+            if not is_qps_master:
+                TcpTestUser.add_worker_data()
 
     def save_data_thread():
         # print("save_data_thread")
@@ -416,12 +419,18 @@ class TcpTestUser(User):
             # Master
             while TcpTestUser.environment.runner.state == locust.runners.STATE_RUNNING:
                 TcpTestUser.add_master_data()
+                
+                if is_qps_master:
+                    TcpTestUser.add_worker_data()
+				
                 TcpTestUser.setQPS()
                 time.sleep(is_save_interval)
         elif TcpTestUser.environment.parsed_options.master is False and TcpTestUser.environment.parsed_options.worker is True:
             # Work
             while TcpTestUser.environment.runner.state == locust.runners.STATE_RUNNING:
-                TcpTestUser.add_worker_data()
+                if not is_qps_master:
+                    TcpTestUser.add_worker_data()
+
                 time.sleep(is_save_interval)
 
         print("[%s] [%s]: Locust Runner State: %s." % (datetime.datetime.now().strftime(datetime_format), client_id, TcpTestUser.environment.runner.state))        
