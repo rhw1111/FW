@@ -18,7 +18,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("def Print(content):");
             sbCode.AppendLine("    # print(\"Print\")");
             sbCode.AppendLine("    if is_print_log:");
-            sbCode.AppendLine("        print(\"[%s][PrintLog] %s: %s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, content))");
+            sbCode.AppendLine("        print(\"[%s] [PrintLog] [%s]: %s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, content))");
             sbCode.AppendLine("");
 
             return await Task.FromResult(sbCode.ToString());
