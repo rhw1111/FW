@@ -156,6 +156,20 @@
           </template>
         </q-select>
 
+        <q-select v-model="paraConfig.SyncType"
+                  :options="SyncTypeOptions"
+                  class="col-4"
+                  emit-value
+                  map-options
+                  :dense="false"
+                  style="margin-left:10px;">
+          <template v-slot:before>
+            <span style="font-size:14px">同步类型:</span>
+          </template>
+          <template v-slot:prepend>
+          </template>
+        </q-select>
+
       </div>
       <q-list bordered
               class="rounded-borders">
@@ -209,8 +223,10 @@
                          style="margin-left:20px;">
                       <q-icon name="ion-arrow-up"
                               style="display:block;"
+                              class="pointer"
                               @click="moveUpList('DataSourceVars',ind)" />
                       <q-icon name="ion-arrow-down"
+                              class="pointer"
                               style="display:block;margin-top:10px;"
                               @click="moveDownList('DataSourceVars',ind)" />
                     </div>
@@ -275,8 +291,10 @@
                          style="margin-left:20px;">
                       <q-icon name="ion-arrow-up"
                               style="display:block;"
+                              class="pointer"
                               @click="moveUpList('ConnectInit',ind)" />
                       <q-icon name="ion-arrow-down"
+                              class="pointer"
                               style="display:block;margin-top:10px;"
                               @click="moveDownList('ConnectInit',ind)" />
                     </div>
@@ -340,9 +358,11 @@
                     <div class="col-1"
                          style="margin-left:20px;">
                       <q-icon name="ion-arrow-up"
+                              class="pointer"
                               style="display:block;"
                               @click="moveUpList('SendInit',ind)" />
                       <q-icon name="ion-arrow-down"
+                              class="pointer"
                               style="display:block;margin-top:10px;"
                               @click="moveDownList('SendInit',ind)" />
                     </div>
@@ -406,9 +426,11 @@
                     <div class="col-1"
                          style="margin-left:20px;">
                       <q-icon name="ion-arrow-up"
+                              class="pointer"
                               style="display:block;"
                               @click="moveUpList('StopInit',ind)" />
                       <q-icon name="ion-arrow-down"
+                              class="pointer"
                               style="display:block;margin-top:10px;"
                               @click="moveDownList('StopInit',ind)" />
                     </div>
@@ -496,13 +518,27 @@ export default {
     detailData (val) {
       if (val) {
         console.log(val)
+        let configuration = JSON.parse(val.configuration)
+        this.paraConfig = {
+          UserCount: configuration.UserCount || '',//压测用户总数
+          PerSecondUserCount: configuration.PerSecondUserCount || '',//每秒加载用户数
+          Address: configuration.Address || '',//被测服务器
+          Port: configuration.Port || '',//被测服务器端口
+          Duration: configuration.Duration || '',//压测时间
+          ResponseSeparator: configuration.ResponseSeparator || '',//结束分隔符
+          DataSourceVars: configuration.DataSourceVars || [],//数据源
+          IsPrintLog: configuration.IsPrintLog == true ? '是' : '否',//是否打印日志
+          SyncType: configuration.SyncType == false ? '异步模式' : '同步模式',//是否同步异步
+          ConnectInit: configuration.ConnectInit || { VarSettings: [] },//连接初始化
+          SendInit: configuration.SendInit || { VarSettings: [] },//发送初始化
+          StopInit: configuration.StopInit || { VarSettings: [] }//停止初始化
+        }
+
         this.Name = val.name;
-        this.paraConfig = JSON.parse(val.configuration);
-        this.paraConfig.IsPrintLog = this.paraConfig.IsPrintLog == true ? '是' : '否';
         this.EngineType = val.engineType;
-        this.Configuration = JSON.stringify(JSON.parse(val.configuration), null, 2);
         this.masterHostSelect = val.masterHostAddress;
         this.MasterHostID = val.masterHostID;
+        this.Configuration = JSON.stringify(JSON.parse(val.configuration), null, 2);
       }
     },
     dataSourceName (val) {
@@ -543,6 +579,7 @@ export default {
         ResponseSeparator: '',//结束分隔符
         DataSourceVars: [],//数据源
         IsPrintLog: '否',//是否打印日志
+        SyncType: '同步模式',//是否同步异步
         ConnectInit: {
           VarSettings: []
         },//连接初始化
@@ -561,6 +598,16 @@ export default {
         },
         {
           label: '否',
+          value: false,
+        }
+      ],
+      SyncTypeOptions: [
+        {
+          label: '同步模式',
+          value: true,
+        },
+        {
+          label: '异步模式',
           value: false,
         }
       ],
@@ -675,6 +722,7 @@ export default {
           ResponseSeparator: this.paraConfig.ResponseSeparator,//结束分隔符
           DataSourceVars: this.paraConfig.DataSourceVars,//数据源
           IsPrintLog: this.paraConfig.IsPrintLog == true || this.paraConfig.IsPrintLog == '是' ? true : false,//是否打印日志
+          SyncType: this.paraConfig.SyncType == true || this.paraConfig.SyncType == '同步模式' ? true : false,//是否同步异步
           ConnectInit: {
             VarSettings: this.paraConfig.ConnectInit.VarSettings
           },//连接初始化
@@ -701,6 +749,7 @@ export default {
         this.Configuration.ResponseSeparator = this.paraConfig.ResponseSeparator;
         this.Configuration.DataSourceVars = this.paraConfig.DataSourceVars;
         this.Configuration.IsPrintLog = this.paraConfig.IsPrintLog == true ? true : false;
+        this.Configuration.SyncType = this.paraConfig.SyncType == true ? true : false;
         this.Configuration.ConnectInit.VarSettings = this.paraConfig.ConnectInit.VarSettings;
         this.Configuration.SendInit.VarSettings = this.paraConfig.SendInit.VarSettings;
         this.Configuration.StopInit.VarSettings = this.paraConfig.StopInit.VarSettings;
@@ -940,7 +989,11 @@ export default {
   }
 }
 </script>
-
+<style lang="scss" scoped>
+.pointer {
+  cursor: pointer;
+}
+</style>
 <style lang="scss">
 .new_input {
   width: 100%;

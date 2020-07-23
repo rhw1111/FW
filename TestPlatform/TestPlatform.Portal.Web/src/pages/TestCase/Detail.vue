@@ -168,6 +168,29 @@
                :detailData="detailData"
                ref="TestCaseHistory" />
     </div>
+    <!-- 日志提示 -->
+    <!-- <q-dialog v-model="lookLogFlag"
+              style="width: '100%'; max-width: '65vw'; white-space: pre-line; overflow-x: hidden;word-break:break-all;">
+      <q-card class="q-dialog-plugin"
+              style="width: 100%; max-width: 60vw;position:relative;">
+        <q-card-section>
+          <div class="text-h6">提示</div>
+        </q-card-section>
+
+        <q-separator />
+        <q-card-section>
+          <div>
+            {{lookLogText}}
+          </div>
+        </q-card-section>
+        <q-separator />
+        <q-card-actions align="right"
+                        style="position:absolute;right:0;bottom:0;">
+          <q-btn color="primary"
+                 label="OK" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog> -->
   </div>
 </template>
 
@@ -186,6 +209,8 @@ export default {
   data () {
     return {
       createFixed: false,//createslave Flag
+      lookLogFlag: false,//查看日志log
+      lookLogText: '',//日志内容
       isNoRun: 0,//判断是否在运行
       timerOut: null, //定时器
       detailData: '',//详情数据
@@ -238,9 +263,6 @@ export default {
   },
   mounted () {
     this.getTestCaseDetail();
-    this.timerOut = window.setInterval(() => {
-      setTimeout(this.getTestCaseStatus(), 0);
-    }, 3000);
   },
   beforeDestroy () {
     clearInterval(this.timerOut);
@@ -258,6 +280,14 @@ export default {
         this.getTestCaseStatus();
         this.getDataSourceName();
         this.$refs.TestCaseHistory.getHistoryList();
+        if (res.data.status == 1) {
+          this.timerOut = window.setInterval(() => {
+            setTimeout(this.getTestCaseStatus(), 0);
+          }, 3000);
+        } else {
+          clearInterval(this.timerOut);
+          this.timerOut = null;
+        }
       })
     },
     //获得从机列表
@@ -519,6 +549,8 @@ export default {
       this.$q.loading.show()
       Apis.getMasterLog({ caseId: this.$route.query.id }).then((res) => {
         this.$q.loading.hide()
+        // this.lookLogFlag = true;
+        // this.lookLogText = res.data;
         this.$q.dialog({
           title: '提示',
           message: res.data,
