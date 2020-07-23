@@ -326,6 +326,10 @@ export default {
     getTestCaseStatus () {
       Apis.getTestCaseStatus({ caseId: this.$route.query.id }).then((res) => {
         this.isNoRun = res.data;
+        if (!res.data) {
+          clearInterval(this.timerOut);
+          this.timerOut = null;
+        }
       })
     },
 

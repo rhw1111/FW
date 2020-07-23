@@ -748,8 +748,8 @@ export default {
         this.Configuration.Duration = this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '';
         this.Configuration.ResponseSeparator = this.paraConfig.ResponseSeparator;
         this.Configuration.DataSourceVars = this.paraConfig.DataSourceVars;
-        this.Configuration.IsPrintLog = this.paraConfig.IsPrintLog == true ? true : false;
-        this.Configuration.SyncType = this.paraConfig.SyncType == true ? true : false;
+        this.Configuration.IsPrintLog = this.paraConfig.IsPrintLog == true || this.paraConfig.IsPrintLog == '是' ? true : false;
+        this.Configuration.SyncType = this.paraConfig.SyncType == true || this.paraConfig.SyncType == '同步模式' ? true : false;
         this.Configuration.ConnectInit.VarSettings = this.paraConfig.ConnectInit.VarSettings;
         this.Configuration.SendInit.VarSettings = this.paraConfig.SendInit.VarSettings;
         this.Configuration.StopInit.VarSettings = this.paraConfig.StopInit.VarSettings;
