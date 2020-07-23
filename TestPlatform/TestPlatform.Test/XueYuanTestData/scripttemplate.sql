@@ -78,7 +78,7 @@ is_worker_report_save = True
 # 是否Current数据
 is_current = True
 # 保存数据的时间间隔（秒）
-is_save_interval = 1
+is_save_interval = 3
 # 发送的数据包是否加密
 is_security_data = True
 # 时间单位，秒=1，毫秒=1000，微妙=1000000，纳秒=1000000000
@@ -434,7 +434,7 @@ class TcpTestUser(User):
                     master_data["MinDurartion"] = str(stats_send.min_response_time)
                     master_data["AvgDuration"] = str(stats_send.avg_response_time)
 
-                    # print(master_data)
+                    Print("add_master_data, %s." % master_data)
                     TcpTestUser.post_api("api/monitor/addmasterdata", master_data)
         except Exception as e:
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
@@ -458,7 +458,7 @@ class TcpTestUser(User):
                     worker_data = []
                     worker_data.append(worker_data_data)
 
-                    # print(worker_data)
+                    Print("add_worker_data, %s." % worker_data)
 
                     if stats_send.current_rps > 0.0:
                         TcpTestUser.post_api("api/monitor/addslavedata", worker_data)
@@ -489,7 +489,7 @@ class TcpTestUser(User):
                     history_data["MinDurartion"] = stats_send.min_response_time
                     history_data["AvgDuration"] = stats_send.avg_response_time
 
-                    # print(history_data)
+                    Print("add_history_data, %s." % history_data)
                     TcpTestUser.post_api("api/report/addhistory", history_data)   
             else:
                 history_data = {}
@@ -505,7 +505,7 @@ class TcpTestUser(User):
                 history_data["MinDurartion"] = 0.0
                 history_data["AvgDuration"] = 0.0
 
-                # print(history_data)
+                Print("add_history_data, %s." % history_data)
                 TcpTestUser.post_api("api/report/addhistory", history_data)
         except Exception as e:
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
@@ -524,7 +524,7 @@ class TcpTestUser(User):
             history_data["MinDurartion"] = 0.0
             history_data["AvgDuration"] = 0.0
 
-            # print(history_data)
+            Print("add_history_data, %s." % history_data)
             TcpTestUser.post_api("api/report/addhistory", history_data)
 
     def post_api(path, data):
