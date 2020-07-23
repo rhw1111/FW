@@ -622,10 +622,9 @@ namespace FW.TestPlatform.Main.Entities
 
             await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.Running, cancellationToken);
                 var existsCases = await _testCaseStore.QueryCountNolockByStatus(TestCaseStatus.Running, hostIDs, cancellationToken);
 
-                if (existsCases.Count > 1)
+                if (existsCases.Count >= 1)
                 {
 
                     var fragment = new TextFragment()
@@ -638,10 +637,10 @@ namespace FW.TestPlatform.Main.Entities
                     throw new UtilityException((int)TestPlatformErrorCodes.TestHostHasRunning, fragment, 1, 0);
                 }
 
+                await handleService.Run(tCase, cancellationToken);
+                await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.Running, cancellationToken);
                 scope.Complete();
-            }
-
-            await handleService.Run(tCase, cancellationToken);
+            }   
         }
 
         public async Task Stop(TestCase tCase, CancellationToken cancellationToken = default)
