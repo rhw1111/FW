@@ -78,7 +78,7 @@ is_worker_report_save = True
 # 是否Current数据
 is_current = True
 # 保存数据的时间间隔（秒）
-is_save_interval = 3
+is_save_interval = 1
 # 发送的数据包是否加密
 is_security_data = True
 # 是否取Master的QPS
@@ -488,7 +488,7 @@ class TcpTestUser(User):
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, traceback.format_exc()))
 
     def add_history_data():
-        # print("add_history_data")
+        print("add_history_data")
 
         try:
             if ("send_data", "tcpsocket") in TcpTestUser.environment.runner.stats.entries:
