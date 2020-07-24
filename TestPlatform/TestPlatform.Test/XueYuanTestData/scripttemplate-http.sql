@@ -133,6 +133,8 @@ class HttpTestUser(HttpUser):
 
     def login(self):
         self.user_id = uuid.uuid1()
+        self.currconnectkv[self.user_id] = {}
+        self.currconnectkv_user_id = self.currconnectkv[self.user_id]
         self.user_name = ""
         self.user_password = ""
         self.user_token = ""
