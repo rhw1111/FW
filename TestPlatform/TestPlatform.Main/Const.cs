@@ -242,9 +242,22 @@ namespace FW.TestPlatform.Main
         public const string SlaveName = "slavename";
         public const string GetJsonDataInvoke = "getjsondatainvoke";
         public const string SplitJsonDataInvoke = "splitjsondatainvoke";
-        public const string PrintInvoke = "printinvoke";
+        public const string Print = "print";
         public const string HttpGetWithConnectInvoke = "httpgetwithconnectinvoke";
         public const string HttpPostWithConnectInvoke = "httppostwithconnectinvoke";
+    }
+
+    public static class LabelTypes
+    {
+        public const string LabelType0100 = "内部标签";
+        public const string LabelType1000 = "脚本内部标签";
+        public const string LabelType2000 = "数据源类标签";
+        public const string LabelType2010 = "连接类标签";
+        public const string LabelType2020 = "函数类标签";
+        public const string LabelType2030 = "变量类标签";
+        public const string LabelType2040 = "数值类标签";
+        public const string LabelType2050 = "业务类标签";
+        public const string LabelType9999 = "无效类标签";
     }
 
     /// <summary>

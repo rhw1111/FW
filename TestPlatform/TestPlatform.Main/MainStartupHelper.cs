@@ -368,7 +368,7 @@ namespace FW.TestPlatform.Main
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.SlaveName] = DIContainerContainer.Get<LabelParameterHandlerForSlaveNameFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.GetJsonDataInvoke] = DIContainerContainer.Get<LabelParameterHandlerForGetJsonDataInvokeFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.SplitJsonDataInvoke] = DIContainerContainer.Get<LabelParameterHandlerForSplitJsonDataInvokeFactory>();
-            LabelParameterIMP.HandlerFactories[LabelParameterTypes.PrintInvoke] = DIContainerContainer.Get<LabelParameterHandlerForPrintInvokeFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.Print] = DIContainerContainer.Get<LabelParameterHandlerForPrintFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.HttpGetWithConnectInvoke] = DIContainerContainer.Get<LabelParameterHandlerForHttpGetWithConnectInvokeFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.HttpPostWithConnectInvoke] = DIContainerContainer.Get<LabelParameterHandlerForHttpPostWithConnectInvokeFactory>();
 

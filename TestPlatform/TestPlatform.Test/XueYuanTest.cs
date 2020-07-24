@@ -22,6 +22,7 @@ using FW.TestPlatform.Main.Configuration;
 using FW.TestPlatform.Main.Entities;
 using FW.TestPlatform.Main.Entities.DAL;
 using MSLibrary.LanguageTranslate;
+using MSLibrary.Template;
 
 namespace TestPlatform.Test
 {
@@ -212,7 +213,7 @@ namespace TestPlatform.Test
             Assert.Pass();
         }
 
-        //[Test]
+        [Test]
         public async Task TestTestCaseRun()
         {
             TestCase testCase = new TestCase()
@@ -231,7 +232,7 @@ namespace TestPlatform.Test
             Assert.Pass();
         }
 
-        [Test]
+        //[Test]
         public async Task TestTestCaseHttpRun()
         {
             TestCase testCase = new TestCase()
@@ -269,6 +270,28 @@ namespace TestPlatform.Test
 
             Assert.Pass();
         }
+
+        //[Test]
+        //public async Task GetLabelParameterHandlers()
+        //{
+        //    List<ILabelParameterHandler> list = new List<ILabelParameterHandler>();
+
+        //    foreach (IFactory<ILabelParameterHandler> factory in LabelParameterIMP.HandlerFactories.Values)
+        //    {
+        //        var handler = factory.Create();
+
+        //        if (await handler.IsOpenUser())
+        //        {
+        //            list.Add(handler);
+        //        }
+
+        //        string fromat = await handler.Formate();
+        //    }
+
+        //    list.Sort((x, y) => x.SerialNo.CompareTo(y.SerialNo));
+
+        //    Assert.Pass();
+        //}
 
     }
 }
