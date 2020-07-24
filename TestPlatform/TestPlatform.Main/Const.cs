@@ -252,11 +252,11 @@ namespace FW.TestPlatform.Main
         public const string LabelType0100 = "内部标签";
         public const string LabelType1000 = "脚本内部标签";
         public const string LabelType2000 = "数据源类标签";
-        public const string LabelType2010 = "连接类标签";
-        public const string LabelType2020 = "函数类标签";
-        public const string LabelType2030 = "变量类标签";
-        public const string LabelType2040 = "数值类标签";
-        public const string LabelType2050 = "业务类标签";
+        public const string LabelType3000 = "连接类标签";
+        public const string LabelType4000 = "函数类标签";
+        public const string LabelType5000 = "变量类标签";
+        public const string LabelType6000 = "数值类标签";
+        public const string LabelType7000 = "业务类标签";
         public const string LabelType9999 = "无效类标签";
     }
 
