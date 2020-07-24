@@ -30,6 +30,7 @@ namespace FW.TestPlatform.Main
     public static class ScriptTemplateNames
     {
         public const string LocustTcp = "LocustTcp";
+        public const string LocustHttp = "LocustHttp";
     }
 
     /// <summary>
@@ -242,6 +243,8 @@ namespace FW.TestPlatform.Main
         public const string GetJsonDataInvoke = "getjsondatainvoke";
         public const string SplitJsonDataInvoke = "splitjsondatainvoke";
         public const string PrintInvoke = "printinvoke";
+        public const string HttpGetWithConnectInvoke = "httpgetwithconnectinvoke";
+        public const string HttpPostWithConnectInvoke = "httppostwithconnectinvoke";
     }
 
     /// <summary>
@@ -275,6 +278,8 @@ namespace FW.TestPlatform.Main
         public const string GetJsonData = "GetJsonData";
         public const string SplitJsonData = "SplitJsonData";
         public const string Print = "Print";
+        public const string HttpGetWithConnect = "HttpGetWithConnect";
+        public const string HttpPostWithConnect = "HttpPostWithConnect";
     }
 
     /// <summary>

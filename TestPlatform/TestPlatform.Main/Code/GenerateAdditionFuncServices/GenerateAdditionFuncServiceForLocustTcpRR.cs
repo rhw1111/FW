@@ -19,6 +19,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    # print(\"TcpRR\")");
             sbCode.AppendLine("    import socket");
             sbCode.AppendLine("    import re");
+            sbCode.AppendLine("    import traceback");
             sbCode.AppendLine("");
             sbCode.AppendLine("    if address is None or address == \"\" or port is None or port == \"\":");
             sbCode.AppendLine("        return \"\"");
@@ -60,7 +61,8 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("        else:");
             sbCode.AppendLine("            return \"OK\"");
             sbCode.AppendLine("    except Exception as e:");
-            sbCode.AppendLine("        print(\"[%s] %s: Error, %s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))");
+            sbCode.AppendLine("        print(\"[% s] [% s]: Error, % s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))");
+            sbCode.AppendLine("        print(\"[% s] [% s]: Error, % s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, traceback.format_exc()))");
             sbCode.AppendLine("");
             sbCode.AppendLine("        return \"\"");
             sbCode.AppendLine("    finally:");
