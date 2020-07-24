@@ -15,7 +15,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 {
     /// <summary>
     ///针对全局数据变量声明的标签参数处理
-    ///格式:{$datavardeclareinit()}
+    ///格式:{$datavardeclareinit(space)}
     ///要求context中的Parameters中
     ///包含EngineType参数，参数类型为string
     ///包含DataSourceVars参数，参数类型为List<ConfigurationDataForDataSourceVar>
