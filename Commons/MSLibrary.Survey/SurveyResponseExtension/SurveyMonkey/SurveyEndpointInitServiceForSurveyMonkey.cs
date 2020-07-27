@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 using MSLibrary;
 using MSLibrary.DI;
 using MSLibrary.Survey.SurveyMonkey;
@@ -32,19 +33,21 @@ namespace MSLibrary.Survey.SurveyResponseExtension.SurveyMonkey
             if (configurationObj.SubscriptionUrl != null)
             {
                 List<string> webhookIDs = new List<string>();
-                List<string> conflictEventTypes = new List<string>();
+                List<string> conflictNames = new List<string>();
 
-                await registerWebhook(configurationObj, surveyMonkeyEndpoint, SurveyMonkeyEventTypes.SurveyCreated, webhookIDs, conflictEventTypes, cancellationToken);
-                await registerWebhook(configurationObj, surveyMonkeyEndpoint, SurveyMonkeyEventTypes.SurveyUpdated, webhookIDs, conflictEventTypes, cancellationToken);
-                await registerWebhook(configurationObj, surveyMonkeyEndpoint, SurveyMonkeyEventTypes.SurveyDeleted, webhookIDs, conflictEventTypes, cancellationToken);
+                await registerWebhook(configurationObj, surveyMonkeyEndpoint, SurveyMonkeyEventTypes.SurveyCreated, webhookIDs, conflictNames, cancellationToken);
+                await registerWebhook(configurationObj, surveyMonkeyEndpoint, SurveyMonkeyEventTypes.SurveyUpdated, webhookIDs, conflictNames, cancellationToken);
+                await registerWebhook(configurationObj, surveyMonkeyEndpoint, SurveyMonkeyEventTypes.SurveyDeleted, webhookIDs, conflictNames, cancellationToken);
 
-                if (conflictEventTypes.Count>0)
+                if (conflictNames.Count>0)
                 {
+                    var allRegisters=await getALlWebhook(surveyMonkeyEndpoint, cancellationToken);
+                    var ids = (from item in allRegisters
+                               where conflictNames.Contains(item.Name)
+                               select item.ID).ToList();
 
+                    webhookIDs.AddRange(ids);
                 }
-
-
-
 
                 initInfo = JsonSerializerHelper.Serializer(webhookIDs);
             }
@@ -52,13 +55,13 @@ namespace MSLibrary.Survey.SurveyResponseExtension.SurveyMonkey
             return initInfo;
         }
 
-        private async Task registerWebhook(EndpointConfiguration configurationObj, SurveyMonkeyEndpoint endpoint, string eventType, List<string> webhookIDs, List<string> conflictEventTypes, CancellationToken cancellationToken = default)
+        private async Task registerWebhook(EndpointConfiguration configurationObj, SurveyMonkeyEndpoint endpoint, string eventType, List<string> webhookIDs, List<string> conflictNames, CancellationToken cancellationToken = default)
         {
             WebhookRegisterRequest registerRequest = new WebhookRegisterRequest()
             {
                 EventType = eventType,
                 Name = $"{eventType}_{endpoint.ID}",
-                SubscriptionUrl = configurationObj.SubscriptionUrl
+                SubscriptionUrl = configurationObj.SubscriptionUrl=null!
             };
 
             WebhookRegisterResponse? registerResponse = null;
@@ -70,7 +73,7 @@ namespace MSLibrary.Survey.SurveyResponseExtension.SurveyMonkey
             {
                 if (ex.Code == (int)SurveyErrorCodes.ExistsSurveyMonkeyWebhookByName)
                 {
-                    conflictEventTypes.Add(eventType);
+                    conflictNames.Add(registerRequest.Name);
                 }
 
                 throw ex;
@@ -83,5 +86,29 @@ namespace MSLibrary.Survey.SurveyResponseExtension.SurveyMonkey
         }
 
 
+        private async Task<List<WebhookRegisterItem>> getALlWebhook(SurveyMonkeyEndpoint endpoint,CancellationToken cancellationToken = default)
+        {
+            int pageSize = 100;
+            int page = 1;
+            List<WebhookRegisterItem> result = new List<WebhookRegisterItem>();
+            while (true)
+            {
+                WebhookQueryRequest queryRequest = new WebhookQueryRequest()
+                {
+                    Page = page,
+                    PageSize = pageSize
+                };
+
+                var queryResponse = (WebhookQueryResponse)await endpoint.Execute(queryRequest, cancellationToken);
+                result.AddRange(queryResponse.RegisterItems);
+                if(queryResponse.RegisterItems.Count< pageSize)
+                {
+                    break;
+                }
+                page++;
+            }
+
+            return result;
+        }
     }
 }

@@ -33,13 +33,24 @@ namespace MSLibrary.Survey.SurveyMonkey.RequestHandleServices
             StringBuilder strQuery = new StringBuilder();
             if (realRequest.StartCreatedAt!=null)
             {
-                strQuery.Append($"&start_created_at={realRequest.StartCreatedAt.ToString()}");
+                strQuery.Append($"&start_created_at={realRequest.StartCreatedAt.Value.ToString("yyyy-MM-ddTHH:mm:sszzz")}");
             }
 
             if (realRequest.EndCreatedAt != null)
             {
-                strQuery.Append($"&end_created_at={realRequest.EndCreatedAt.ToString()}");
+                strQuery.Append($"&end_created_at={realRequest.EndCreatedAt.Value.ToString("yyyy-MM-ddTHH:mm:sszzz")}");
             }
+
+            if (realRequest.StartModifiedAt != null)
+            {
+                strQuery.Append($"&start_modified_at={realRequest.StartModifiedAt.Value.ToString("yyyy-MM-ddTHH:mm:sszzz")}");
+            }
+
+            if (realRequest.EndModifiedAt != null)
+            {
+                strQuery.Append($"&end_modified_at={realRequest.EndModifiedAt.Value.ToString("yyyy-MM-ddTHH:mm:sszzz")}");
+            }
+
 
             if (realRequest.Status!=null)
             {
