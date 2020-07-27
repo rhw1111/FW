@@ -256,13 +256,11 @@ namespace FW.TestPlatform.Main.Entities
         }
         public async Task<bool> IsHostRun(TestHost host, CancellationToken cancellationToken = default)
         {
-            //执行主机查进程命令
-            var result = await host.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}'", cancellationToken);
-            if (string.IsNullOrEmpty(result))
-            {
+            List<TestCase> list = await _testHostStore.GetRunningTestCasesByHostId(host.ID, cancellationToken);
+            if (list.Count > 0)
+                return true;
+            else
                 return false;
-            }
-            return true;
         }
     }
 
