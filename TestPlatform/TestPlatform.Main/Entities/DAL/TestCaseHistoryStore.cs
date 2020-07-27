@@ -134,13 +134,14 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     result.TotalCount = count;
                     var ids = (from item in dbContext.TestCaseHistories
                                where item.CaseID == caseID
+                               orderby item.CreateTime descending
                                select item.ID
                                         ).Skip((page - 1) * pageSize).Take(pageSize);
 
                     var datas = await (from item in dbContext.TestCaseHistories
                                        join idItem in ids
                                   on item.ID equals idItem
-                                       orderby EF.Property<long>(item, "Sequence")
+                                       orderby item.CreateTime descending
                                        select item).ToListAsync();
                     result.Results.AddRange(datas);
                 }

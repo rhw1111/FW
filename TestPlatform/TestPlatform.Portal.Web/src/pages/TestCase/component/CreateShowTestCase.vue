@@ -1,3 +1,5 @@
+/* eslint-disable vue/valid-v-for */
+/* eslint-disable vue/valid-v-for */
 <template>
   <div>
     <!--  主机选择框  -->
@@ -139,6 +141,36 @@
           </template>
         </q-input>
       </div>
+      <div class="row"
+           style="margin-bottom:10px;">
+        <q-select v-model="paraConfig.IsPrintLog"
+                  :options="PrintLogOptions"
+                  class="col-4"
+                  emit-value
+                  map-options
+                  :dense="false">
+          <template v-slot:before>
+            <span style="font-size:14px">是否打印日志:</span>
+          </template>
+          <template v-slot:prepend>
+          </template>
+        </q-select>
+
+        <q-select v-model="paraConfig.SyncType"
+                  :options="SyncTypeOptions"
+                  class="col-4"
+                  emit-value
+                  map-options
+                  :dense="false"
+                  style="margin-left:10px;">
+          <template v-slot:before>
+            <span style="font-size:14px">同步类型:</span>
+          </template>
+          <template v-slot:prepend>
+          </template>
+        </q-select>
+
+      </div>
       <q-list bordered
               class="rounded-borders">
         <!-- 数据源 -->
@@ -163,36 +195,50 @@
           </template>
           <q-card>
             <q-card-section v-show="paraConfig.DataSourceVars.length==0">暂无参数配置，请点击添加数据源参数按钮进行添加。</q-card-section>
-            <q-card-section v-for="(val,ind) in paraConfig.DataSourceVars"
-                            :key="ind">
-              <span style="font-size:14px">参数{{ind+1}}:</span>
-              <div class="row">
-                <q-input v-model="paraConfig.DataSourceVars[ind].Name"
-                         filled
-                         class="col-5"
-                         :dense="true">
-                  <template v-slot:before>
-                    <span style="font-size:14px;width:100px;">名称:</span>
-                  </template>
-                </q-input>
-                <q-select v-model="paraConfig.DataSourceVars[ind].DataSourceName"
-                          :options="dataSource"
-                          class="col-5"
-                          :dense="true">
-                  <template v-slot:before>
-                    <span style="font-size:14px;margin-left:10px;width:80px;">数据源名称:</span>
-                  </template>
-                  <template v-slot:prepend>
-                  </template>
-                </q-select>
-                <div class="col-2">
-                  <q-btn class="btn"
-                         style="background: #FF0000; color: white;margin-left:20px;"
-                         label="删 除"
-                         @click="deleteDataVars('DataSource',ind)" />
+            <transition-group name="MoveList">
+              <q-card-section v-for="(val,ind) in paraConfig.DataSourceVars"
+                              :key="ind">
+                <span style="font-size:14px">参数{{ind+1}}:</span>
+                <div class="row">
+                  <q-input v-model="paraConfig.DataSourceVars[ind].Name"
+                           filled
+                           class="col-5"
+                           :dense="true">
+                    <template v-slot:before>
+                      <span style="font-size:14px;width:100px;">名称:</span>
+                    </template>
+                  </q-input>
+                  <q-select v-model="paraConfig.DataSourceVars[ind].DataSourceName"
+                            :options="dataSource"
+                            class="col-5"
+                            :dense="true">
+                    <template v-slot:before>
+                      <span style="font-size:14px;margin-left:10px;width:80px;">数据源名称:</span>
+                    </template>
+                    <template v-slot:prepend>
+                    </template>
+                  </q-select>
+                  <div class="col-2 row">
+                    <div class="col-1"
+                         style="margin-left:20px;">
+                      <q-icon name="ion-arrow-up"
+                              style="display:block;"
+                              class="pointer"
+                              @click="moveUpList('DataSourceVars',ind)" />
+                      <q-icon name="ion-arrow-down"
+                              class="pointer"
+                              style="display:block;margin-top:10px;"
+                              @click="moveDownList('DataSourceVars',ind)" />
+                    </div>
+
+                    <q-btn class="btn col-4"
+                           style="background: #FF0000; color: white;margin-left:20px;display:inline-block;"
+                           label="删 除"
+                           @click="deleteDataVars('DataSource',ind)" />
+                  </div>
                 </div>
-              </div>
-            </q-card-section>
+              </q-card-section>
+            </transition-group>
 
           </q-card>
         </q-expansion-item>
@@ -218,34 +264,49 @@
           </template>
           <q-card>
             <q-card-section v-show="paraConfig.ConnectInit.VarSettings.length==0">暂无参数配置，请点击添加初始化参数按钮进行添加。</q-card-section>
-            <q-card-section v-for="(val,ind) in paraConfig.ConnectInit.VarSettings"
-                            :key="ind">
-              <span style="font-size:14px">参数{{ind+1}}:</span>
-              <div class="row">
-                <q-input v-model="paraConfig.ConnectInit.VarSettings[ind].Name"
-                         filled
-                         class="col-5"
-                         :dense="true">
-                  <template v-slot:before>
-                    <span style="font-size:14px;width:100px">名称:</span>
-                  </template>
-                </q-input>
-                <q-input v-model="paraConfig.ConnectInit.VarSettings[ind].Content"
-                         filled
-                         class="col-5"
-                         :dense="true">
-                  <template v-slot:before>
-                    <span style="font-size:14px;width:80px;margin-left:10px;">内容:</span>
-                  </template>
-                </q-input>
-                <div class="col-2">
-                  <q-btn class="btn"
-                         style="background: #FF0000; color: white;margin-left:20px;"
-                         label="删 除"
-                         @click="deleteDataVars('ConnectInit',ind)" />
+
+            <transition-group name="MoveList">
+              <q-card-section v-for="(val,ind) in paraConfig.ConnectInit.VarSettings"
+                              :key="ind">
+                <span style="font-size:14px">参数{{ind+1}}:</span>
+                <div class="row">
+                  <q-input v-model="paraConfig.ConnectInit.VarSettings[ind].Name"
+                           filled
+                           class="col-5"
+                           :dense="true">
+                    <template v-slot:before>
+                      <span style="font-size:14px;width:100px">名称:</span>
+                    </template>
+                  </q-input>
+                  <q-input v-model="paraConfig.ConnectInit.VarSettings[ind].Content"
+                           filled
+                           class="col-5"
+                           :dense="true">
+                    <template v-slot:before>
+                      <span style="font-size:14px;width:80px;margin-left:10px;">内容:</span>
+                    </template>
+                  </q-input>
+                  <div class="col-2 row">
+                    <div class="col-1"
+                         style="margin-left:20px;">
+                      <q-icon name="ion-arrow-up"
+                              style="display:block;"
+                              class="pointer"
+                              @click="moveUpList('ConnectInit',ind)" />
+                      <q-icon name="ion-arrow-down"
+                              class="pointer"
+                              style="display:block;margin-top:10px;"
+                              @click="moveDownList('ConnectInit',ind)" />
+                    </div>
+
+                    <q-btn class="btn col-4"
+                           style="background: #FF0000; color: white;margin-left:20px;display:inline-block;"
+                           label="删 除"
+                           @click="deleteDataVars('ConnectInit',ind)" />
+                  </div>
                 </div>
-              </div>
-            </q-card-section>
+              </q-card-section>
+            </transition-group>
 
           </q-card>
         </q-expansion-item>
@@ -271,34 +332,49 @@
           </template>
           <q-card>
             <q-card-section v-show="paraConfig.SendInit.VarSettings.length==0">暂无参数配置，请点击添加初始化参数按钮进行添加。</q-card-section>
-            <q-card-section v-for="(val,ind) in paraConfig.SendInit.VarSettings"
-                            :key="ind">
-              <span style="font-size:14px">参数{{ind+1}}:</span>
-              <div class="row">
-                <q-input v-model="paraConfig.SendInit.VarSettings[ind].Name"
-                         filled
-                         class="col-5"
-                         :dense="true">
-                  <template v-slot:before>
-                    <span style="font-size:14px;width:100px">名称:</span>
-                  </template>
-                </q-input>
-                <q-input v-model="paraConfig.SendInit.VarSettings[ind].Content"
-                         filled
-                         class="col-5"
-                         :dense="true">
-                  <template v-slot:before>
-                    <span style="font-size:14px;width:80px;margin-left:10px;">内容:</span>
-                  </template>
-                </q-input>
-                <div class="col-2">
-                  <q-btn class="btn"
-                         style="background: #FF0000; color: white;margin-left:20px;"
-                         label="删 除"
-                         @click="deleteDataVars('SendInit',ind)" />
+
+            <transition-group name="MoveList">
+              <q-card-section v-for="(val,ind) in paraConfig.SendInit.VarSettings"
+                              :key="ind">
+                <span style="font-size:14px">参数{{ind+1}}:</span>
+                <div class="row">
+                  <q-input v-model="paraConfig.SendInit.VarSettings[ind].Name"
+                           filled
+                           class="col-5"
+                           :dense="true">
+                    <template v-slot:before>
+                      <span style="font-size:14px;width:100px">名称:</span>
+                    </template>
+                  </q-input>
+                  <q-input v-model="paraConfig.SendInit.VarSettings[ind].Content"
+                           filled
+                           class="col-5"
+                           :dense="true">
+                    <template v-slot:before>
+                      <span style="font-size:14px;width:80px;margin-left:10px;">内容:</span>
+                    </template>
+                  </q-input>
+                  <div class="col-2 row">
+                    <div class="col-1"
+                         style="margin-left:20px;">
+                      <q-icon name="ion-arrow-up"
+                              class="pointer"
+                              style="display:block;"
+                              @click="moveUpList('SendInit',ind)" />
+                      <q-icon name="ion-arrow-down"
+                              class="pointer"
+                              style="display:block;margin-top:10px;"
+                              @click="moveDownList('SendInit',ind)" />
+                    </div>
+
+                    <q-btn class="btn col-4"
+                           style="background: #FF0000; color: white;margin-left:20px;display:inline-block;"
+                           label="删 除"
+                           @click="deleteDataVars('SendInit',ind)" />
+                  </div>
                 </div>
-              </div>
-            </q-card-section>
+              </q-card-section>
+            </transition-group>
 
           </q-card>
         </q-expansion-item>
@@ -324,39 +400,54 @@
           </template>
           <q-card>
             <q-card-section v-show="paraConfig.StopInit.VarSettings.length==0">暂无参数配置，请点击添加初始化参数按钮进行添加。</q-card-section>
-            <q-card-section v-for="(val,ind) in paraConfig.StopInit.VarSettings"
-                            :key="ind">
-              <span style="font-size:14px">参数{{ind+1}}:</span>
-              <div class="row">
-                <q-input v-model="paraConfig.StopInit.VarSettings[ind].Name"
-                         filled
-                         class="col-5"
-                         :dense="true">
-                  <template v-slot:before>
-                    <span style="font-size:14px;width:100px">名称:</span>
-                  </template>
-                </q-input>
-                <q-input v-model="paraConfig.StopInit.VarSettings[ind].Content"
-                         filled
-                         class="col-5"
-                         :dense="true">
-                  <template v-slot:before>
-                    <span style="font-size:14px;width:80px;margin-left:10px;">内容:</span>
-                  </template>
-                </q-input>
-                <div class="col-2">
-                  <q-btn class="btn"
-                         style="background: #FF0000; color: white;margin-left:20px;"
-                         label="删 除"
-                         @click="deleteDataVars('StopInit',ind)" />
+
+            <transition-group name="MoveList">
+              <q-card-section v-for="(val,ind) in paraConfig.StopInit.VarSettings"
+                              :key="ind">
+                <span style="font-size:14px">参数{{ind+1}}:</span>
+                <div class="row">
+                  <q-input v-model="paraConfig.StopInit.VarSettings[ind].Name"
+                           filled
+                           class="col-5"
+                           :dense="true">
+                    <template v-slot:before>
+                      <span style="font-size:14px;width:100px">名称:</span>
+                    </template>
+                  </q-input>
+                  <q-input v-model="paraConfig.StopInit.VarSettings[ind].Content"
+                           filled
+                           class="col-5"
+                           :dense="true">
+                    <template v-slot:before>
+                      <span style="font-size:14px;width:80px;margin-left:10px;">内容:</span>
+                    </template>
+                  </q-input>
+                  <div class="col-2 row">
+                    <div class="col-1"
+                         style="margin-left:20px;">
+                      <q-icon name="ion-arrow-up"
+                              class="pointer"
+                              style="display:block;"
+                              @click="moveUpList('StopInit',ind)" />
+                      <q-icon name="ion-arrow-down"
+                              class="pointer"
+                              style="display:block;margin-top:10px;"
+                              @click="moveDownList('StopInit',ind)" />
+                    </div>
+
+                    <q-btn class="btn col-4"
+                           style="background: #FF0000; color: white;margin-left:20px;display:inline-block;"
+                           label="删 除"
+                           @click="deleteDataVars('StopInit',ind)" />
+                  </div>
                 </div>
-              </div>
-            </q-card-section>
+              </q-card-section>
+            </transition-group>
 
           </q-card>
         </q-expansion-item>
       </q-list>
-      <div class="row">
+      <!-- <div class="row">
         <div class="col-2  offset-md-10">
 
           <q-btn class="btn"
@@ -365,8 +456,42 @@
                  label="生 成"
                  @click="CreateJson" />
         </div>
-      </div>
-      <div class="row input_row">
+      </div> -->
+
+      <q-list bordered>
+        <q-expansion-item label="数据源"
+                          style="text-align:left;position:relative"
+                          expand-icon-toggle
+                          expand-separator
+                          v-model="ConfigTextExpanded">
+          <template v-slot:header>
+            <q-item-section>
+              配置文本:
+            </q-item-section>
+            <q-item-section side>
+              <q-btn class="btn"
+                     color="primary"
+                     style="margin:10px 0 10px 20px;float:right"
+                     label="生 成"
+                     @click="CreateJson" />
+            </q-item-section>
+          </template>
+          <q-card>
+            <div class="row input_row">
+              <q-input v-model="Configuration"
+                       :dense="false"
+                       style="overflow:hidden"
+                       autogrow
+                       class="col-12"
+                       type="textarea"
+                       outlined>
+              </q-input>
+            </div>
+          </q-card>
+        </q-expansion-item>
+      </q-list>
+
+      <!-- <div class="row input_row">
         <q-input v-model="Configuration"
                  :dense="false"
                  style="overflow:hidden"
@@ -374,21 +499,9 @@
                  class="col-12"
                  type="textarea"
                  outlined>
-          <template v-slot:before>
-            <span style="font-size:14px">配置文本:</span>
-          </template>
         </q-input>
-        <!-- <div class="col-xs-12">
-          <q-input v-model="Configuration"
-                   filled
-                   autogrow
-                   placeholder="点击生成按钮生成参数文本">
-            <template v-slot:before>
-              <span style="font-size:14px">配置文本:</span>
-            </template>
-          </q-input>
-        </div> -->
-      </div>
+      </div> -->
+
     </div>
   </div>
 </template>
@@ -405,12 +518,27 @@ export default {
     detailData (val) {
       if (val) {
         console.log(val)
-        this.Name = val.name;
-        this.paraConfig = JSON.parse(val.configuration);
-        this.EngineType = val.engineType;
+        let configuration = JSON.parse(val.configuration)
+        this.paraConfig = {
+          UserCount: configuration.UserCount || '',//压测用户总数
+          PerSecondUserCount: configuration.PerSecondUserCount || '',//每秒加载用户数
+          Address: configuration.Address || '',//被测服务器
+          Port: configuration.Port || '',//被测服务器端口
+          Duration: configuration.Duration || '',//压测时间
+          ResponseSeparator: configuration.ResponseSeparator || '',//结束分隔符
+          DataSourceVars: configuration.DataSourceVars || [],//数据源
+          IsPrintLog: configuration.IsPrintLog == true ? '是' : '否',//是否打印日志
+          SyncType: configuration.SyncType == false ? '异步模式' : '同步模式',//是否同步异步
+          ConnectInit: configuration.ConnectInit || { VarSettings: [] },//连接初始化
+          SendInit: configuration.SendInit || { VarSettings: [] },//发送初始化
+          StopInit: configuration.StopInit || { VarSettings: [] }//停止初始化
+        }
 
+        this.Name = val.name;
+        this.EngineType = val.engineType;
         this.masterHostSelect = val.masterHostAddress;
         this.MasterHostID = val.masterHostID;
+        this.Configuration = JSON.stringify(JSON.parse(val.configuration), null, 2);
       }
     },
     dataSourceName (val) {
@@ -450,6 +578,8 @@ export default {
         Duration: '',//压测时间
         ResponseSeparator: '',//结束分隔符
         DataSourceVars: [],//数据源
+        IsPrintLog: '否',//是否打印日志
+        SyncType: '同步模式',//是否同步异步
         ConnectInit: {
           VarSettings: []
         },//连接初始化
@@ -460,11 +590,32 @@ export default {
           VarSettings: []
         }//停止初始化
       },
-
+      //是否打印日志
+      PrintLogOptions: [
+        {
+          label: '是',
+          value: true,
+        },
+        {
+          label: '否',
+          value: false,
+        }
+      ],
+      SyncTypeOptions: [
+        {
+          label: '同步模式',
+          value: true,
+        },
+        {
+          label: '异步模式',
+          value: false,
+        }
+      ],
       DataSourceExpanded: false, //DataSourceVars 扩展框flag
       ConnectInitExpanded: false,//ConnectInit扩展框flag
       SendInitExpanded: false,//SendInit扩展框flag
       StopInitExpanded: false,//StopInit
+      ConfigTextExpanded: false,//配置文本
     }
   },
   methods: {
@@ -520,10 +671,11 @@ export default {
     newCreate () {
       let para = {
         Name: this.Name,
-        Configuration: JSON.stringify(this.paraConfig).trim(),
+        Configuration: this.Configuration.trim(),
         EngineType: this.EngineType,
         MasterHostID: this.MasterHostID
       }
+      console.log(para)
       if (this.Name && this.isJSON(this.Configuration) && this.EngineType && this.MasterHostID) {
         return para
       } else {
@@ -562,13 +714,15 @@ export default {
         if (!this.isPort(this.paraConfig.Port)) { return; }
         if (!this.ifDataVars()) { return; }
         this.Configuration = JSON.stringify({
-          UserCount: Number(this.paraConfig.UserCount),//压测用户总数
-          PerSecondUserCount: Number(this.paraConfig.PerSecondUserCount),//每秒加载用户数
+          UserCount: this.paraConfig.UserCount ? Number(this.paraConfig.UserCount) : '',//压测用户总数
+          PerSecondUserCount: this.paraConfig.PerSecondUserCount ? Number(this.paraConfig.PerSecondUserCount) : '',//每秒加载用户数
           Address: this.paraConfig.Address,//被测服务器
-          Port: Number(this.paraConfig.Port),//被测服务器端口
-          Duration: Number(this.paraConfig.Duration),//压测时间
+          Port: this.paraConfig.Port ? Number(this.paraConfig.Port) : '',//被测服务器端口
+          Duration: this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '',//压测时间
           ResponseSeparator: this.paraConfig.ResponseSeparator,//结束分隔符
           DataSourceVars: this.paraConfig.DataSourceVars,//数据源
+          IsPrintLog: this.paraConfig.IsPrintLog == true || this.paraConfig.IsPrintLog == '是' ? true : false,//是否打印日志
+          SyncType: this.paraConfig.SyncType == true || this.paraConfig.SyncType == '同步模式' ? true : false,//是否同步异步
           ConnectInit: {
             VarSettings: this.paraConfig.ConnectInit.VarSettings
           },//连接初始化
@@ -579,6 +733,7 @@ export default {
             VarSettings: this.paraConfig.StopInit.VarSettings
           }//停止初始化
         }, null, 2);
+        this.ConfigTextExpanded = true;
       } else if (this.isJSON(this.Configuration.trim())) {
         //验证ip地址是否正确
         if (!this.isValidIp(this.paraConfig.Address)) { return; }
@@ -586,18 +741,20 @@ export default {
         if (!this.isPort(this.paraConfig.Port)) { return; }
         if (!this.ifDataVars()) { return; }
         this.Configuration = JSON.parse(this.Configuration);
-        this.Configuration.UserCount = Number(this.paraConfig.UserCount);
-        this.Configuration.PerSecondUserCount = Number(this.paraConfig.PerSecondUserCount);
+        this.Configuration.UserCount = this.paraConfig.UserCount ? Number(this.paraConfig.UserCount) : '';
+        this.Configuration.PerSecondUserCount = this.paraConfig.PerSecondUserCount ? Number(this.paraConfig.PerSecondUserCount) : '';
         this.Configuration.Address = this.paraConfig.Address;
-        this.Configuration.Port = Number(this.paraConfig.Port);
-        this.Configuration.Duration = Number(this.paraConfig.Duration);
+        this.Configuration.Port = this.paraConfig.Port ? Number(this.paraConfig.Port) : '';
+        this.Configuration.Duration = this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '';
         this.Configuration.ResponseSeparator = this.paraConfig.ResponseSeparator;
         this.Configuration.DataSourceVars = this.paraConfig.DataSourceVars;
+        this.Configuration.IsPrintLog = this.paraConfig.IsPrintLog == true || this.paraConfig.IsPrintLog == '是' ? true : false;
+        this.Configuration.SyncType = this.paraConfig.SyncType == true || this.paraConfig.SyncType == '同步模式' ? true : false;
         this.Configuration.ConnectInit.VarSettings = this.paraConfig.ConnectInit.VarSettings;
         this.Configuration.SendInit.VarSettings = this.paraConfig.SendInit.VarSettings;
         this.Configuration.StopInit.VarSettings = this.paraConfig.StopInit.VarSettings;
         this.Configuration = JSON.stringify(this.Configuration, null, 2);
-
+        this.ConfigTextExpanded = true;
       }
     },
     //判断是否是JSON格式
@@ -796,11 +953,47 @@ export default {
           this.paraConfig.StopInit.VarSettings.splice(index, 1);
         }
       })
+    },
+    //上移列表
+    moveUpList (value, index) {
+      if (value == 'DataSourceVars' && index != 0) {
+        this.paraConfig.DataSourceVars[index] = this.paraConfig.DataSourceVars.splice(index - 1, 1, this.paraConfig.DataSourceVars[index])[0];
+      } else if (value == "ConnectInit" && index != 0) {
+        this.paraConfig.ConnectInit.VarSettings[index] = this.paraConfig.ConnectInit.VarSettings.splice(index - 1, 1, this.paraConfig.ConnectInit.VarSettings[index])[0];
+      } else if (value == "SendInit" && index != 0) {
+        this.paraConfig.SendInit.VarSettings[index] = this.paraConfig.SendInit.VarSettings.splice(index - 1, 1, this.paraConfig.SendInit.VarSettings[index])[0];
+      } else if (value == "StopInit" && index != 0) {
+        this.paraConfig.StopInit.VarSettings[index] = this.paraConfig.StopInit.VarSettings.splice(index - 1, 1, this.paraConfig.StopInit.VarSettings[index])[0];
+      }
+    },
+    //下移列表
+    moveDownList (value, index) {
+      if (value == 'DataSourceVars' && index < this.paraConfig.DataSourceVars.length - 1) {
+
+        this.paraConfig.DataSourceVars[index] = this.paraConfig.DataSourceVars.splice(index + 1, 1, this.paraConfig.DataSourceVars[index])[0];
+
+      } else if (value == "ConnectInit" && index < this.paraConfig.ConnectInit.VarSettings.length - 1) {
+
+        this.paraConfig.ConnectInit.VarSettings[index] = this.paraConfig.ConnectInit.VarSettings.splice(index + 1, 1, this.paraConfig.ConnectInit.VarSettings[index])[0];
+
+      } else if (value == "SendInit" && index < this.paraConfig.SendInit.VarSettings.length - 1) {
+
+        this.paraConfig.SendInit.VarSettings[index] = this.paraConfig.SendInit.VarSettings.splice(index + 1, 1, this.paraConfig.SendInit.VarSettings[index])[0];
+
+      } else if (value == "StopInit" && index < this.paraConfig.StopInit.VarSettings.length - 1) {
+
+        this.paraConfig.StopInit.VarSettings[index] = this.paraConfig.StopInit.VarSettings.splice(index + 1, 1, this.paraConfig.StopInit.VarSettings[index])[0];
+
+      }
     }
   }
 }
 </script>
-
+<style lang="scss" scoped>
+.pointer {
+  cursor: pointer;
+}
+</style>
 <style lang="scss">
 .new_input {
   width: 100%;
@@ -811,5 +1004,19 @@ export default {
 }
 .q-textarea .q-field__native {
   resize: none;
+}
+.MoveList-enter,
+.MoveList-leave-to {
+  opacity: 0;
+  transform: translateY(80px);
+}
+
+.MoveList-enter-active,
+.MoveList-leave-active {
+  transition: all 0.6s ease;
+}
+
+.MoveList-move {
+  transition: all 0.6s ease;
 }
 </style>

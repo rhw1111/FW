@@ -22,7 +22,7 @@
             </template>
           </q-input>
           <q-select v-model="Type"
-                    :options="['String','Int','Json']"
+                    :options="['String','Int','Json','Label']"
                     class="col"
                     :dense="false">
             <template v-slot:before>
@@ -38,6 +38,7 @@
                    :dense="false"
                    class="col-xs-12"
                    type="textarea"
+                   autogrow
                    outlined>
             <template v-slot:before>
               <span style="font-size:14px">数据:</span>
@@ -89,9 +90,10 @@ export default {
         ID: this.Id,
         Name: this.Name,
         Type: this.Type,
-        Data: this.Data
+        Data: this.Data.trim()
       }
-      if (this.Id && this.Name && this.Type && this.Data) {
+      if (this.Id && this.Name && this.Type && this.Data.trim()) {
+        if (!this.isDataType(this.Type)) { return; }
         this.$q.loading.show()
         Apis.putTestDataSource(para).then((res) => {
           console.log(res)
@@ -134,6 +136,54 @@ export default {
           this.$router.push({ name: 'TestDataSource' })
         })
       })
+    },
+    //判断类型是否正确
+    isDataType (type) {
+      if (type == 'Int') {
+        if (!Number(this.Data.trim())) {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '当前数据不是Int类型',
+            color: 'red',
+          })
+          return false;
+        }
+        return true;
+      } else if (type == 'Json') {
+        if (!this.isJSON(this.Data.trim())) {
+          return false;
+        }
+        return true;
+      } else {
+        return true;
+      }
+    },
+    //判断是否是JSON格式
+    isJSON (str) {
+      if (typeof str == 'string') {
+        try {
+          var obj = JSON.parse(str);
+          if (typeof obj == 'object' && obj != null) {
+            return true
+          } else {
+            this.$q.notify({
+              position: 'top',
+              message: '提示',
+              caption: '配置不是正确的JSON格式',
+              color: 'red',
+            })
+          }
+
+        } catch (e) {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '配置不是正确的JSON格式',
+            color: 'red',
+          })
+        }
+      }
     },
   }
 }

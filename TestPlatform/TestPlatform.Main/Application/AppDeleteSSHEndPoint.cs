@@ -16,9 +16,11 @@ namespace FW.TestPlatform.Main.Application
     public class AppDeleteSSHEndPoint : IAppDeleteSSHEndPoint
     {
         private readonly ISSHEndpointRepository _sshEndPointRepository;
-        public AppDeleteSSHEndPoint(ISSHEndpointRepository sshEndPointRepository)
+        private readonly ITestHostRepository _testHostRepository;
+        public AppDeleteSSHEndPoint(ISSHEndpointRepository sshEndPointRepository, ITestHostRepository testHostRepository)
         {
             _sshEndPointRepository = sshEndPointRepository;
+            _testHostRepository = testHostRepository;
         }
         public async Task<SSHEndPointViewData> Do(Guid id, CancellationToken cancellationToken = default)
         {
@@ -34,7 +36,7 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSSHEndPointByID, fragment, 1, 0);
             }
-            bool isUsed = await sshEndPoint.IsUsedByTestHosts(cancellationToken);
+            bool isUsed = await _testHostRepository.GetTestHostsBySSHEndpointId(id, cancellationToken);
             if (isUsed)
             {
                 var fragment = new TextFragment()

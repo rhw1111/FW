@@ -164,45 +164,33 @@
         </q-table>
       </q-list>
       <!-- 历史记录列表 -->
-      <q-list bordered
-              class="col-xs-12 col-sm-5 col-xl-5">
-        <q-table title="历史记录列表"
-                 :data="HistoryList"
-                 :columns="HistoryColumns"
-                 row-key="id"
-                 selection="multiple"
-                 :selected.sync="HistorySelected"
-                 :rows-per-page-options=[0]
-                 table-style="max-height: 500px"
-                 no-data-label="暂无数据更新">
-          <template v-slot:top-right>
-            <q-btn class="btn"
-                   style="background: #FF0000; color: white"
-                   label="删 除"
-                   :disable="isNoRun!=1?false:true"
-                   @click="deleteHistory" />
-          </template>
-          <template v-slot:body-cell-id="props">
-            <q-td :props="props">
-              <q-btn class="btn"
-                     color="primary"
-                     label="查 看"
-                     :disable="isNoRun!=1?false:true"
-                     @click="toHistoryDetail(props)" />
-            </q-td>
-          </template>
-          <template v-slot:bottom>
-            <q-pagination v-model="pagination.page"
-                          :max="pagination.rowsNumber"
-                          :input="true"
-                          class="col offset-md-8"
-                          @input="switchPage">
-            </q-pagination>
-          </template>
-        </q-table>
-
-      </q-list>
+      <History :isNoRun="isNoRun"
+               :detailData="detailData"
+               ref="TestCaseHistory" />
     </div>
+    <!-- 日志提示 -->
+    <!-- <q-dialog v-model="lookLogFlag"
+              style="width: '100%'; max-width: '65vw'; white-space: pre-line; overflow-x: hidden;word-break:break-all;">
+      <q-card class="q-dialog-plugin"
+              style="width: 100%; max-width: 60vw;position:relative;">
+        <q-card-section>
+          <div class="text-h6">提示</div>
+        </q-card-section>
+
+        <q-separator />
+        <q-card-section>
+          <div>
+            {{lookLogText}}
+          </div>
+        </q-card-section>
+        <q-separator />
+        <q-card-actions align="right"
+                        style="position:absolute;right:0;bottom:0;">
+          <q-btn color="primary"
+                 label="OK" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog> -->
   </div>
 </template>
 
@@ -210,15 +198,19 @@
 import * as Apis from "@/api/index"
 import lookUp from "@/components/lookUp.vue"
 import CreateShowTestCase from './component/CreateShowTestCase.vue'
+import History from "./component/History/History.vue"
 export default {
   name: 'TestCaseDetail',
   components: {
     lookUp,
-    CreateShowTestCase
+    CreateShowTestCase,
+    History
   },
   data () {
     return {
       createFixed: false,//createslave Flag
+      lookLogFlag: false,//查看日志log
+      lookLogText: '',//日志内容
       isNoRun: 0,//判断是否在运行
       timerOut: null, //定时器
       detailData: '',//详情数据
@@ -267,34 +259,10 @@ export default {
         { name: 'extensionInfo', label: '扩展信息', align: 'left', field: 'extensionInfo', style: 'width:100px;' },
         { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
       ],
-
-
-      HistoryList: [],//历史记录列表
-      HistorySelected: [],//历史记录选择
-      //历史记录表格配置
-      HistoryColumns: [
-        {
-          name: 'createTime',
-          required: true,
-          label: '创建时间',
-          align: 'left',
-          field: row => row.createTime,
-          format: val => `${val}`,
-        },
-        { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
-      ],
-      //历史记录分页配置
-      pagination: {
-        page: 1,          //页码
-        rowsNumber: 1     //总页数
-      },
     }
   },
   mounted () {
     this.getTestCaseDetail();
-    this.timerOut = window.setInterval(() => {
-      setTimeout(this.getTestCaseStatus(), 0);
-    }, 3000);
   },
   beforeDestroy () {
     clearInterval(this.timerOut);
@@ -309,9 +277,17 @@ export default {
         this.detailData = res.data;
         this.getMasterHostList();
         this.getSlaveHostsList();
-        this.getHistoryList();
         this.getTestCaseStatus();
         this.getDataSourceName();
+        this.$refs.TestCaseHistory.getHistoryList();
+        if (res.data.status == 1) {
+          this.timerOut = window.setInterval(() => {
+            setTimeout(this.getTestCaseStatus(), 0);
+          }, 3000);
+        } else {
+          clearInterval(this.timerOut);
+          this.timerOut = null;
+        }
       })
     },
     //获得从机列表
@@ -337,22 +313,7 @@ export default {
         this.$q.loading.hide()
       })
     },
-    //获得历史记录列表
-    getHistoryList (page) {
-      let para = {
-        caseId: this.$route.query.id,
-        page: page || 1,
-        pageSize: 50
-      }
-      Apis.getHistoryList(para).then((res) => {
-        console.log(res)
-        this.pagination.page = page || 1;
-        this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
-        this.HistoryList = res.data.results;
-        this.HistorySelected = [];
-        this.$q.loading.hide()
-      })
-    },
+
     //获得数据源名称
     getDataSourceName () {
       let para = {}
@@ -365,6 +326,10 @@ export default {
     getTestCaseStatus () {
       Apis.getTestCaseStatus({ caseId: this.$route.query.id }).then((res) => {
         this.isNoRun = res.data;
+        if (!res.data) {
+          clearInterval(this.timerOut);
+          this.timerOut = null;
+        }
       })
     },
 
@@ -542,72 +507,6 @@ export default {
         name: 'SlaveHostDetail'
       })
     },
-
-    //删除历史记录
-    deleteHistory () {
-      if (this.HistorySelected.length == 0) {
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '请选择历史记录',
-          color: 'red',
-        })
-        return;
-      }
-      this.$q.dialog({
-        title: '提示',
-        message: '您确定要删除当前选择的历史记录吗',
-        persistent: true,
-        ok: {
-          push: true,
-          label: '确定'
-        },
-        cancel: {
-          push: true,
-          label: '取消'
-        },
-      }).onOk(() => {
-        this.$q.loading.show()
-        if (this.HistorySelected.length == 1) {
-          // 单个删除slaveHost列表
-          let para = `?caseId=${this.detailData.id}&historyId=${this.HistorySelected[0].id}`
-          Apis.deleteHistory(para).then(() => {
-            this.HistorySelected = [];
-            this.getHistoryList();
-          })
-        } else if (this.HistorySelected.length > 1) {
-          // 批量删除slaveHost列表
-          let delIdArr = [];
-          for (let i = 0; i < this.HistorySelected.length; i++) {
-            delIdArr.push(this.HistorySelected[i].id)
-          }
-          console.log(delIdArr)
-          let para = {
-            CaseID: this.detailData.id,
-            IDS: delIdArr
-          }
-          Apis.deleteHistoryArr(para).then(() => {
-            this.HistorySelected = [];
-            this.getHistoryList();
-          })
-        }
-      })
-    },
-    //切换历史记录页码
-    switchPage (value) {
-      this.$q.loading.show()
-      this.getHistoryList(value)
-    },
-    //跳转到历史记录详情
-    toHistoryDetail (evt) {
-      this.$router.push({
-        name: 'HistoryDetail',
-        query: {
-          historyId: evt.row.id,
-          caseId: evt.row.caseID
-        }
-      })
-    },
     //运行
     run () {
       this.$q.loading.show()
@@ -654,10 +553,12 @@ export default {
       this.$q.loading.show()
       Apis.getMasterLog({ caseId: this.$route.query.id }).then((res) => {
         this.$q.loading.hide()
+        // this.lookLogFlag = true;
+        // this.lookLogText = res.data;
         this.$q.dialog({
           title: '提示',
           message: res.data,
-          style: { 'width': '100%', 'max-width': '65vw' }
+          style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
         })
       })
     },
@@ -682,7 +583,7 @@ export default {
           this.$q.dialog({
             title: '提示',
             message: res.data,
-            style: { 'width': '100%', 'max-width': '65vw' }
+            style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
           })
         })
       } else if (this.SlaveHostSelected.length > 1) {

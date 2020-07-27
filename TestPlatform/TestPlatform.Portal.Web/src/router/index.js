@@ -33,7 +33,7 @@ export default new Router({
         {
           path: '/TestCase/Detail/HistoryDetail',
           name: 'HistoryDetail',
-          component: () => import('@/pages/TestCase/HistoryDetail.vue'),
+          component: () => import('@/pages/TestCase/component/History/HistoryDetail.vue'),
         },
 
         // ---------------------------------------------- 测试数据源 ------------------------------------------------

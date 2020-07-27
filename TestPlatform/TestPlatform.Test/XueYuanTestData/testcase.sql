@@ -15,7 +15,9 @@ SET configuration = '{
     "Duration": 100,
     "Address": "127.0.0.1",
     "Port": 12345,
-    "ResponseSeparator": "</package>",    
+    "ResponseSeparator": "</package>",
+    "IsPrintLog": false,
+    "SyncType": true,
     "DataSourceVars": [
         {
             "Name": "user_account_list",
@@ -39,15 +41,11 @@ SET configuration = '{
     "ConnectInit": {
         "VarSettings": [
             {
-                "Name": "json_user_account_list",
-                "Content": "{$filterjsondatainvoke({$datasource(user_account_list)},\'SlaveName\',{$SlaveName()})}"
-            },
-            {
                 "Name": "json_user_account",
                 "Content": "{$nameoncejsondatainvoke(json_user_account_list)}"
             },
             {
-                "Name": "{$currconnectkv(\'user_id\')}",
+                "Name": "{$currconnectkv(\'user_name\')}",
                 "Content": "{$varkv(json_user_account,\'UserName\')}"
             },
             {
@@ -56,7 +54,7 @@ SET configuration = '{
             },
             {
                 "Name": "json_user_parameter_list",
-                "Content": "{$filterjsondatainvoke({$datasource(user_parameter_list)},\'UserName\',{$currconnectkv(\'user_id\')})}"
+                "Content": "{$filterjsondatainvoke({$datasource(user_parameter_list)},\'UserName\',{$currconnectkv(\'user_name\')})}"
             },
             {
                 "Name": "json_user_parameter_list",
@@ -72,14 +70,22 @@ SET configuration = '{
             },
             {
                 "Name": "login_send_data",
-                "Content": "{\'UserName\': {$currconnectkv(\'user_id\')}, \'PassWord\': {$currconnectkv(\'user_password\')}, \'a\': parameter}"
+                "Content": "{\'UserName\': {$currconnectkv(\'user_name\')}, \'PassWord\': {$currconnectkv(\'user_password\')}, \'a\': parameter}"
+            },
+            {
+                "Name": "self.senddata",
+                "Content": "login_send_data"
+            },
+            {
+                "Name": "self.recvdata",
+                "Content": "{$tcprrwithconnectinvoke({$curconnect()},self.senddata,\'.*\')}"
             },
             {
                 "Name": "{$currconnectkv(\'user_token\')}",
-                "Content": "{$tcprrwithconnectinvoke({$curconnect()},login_send_data,\'.*\')}"
+                "Content": "self.recvdata"
             },
             {
-                "Name": "self.user_id",
+                "Name": "self.user_name",
                 "Content": "{$varkv(json_user_account,\'UserName\')}"
             },
             {
@@ -89,6 +95,10 @@ SET configuration = '{
             {
                 "Name": "self.user_token",
                 "Content": "{$currconnectkv(\'user_token\')}"
+            },
+            {
+                "Name": "self.is_success",
+                "Content": "len(self.recvdata) > 0 and self.user_name"
             }
         ]
     },
@@ -100,7 +110,7 @@ SET configuration = '{
             },
             {
                 "Name": "request_body",
-                "Content": "{\'UserName\': {$currconnectkv(\'user_id\')}, \'UserToken\': {$currconnectkv(\'user_token\')}, \'a\': parameter2}"
+                "Content": "{\'UserName\': {$currconnectkv(\'user_name\')}, \'UserToken\': {$currconnectkv(\'user_token\')}, \'a\': parameter2}"
             },
             {
                 "Name": "request_body",
@@ -120,7 +130,7 @@ SET configuration = '{
             },
             {
                 "Name": "request_body_all",
-                "Content": "request_body_calcchecksum + \'10=\' + str({$calcchecksuminvoke(request_body_calcchecksum)}) + \'\'"
+                "Content": "request_body_calcchecksum + \'10=\' + str({$numberfill({$calcchecksuminvoke(request_body_calcchecksum)},0,3)}) + \'\'"
             },
             {
                 "Name": "request_body",
@@ -135,8 +145,16 @@ SET configuration = '{
                 "Content": "{$dessecurity(package,\'abcdefghjhijklmn\')}"
             },
             {
+                "Name": "self.senddata",
+                "Content": "package"
+            },
+            {
                 "Name": "self.recvdata",
-                "Content": "{$tcprrwithconnectinvoke({$curconnect()},package,\'.*\')}"
+                "Content": "{$tcprrwithconnectinvoke({$curconnect()},self.senddata,\'.*\')}"
+            },
+            {
+                "Name": "self.is_success",
+                "Content": "len(self.recvdata) > 0"
             }
         ]
     },
@@ -144,19 +162,23 @@ SET configuration = '{
         "VarSettings": [
             {
                 "Name": "request_body",
-                "Content": "{\'UserName\': {$currconnectkv(\'user_id\')}, \'UserToken\': {$currconnectkv(\'user_token\')}, \'a\': \'a\'}"
+                "Content": "{\'UserName\': {$currconnectkv(\'user_name\')}, \'UserToken\': {$currconnectkv(\'user_token\')}, \'a\': \'a\'}"
             },
             {
                 "Name": "package",
                 "Content": "request_body"
             },
             {
-                "Name": "package",
-                "Content": "{$dessecurity(package,\'abcdefghjhijklmn\')}"
+                "Name": "self.senddata",
+                "Content": "package"
             },
             {
                 "Name": "self.recvdata",
-                "Content": "{$tcprrwithconnectinvoke({$curconnect()},package,\'.*\')}"
+                "Content": "{$tcprrwithconnectinvoke({$curconnect()},self.senddata,\'.*\')}"
+            },
+            {
+                "Name": "self.is_success",
+                "Content": "len(self.recvdata) > 0"
             }
         ]
     }

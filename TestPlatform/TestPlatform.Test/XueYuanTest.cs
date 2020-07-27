@@ -22,6 +22,7 @@ using FW.TestPlatform.Main.Configuration;
 using FW.TestPlatform.Main.Entities;
 using FW.TestPlatform.Main.Entities.DAL;
 using MSLibrary.LanguageTranslate;
+using MSLibrary.Template;
 
 namespace TestPlatform.Test
 {
@@ -232,6 +233,26 @@ namespace TestPlatform.Test
         }
 
         //[Test]
+        public async Task TestTestCaseHttpRun()
+        {
+            TestCase testCase = new TestCase()
+            {
+                ID = new Guid("b4c2acd0-cd7a-11ea-852b-00ffb1d16cf9"),
+            };
+
+            var testCaseStore = DIContainerContainer.Get<ITestCaseStore>();
+            var testCaseRunner = await testCaseStore.QueryByID(testCase.ID);
+
+            if (testCaseRunner != null)
+            {
+                await testCaseRunner.Run();
+            }
+
+            Assert.Pass();
+        }
+
+
+        //[Test]
         public async Task TestTestCaseStop()
         {
             TestCase testCase = new TestCase()
@@ -249,6 +270,28 @@ namespace TestPlatform.Test
 
             Assert.Pass();
         }
+
+        //[Test]
+        //public async Task GetLabelParameterHandlers()
+        //{
+        //    List<ILabelParameterHandler> list = new List<ILabelParameterHandler>();
+
+        //    foreach (IFactory<ILabelParameterHandler> factory in LabelParameterIMP.HandlerFactories.Values)
+        //    {
+        //        var handler = factory.Create();
+
+        //        if (await handler.IsOpenUser())
+        //        {
+        //            list.Add(handler);
+        //        }
+
+        //        string fromat = await handler.Formate();
+        //    }
+
+        //    list.Sort((x, y) => x.SerialNo.CompareTo(y.SerialNo));
+
+        //    Assert.Pass();
+        //}
 
     }
 }

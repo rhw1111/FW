@@ -44,46 +44,46 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
             }
 
-            Regex regex = new Regex(@"^(\-|\+)?\d+$");
+            //Regex regex = new Regex(@"^(\-|\+)?\d+$");
 
-            if (!regex.IsMatch(parameters[0]))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TextCodes.LabelParameterTypeError,
-                    DefaultFormatting = "标签{0}要求的参数{1}应为{2}，参数类型错误",
-                    ReplaceParameters = new List<object>() { "{$intrange(min,max)}", "min", "Int" }
-                };
+            //if (!regex.IsMatch(parameters[0]))
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TextCodes.LabelParameterTypeError,
+            //        DefaultFormatting = "标签{0}要求的参数{1}应为{2}，参数类型错误",
+            //        ReplaceParameters = new List<object>() { "{$intrange(min,max)}", "min", "Int" }
+            //    };
 
-                throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
-            }
+            //    throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
+            //}
 
-            if (!regex.IsMatch(parameters[1]))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TextCodes.LabelParameterTypeError,
-                    DefaultFormatting = "标签{0}要求的参数{1}应为{2}，参数类型错误",
-                    ReplaceParameters = new List<object>() { "{$intrange(min,max)}", "max", "Int" }
-                };
+            //if (!regex.IsMatch(parameters[1]))
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TextCodes.LabelParameterTypeError,
+            //        DefaultFormatting = "标签{0}要求的参数{1}应为{2}，参数类型错误",
+            //        ReplaceParameters = new List<object>() { "{$intrange(min,max)}", "max", "Int" }
+            //    };
 
-                throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
-            }
+            //    throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
+            //}
 
-            int min = int.Parse(parameters[0]);
-            int max = int.Parse(parameters[1]);
+            //int min = int.Parse(parameters[0]);
+            //int max = int.Parse(parameters[1]);
 
-            if (min > max)
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TextCodes.LabelParameterMinMaxError,
-                    DefaultFormatting = "标签{0}要求的参数最小值和最大值错误，而实际最小值为{1}，最大值为{2}",
-                    ReplaceParameters = new List<object>() { "{$intrange(min,max)}", min, max }
-                };
+            //if (min > max)
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TextCodes.LabelParameterMinMaxError,
+            //        DefaultFormatting = "标签{0}要求的参数最小值和最大值错误，而实际最小值为{1}，最大值为{2}",
+            //        ReplaceParameters = new List<object>() { "{$intrange(min,max)}", min, max }
+            //    };
 
-                throw new UtilityException((int)Errors.LabelParameterMinMaxError, fragment, 1, 0);
-            }
+            //    throw new UtilityException((int)Errors.LabelParameterMinMaxError, fragment, 1, 0);
+            //}
 
             strCode.Append($"IntRange({parameters[0]}, {parameters[1]})");
 

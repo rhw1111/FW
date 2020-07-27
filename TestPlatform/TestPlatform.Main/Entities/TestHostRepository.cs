@@ -46,5 +46,11 @@ namespace FW.TestPlatform.Main.Entities
         {
             await _testHostStore.DeleteTestHosts(ids, cancellationToken);
         }
+
+
+        public async Task<bool> GetTestHostsBySSHEndpointId(Guid sshEndPointId, CancellationToken cancellationToken = default)
+        {
+            return await _testHostStore.GetTestHostsBySSHEndpointId(sshEndPointId, cancellationToken);
+        }
     }
 }

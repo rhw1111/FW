@@ -102,6 +102,7 @@ export default {
         },
         { name: 'engineType', align: 'left', label: '引擎类型', field: 'engineType', },
         { name: 'configuration', label: '配置', align: 'left', field: 'configuration', },
+        { name: 'status', label: '状态', align: 'left', field: 'status', },
         { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
       ],
       //分页配置

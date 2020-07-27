@@ -175,9 +175,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     item.Type = dataSource.Type;
                     item.Data = dataSource.Data;
                 }
-            );
-
-          
+            );          
 
             //生成代码
             var strCode=await scriptTemplate.GenerateScript(contextDict, cancellationToken);
@@ -188,6 +186,8 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             strCode = strCode.Replace("{CaseID}", tCase.ID.ToString());
             strCode = strCode.Replace("{ResponseSeparator}", configuration.ResponseSeparator);
             strCode = strCode.Replace("{CaseServiceBaseAddress}", caseServiceBaseAddress);
+            strCode = strCode.Replace("{IsPrintLog}", configuration.IsPrintLog ? "True" : "False");
+            strCode = strCode.Replace("{SyncType}", configuration.SyncType ? "True" : "False");
 
             //代码模板必须有一个格式为{SlaveName}的替换符，该替换符标识每个Slave
 
@@ -278,7 +278,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     {
                         async (preResult)=>
                         {
-                            return await Task.FromResult($"rm -rf {_testFilePath}{string.Format(_testLogFileName, "_slave_*")}");
+                            return await Task.FromResult($"rm -rf {_testFilePath}{string.Format(_testLogFileName, "_slave*")}");
                         }
                     };
 
@@ -292,7 +292,8 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                         {
                             //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")} --slave --master-host={tCase.MasterHost.Address} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{string.Format(_testLogFileName, "_slave")} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
                             //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --logfile {_testFilePath}{string.Format(_testLogFileName, $"_slave")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {_testFilePath}{string.Format(_testOutFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
-                            return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {_testFilePath}{string.Format(_testLogFileName, $"_slave")} 2>&1 &");
+                            //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {_testFilePath}{string.Format(_testLogFileName, $"_slave")} 2>&1 &");
+                            return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {_testFilePath}{string.Format(_testLogFileName, $"_slave")}{ (innerIndex == 0 ? "" : "_" + innerIndex.ToString())} 2>&1 &");
                             //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --logfile {_testFilePath}{string.Format(_testLogFileName, $"_slave")} --worker --headless --master-host 127.0.0.1 --master-port 5557 > {_testFilePath}{string.Format(_testOutFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
                             //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host 127.0.0.1 --master-port 5557 > {_testFilePath}{string.Format(_testLogFileName, $"_slave")} 2>&1 &");
                         }
@@ -307,7 +308,13 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         public async Task Stop(TestCase tCase, CancellationToken cancellationToken = default)
         {
             //执行主机杀进程命令
-            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}' | xargs kill -9",10, cancellationToken);
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}' | xargs kill -9", cancellationToken);
+            //执行slave杀进程命令
+            var slaveHosts = tCase.GetAllSlaveHosts(cancellationToken);
+            await foreach(var item in slaveHosts)
+            {
+               await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}' | xargs kill -9", cancellationToken);
+            }
         }
     }
 
@@ -423,6 +430,24 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         {
             get; set;
         } = null!;
+
+        /// <summary>
+        /// 是否打印日志
+        /// </summary>
+        [DataMember]
+        public bool IsPrintLog
+        {
+            get; set;
+        } = false;
+
+        /// <summary>
+        /// 同步类型
+        /// </summary>
+        [DataMember]
+        public bool SyncType
+        {
+            get; set;
+        } = true;
     }
 
     /// <summary>

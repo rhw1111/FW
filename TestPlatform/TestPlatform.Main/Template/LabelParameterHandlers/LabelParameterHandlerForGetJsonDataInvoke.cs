@@ -44,32 +44,31 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
             }
 
-            Regex regex = new Regex(@"^(\-|\+)?\d+$");
+            //Regex regex = new Regex(@"^(\-|\+)?\d+$");
 
-            if (!regex.IsMatch(parameters[1]))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TextCodes.LabelParameterTypeError,
-                    DefaultFormatting = "标签{0}要求的参数{1}应为{2}，参数类型错误",
-                    ReplaceParameters = new List<object>() { "{$getjsondatainvoke(data,gettype,endtype)}", "gettype", "Int" }
-                };
+            //if (!regex.IsMatch(parameters[1]))
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TextCodes.LabelParameterTypeError,
+            //        DefaultFormatting = "标签{0}要求的参数{1}应为{2}，参数类型错误",
+            //        ReplaceParameters = new List<object>() { "{$getjsondatainvoke(data,gettype,endtype)}", "gettype", "Int" }
+            //    };
 
-                throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
-            }
+            //    throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
+            //}
 
-            if (!regex.IsMatch(parameters[2]))
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TextCodes.LabelParameterTypeError,
-                    DefaultFormatting = "标签{0}要求的参数{1}应为{2}，参数类型错误",
-                    ReplaceParameters = new List<object>() { "{$getjsondatainvoke(data,gettype,endtype)}", "endtype", "Int" }
-                };
+            //if (!regex.IsMatch(parameters[2]))
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TextCodes.LabelParameterTypeError,
+            //        DefaultFormatting = "标签{0}要求的参数{1}应为{2}，参数类型错误",
+            //        ReplaceParameters = new List<object>() { "{$getjsondatainvoke(data,gettype,endtype)}", "endtype", "Int" }
+            //    };
 
-                throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
-            }
-
+            //    throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
+            //}
 
             strCode.Append($"GetJsonData({parameters[0]}, {parameters[1]}, {parameters[2]})");
 
