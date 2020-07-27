@@ -212,10 +212,6 @@ namespace MSLibrary.CommandLine.SSH
         {
             await _imp.Update(this, cancellationToken);
         }
-        public async Task<bool> IsUsedByTestHosts(CancellationToken cancellationToken = default)
-        {
-            return await _imp.IsUsedByTestHosts(this, cancellationToken);
-        }
     }
 
     public interface ISSHEndpointIMP
@@ -235,8 +231,6 @@ namespace MSLibrary.CommandLine.SSH
         Task Add(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
         Task Delete(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
         Task Update(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
-
-        Task<bool> IsUsedByTestHosts(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
     }
 
     public interface ISSHEndpointService
@@ -351,10 +345,6 @@ namespace MSLibrary.CommandLine.SSH
         public async Task Update(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default)
         {
             await _sshEndpointStore.Update(sshEndPoint, cancellationToken);
-        }
-        public async Task<bool> IsUsedByTestHosts(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default)
-        {
-            return await _sshEndpointStore.IsUsedByTestHosts(sshEndPoint.ID, cancellationToken);
         }
     }
 

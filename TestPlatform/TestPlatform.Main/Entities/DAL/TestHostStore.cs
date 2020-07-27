@@ -312,5 +312,27 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
             return result;
         }
+
+        public async Task<bool> GetTestHostsBySSHEndpointId(Guid id, CancellationToken cancellationToken = default)
+        {
+            bool result = false;
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    var count = await (from item in dbContext.TestHosts
+                                       where item.SSHEndpointID == id
+                                       select item.ID).CountAsync();
+                    if (count > 0)
+                        result = true;
+                }
+            });
+            return result;
+        }
     }
 }
