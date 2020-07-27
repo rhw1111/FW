@@ -12,7 +12,7 @@ using MongoDB.Bson;
 
 namespace FW.TestPlatform.Main.Application
 {
-    [Injection(InterfaceType = typeof(IAppQueryTestCase), Scope = InjectionScope.Singleton)]
+    [Injection(InterfaceType = typeof(IAppQueryFormulas), Scope = InjectionScope.Singleton)]
     public class AppQueryFormulas : IAppQueryFormulas
     {
         private readonly ITestCaseRepository _testCaseRepository;

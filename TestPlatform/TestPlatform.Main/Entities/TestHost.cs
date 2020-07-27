@@ -166,6 +166,10 @@ namespace FW.TestPlatform.Main.Entities
         {
             return await _imp.IsUsedByTestHostsOrSlaves(this, cancellationToken);
         }
+        public async Task<bool> IsHostRun(CancellationToken cancellationToken = default)
+        {
+            return await _imp.IsHostRun(this, cancellationToken);
+        }
     }
 
     [Injection(InterfaceType = typeof(ITestHostIMP),Scope = InjectionScope.Transient)]
@@ -250,6 +254,16 @@ namespace FW.TestPlatform.Main.Entities
             }
             return isUsed;
         }
+        public async Task<bool> IsHostRun(TestHost host, CancellationToken cancellationToken = default)
+        {
+            //执行主机查进程命令
+            var result = await host.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}'", cancellationToken);
+            if (string.IsNullOrEmpty(result))
+            {
+                return false;
+            }
+            return true;
+        }
     }
 
     public interface ITestHostIMP
@@ -259,5 +273,6 @@ namespace FW.TestPlatform.Main.Entities
         Task Delete(TestHost host, CancellationToken cancellationToken = default);
         Task<List<TestHost>> GetHosts(CancellationToken cancellationToken = default);
         Task<bool> IsUsedByTestHostsOrSlaves(TestHost host, CancellationToken cancellationToken = default);
+        Task<bool> IsHostRun(TestHost host, CancellationToken cancellationToken = default);
     }
 }

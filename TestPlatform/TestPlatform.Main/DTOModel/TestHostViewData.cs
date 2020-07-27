@@ -76,6 +76,21 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<string>(nameof(SSHEndpointName), value);
             }
         }
+        /// <summary>
+        /// 是否可用
+        /// </summary>
+        [DataMember]
+        public bool IsAvailable
+        {
+            get
+            {
+                return GetAttribute<bool>(nameof(IsAvailable));
+            }
+            set
+            {
+                SetAttribute<bool>(nameof(IsAvailable), value);
+            }
+        }
 
         /// <summary>
         /// 创建时间
@@ -90,22 +105,6 @@ namespace FW.TestPlatform.Main.DTOModel
             set
             {
                 SetAttribute<DateTime>(nameof(CreateTime), value);
-            }
-        }
-
-        /// <summary>
-        /// 修改时间
-        /// </summary>
-        [DataMember]
-        public DateTime ModifyTime
-        {
-            get
-            {
-                return GetAttribute<DateTime>(nameof(ModifyTime));
-            }
-            set
-            {
-                SetAttribute<DateTime>(nameof(ModifyTime), value);
             }
         }
     }
