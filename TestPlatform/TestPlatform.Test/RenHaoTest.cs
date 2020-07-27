@@ -27,6 +27,7 @@ using MSLibrary.Survey;
 using MSLibrary.Survey.SurveyMonkey.Message;
 using MSLibrary.Survey.SurveyMonkey.HttpAuthHandleServices;
 using MSLibrary.Survey.SurveyMonkey.RequestHandleServices;
+using MSLibrary.NetCap;
 
 namespace TestPlatform.Test
 {
@@ -126,6 +127,13 @@ namespace TestPlatform.Test
         [Test]
         public async Task TestForSurveyMonkey()
         {
+
+            DateTime dateTimeUTC = DateTime.UtcNow;
+            DateTime dateTime = DateTime.Now;
+
+            string strDateTime = dateTime.ToString("yyyy-MM-ddTHH:mm:sszzz");
+            strDateTime = dateTimeUTC.ToString("yyyy-MM-ddTHH:mm:sszzz");
+
             Regex regex = new Regex("/dd/ss", RegexOptions.IgnoreCase);
             var regResult=regex.IsMatch("http://ssdd/dd/ss/ff?dssd");
 
@@ -181,6 +189,42 @@ namespace TestPlatform.Test
         {
            var dict= _connections.Value;
             await Task.FromResult(0);
+        }
+
+        [Test]
+        public async Task TestDict()
+        {
+            Dictionary<string, Item> dict = new Dictionary<string, Item>();
+
+            for(var index=0;index<=10000000; index++)
+            {
+                dict.Add(index.ToString(), new Item { Value = index });
+            }
+            
+            //var sum = dict.((item)=>(long)item.Value.Value);
+        }
+
+        [Test]
+        public async Task TestCap()
+        {
+            DateTime? d = null;
+            var dd=d==null?0:d.Value.Ticks;
+            using (var stream=File.OpenRead(@"D:\colasoft_packets.cap"))
+            {
+                PacketCaptureReader reader = new PacketCaptureReader(stream);
+                var capture=reader.Read();
+               
+               
+                var x = Encoding.Unicode.GetString(capture.Packet);
+                
+            }
+        }
+
+
+
+        private class Item
+        {
+            public int Value { get; set; }
         }
     }
 }

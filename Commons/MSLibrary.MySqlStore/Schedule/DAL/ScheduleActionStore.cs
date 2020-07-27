@@ -1,15 +1,18 @@
-﻿using MSLibrary.DAL;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using MySql.Data.MySqlClient;
+using System.Text;
+using System.Threading.Tasks;
+using MSLibrary.DAL;
 using MSLibrary.DI;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.Transaction;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using Microsoft.Data.SqlClient;
-using System.Text;
-using System.Threading.Tasks;
+using MSLibrary.Schedule;
+using MSLibrary.Schedule.DAL;
 
-namespace MSLibrary.Schedule.DAL
+namespace MSLibrary.MySqlStore.Schedule.DAL
 {
     /// <summary>
     /// 调度动作数据操作
@@ -31,72 +34,62 @@ namespace MSLibrary.Schedule.DAL
         /// <returns></returns>
         public async Task Add(ScheduleAction action)
         {
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, false, false, _dbConnectionFactory.CreateAllForSchedule(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _dbConnectionFactory.CreateAllForSchedule(), async (conn, transaction) =>
             {
-                SqlTransaction sqlTran = null;
+                MySqlTransaction sqlTran = null;
                 if (transaction != null)
                 {
-                    sqlTran = (SqlTransaction)transaction;
+                    sqlTran = (MySqlTransaction)transaction;
                 }
-                using (SqlCommand command = new SqlCommand()
+                using (MySqlCommand command = new MySqlCommand()
                 {
-                    Connection = (SqlConnection)conn,
+                    Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
                     Transaction = sqlTran,
                 })
                 {
-                    SqlParameter parameter;
-                    if (action.ID == Guid.Empty)
+                    if (action.ID==Guid.Empty)
                     {
-                        command.CommandText = @"INSERT INTO [dbo].[ScheduleAction]
-                                                    ([id],[name],[triggercondition],[configuration],[mode],[scheduleactionservicefactorytype],[scheduleactionservicefactorytypeusedi],[scheduleactionserviceweburl],[websignature],[status],[createtime],[modifytime])
-                                                VALUES
-                                                    (default, @name, @triggercondition,@configuration, @mode, @scheduleactionservicefactorytype, @scheduleactionservicefactorytypeusedi, @scheduleactionserviceweburl, @websignature, @status, GETUTCDATE(), GETUTCDATE());
-                                                select @newid =[id] from [dbo].[ScheduleAction] where [sequence] = SCOPE_IDENTITY()";
-                        parameter = new SqlParameter("@newid", SqlDbType.UniqueIdentifier)
-                        {
-                            Direction = ParameterDirection.Output
-                        };
-                        command.Parameters.Add(parameter);
+                        action.ID = Guid.NewGuid();
                     }
-                    else
-                    {
-                        command.CommandText = @"INSERT INTO [dbo].[ScheduleAction]
-                                                    ([id],[name],[triggercondition],[configuration],[mode],[scheduleactionservicefactorytype],[scheduleactionservicefactorytypeusedi],[scheduleactionserviceweburl],[websignature],[status],[createtime],[modifytime])
+                    MySqlParameter parameter;
+
+                        command.CommandText = @"INSERT INTO scheduleaction
+                                                    (id,name,triggercondition,configuration,mode,scheduleactionservicefactorytype,scheduleactionservicefactorytypeusedi,scheduleactionserviceweburl,websignature,status,createtime,modifytime)
                                                 VALUES
-                                                    (@id, @name, @triggercondition,@configuration, @mode, @scheduleactionservicefactorytype, @scheduleactionservicefactorytypeusedi, @scheduleactionserviceweburl, @websignature, @status, GETUTCDATE(), GETUTCDATE());";
-                        parameter = new SqlParameter("@id", SqlDbType.UniqueIdentifier)
+                                                    (@id, @name, @triggercondition,@configuration, @mode, @scheduleactionservicefactorytype, @scheduleactionservicefactorytypeusedi, @scheduleactionserviceweburl, @websignature, @status, utc_timestamp(), utc_timestamp());";
+                        parameter = new MySqlParameter("@id", MySqlDbType.Guid)
                         {
                             Value = action.ID
                         };
                         command.Parameters.Add(parameter);
-                    }
-                    parameter = new SqlParameter("@name", SqlDbType.VarChar, 150)
+                    
+                    parameter = new MySqlParameter("@name", MySqlDbType.VarChar, 150)
                     {
                         Value = action.Name
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@triggercondition", SqlDbType.VarChar, 200)
+                    parameter = new MySqlParameter("@triggercondition", MySqlDbType.VarChar, 200)
                     {
                         Value = action.TriggerCondition
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@configuration", SqlDbType.NVarChar, action.Configuration.Length)
+                    parameter = new MySqlParameter("@configuration", MySqlDbType.VarChar, action.Configuration.Length)
                     {
                         Value = action.Configuration
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@mode", SqlDbType.Int)
+                    parameter = new MySqlParameter("@mode", MySqlDbType.Int32)
                     {
                         Value = action.Mode
                     };
                     command.Parameters.Add(parameter);
                     if (action.ScheduleActionServiceFactoryType != null)
                     {
-                        parameter = new SqlParameter("@scheduleactionservicefactorytype", SqlDbType.VarChar, 200)
+                        parameter = new MySqlParameter("@scheduleactionservicefactorytype", MySqlDbType.VarChar, 200)
                         {
                             Value = action.ScheduleActionServiceFactoryType
                         };
@@ -104,7 +97,7 @@ namespace MSLibrary.Schedule.DAL
                     }
                     else
                     {
-                        parameter = new SqlParameter("@scheduleactionservicefactorytype", SqlDbType.VarChar, 200)
+                        parameter = new MySqlParameter("@scheduleactionservicefactorytype", MySqlDbType.VarChar, 200)
                         {
                             Value = DBNull.Value
                         };
@@ -112,7 +105,7 @@ namespace MSLibrary.Schedule.DAL
                     }
                     if (action.ScheduleActionServiceFactoryTypeUseDI != null)
                     {
-                        parameter = new SqlParameter("@scheduleactionservicefactorytypeusedi", SqlDbType.Bit)
+                        parameter = new MySqlParameter("@scheduleactionservicefactorytypeusedi", MySqlDbType.Bit)
                         {
                             Value = action.ScheduleActionServiceFactoryTypeUseDI
                         };
@@ -120,7 +113,7 @@ namespace MSLibrary.Schedule.DAL
                     }
                     else
                     {
-                        parameter = new SqlParameter("@scheduleactionservicefactorytypeusedi", SqlDbType.Bit)
+                        parameter = new MySqlParameter("@scheduleactionservicefactorytypeusedi", MySqlDbType.Bit)
                         {
                             Value = DBNull.Value
                         };
@@ -128,7 +121,7 @@ namespace MSLibrary.Schedule.DAL
                     }
                     if (action.ScheduleActionServiceWebUrl != null)
                     {
-                        parameter = new SqlParameter("@scheduleactionserviceweburl", SqlDbType.VarChar, 200)
+                        parameter = new MySqlParameter("@scheduleactionserviceweburl", MySqlDbType.VarChar, 200)
                         {
                             Value = action.ScheduleActionServiceWebUrl
                         };
@@ -136,7 +129,7 @@ namespace MSLibrary.Schedule.DAL
                     }
                     else
                     {
-                        parameter = new SqlParameter("@scheduleactionserviceweburl", SqlDbType.VarChar, 200)
+                        parameter = new MySqlParameter("@scheduleactionserviceweburl", MySqlDbType.VarChar, 200)
                         {
                             Value = DBNull.Value
                         };
@@ -144,7 +137,7 @@ namespace MSLibrary.Schedule.DAL
                     }
                     if (action.WebSignature != null)
                     {
-                        parameter = new SqlParameter("@websignature", SqlDbType.VarChar, 200)
+                        parameter = new MySqlParameter("@websignature", MySqlDbType.VarChar, 200)
                         {
                             Value = action.WebSignature
                         };
@@ -152,51 +145,51 @@ namespace MSLibrary.Schedule.DAL
                     }
                     else
                     {
-                        parameter = new SqlParameter("@websignature", SqlDbType.VarChar, 200)
+                        parameter = new MySqlParameter("@websignature", MySqlDbType.VarChar, 200)
                         {
                             Value = DBNull.Value
                         };
                         command.Parameters.Add(parameter);
                     }
 
-                    parameter = new SqlParameter("@status", SqlDbType.Int)
+                    parameter = new MySqlParameter("@status", MySqlDbType.Int32)
                     {
                         Value = action.Status
                     };
                     command.Parameters.Add(parameter);
                     command.Prepare();
 
-                        try
-                        {
-                            await command.ExecuteNonQueryAsync();
-                        }
-                        catch (SqlException ex)
-                        {
-                            if (ex == null)
-                            {
-                                throw;
-                            }
-                            if (ex.Number == 2601)
-                            {
-                                var fragment = new TextFragment()
-                                {
-                                    Code = TextCodes.ExistScheduleActionByName,
-                                    DefaultFormatting = "调度动作中存在相同名称\"{0}\"数据",
-                                    ReplaceParameters = new List<object>() { action.Name }
-                                };
+                    //try
+                    //{
+                        await command.ExecuteNonQueryAsync();
+                    //}
+                    //catch (SqlException ex)
+                    //{
+                    //    if (ex == null)
+                    //    {
+                    //        throw;
+                    //    }
+                    //    if (ex.Number == 2601)
+                    //    {
+                    //        var fragment = new TextFragment()
+                    //        {
+                    //            Code = TextCodes.ExistScheduleActionByName,
+                    //            DefaultFormatting = "调度动作中存在相同名称\"{0}\"数据",
+                    //            ReplaceParameters = new List<object>() { action.Name }
+                    //        };
 
-                                throw new UtilityException((int)Errors.ExistScheduleActionByName, fragment);
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
+                    //        throw new UtilityException((int)Errors.ExistScheduleActionByName, fragment);
+                    //    }
+                    //    else
+                    //    {
+                    //        throw;
+                    //    }
+                    //}
                     //如果用户未赋值ID则创建成功后返回ID
-                    if (action.ID == Guid.Empty)
-                    {
-                        action.ID = (Guid)command.Parameters["@newid"].Value;
-                    };
+                    //if (action.ID == Guid.Empty)
+                    //{
+                    //    action.ID = (Guid)command.Parameters["@newid"].Value;
+                    //};
                 }
 
             });
@@ -209,66 +202,66 @@ namespace MSLibrary.Schedule.DAL
         /// <returns></returns>
         public async Task Update(ScheduleAction action)
         {
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, false, false, _dbConnectionFactory.CreateAllForSchedule(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _dbConnectionFactory.CreateAllForSchedule(), async (conn, transaction) =>
             {
-                SqlTransaction sqlTran = null;
+                MySqlTransaction sqlTran = null;
                 if (transaction != null)
                 {
-                    sqlTran = (SqlTransaction)transaction;
+                    sqlTran = (MySqlTransaction)transaction;
                 }
-                using (SqlCommand command = new SqlCommand()
+                using (MySqlCommand command = new MySqlCommand()
                 {
-                    Connection = (SqlConnection)conn,
+                    Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
                     Transaction = sqlTran,
-                    CommandText = @"UPDATE [dbo].[ScheduleAction]
+                    CommandText = @"UPDATE scheduleaction
                                    SET 
-                                      [name] = @name,
-                                      [triggercondition] = @triggercondition,
-                                      [configuration]=@configuration,
-                                      [mode] = @mode,
-                                      [scheduleactionservicefactorytype] = @scheduleactionservicefactorytype,
-                                      [scheduleactionservicefactorytypeusedi] = @scheduleactionservicefactorytypeusedi,
-                                      [scheduleactionserviceweburl] = @scheduleactionserviceweburl,
-                                      [websignature] = @websignature,
-                                      [status] = @status,
-                                      [modifytime] = GETUTCDATE()
+                                      name = @name,
+                                      triggercondition = @triggercondition,
+                                      configuration=@configuration,
+                                      mode = @mode,
+                                      scheduleactionservicefactorytype = @scheduleactionservicefactorytype,
+                                      scheduleactionservicefactorytypeusedi = @scheduleactionservicefactorytypeusedi,
+                                      scheduleactionserviceweburl = @scheduleactionserviceweburl,
+                                      websignature = @websignature,
+                                      status = @status,
+                                      modifytime = utc_timestamp()
                                  WHERE id=@id;"
                 })
                 {
-                    var parameter = new SqlParameter("@id", SqlDbType.UniqueIdentifier)
+                    var parameter = new MySqlParameter("@id", MySqlDbType.Guid)
                     {
                         Value = action.ID
                     };
                     command.Parameters.Add(parameter);
-                    parameter = new SqlParameter("@name", SqlDbType.VarChar, 150)
+                    parameter = new MySqlParameter("@name", MySqlDbType.VarChar, 150)
                     {
                         Value = action.Name
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@triggercondition", SqlDbType.VarChar, 200)
+                    parameter = new MySqlParameter("@triggercondition", MySqlDbType.VarChar, 200)
                     {
                         Value = action.TriggerCondition
                     };
                     command.Parameters.Add(parameter);
 
 
-                    parameter = new SqlParameter("@configuration", SqlDbType.NVarChar, action.Configuration.Length)
+                    parameter = new MySqlParameter("@configuration", MySqlDbType.VarChar, action.Configuration.Length)
                     {
                         Value = action.Configuration
                     };
                     command.Parameters.Add(parameter);
 
 
-                    parameter = new SqlParameter("@mode", SqlDbType.Int)
+                    parameter = new MySqlParameter("@mode", MySqlDbType.Int32)
                     {
                         Value = action.Mode
                     };
                     command.Parameters.Add(parameter);
                     if (action.ScheduleActionServiceFactoryType != null)
                     {
-                        parameter = new SqlParameter("@scheduleactionservicefactorytype", SqlDbType.VarChar, 200)
+                        parameter = new MySqlParameter("@scheduleactionservicefactorytype", MySqlDbType.VarChar, 200)
                         {
                             Value = action.ScheduleActionServiceFactoryType
                         };
@@ -276,7 +269,7 @@ namespace MSLibrary.Schedule.DAL
                     }
                     else
                     {
-                        parameter = new SqlParameter("@scheduleactionservicefactorytype", SqlDbType.VarChar, 200)
+                        parameter = new MySqlParameter("@scheduleactionservicefactorytype", MySqlDbType.VarChar, 200)
                         {
                             Value = DBNull.Value
                         };
@@ -284,7 +277,7 @@ namespace MSLibrary.Schedule.DAL
                     }
                     if (action.ScheduleActionServiceFactoryTypeUseDI != null)
                     {
-                        parameter = new SqlParameter("@scheduleactionservicefactorytypeusedi", SqlDbType.Bit)
+                        parameter = new MySqlParameter("@scheduleactionservicefactorytypeusedi", MySqlDbType.Bit)
                         {
                             Value = action.ScheduleActionServiceFactoryTypeUseDI
                         };
@@ -292,7 +285,7 @@ namespace MSLibrary.Schedule.DAL
                     }
                     else
                     {
-                        parameter = new SqlParameter("@scheduleactionservicefactorytypeusedi", SqlDbType.Bit)
+                        parameter = new MySqlParameter("@scheduleactionservicefactorytypeusedi", MySqlDbType.Bit)
                         {
                             Value = DBNull.Value
                         };
@@ -300,7 +293,7 @@ namespace MSLibrary.Schedule.DAL
                     }
                     if (action.ScheduleActionServiceWebUrl != null)
                     {
-                        parameter = new SqlParameter("@scheduleactionserviceweburl", SqlDbType.VarChar, 200)
+                        parameter = new MySqlParameter("@scheduleactionserviceweburl", MySqlDbType.VarChar, 200)
                         {
                             Value = action.ScheduleActionServiceWebUrl
                         };
@@ -308,7 +301,7 @@ namespace MSLibrary.Schedule.DAL
                     }
                     else
                     {
-                        parameter = new SqlParameter("@scheduleactionserviceweburl", SqlDbType.VarChar, 200)
+                        parameter = new MySqlParameter("@scheduleactionserviceweburl", MySqlDbType.VarChar, 200)
                         {
                             Value = DBNull.Value
                         };
@@ -316,7 +309,7 @@ namespace MSLibrary.Schedule.DAL
                     }
                     if (action.WebSignature != null)
                     {
-                        parameter = new SqlParameter("@websignature", SqlDbType.VarChar, 200)
+                        parameter = new MySqlParameter("@websignature", MySqlDbType.VarChar, 200)
                         {
                             Value = action.WebSignature
                         };
@@ -324,13 +317,13 @@ namespace MSLibrary.Schedule.DAL
                     }
                     else
                     {
-                        parameter = new SqlParameter("@websignature", SqlDbType.VarChar, 200)
+                        parameter = new MySqlParameter("@websignature", MySqlDbType.VarChar, 200)
                         {
                             Value = DBNull.Value
                         };
                         command.Parameters.Add(parameter);
                     }
-                    parameter = new SqlParameter("@status", SqlDbType.Int)
+                    parameter = new MySqlParameter("@status", MySqlDbType.Int32)
                     {
                         Value = action.Status
                     };
@@ -339,32 +332,32 @@ namespace MSLibrary.Schedule.DAL
                     command.Prepare();
 
 
-                        try
-                        {
-                            await command.ExecuteNonQueryAsync();
-                        }
-                        catch (SqlException ex)
-                        {
-                            if (ex == null)
-                            {
-                                throw;
-                            }
-                            if (ex.Number == 2601)
-                            {
-                                var fragment = new TextFragment()
-                                {
-                                    Code = TextCodes.ExistScheduleActionByName,
-                                    DefaultFormatting = "调度动作中存在相同名称\"{0}\"数据",
-                                    ReplaceParameters = new List<object>() { action.Name }
-                                };
+                    //try
+                    //{
+                        await command.ExecuteNonQueryAsync();
+                    //}
+                    //catch (SqlException ex)
+                    //{
+                    //    if (ex == null)
+                    //    {
+                    //        throw;
+                    //    }
+                    //    if (ex.Number == 2601)
+                    //    {
+                    //        var fragment = new TextFragment()
+                    //        {
+                    //            Code = TextCodes.ExistScheduleActionByName,
+                    //            DefaultFormatting = "调度动作中存在相同名称\"{0}\"数据",
+                    //            ReplaceParameters = new List<object>() { action.Name }
+                    //        };
 
-                                throw new UtilityException((int)Errors.ExistScheduleActionByName, fragment);
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
+                    //        throw new UtilityException((int)Errors.ExistScheduleActionByName, fragment);
+                    //    }
+                    //    else
+                    //    {
+                    //        throw;
+                    //    }
+                    //}
                 }
 
             });
@@ -378,32 +371,32 @@ namespace MSLibrary.Schedule.DAL
         /// <returns></returns>
         public async Task Delete(Guid id)
         {
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, false, false, _dbConnectionFactory.CreateAllForSchedule(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _dbConnectionFactory.CreateAllForSchedule(), async (conn, transaction) =>
             {
-                SqlTransaction sqlTran = null;
+                MySqlTransaction sqlTran = null;
                 if (transaction != null)
                 {
-                    sqlTran = (SqlTransaction)transaction;
+                    sqlTran = (MySqlTransaction)transaction;
                 }
 
-                using (SqlCommand command = new SqlCommand()
+                using (MySqlCommand command = new MySqlCommand()
                 {
-                    Connection = (SqlConnection)conn,
+                    Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
                     Transaction = sqlTran,
-                    CommandText = @"delete from [dbo].[ScheduleAction] where [id] = @id"
+                    CommandText = @"delete from scheduleaction where [id] = @id"
                 })
                 {
 
-                    var parameter = new SqlParameter("@id", SqlDbType.UniqueIdentifier)
+                    var parameter = new MySqlParameter("@id", MySqlDbType.Guid)
                     {
                         Value = id
                     };
                     command.Parameters.Add(parameter);
                     command.Prepare();
 
-                        await command.ExecuteNonQueryAsync();
-                 
+                    await command.ExecuteNonQueryAsync();
+
                 }
 
             });
@@ -417,29 +410,29 @@ namespace MSLibrary.Schedule.DAL
         /// <returns></returns>
         public async Task AddActionGroupRelation(Guid actionId, Guid queueId)
         {
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, false, false, _dbConnectionFactory.CreateAllForSchedule(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _dbConnectionFactory.CreateAllForSchedule(), async (conn, transaction) =>
             {
-                SqlTransaction sqlTran = null;
+                MySqlTransaction sqlTran = null;
                 if (transaction != null)
                 {
-                    sqlTran = (SqlTransaction)transaction;
+                    sqlTran = (MySqlTransaction)transaction;
                 }
-                using (SqlCommand command = new SqlCommand()
+                using (MySqlCommand command = new MySqlCommand()
                 {
-                    Connection = (SqlConnection)conn,
+                    Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
                     Transaction = sqlTran,
-                    CommandText = @"UPDATE [dbo].[ScheduleAction]
-                                       SET [groupid]=@groupid,[modifytime] = GETUTCDATE()
-                                     WHERE id=@id AND [groupid] IS NULL"
+                    CommandText = @"UPDATE scheduleaction
+                                       SET groupid=@groupid,modifytime = utc_timestamp()
+                                     WHERE id=@id AND groupid IS NULL"
                 })
                 {
-                    var parameter = new SqlParameter("@id", SqlDbType.UniqueIdentifier)
+                    var parameter = new MySqlParameter("@id", MySqlDbType.Guid)
                     {
                         Value = actionId
                     };
                     command.Parameters.Add(parameter);
-                    parameter = new SqlParameter("@groupid", SqlDbType.UniqueIdentifier)
+                    parameter = new MySqlParameter("@groupid", MySqlDbType.Guid)
                     {
                         Value = queueId
                     };
@@ -447,8 +440,8 @@ namespace MSLibrary.Schedule.DAL
                     command.Prepare();
 
 
-                        await command.ExecuteNonQueryAsync();
-              
+                    await command.ExecuteNonQueryAsync();
+
                 }
 
             });
@@ -462,37 +455,37 @@ namespace MSLibrary.Schedule.DAL
         /// <returns></returns>
         public async Task DeleteActionGroupRelation(Guid actionId, Guid queueId)
         {
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, false, false, _dbConnectionFactory.CreateAllForSchedule(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _dbConnectionFactory.CreateAllForSchedule(), async (conn, transaction) =>
             {
-                SqlTransaction sqlTran = null;
+                MySqlTransaction sqlTran = null;
                 if (transaction != null)
                 {
-                    sqlTran = (SqlTransaction)transaction;
+                    sqlTran = (MySqlTransaction)transaction;
                 }
-                using (SqlCommand command = new SqlCommand()
+                using (MySqlCommand command = new MySqlCommand()
                 {
-                    Connection = (SqlConnection)conn,
+                    Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
                     Transaction = sqlTran,
-                    CommandText = @"UPDATE [dbo].[ScheduleAction]
-                                       SET [groupid]=null,[modifytime] = GETUTCDATE()
+                    CommandText = @"UPDATE scheduleaction
+                                       SET groupid=null,modifytime = utc_timestamp()
                                      WHERE id=@id AND groupid =@groupid"
                 })
                 {
-                    var parameter = new SqlParameter("@id", SqlDbType.UniqueIdentifier)
+                    var parameter = new MySqlParameter("@id", MySqlDbType.Guid)
                     {
                         Value = actionId
                     };
                     command.Parameters.Add(parameter);
-                    parameter = new SqlParameter("@groupid", SqlDbType.UniqueIdentifier)
+                    parameter = new MySqlParameter("@groupid", MySqlDbType.Guid)
                     {
                         Value = queueId
                     };
                     command.Parameters.Add(parameter);
                     command.Prepare();
 
-                        await command.ExecuteNonQueryAsync();
-                
+                    await command.ExecuteNonQueryAsync();
+
                 }
 
             });
@@ -507,34 +500,34 @@ namespace MSLibrary.Schedule.DAL
         public async Task<ScheduleAction> QueryByGroup(Guid id, Guid groupId)
         {
             ScheduleAction result = null;
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
             {
-                SqlTransaction sqlTran = null;
+                MySqlTransaction sqlTran = null;
                 if (transaction != null)
                 {
-                    sqlTran = (SqlTransaction)transaction;
+                    sqlTran = (MySqlTransaction)transaction;
                 }
 
-                using (SqlCommand command = new SqlCommand()
+                using (MySqlCommand command = new MySqlCommand()
                 {
-                    Connection = (SqlConnection)conn,
+                    Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
-                    CommandText = string.Format(@"SELECT {0} FROM [dbo].[ScheduleAction] WHERE id=@id AND groupid=@groupid", StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
+                    CommandText = string.Format(@"SELECT {0} FROM scheduleaction WHERE id=@id AND groupid=@groupid", StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
                     Transaction = sqlTran
                 })
                 {
-                    var parameter = new SqlParameter("@id", SqlDbType.UniqueIdentifier)
+                    var parameter = new MySqlParameter("@id", MySqlDbType.Guid)
                     {
                         Value = id
                     };
                     command.Parameters.Add(parameter);
-                    parameter = new SqlParameter("@groupid", SqlDbType.UniqueIdentifier)
+                    parameter = new MySqlParameter("@groupid", MySqlDbType.Guid)
                     {
                         Value = groupId
                     };
                     command.Parameters.Add(parameter);
                     command.Prepare();
-                    SqlDataReader reader = null;
+                    DbDataReader reader = null;
 
                     using (reader = await command.ExecuteReaderAsync())
                     {
@@ -560,29 +553,29 @@ namespace MSLibrary.Schedule.DAL
         public async Task<ScheduleAction> QueryByID(Guid id)
         {
             ScheduleAction result = null;
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
             {
-                SqlTransaction sqlTran = null;
+                MySqlTransaction sqlTran = null;
                 if (transaction != null)
                 {
-                    sqlTran = (SqlTransaction)transaction;
+                    sqlTran = (MySqlTransaction)transaction;
                 }
 
-                using (SqlCommand command = new SqlCommand()
+                using (MySqlCommand command = new MySqlCommand()
                 {
-                    Connection = (SqlConnection)conn,
+                    Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
-                    CommandText = string.Format(@"SELECT {0} FROM [dbo].[ScheduleAction] WHERE id=@id;", StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
+                    CommandText = string.Format(@"SELECT {0} FROM scheduleaction WHERE id=@id;", StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
                     Transaction = sqlTran
                 })
                 {
-                    var parameter = new SqlParameter("@id", SqlDbType.UniqueIdentifier)
+                    var parameter = new MySqlParameter("@id", MySqlDbType.Guid)
                     {
                         Value = id
                     };
                     command.Parameters.Add(parameter);
                     command.Prepare();
-                    SqlDataReader reader = null;
+                    DbDataReader reader = null;
 
                     using (reader = await command.ExecuteReaderAsync())
                     {
@@ -608,29 +601,29 @@ namespace MSLibrary.Schedule.DAL
         public async Task<ScheduleAction> QueryByName(string name)
         {
             ScheduleAction result = null;
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
             {
-                SqlTransaction sqlTran = null;
+                MySqlTransaction sqlTran = null;
                 if (transaction != null)
                 {
-                    sqlTran = (SqlTransaction)transaction;
+                    sqlTran = (MySqlTransaction)transaction;
                 }
 
-                using (SqlCommand command = new SqlCommand()
+                using (MySqlCommand command = new MySqlCommand()
                 {
-                    Connection = (SqlConnection)conn,
+                    Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
-                    CommandText = string.Format(@"SELECT {0} FROM [dbo].[ScheduleAction] WHERE name=@name;", StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
+                    CommandText = string.Format(@"SELECT {0} FROM scheduleaction WHERE name=@name;", StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
                     Transaction = sqlTran
                 })
                 {
-                    var parameter = new SqlParameter("@name", SqlDbType.VarChar, 150)
+                    var parameter = new MySqlParameter("@name", MySqlDbType.VarChar, 150)
                     {
                         Value = name
                     };
                     command.Parameters.Add(parameter);
                     command.Prepare();
-                    SqlDataReader reader = null;
+                    DbDataReader reader = null;
 
                     using (reader = await command.ExecuteReaderAsync())
                     {
@@ -656,77 +649,67 @@ namespace MSLibrary.Schedule.DAL
         public async Task<QueryResult<ScheduleAction>> QueryByPage(string name, int page, int pageSize)
         {
             QueryResult<ScheduleAction> result = new QueryResult<ScheduleAction>();
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
             {
-                SqlTransaction sqlTran = null;
+                MySqlTransaction sqlTran = null;
                 if (transaction != null)
                 {
-                    sqlTran = (SqlTransaction)transaction;
+                    sqlTran = (MySqlTransaction)transaction;
                 }
 
-                using (SqlCommand command = new SqlCommand()
+                using (MySqlCommand command = new MySqlCommand()
                 {
-                    Connection = (SqlConnection)conn,
+                    Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
                     CommandText = string.Format(@"SET @currentpage = @page;
-                                                    SELECT @count = COUNT(*)
-                                                    FROM [ScheduleAction]
-                                                    WHERE [name] LIKE @name                                                          
-                                                    IF @pagesize * @page >= @count
-                                                    BEGIN
-                                                        SET @currentpage = @count / @pagesize;
-                                                        IF @count % @pagesize <> 0
-                                                        BEGIN
-                                                            SET @currentpage = @currentpage + 1;
-                                                        END;
-                                                        IF @currentpage = 0
-                                                            SET @currentpage = 1;
-                                                    END;
-                                                    ELSE IF @page < 1
-                                                    BEGIN
-                                                        SET @currentpage = 1;
-                                                    END;
+                                                    SELECT COUNT(*)
+                                                    FROM scheduleaction
+                                                    WHERE name LIKE @name into @count;                                                         
 
                                                     SELECT {0}
-                                                    FROM [ScheduleAction]
-                                                    WHERE [name] LIKE @name
-                                                    ORDER BY sequence OFFSET (@pagesize * (@currentpage - 1)) ROWS FETCH NEXT @pagesize ROWS ONLY;",
-                                                    StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
-                    Transaction = sqlTran
+                                                    FROM scheduleaction
+                                                    where sequence in 
+                                                    (
+                                                        SELECT sequence
+                                                        FROM scheduleaction
+                                                        WHERE name LIKE @name
+                                                        ORDER BY sequence limit (@pagesize * (@currentpage - 1)), @pagesize
+                                                    )",
+                                                    StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)), Transaction = sqlTran
                 })
                 {
-                    var parameter = new SqlParameter("@page", SqlDbType.Int)
+                    var parameter = new MySqlParameter("@page", MySqlDbType.Int32)
                     {
                         Value = page
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@pagesize", SqlDbType.Int)
+                    parameter = new MySqlParameter("@pagesize", MySqlDbType.Int32)
                     {
                         Value = pageSize
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@count", SqlDbType.Int)
+                    parameter = new MySqlParameter("@count", MySqlDbType.Int32)
                     {
                         Direction = ParameterDirection.Output
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@currentpage", SqlDbType.Int)
+                    parameter = new MySqlParameter("@currentpage", MySqlDbType.Int32)
                     {
                         Direction = ParameterDirection.Output
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@name", SqlDbType.VarChar, 200)
+                    parameter = new MySqlParameter("@name", MySqlDbType.VarChar, 200)
                     {
-                        Value = $"{name.ToSqlLike()}%"
+                        Value = $"{name.ToMySqlLike()}%"
 
                     };
                     command.Parameters.Add(parameter);
                     command.Prepare();
-                    SqlDataReader reader = null;
+                    DbDataReader reader = null;
 
                     using (reader = await command.ExecuteReaderAsync())
                     {
@@ -755,76 +738,66 @@ namespace MSLibrary.Schedule.DAL
         public async Task<QueryResult<ScheduleAction>> QueryByPageGroup(Guid groupId, int page, int pageSize)
         {
             QueryResult<ScheduleAction> result = new QueryResult<ScheduleAction>();
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
             {
-                SqlTransaction sqlTran = null;
+                MySqlTransaction sqlTran = null;
                 if (transaction != null)
                 {
-                    sqlTran = (SqlTransaction)transaction;
+                    sqlTran = (MySqlTransaction)transaction;
                 }
 
-                using (SqlCommand command = new SqlCommand()
+                using (MySqlCommand command = new MySqlCommand()
                 {
-                    Connection = (SqlConnection)conn,
+                    Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
                     CommandText = string.Format(@"SET @currentpage = @page;
-                                                    SELECT @count = COUNT(*)
-                                                    FROM [ScheduleAction]
-                                                    WHERE [groupid] = @groupid;
-                                                    IF @pagesize * @page >= @count
-                                                    BEGIN
-                                                        SET @currentpage = @count / @pagesize;
-                                                        IF @count % @pagesize <> 0
-                                                        BEGIN
-                                                            SET @currentpage = @currentpage + 1;
-                                                        END;
-                                                        IF @currentpage = 0
-                                                            SET @currentpage = 1;
-                                                    END;
-                                                    ELSE IF @page < 1
-                                                    BEGIN
-                                                        SET @currentpage = 1;
-                                                    END;
+                                                    SELECT COUNT(*)
+                                                    FROM scheduleaction
+                                                    WHERE groupid = @groupid into @count;
 
                                                     SELECT {0}
-                                                    FROM [ScheduleAction]
-                                                    WHERE [groupid] = @groupid
-                                                    ORDER BY sequence OFFSET (@pagesize * (@currentpage - 1)) ROWS FETCH NEXT @pagesize ROWS ONLY;",
-                                                    StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
-                    Transaction = sqlTran
+                                                    FROM ScheduleAction
+                                                    WHERE sequence in
+                                                    (
+                                                        SELECT sequence
+                                                        FROM scheduleaction
+                                                        WHERE groupid = @groupid
+                                                        ORDER BY sequence limit (@pagesize * (@currentpage - 1)), @pagesize
+                                                    )",
+                                                    StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),Transaction = sqlTran
                 })
                 {
-                    var parameter = new SqlParameter("@page", SqlDbType.Int)
+                    var parameter = new MySqlParameter("@page", MySqlDbType.Int32)
                     {
                         Value = page
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@pagesize", SqlDbType.Int)
+                    parameter = new MySqlParameter("@pagesize", MySqlDbType.Int32)
                     {
                         Value = pageSize
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@count", SqlDbType.Int)
+                    parameter = new MySqlParameter("@count", MySqlDbType.Int32)
                     {
                         Direction = ParameterDirection.Output
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@currentpage", SqlDbType.Int)
+                    parameter = new MySqlParameter("@currentpage", MySqlDbType.Int32)
                     {
                         Direction = ParameterDirection.Output
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@groupid", SqlDbType.UniqueIdentifier)
+                    parameter = new MySqlParameter("@groupid", MySqlDbType.Guid)
                     {
                         Value = groupId
                     };
                     command.Parameters.Add(parameter);
                     command.Prepare();
-                    SqlDataReader reader = null;
+                    DbDataReader reader = null;
 
                     using (reader = await command.ExecuteReaderAsync())
                     {
@@ -854,78 +827,70 @@ namespace MSLibrary.Schedule.DAL
         public async Task<QueryResult<ScheduleAction>> QueryByNullGroup(string name, int page, int pageSize)
         {
             QueryResult<ScheduleAction> result = new QueryResult<ScheduleAction>();
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
             {
-                SqlTransaction sqlTran = null;
+                MySqlTransaction sqlTran = null;
                 if (transaction != null)
                 {
-                    sqlTran = (SqlTransaction)transaction;
+                    sqlTran = (MySqlTransaction)transaction;
                 }
 
-                using (SqlCommand command = new SqlCommand()
+                using (MySqlCommand command = new MySqlCommand()
                 {
-                    Connection = (SqlConnection)conn,
+                    Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
                     CommandText = string.Format(@"SET @currentpage = @page;
-                                                    SELECT @count = COUNT(*)
-                                                    FROM [ScheduleAction]
-                                                    WHERE [name] LIKE @name
-                                                          AND [groupid] IS NULL;
-                                                    IF @pagesize * @page >= @count
-                                                    BEGIN
-                                                        SET @currentpage = @count / @pagesize;
-                                                        IF @count % @pagesize <> 0
-                                                        BEGIN
-                                                            SET @currentpage = @currentpage + 1;
-                                                        END;
-                                                        IF @currentpage = 0
-                                                            SET @currentpage = 1;
-                                                    END;
-                                                    ELSE IF @page < 1
-                                                    BEGIN
-                                                        SET @currentpage = 1;
-                                                    END;
+                                                    SELECT  COUNT(*)
+                                                    FROM scheduleaction
+                                                    WHERE name LIKE @name
+                                                          AND groupid IS NULL into @count ;
+
 
                                                     SELECT {0}
-                                                    FROM [ScheduleAction]
-                                                    WHERE [name] LIKE @name
-                                                          AND [groupid] IS NULL
-                                                    ORDER BY sequence OFFSET (@pagesize * (@currentpage - 1)) ROWS FETCH NEXT @pagesize ROWS ONLY;",
+                                                    FROM scheduleaction
+                                                    where sequence in
+                                                    (
+                                                        SELECT sequence
+                                                        FROM scheduleaction
+                                                        WHERE name LIKE @name
+                                                          AND groupid IS NULL
+                                                        ORDER BY sequence limit (@pagesize * (@currentpage - 1)), @pagesize
+                                                    )",
                                                     StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
                     Transaction = sqlTran
                 })
                 {
-                    var parameter = new SqlParameter("@page", SqlDbType.Int)
+                    var parameter = new MySqlParameter("@page", MySqlDbType.Int32)
                     {
                         Value = page
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@pagesize", SqlDbType.Int)
+                    parameter = new MySqlParameter("@pagesize", MySqlDbType.Int32)
                     {
                         Value = pageSize
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@count", SqlDbType.Int)
+                    parameter = new MySqlParameter("@count", MySqlDbType.Int32)
                     {
                         Direction = ParameterDirection.Output
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@currentpage", SqlDbType.Int)
+                    parameter = new MySqlParameter("@currentpage", MySqlDbType.Int32)
                     {
                         Direction = ParameterDirection.Output
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@name", SqlDbType.VarChar, 200)
+                    parameter = new MySqlParameter("@name", MySqlDbType.VarChar, 200)
                     {
                         Value = $"{name.ToSqlLike()}%"
                     };
                     command.Parameters.Add(parameter);
                     command.Prepare();
-                    SqlDataReader reader = null;
+                    DbDataReader reader = null;
 
 
                     using (reader = await command.ExecuteReaderAsync())
@@ -955,7 +920,7 @@ namespace MSLibrary.Schedule.DAL
         public async Task QueryAllAction(Guid groupId, int status, Func<ScheduleAction, Task> callback)
         {
             List<ScheduleAction> listAction = new List<ScheduleAction>();
-            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
             {
                 long sequence = 0;
                 int pageSize = 500;
@@ -963,42 +928,42 @@ namespace MSLibrary.Schedule.DAL
                 {
                     listAction.Clear();
 
-                    SqlTransaction sqlTran = null;
+                    MySqlTransaction sqlTran = null;
                     if (transaction != null)
                     {
-                        sqlTran = (SqlTransaction)transaction;
+                        sqlTran = (MySqlTransaction)transaction;
                     }
 
-                    using (SqlCommand command = new SqlCommand()
+                    using (MySqlCommand command = new MySqlCommand()
                     {
-                        Connection = (SqlConnection)conn,
+                        Connection = (MySqlConnection)conn,
                         CommandType = CommandType.Text,
-                        CommandText = string.Format(@"SELECT top (@pagesize) {0} FROM [ScheduleAction] WHERE [groupid]=@groupid AND [status]=@status and sequence>@sequence ORDER BY sequence", StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
+                        CommandText = string.Format(@"SELECT {0} FROM scheduleaction WHERE groupid=@groupid AND status=@status and sequence>@sequence ORDER BY sequence limit @pagesize", StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
                         Transaction = sqlTran
                     })
                     {
-                        var parameter = new SqlParameter("@groupId", SqlDbType.UniqueIdentifier)
+                        var parameter = new MySqlParameter("@groupid", MySqlDbType.Guid)
                         {
                             Value = groupId
                         };
                         command.Parameters.Add(parameter);
-                        parameter = new SqlParameter("@status", SqlDbType.Int)
+                        parameter = new MySqlParameter("@status", MySqlDbType.Int32)
                         {
                             Value = status
                         };
                         command.Parameters.Add(parameter);
-                        parameter = new SqlParameter("@pagesize", SqlDbType.Int)
+                        parameter = new MySqlParameter("@pagesize", MySqlDbType.Int32)
                         {
                             Value = pageSize
                         };
                         command.Parameters.Add(parameter);
-                        parameter = new SqlParameter("@sequence", SqlDbType.Int)
+                        parameter = new MySqlParameter("@sequence", MySqlDbType.Int64)
                         {
                             Value = sequence
                         };
                         command.Parameters.Add(parameter);
                         command.Prepare();
-                        SqlDataReader reader = null;
+                        DbDataReader reader = null;
 
 
                         using (reader = await command.ExecuteReaderAsync())
