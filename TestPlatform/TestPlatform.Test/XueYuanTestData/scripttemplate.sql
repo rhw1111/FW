@@ -47,6 +47,8 @@ setup_logging("INFO", None)
 is_print_log = {IsPrintLog}
 host = "{Address}"
 port = {Port}
+# address
+address = None
 # client_id
 client_id = "{SlaveName}"
 # case_id
@@ -172,7 +174,7 @@ class TcpTestUser(User):
     host = host
     # 连接的TCP服务的端口
     port = port
-    ADDR = (host, port)
+    address = None
     request_body = ""
     worker_report_time = datetime.datetime.now()
     environment = None
@@ -204,7 +206,12 @@ class TcpTestUser(User):
         TcpTestUser.environment = self.environment
 
     def connect(self):
-        is_success = self.client.connect(self.ADDR)
+        if type(address) == tuple:
+            self.address = address
+        else:
+            self.address = (host, port)
+
+        is_success = self.client.connect(self.address)
 
         if is_success:
             print("[%s] [%s]: Connect Success, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.host, self.port))

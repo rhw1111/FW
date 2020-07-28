@@ -22,5 +22,6 @@ namespace FW.TestPlatform.Main.Entities.DAL
         Task<bool> IsUsedBySlaveHosts(Guid testHostId, CancellationToken cancellationToken = default);
 
         Task<bool> GetTestHostsBySSHEndpointId(Guid id, CancellationToken cancellationToken = default);
+        Task<List<TestCase>> GetRunningTestCasesByHostId(Guid id, CancellationToken cancellationToken = default);
     }
 }
