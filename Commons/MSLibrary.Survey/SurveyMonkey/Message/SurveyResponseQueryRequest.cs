@@ -17,6 +17,9 @@ namespace MSLibrary.Survey.SurveyMonkey.Message
 
         public DateTime? StartCreatedAt { get; set; }
         public DateTime? EndCreatedAt { get; set; }
+        public DateTime? StartModifiedAt { get; set; }
+        public DateTime? EndModifiedAt { get; set; }
+
         public string? Status { get; set; }
 
     }

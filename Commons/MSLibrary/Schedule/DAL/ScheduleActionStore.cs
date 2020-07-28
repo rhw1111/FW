@@ -957,7 +957,7 @@ namespace MSLibrary.Schedule.DAL
             List<ScheduleAction> listAction = new List<ScheduleAction>();
             await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, true, false, _dbConnectionFactory.CreateReadForSchedule(), async (conn, transaction) =>
             {
-                int sequence = 0;
+                long sequence = 0;
                 int pageSize = 500;
                 while (true)
                 {
@@ -973,7 +973,7 @@ namespace MSLibrary.Schedule.DAL
                     {
                         Connection = (SqlConnection)conn,
                         CommandType = CommandType.Text,
-                        CommandText = string.Format(@"SELECT {0} FROM [ScheduleAction] WHERE [groupid]=@groupid AND [status]=@status ORDER BY sequence OFFSET @sequence ROWS FETCH NEXT @pagesize ROWS ONLY;", StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
+                        CommandText = string.Format(@"SELECT top (@pagesize) {0} FROM [ScheduleAction] WHERE [groupid]=@groupid AND [status]=@status and sequence>@sequence ORDER BY sequence", StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
                         Transaction = sqlTran
                     })
                     {
@@ -1008,6 +1008,7 @@ namespace MSLibrary.Schedule.DAL
                                 var scheduleAction = new ScheduleAction();
                                 StoreHelper.SetScheduleActionStoreSelectFields(scheduleAction, reader, string.Empty);
                                 listAction.Add(scheduleAction);
+                                sequence = (long)reader["sequence"];
                             }
                             reader.Close();
                         }
@@ -1019,10 +1020,6 @@ namespace MSLibrary.Schedule.DAL
                     if (listAction.Count != pageSize)
                     {
                         break;
-                    }
-                    else
-                    {
-                        sequence += listAction.Count;
                     }
                 }
             });

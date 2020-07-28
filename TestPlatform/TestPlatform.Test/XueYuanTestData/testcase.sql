@@ -36,6 +36,18 @@ SET configuration = '{
             "Type": "",
             "DataSourceName": "datasource_user_parameter_list",
             "Data": ""
+        },
+        {
+            "Name": "address_list",
+            "Type": "",
+            "DataSourceName": "datasource_address_list",
+            "Data": ""
+        },
+        {
+            "Name": "address",
+            "Type": "",
+            "DataSourceName": "datasource_address",
+            "Data": ""
         }
     ],
     "ConnectInit": {
@@ -167,10 +179,6 @@ SET configuration = '{
             {
                 "Name": "package",
                 "Content": "request_body"
-            },
-            {
-                "Name": "package",
-                "Content": "{$dessecurity(package,\'abcdefghjhijklmn\')}"
             },
             {
                 "Name": "self.senddata",

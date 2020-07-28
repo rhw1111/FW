@@ -166,6 +166,10 @@ namespace FW.TestPlatform.Main.Entities
         {
             return await _imp.IsUsedByTestHostsOrSlaves(this, cancellationToken);
         }
+        public async Task<bool> IsHostRun(CancellationToken cancellationToken = default)
+        {
+            return await _imp.IsHostRun(this, cancellationToken);
+        }
     }
 
     [Injection(InterfaceType = typeof(ITestHostIMP),Scope = InjectionScope.Transient)]
@@ -250,6 +254,14 @@ namespace FW.TestPlatform.Main.Entities
             }
             return isUsed;
         }
+        public async Task<bool> IsHostRun(TestHost host, CancellationToken cancellationToken = default)
+        {
+            List<TestCase> list = await _testHostStore.GetRunningTestCasesByHostId(host.ID, cancellationToken);
+            if (list.Count > 0)
+                return true;
+            else
+                return false;
+        }
     }
 
     public interface ITestHostIMP
@@ -259,5 +271,6 @@ namespace FW.TestPlatform.Main.Entities
         Task Delete(TestHost host, CancellationToken cancellationToken = default);
         Task<List<TestHost>> GetHosts(CancellationToken cancellationToken = default);
         Task<bool> IsUsedByTestHostsOrSlaves(TestHost host, CancellationToken cancellationToken = default);
+        Task<bool> IsHostRun(TestHost host, CancellationToken cancellationToken = default);
     }
 }

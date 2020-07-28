@@ -31,7 +31,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
         {
             StringBuilder strCode = new StringBuilder();
 
-            strCode.Append($"client_id");
+            strCode.Append($"self.user_id");
 
             return strCode.ToString();
         }

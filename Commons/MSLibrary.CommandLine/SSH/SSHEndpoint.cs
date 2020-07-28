@@ -99,11 +99,11 @@ namespace MSLibrary.CommandLine.SSH
         {
             get
             {
-                return GetAttribute<DateTime>("CreateTime");
+                return GetAttribute<DateTime>(nameof(CreateTime));
             }
             set
             {
-                SetAttribute<DateTime>("CreateTime", value);
+                SetAttribute<DateTime>(nameof(CreateTime), value);
             }
         }
 
@@ -114,11 +114,11 @@ namespace MSLibrary.CommandLine.SSH
         {
             get
             {
-                return GetAttribute<DateTime>("ModifyTime");
+                return GetAttribute<DateTime>(nameof(ModifyTime));
             }
             set
             {
-                SetAttribute<DateTime>("ModifyTime", value);
+                SetAttribute<DateTime>(nameof(ModifyTime), value);
             }
         }
 
@@ -128,9 +128,9 @@ namespace MSLibrary.CommandLine.SSH
         /// <param name="command"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<string> ExecuteCommand(string command, CancellationToken cancellationToken = default)
+        public async Task<string> ExecuteCommand(string command, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
-            return await _imp.ExecuteCommand(this,command, cancellationToken);
+            return await _imp.ExecuteCommand(this,command,timeoutSeconds, cancellationToken);
         }
 
         /// <summary>
@@ -140,9 +140,9 @@ namespace MSLibrary.CommandLine.SSH
         /// <param name="path"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task UploadFile(Stream stream, string path, CancellationToken cancellationToken = default)
+        public async Task UploadFile(Stream stream, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
-            await _imp.UploadFile(this,stream,path,cancellationToken);
+            await _imp.UploadFile(this,stream,path,timeoutSeconds,cancellationToken);
         }
 
         /// <summary>
@@ -151,9 +151,9 @@ namespace MSLibrary.CommandLine.SSH
         /// <param name="commondGenerators"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<string> ExecuteCommandBatch( IList<Func<string?, Task<string>>> commondGenerators, CancellationToken cancellationToken = default)
+        public async Task<string> ExecuteCommandBatch( IList<Func<string?, Task<string>>> commondGenerators, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
-            return await _imp.ExecuteCommandBatch(this, commondGenerators, cancellationToken);
+            return await _imp.ExecuteCommandBatch(this, commondGenerators,timeoutSeconds, cancellationToken);
         }
         /// <summary>
         /// 批量上传文件
@@ -161,9 +161,9 @@ namespace MSLibrary.CommandLine.SSH
         /// <param name="uploadFileInfos"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task UploadFileBatch(IList<(Stream, string)> uploadFileInfos, CancellationToken cancellationToken = default)
+        public async Task UploadFileBatch(IList<(Stream, string)> uploadFileInfos, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
-            await _imp.UploadFileBatch(this, uploadFileInfos, cancellationToken);
+            await _imp.UploadFileBatch(this, uploadFileInfos, timeoutSeconds, cancellationToken);
         }
 
         /// <summary>
@@ -173,9 +173,9 @@ namespace MSLibrary.CommandLine.SSH
         /// <param name="path"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task DownloadFile(Func<Stream, Task> action, string path, CancellationToken cancellationToken = default)
+        public async Task DownloadFile(Func<Stream, Task> action, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
-            await _imp.DownloadFile(this,action, path, cancellationToken);
+            await _imp.DownloadFile(this,action, path,timeoutSeconds, cancellationToken);
         }
 
         /// <summary>
@@ -184,9 +184,9 @@ namespace MSLibrary.CommandLine.SSH
         /// <param name="action"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task UploadFile(Func<ISSHEndpointUploadFileService, Task> action, CancellationToken cancellationToken = default)
+        public async Task UploadFile(Func<ISSHEndpointUploadFileService, Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
-            await _imp.UploadFile(this, action, cancellationToken);
+            await _imp.UploadFile(this, action,timeoutSeconds, cancellationToken);
         }
 
         /// <summary>
@@ -195,9 +195,9 @@ namespace MSLibrary.CommandLine.SSH
         /// <param name="action"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task ExecuteCommand(Func<ISSHEndpointCommandService, Task> action, CancellationToken cancellationToken = default)
+        public async Task ExecuteCommand(Func<ISSHEndpointCommandService, Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
-            await _imp.ExecuteCommand(this, action, cancellationToken);
+            await _imp.ExecuteCommand(this, action, timeoutSeconds, cancellationToken);
         }
 
         public async Task Add(CancellationToken cancellationToken = default)
@@ -212,45 +212,39 @@ namespace MSLibrary.CommandLine.SSH
         {
             await _imp.Update(this, cancellationToken);
         }
-        public async Task<bool> IsUsedByTestHosts(CancellationToken cancellationToken = default)
-        {
-            return await _imp.IsUsedByTestHosts(this, cancellationToken);
-        }
     }
 
     public interface ISSHEndpointIMP
     {
-        Task<string> ExecuteCommand(SSHEndpoint endpoint,string command, CancellationToken cancellationToken = default);
-        Task UploadFile(SSHEndpoint endpoint,Stream stream,string path, CancellationToken cancellationToken = default);
+        Task<string> ExecuteCommand(SSHEndpoint endpoint,string command, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
+        Task UploadFile(SSHEndpoint endpoint,Stream stream,string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
 
-        Task<string> ExecuteCommandBatch(SSHEndpoint endpoint, IList<Func<string?, Task<string>>> commondGenerators, CancellationToken cancellationToken = default);
-        Task UploadFileBatch(SSHEndpoint endpoint, IList<(Stream,string)> uploadFileInfos, CancellationToken cancellationToken = default);
+        Task<string> ExecuteCommandBatch(SSHEndpoint endpoint, IList<Func<string?, Task<string>>> commondGenerators, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
+        Task UploadFileBatch(SSHEndpoint endpoint, IList<(Stream,string)> uploadFileInfos, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
 
-        Task DownloadFile(SSHEndpoint endpoint, Func<Stream, Task> action, string path, CancellationToken cancellationToken = default);
+        Task DownloadFile(SSHEndpoint endpoint, Func<Stream, Task> action, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
 
-        Task UploadFile(SSHEndpoint endpoint, Func<ISSHEndpointUploadFileService, Task> action, CancellationToken cancellationToken = default);
+        Task UploadFile(SSHEndpoint endpoint, Func<ISSHEndpointUploadFileService, Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
 
-        Task ExecuteCommand(SSHEndpoint endpoint, Func<ISSHEndpointCommandService, Task> action, CancellationToken cancellationToken = default);
+        Task ExecuteCommand(SSHEndpoint endpoint, Func<ISSHEndpointCommandService, Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
 
         Task Add(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
         Task Delete(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
         Task Update(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
-
-        Task<bool> IsUsedByTestHosts(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
     }
 
     public interface ISSHEndpointService
     {
-        Task<string> ExecuteCommand(string configuration, string command, CancellationToken cancellationToken = default);
-        Task UploadFile(string configuration, Stream stream, string path, CancellationToken cancellationToken = default);
+        Task<string> ExecuteCommand(string configuration, string command,int timeoutSeconds=-1, CancellationToken cancellationToken = default);
+        Task UploadFile(string configuration, Stream stream, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
 
-        Task DownloadFile(string configuration,Func<Stream,Task> action, string path, CancellationToken cancellationToken = default);
+        Task DownloadFile(string configuration,Func<Stream,Task> action, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
 
-        Task<string> ExecuteCommandBatch(string configuration, IList<Func<string?, Task<string>>> commondGenerators, CancellationToken cancellationToken = default);
-        Task UploadFileBatch(string configuration, IList<(Stream, string)> uploadFileInfos, CancellationToken cancellationToken = default);
+        Task<string> ExecuteCommandBatch(string configuration, IList<Func<string?, Task<string>>> commondGenerators, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
+        Task UploadFileBatch(string configuration, IList<(Stream, string)> uploadFileInfos, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
 
-        Task UploadFile(string configuration, Func<ISSHEndpointUploadFileService,Task> action, CancellationToken cancellationToken = default);
-        Task ExecuteCommand(string configuration, Func<ISSHEndpointCommandService,Task> action, CancellationToken cancellationToken = default);
+        Task UploadFile(string configuration, Func<ISSHEndpointUploadFileService,Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
+        Task ExecuteCommand(string configuration, Func<ISSHEndpointCommandService,Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
     }
 
     [Injection(InterfaceType = typeof(ISSHEndpointIMP), Scope = InjectionScope.Transient)]
@@ -269,40 +263,40 @@ namespace MSLibrary.CommandLine.SSH
 
         public static IDictionary<string, IFactory<ISSHEndpointService>> SSHEndpointServiceFactories { get; } = new Dictionary<string, IFactory<ISSHEndpointService>>();
 
-        public async Task DownloadFile(SSHEndpoint endpoint, Func<Stream, Task> action, string path, CancellationToken cancellationToken = default)
+        public async Task DownloadFile(SSHEndpoint endpoint, Func<Stream, Task> action, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            await service.DownloadFile(await getContent(endpoint.Configuration),action,path, cancellationToken);
+            await service.DownloadFile(await getContent(endpoint.Configuration),action,path,timeoutSeconds, cancellationToken);
         }
 
-        public async Task<string> ExecuteCommand(SSHEndpoint endpoint, string command, CancellationToken cancellationToken = default)
+        public async Task<string> ExecuteCommand(SSHEndpoint endpoint, string command, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            return await service.ExecuteCommand(await getContent(endpoint.Configuration), command, cancellationToken);
+            return await service.ExecuteCommand(await getContent(endpoint.Configuration), command,timeoutSeconds, cancellationToken);
         }
 
-        public async Task<string> ExecuteCommandBatch(SSHEndpoint endpoint, IList<Func<string?, Task<string>>> commondGenerators, CancellationToken cancellationToken = default)
+        public async Task<string> ExecuteCommandBatch(SSHEndpoint endpoint, IList<Func<string?, Task<string>>> commondGenerators, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            return await service.ExecuteCommandBatch(await getContent(endpoint.Configuration), commondGenerators, cancellationToken);
+            return await service.ExecuteCommandBatch(await getContent(endpoint.Configuration), commondGenerators,timeoutSeconds, cancellationToken);
         }
 
-        public async Task UploadFile(SSHEndpoint endpoint, Stream stream, string path, CancellationToken cancellationToken = default)
+        public async Task UploadFile(SSHEndpoint endpoint, Stream stream, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            await service.UploadFile(await getContent(endpoint.Configuration), stream,path, cancellationToken);
+            await service.UploadFile(await getContent(endpoint.Configuration), stream,path,timeoutSeconds, cancellationToken);
         }
 
-        public async Task UploadFileBatch(SSHEndpoint endpoint, IList<(Stream, string)> uploadFileInfos, CancellationToken cancellationToken = default)
+        public async Task UploadFileBatch(SSHEndpoint endpoint, IList<(Stream, string)> uploadFileInfos, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            await service.UploadFileBatch(await getContent(endpoint.Configuration), uploadFileInfos, cancellationToken);
+            await service.UploadFileBatch(await getContent(endpoint.Configuration), uploadFileInfos,timeoutSeconds, cancellationToken);
         }
 
-        public async Task UploadFile(SSHEndpoint endpoint, Func<ISSHEndpointUploadFileService, Task> action, CancellationToken cancellationToken = default)
+        public async Task UploadFile(SSHEndpoint endpoint, Func<ISSHEndpointUploadFileService, Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            await service.UploadFile(await getContent(endpoint.Configuration), action, cancellationToken);
+            await service.UploadFile(await getContent(endpoint.Configuration), action,timeoutSeconds, cancellationToken);
         }
 
         private ISSHEndpointService getService(string type)
@@ -312,7 +306,7 @@ namespace MSLibrary.CommandLine.SSH
                 var fragment = new TextFragment()
                 {
                     Code = CommandLineTextCodes.NotFoundISSHEndpointServiceByType,
-                    DefaultFormatting = "找不到类型为{0}的SSH终结点服务，发生位置为{1}”",
+                    DefaultFormatting = "找不到类型为{0}的SSH终结点服务，发生位置为{1}",
                     ReplaceParameters = new List<object>() { type, $"{this.GetType().FullName}.SSHEndpointServiceFactories" }
                 };
 
@@ -322,10 +316,10 @@ namespace MSLibrary.CommandLine.SSH
             return serviceFactory.Create();
         }
 
-        public async Task ExecuteCommand(SSHEndpoint endpoint, Func<ISSHEndpointCommandService, Task> action, CancellationToken cancellationToken = default)
+        public async Task ExecuteCommand(SSHEndpoint endpoint, Func<ISSHEndpointCommandService, Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            await service.ExecuteCommand(await getContent(endpoint.Configuration), action, cancellationToken);
+            await service.ExecuteCommand(await getContent(endpoint.Configuration), action,timeoutSeconds, cancellationToken);
         }
 
         private async Task<string> getContent(string content)
@@ -351,10 +345,6 @@ namespace MSLibrary.CommandLine.SSH
         public async Task Update(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default)
         {
             await _sshEndpointStore.Update(sshEndPoint, cancellationToken);
-        }
-        public async Task<bool> IsUsedByTestHosts(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default)
-        {
-            return await _sshEndpointStore.IsUsedByTestHosts(sshEndPoint.ID, cancellationToken);
         }
     }
 

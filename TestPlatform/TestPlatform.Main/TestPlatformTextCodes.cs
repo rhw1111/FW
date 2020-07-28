@@ -219,5 +219,11 @@ namespace FW.TestPlatform.Main
         /// {0}：名称
         /// </summary>
         public const string SSHEndpointIsUsedByTestHosts = "SSHEndpointIsUsedByTestHosts";
+        /// <summary>
+        /// 从测试机上传测试文件超时
+        /// 格式为“从测试机{0}上传测试文件超时”
+        /// {0}：测试机名称
+        /// </summary>
+        public const string SlaveHostUploadTestFileTimeout = "SlaveHostUploadTestFileTimeout";
     }
 }

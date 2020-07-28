@@ -37,8 +37,7 @@ namespace FW.TestPlatform.Main.Application
                             Address = item.Address,
                             SSHEndpointID = item.SSHEndpointID,
                             SSHEndpointName = item.SSHEndpoint.Name,
-                            CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
-                            ModifyTime = item.ModifyTime.ToCurrentUserTimeZone()
+                            CreateTime = item.CreateTime.ToCurrentUserTimeZone()
                         }
                         );
                 }
