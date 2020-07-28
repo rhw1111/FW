@@ -145,34 +145,25 @@ namespace FW.TestPlatform.Main
                 loggerConfigurationUri = $"{fileBaseUrl}{Path.DirectorySeparatorChar}Configurations{Path.DirectorySeparatorChar}logger.json";
             }
 
-            var hostConfigurationUri = $"{fileBaseUrl}{Path.DirectorySeparatorChar}Configurations{Path.DirectorySeparatorChar}host-{environmentName}.json";
 
-            if (!File.Exists(hostConfigurationUri))
-            {
-                hostConfigurationUri = $"{fileBaseUrl}{Path.DirectorySeparatorChar}Configurations{Path.DirectorySeparatorChar}host.json";
-            }
+            //获取应用配置，用环境变量中的值替换关键信息
+            var appContent = File.ReadAllText(appConfigurationUri);
+            appContent = appContent
+                .Replace($"{{{EnvironmentVarNames.AppName}}}", Environment.GetEnvironmentVariable(EnvironmentVarNames.AppName))
+                ;
+
 
             ConfigurationContainer.Container = new ConfigurationContainerDefault();
 
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile(appConfigurationUri, optional: true, reloadOnChange: true)
+                .AddJsonContent(appContent)
                 .Build();
 
             var loggerConfiguration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
               .AddJsonFile(loggerConfigurationUri, optional: true, reloadOnChange: true)
                 .Build();
-
-
-            var hostConfiguration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile(hostConfigurationUri, optional: true, reloadOnChange: true)
-                .Build();
-
-
-            //向配置容器增加主机配置信息
-            ConfigurationContainer.Add(ConfigurationNames.Host, hostConfiguration);
 
 
             //向配置容器增加主配置

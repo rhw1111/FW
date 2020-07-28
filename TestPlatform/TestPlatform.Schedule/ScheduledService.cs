@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using MSLibrary.Logger;
 using MSLibrary.Configuration;
+using MSLibrary.Schedule.Application;
+using FW.TestPlatform.Main;
+using FW.TestPlatform.Main.Configuration;
 
 namespace FW.TestPlatform.Schedule
 {

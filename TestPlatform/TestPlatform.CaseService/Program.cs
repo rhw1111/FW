@@ -36,7 +36,7 @@ namespace FW.TestPlatform.CaseService
             }
             //初始化配置容器
             MainStartupHelper.InitConfigurationContainer(environmentName, baseUrl);
-
+            WebApiStartupHelper.InitConfigurationContainer(environmentName, baseUrl);
 
             //获取核心配置
             var coreConfiguration = ConfigurationContainer.Get<ApplicationConfiguration>(ConfigurationNames.Application);
@@ -51,7 +51,7 @@ namespace FW.TestPlatform.CaseService
 
             //初始化上下文容器
             MainStartupHelper.InitContext();
-            //StartupHelper.InitContext();
+            WebApiStartupHelper.InitContext();
 
             await CreateHostBuilder(args).Build().RunAsync();
         }
@@ -68,11 +68,11 @@ namespace FW.TestPlatform.CaseService
 
                         //初始化DI容器
                         MainStartupHelper.InitDI(services, coreConfiguration.DISetting);
-
+                        WebApiStartupHelper.InitDI(services, coreConfiguration.DISetting);
 
                         //初始化静态设置
                         MainStartupHelper.InitStaticInfo();
-
+                        WebApiStartupHelper.InitStaticInfo();
 
                         //配置日志工厂
                         var loggerFactory = LoggerFactory.Create((builder) =>
