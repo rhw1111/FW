@@ -155,8 +155,8 @@ class HttpTestUser(HttpUser):
 
         if self.is_success:
             self.is_success = True
-        elif self.recvdata and self.user_name:
-            self.is_success = True
+        # elif self.recvdata and self.user_name:
+        #     self.is_success = True
         else:
             self.is_success = False
 
@@ -207,8 +207,8 @@ class HttpTestUser(HttpUser):
 
         if self.is_success:
             self.is_success = True
-        elif self.recvdata:
-            self.is_success = True
+        # elif self.recvdata == 0:
+        #     self.is_success = True
         else:
             self.is_success = False
 
@@ -243,8 +243,8 @@ class HttpTestUser(HttpUser):
 
         if self.is_success:
             self.is_success = True
-        elif self.recvdata:
-            self.is_success = True
+        # elif self.recvdata == 0:
+        #     self.is_success = True
         else:
             self.is_success = False
 
