@@ -36,6 +36,18 @@ SET configuration = '{
             "Type": "",
             "DataSourceName": "datasource_user_parameter_list",
             "Data": ""
+        },
+        {
+            "Name": "host_list",
+            "Type": "",
+            "DataSourceName": "datasource_host_list",
+            "Data": ""
+        },
+        {
+            "Name": "host",
+            "Type": "",
+            "DataSourceName": "datasource_host",
+            "Data": ""
         }
     ],
     "ConnectInit": {

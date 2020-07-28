@@ -46,6 +46,8 @@ setup_logging("INFO", None)
 is_print_log = {IsPrintLog}
 host = "{Address}"
 port = {Port}
+# address
+address = None
 # client_id
 client_id = "{SlaveName}"
 # case_id
@@ -102,7 +104,7 @@ class HttpTestUser(HttpUser):
     host = host
     # 连接的Http服务的端口
     port = port
-    ADDR = (host, port)
+    address = None
     request_body = ""
     worker_report_time = datetime.datetime.now()
     environment = None
