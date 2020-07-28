@@ -302,4 +302,12 @@ namespace FW.TestPlatform.Main
     {
         public const string Default = "Default";
     }
+
+    /// <summary>
+    /// 环境变量名称集合
+    /// </summary>
+    public static class EnvironmentVarNames
+    {
+        public const string AppName = "appname";
+    }
 }
