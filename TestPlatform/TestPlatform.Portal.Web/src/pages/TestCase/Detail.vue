@@ -683,6 +683,13 @@ export default {
         })
         this.CopyTestCaseFixed = false;
         this.$q.loading.hide()
+        this.$router.push({
+          name: 'TestCaseDetail',
+          query: {
+            id: res.data.id
+          },
+        });
+        this.getTestCaseDetail();
       })
     },
   }
