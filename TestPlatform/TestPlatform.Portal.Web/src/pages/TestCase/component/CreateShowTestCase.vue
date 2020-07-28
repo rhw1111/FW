@@ -106,12 +106,12 @@
                  v-model="paraConfig.Address"
                  class="col"
                  :dense="true"
-                 placeholder="请输入ipv4地址">
+                 placeholder="请输入被测服务器地址">
           <template v-slot:before>
             <span style="font-size:14px;width:100px;">被测服务器:</span>
           </template>
           <template v-slot:append>
-            <span style="font-size:14px">ip地址</span>
+            <span style="font-size:14px">地址</span>
           </template>
         </q-input>
         <!-- 被测服务器端口 -->
@@ -765,7 +765,7 @@ export default {
     CreateJson () {
       if (this.Configuration.trim() == '') {
         //验证ip地址是否正确
-        if (!this.isValidIp(this.paraConfig.Address)) { return; }
+        //if (!this.isValidIp(this.paraConfig.Address)) { return; }
         //验证端口号是否正确
         if (!this.isPort(this.paraConfig.Port)) { return; }
         if (!this.ifDataVars()) { return; }
@@ -792,7 +792,7 @@ export default {
         this.ConfigTextExpanded = true;
       } else if (this.isJSON(this.Configuration.trim())) {
         //验证ip地址是否正确
-        if (!this.isValidIp(this.paraConfig.Address)) { return; }
+        //if (!this.isValidIp(this.paraConfig.Address)) { return; }
         //验证端口号是否正确
         if (!this.isPort(this.paraConfig.Port)) { return; }
         if (!this.ifDataVars()) { return; }
