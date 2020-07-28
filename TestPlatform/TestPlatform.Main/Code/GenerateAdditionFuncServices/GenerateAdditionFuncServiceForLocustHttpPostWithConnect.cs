@@ -34,7 +34,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("            response = connect.post(url, headers=headers, data=senddata)");
             sbCode.AppendLine("");
             sbCode.AppendLine("        if response.status_code == 200:");
-            sbCode.AppendLine("            Print(\"Http Post Success, Url, % s, StatusCode, % s, Text, % s.\" % (url, response.status_code, response.text))");
+            sbCode.AppendLine("            Print(\"Http Post Success, Url, %s%s, StatusCode, %s, Text, %s.\" % (connect.base_url, url, response.status_code, response.text))");
             sbCode.AppendLine("");
             sbCode.AppendLine("            result = response.text");
             sbCode.AppendLine("");
@@ -46,7 +46,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("            else:");
             sbCode.AppendLine("                return \"\"");
             sbCode.AppendLine("        else:");
-            sbCode.AppendLine("            print(\"[%s][%s]: Http Post Fail, Url, % s, StatusCode, % s, Text, % s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, url, response.status_code, response.text))");
+            sbCode.AppendLine("            print(\"[%s][%s]: Http Post Fail, Url, %s%s, StatusCode, %s, Text, %s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, connect.base_url, url, response.status_code, response.text))");
             sbCode.AppendLine("");
             sbCode.AppendLine("            return \"\"");
             sbCode.AppendLine("    except Exception as e:");

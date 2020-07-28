@@ -102,7 +102,7 @@ SET configuration = '{
             },
             {
                 "Name": "self.is_success",
-                "Content": "len(self.recvdata) == 0 and self.user_name"
+                "Content": "len(self.recvdata) > 0 and self.user_name"
             }
         ]
     },
