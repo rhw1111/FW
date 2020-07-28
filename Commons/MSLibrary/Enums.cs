@@ -485,6 +485,10 @@ namespace MSLibrary
         /// </summary>
         NotFoundScheduleActionInitServiceByType= 314720424,
         /// <summary>
+        /// 找不到指定名称的调度主机配置
+        /// </summary>
+        NotFoundScheduleHostConfigurationByName = 314720430,
+        /// <summary>
         /// 找不到指定类型的Factory<IValidateUserKeyService>
         /// </summary>
         NotFoundWorkflowValidateUserKeyServiceFactoryByType = 314720480,

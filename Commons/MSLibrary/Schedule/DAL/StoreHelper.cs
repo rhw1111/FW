@@ -93,8 +93,8 @@ namespace MSLibrary.Schedule.DAL
                               {0}.[modifytime] as [{0}modifytime],
                               {0}.[uselog] as [{0}uselog],
                               {0}.[executeactioninittype] as [{0}executeactioninittype],
-                              {0}.[executeactioninitconfiguration] as [{0}executeactioninitconfiguration]
-                              ";
+                              {0}.[executeactioninitconfiguration] as [{0}executeactioninitconfiguration],
+                              {0}.[sequence] as [{0}sequence]";
 
             if (string.IsNullOrEmpty(prefix))
             {
@@ -104,7 +104,8 @@ namespace MSLibrary.Schedule.DAL
                              ,[modifytime]
                              ,[uselog]
                              ,[executeactioninittype]
-                             ,[executeactioninitconfiguration]";
+                             ,[executeactioninitconfiguration]
+                             ,[sequence]";
             }
             return string.Format(strSelect, prefix);
         }
@@ -125,5 +126,55 @@ namespace MSLibrary.Schedule.DAL
             actionGroup.ExecuteActionInitType = reader[string.Format("{0}executeactioninittype", prefix)].ToString();
             actionGroup.ExecuteActionInitConfiguration = reader[string.Format("{0}executeactioninitconfiguration", prefix)].ToString();
         }
+
+        /// <summary>
+        /// 获取批处理主机配置数据操作
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
+        public static string GetScheduleHostConfigurationSelectFields(string prefix)
+        {
+            var strSelect = @"{0}.[id] as [{0}id],
+                              {0}.[name] as [{0}name],
+                              {0}.[schedulegroupname] as [{0}schedulegroupname],
+                              {0}.[environmentclaimgeneratorname] as [{0}environmentclaimgeneratorname],
+                              {0}.[claimcontextgeneratorname] as [{0}claimcontextgeneratorname],
+                              {0}.[createtime] as [{0}createtime],
+                              {0}.[modifytime] as [{0}modifytime],
+                              {0}.[sequence] as [{0}sequence] 
+                              ";
+
+            if (string.IsNullOrEmpty(prefix))
+            {
+                strSelect = @"[id]
+                             ,[name]
+                             ,[schedulegroupname]
+                             ,[environmentclaimgeneratorname]
+                             ,[claimcontextgeneratorname]
+                             ,[createtime]
+                             ,[modifytime]
+                             ,[sequence]";
+            }
+            return string.Format(strSelect, prefix);
+        }
+
+
+        /// <summary>
+        /// 赋值批处理主机配置数据操作
+        /// </summary>
+        /// <param name="actionGroup"></param>
+        /// <param name="reader"></param>
+        /// <param name="prefix"></param>
+        public static void SetScheduleHostConfigurationSelectFields(ScheduleHostConfiguration configuration, DbDataReader reader, string prefix)
+        {
+            configuration.ID = (Guid)reader[string.Format("{0}id", prefix)];
+            configuration.Name = reader[string.Format("{0}name", prefix)].ToString();
+            configuration.CreateTime = (DateTime)reader[string.Format("{0}createtime", prefix)];
+            configuration.ModifyTime = (DateTime)reader[string.Format("{0}modifytime", prefix)];
+            configuration.ScheduleGroupName = reader[string.Format("{0}schedulegroupname", prefix)].ToString();
+            configuration.ClaimContextGeneratorName = reader[string.Format("{0}claimcontextgeneratorname", prefix)].ToString();
+            configuration.EnvironmentClaimGeneratorName = reader[string.Format("{0}environmentclaimgeneratorname", prefix)].ToString();
+        }
+
     }
 }

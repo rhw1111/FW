@@ -2695,6 +2695,12 @@ namespace MSLibrary
         /// </summary>
         public const string ParameterTypeNotMatchInDAXServiceTokenGenerateService = "ParameterTypeNotMatchInDAXServiceTokenGenerateService";
 
+        /// <summary>
+        /// 找不到指定名称的调度主机配置
+        /// 格式为“找不到应用名称为{0}的调度主机配置”
+        /// {0}：应用名称
+        /// </summary>
+        public const string NotFoundScheduleHostConfigurationByName = "NotFoundScheduleHostConfigurationByName";
     }
 
 

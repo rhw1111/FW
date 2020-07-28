@@ -6,4 +6,11 @@
     <RootNamespace>FW.TestPlatform.Schedule</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Commons\MSLibrary.MySqlStore\MSLibrary.MySqlStore.csproj" />
+    <ProjectReference Include="..\..\Commons\MSLibrary.StreamingDB\MSLibrary.StreamingDB.csproj" />
+    <ProjectReference Include="..\..\Commons\MSLibrary\MSLibrary.csproj" />
+    <ProjectReference Include="..\TestPlatform.Main\TestPlatform.Main.csproj" />
+  </ItemGroup>
+
 </Project>

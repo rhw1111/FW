@@ -16,6 +16,7 @@ using MSLibrary.CommandLine.SSH;
 using FW.TestPlatform.Main.Template.LabelParameterHandlers;
 using FW.TestPlatform.Main.Configuration;
 using System.Text.RegularExpressions;
+using MSLibrary.CommandLine;
 
 namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 {
@@ -228,25 +229,44 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 async (item) =>
                 {
                     //先删除文件夹内现有的所有文件
-                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{string.Format(_testFileName, "_*")}",10, cancellationToken);
+                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{string.Format(_testFileName, "_*")}", 10, cancellationToken);
 
                     //为该Slave测试机下的每个Slave上传文件
 
-                    var index = 0;
-                    for (index = 0; index <= item.Count - 1; index++)
+                    try
                     {
-                        using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}", $"{item.SlaveName}-{index.ToString()}"))))
-                        {
-                            await item.Host.SSHEndpoint.UploadFile(
-                                async (service) =>
+                        await item.Host.SSHEndpoint.UploadFile(
+                            async (service) =>
+                            {
+                                var index = 0;
+                                for (index = 0; index <= item.Count - 1; index++)
                                 {
-                                    await service.Upload(textStream, $"{_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")}");
+                                    using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}", $"{item.SlaveName}-{index.ToString()}"))))
+                                    {
+                                        await service.Upload(textStream, $"{_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")}");
+                                        textStream.Close();
+                                    }
                                 }
-                                ,10,
-                                cancellationToken
-                              );  
-                                
-                            textStream.Close();
+                            }
+                            , 30,
+                            cancellationToken
+                          );
+                    }
+                    catch(UtilityException ex)
+                    {
+                        if (ex.Code==(int)CommandLineErrorCodes.SSHOperationTimeout)
+                        {
+                            var fragment = new TextFragment()
+                            {
+                                Code = TestPlatformTextCodes.SlaveHostUploadTestFileTimeout,
+                                DefaultFormatting = "从测试机{0}上传测试文件超时",
+                                ReplaceParameters = new List<object>() { item.SlaveName }
+                            };
+                            throw new UtilityException((int)TestPlatformErrorCodes.SlaveHostUploadTestFileTimeout, fragment, 1, 0);
+                        }
+                        else
+                        {
+                            throw;
                         }
                     }
 
