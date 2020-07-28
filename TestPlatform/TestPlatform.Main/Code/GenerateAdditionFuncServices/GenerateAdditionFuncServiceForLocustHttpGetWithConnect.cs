@@ -30,7 +30,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("        response = connect.get(url, headers=headers)");
             sbCode.AppendLine("");
             sbCode.AppendLine("        if response.status_code == 200:");
-            sbCode.AppendLine("            Print(\"Http Get Success, Url, %s%s, StatusCode, %s, Reason, %s, Text, %s.\" % (connect.base_url, url, response.status_code, response.reason, response.text))");
+            sbCode.AppendLine("            Print(\"Http Get Success, Url, %s%s, StatusCode, %s, Reason, %s, Text, %s\" % (connect.base_url, url, response.status_code, response.reason, response.text))");
             sbCode.AppendLine("");
             sbCode.AppendLine("            result = response.text");
             sbCode.AppendLine("");

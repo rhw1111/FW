@@ -473,7 +473,7 @@ class HttpTestUser(HttpUser):
             if response.status_code == 200:
                 result = response.text
 
-                Print("Http Post Success, Url, %s, StatusCode, %s, Reason, %s, Text, %s." % (url, response.status_code, response.reason, response.text))
+                Print("Http Post Success, Url, %s, StatusCode, %s, Reason, %s, Text, %s" % (url, response.status_code, response.reason, response.text))
             else:
                 print("[%s] [%s]: Http Post Fail, Url, %s, StatusCode, %s, Reason, %s, Text, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, url, response.status_code, response.reason, response.text))
 
