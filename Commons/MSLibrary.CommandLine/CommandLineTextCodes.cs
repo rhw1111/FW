@@ -13,5 +13,11 @@ namespace MSLibrary.CommandLine
         /// {1}：发生位置
         /// </summary>
         public static string NotFoundISSHEndpointServiceByType = "NotFoundISSHEndpointServiceByType";
+        /// <summary>
+        /// SSH执行操作超时
+        /// 格式为“SSH执行操作超时”
+        /// </summary>
+        public static string SSHOperationTimeout = "SSHOperationTimeout";
+
     }
 }

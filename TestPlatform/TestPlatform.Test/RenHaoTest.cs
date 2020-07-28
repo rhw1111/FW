@@ -28,6 +28,8 @@ using MSLibrary.Survey.SurveyMonkey.Message;
 using MSLibrary.Survey.SurveyMonkey.HttpAuthHandleServices;
 using MSLibrary.Survey.SurveyMonkey.RequestHandleServices;
 using MSLibrary.NetCap;
+using MSLibrary.Schedule.DAL;
+using MSLibrary.MySqlStore.Schedule.DAL;
 
 namespace TestPlatform.Test
 {
@@ -220,6 +222,12 @@ namespace TestPlatform.Test
             }
         }
 
+        [Test]
+        public async Task TestSchedule()
+        {
+            var testDataSourceStore = DIContainerContainer.Get<IScheduleActionGroupStore>();
+            var result=await testDataSourceStore.QueryByPage("", 1, 1);
+        }
 
 
         private class Item

@@ -661,21 +661,25 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
                 {
                     Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
-                    CommandText = string.Format(@"SET @currentpage = @page;
+                    CommandText = string.Format(@"
                                                     SELECT COUNT(*)
                                                     FROM scheduleaction
-                                                    WHERE name LIKE @name into @count;                                                         
+                                                    WHERE name LIKE @name;                                                         
 
                                                     SELECT {0}
                                                     FROM scheduleaction
                                                     where sequence in 
                                                     (
-                                                        SELECT sequence
-                                                        FROM scheduleaction
-                                                        WHERE name LIKE @name
-                                                        ORDER BY sequence limit (@pagesize * (@currentpage - 1)), @pagesize
+                                                        select t.sequence
+                                                        from
+                                                        (
+                                                            SELECT sequence
+                                                            FROM scheduleaction
+                                                            WHERE name LIKE @name
+                                                            ORDER BY sequence limit {1}, {2}
+                                                        ) as t
                                                     )",
-                                                    StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)), Transaction = sqlTran
+                                                    StoreHelper.GetScheduleActionStoreSelectFields(string.Empty),(page-1)*pageSize,pageSize), Transaction = sqlTran
                 })
                 {
                     var parameter = new MySqlParameter("@page", MySqlDbType.Int32)
@@ -690,17 +694,6 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new MySqlParameter("@count", MySqlDbType.Int32)
-                    {
-                        Direction = ParameterDirection.Output
-                    };
-                    command.Parameters.Add(parameter);
-
-                    parameter = new MySqlParameter("@currentpage", MySqlDbType.Int32)
-                    {
-                        Direction = ParameterDirection.Output
-                    };
-                    command.Parameters.Add(parameter);
 
                     parameter = new MySqlParameter("@name", MySqlDbType.VarChar, 200)
                     {
@@ -713,15 +706,22 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
 
                     using (reader = await command.ExecuteReaderAsync())
                     {
-                        while (await reader.ReadAsync())
+                        if (await reader.ReadAsync())
                         {
-                            var scheduleAction = new ScheduleAction();
-                            StoreHelper.SetScheduleActionStoreSelectFields(scheduleAction, reader, string.Empty);
-                            result.Results.Add(scheduleAction);
+                            result.TotalCount = reader.GetInt32(0);
                         }
-                        reader.Close();
-                        result.TotalCount = (int)command.Parameters["@count"].Value;
-                        result.CurrentPage = (int)command.Parameters["@currentpage"].Value;
+
+                        if (await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var scheduleAction = new ScheduleAction();
+                                StoreHelper.SetScheduleActionStoreSelectFields(scheduleAction, reader, string.Empty);
+                                result.Results.Add(scheduleAction);
+                            }
+                        }
+                        reader.Close();                       
+                        result.CurrentPage = page;
                     }
                 }
             });
@@ -750,21 +750,25 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
                 {
                     Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
-                    CommandText = string.Format(@"SET @currentpage = @page;
+                    CommandText = string.Format(@"
                                                     SELECT COUNT(*)
                                                     FROM scheduleaction
-                                                    WHERE groupid = @groupid into @count;
+                                                    WHERE groupid = @groupid;
 
                                                     SELECT {0}
                                                     FROM ScheduleAction
                                                     WHERE sequence in
                                                     (
-                                                        SELECT sequence
-                                                        FROM scheduleaction
-                                                        WHERE groupid = @groupid
-                                                        ORDER BY sequence limit (@pagesize * (@currentpage - 1)), @pagesize
+                                                        select t.sequence
+                                                        from 
+                                                        (
+                                                            SELECT sequence
+                                                            FROM scheduleaction
+                                                            WHERE groupid = @groupid
+                                                            ORDER BY sequence limit {1}, {2}
+                                                        ) as t
                                                     )",
-                                                    StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),Transaction = sqlTran
+                                                    StoreHelper.GetScheduleActionStoreSelectFields(string.Empty),(page-1)*pageSize,pageSize),Transaction = sqlTran
                 })
                 {
                     var parameter = new MySqlParameter("@page", MySqlDbType.Int32)
@@ -779,17 +783,7 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new MySqlParameter("@count", MySqlDbType.Int32)
-                    {
-                        Direction = ParameterDirection.Output
-                    };
-                    command.Parameters.Add(parameter);
 
-                    parameter = new MySqlParameter("@currentpage", MySqlDbType.Int32)
-                    {
-                        Direction = ParameterDirection.Output
-                    };
-                    command.Parameters.Add(parameter);
 
                     parameter = new MySqlParameter("@groupid", MySqlDbType.Guid)
                     {
@@ -801,16 +795,23 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
 
                     using (reader = await command.ExecuteReaderAsync())
                     {
-                        while (await reader.ReadAsync())
+                        if (await reader.ReadAsync())
                         {
-                            var scheduleAction = new ScheduleAction();
-                            StoreHelper.SetScheduleActionStoreSelectFields(scheduleAction, reader, string.Empty);
+                            result.TotalCount = reader.GetInt32(0);
+                        }
 
-                            result.Results.Add(scheduleAction);
+                        if (await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var scheduleAction = new ScheduleAction();
+                                StoreHelper.SetScheduleActionStoreSelectFields(scheduleAction, reader, string.Empty);
+                                result.Results.Add(scheduleAction);
+                            }
                         }
                         reader.Close();
-                        result.TotalCount = (int)command.Parameters["@count"].Value;
-                        result.CurrentPage = (int)command.Parameters["@currentpage"].Value;
+                        
+                        result.CurrentPage = page;
                     }
                 }
             });
@@ -839,24 +840,28 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
                 {
                     Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
-                    CommandText = string.Format(@"SET @currentpage = @page;
+                    CommandText = string.Format(@"
                                                     SELECT  COUNT(*)
                                                     FROM scheduleaction
                                                     WHERE name LIKE @name
-                                                          AND groupid IS NULL into @count ;
+                                                          AND groupid IS NULL;
 
 
                                                     SELECT {0}
                                                     FROM scheduleaction
                                                     where sequence in
                                                     (
+                                                        select t.sequence
+                                                        from 
+                                                        (
                                                         SELECT sequence
                                                         FROM scheduleaction
                                                         WHERE name LIKE @name
                                                           AND groupid IS NULL
-                                                        ORDER BY sequence limit (@pagesize * (@currentpage - 1)), @pagesize
+                                                        ORDER BY sequence limit {1}, {2}
+                                                        ) as t
                                                     )",
-                                                    StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
+                                                    StoreHelper.GetScheduleActionStoreSelectFields(string.Empty),(page-1)*pageSize,pageSize),
                     Transaction = sqlTran
                 })
                 {
@@ -872,18 +877,6 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new MySqlParameter("@count", MySqlDbType.Int32)
-                    {
-                        Direction = ParameterDirection.Output
-                    };
-                    command.Parameters.Add(parameter);
-
-                    parameter = new MySqlParameter("@currentpage", MySqlDbType.Int32)
-                    {
-                        Direction = ParameterDirection.Output
-                    };
-                    command.Parameters.Add(parameter);
-
                     parameter = new MySqlParameter("@name", MySqlDbType.VarChar, 200)
                     {
                         Value = $"{name.ToSqlLike()}%"
@@ -895,15 +888,24 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
 
                     using (reader = await command.ExecuteReaderAsync())
                     {
-                        while (await reader.ReadAsync())
+                        if (await reader.ReadAsync())
                         {
-                            var scheduleAction = new ScheduleAction();
-                            StoreHelper.SetScheduleActionStoreSelectFields(scheduleAction, reader, string.Empty);
-                            result.Results.Add(scheduleAction);
+                            result.TotalCount = reader.GetInt32(0);
                         }
+
+                        if (await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var scheduleAction = new ScheduleAction();
+                                StoreHelper.SetScheduleActionStoreSelectFields(scheduleAction, reader, string.Empty);
+                                result.Results.Add(scheduleAction);
+                            }
+                        }
+
                         reader.Close();
-                        result.TotalCount = (int)command.Parameters["@count"].Value;
-                        result.CurrentPage = (int)command.Parameters["@currentpage"].Value;
+                        
+                        result.CurrentPage = page;
                     }
                 }
             });
@@ -938,7 +940,7 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
                     {
                         Connection = (MySqlConnection)conn,
                         CommandType = CommandType.Text,
-                        CommandText = string.Format(@"SELECT {0} FROM scheduleaction WHERE groupid=@groupid AND status=@status and sequence>@sequence ORDER BY sequence limit @pagesize", StoreHelper.GetScheduleActionStoreSelectFields(string.Empty)),
+                        CommandText = string.Format(@"SELECT {0} FROM scheduleaction WHERE groupid=@groupid AND status=@status and sequence>@sequence ORDER BY sequence limit {1}", StoreHelper.GetScheduleActionStoreSelectFields(string.Empty),pageSize),
                         Transaction = sqlTran
                     })
                     {

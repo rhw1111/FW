@@ -129,6 +129,11 @@ namespace FW.TestPlatform.Main
         /// <summary>
         /// 指定名称的SSH终结点正在被其它的主机使用，不能被删除
         /// </summary>
-        SSHEndPointIsUsedByTestHosts = 325710212
+        SSHEndPointIsUsedByTestHosts = 325710212,
+        /// <summary>
+        /// 从测试机上传测试文件超时
+        /// </summary>
+        SlaveHostUploadTestFileTimeout= 325710220,
+
     }
 }

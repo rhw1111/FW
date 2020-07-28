@@ -67,6 +67,8 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task<string> GetSlaveLog(TestHost host, CancellationToken cancellationToken = default)
         {
+            await host.SSHEndpoint.ExecuteCommand($"cat log_slave_* > log_slave", 10, cancellationToken);
+            //下载日志文件
             string result = string.Empty;
             await host.SSHEndpoint.DownloadFile(
                 async (fileStream) =>
@@ -110,7 +112,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 {
                     Code = TestPlatformTextCodes.NotFoundScriptTemplateByName,
                     DefaultFormatting = "找不到名称为{0}的脚本模板",
-                    ReplaceParameters = new List<object>() { ScriptTemplateNames.LocustTcp }
+                    ReplaceParameters = new List<object>() { ScriptTemplateNames.LocustHttp }
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundScriptTemplateByName, fragment, 1, 0);

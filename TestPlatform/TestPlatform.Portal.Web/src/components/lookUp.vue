@@ -18,7 +18,11 @@
                      color="teal" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>{{val.address}}</q-item-label>
+            <q-item-label>{{val.address}}
+              <q-icon name="ion-ellipse"
+                      class="pointer"
+                      :style="{background:val.isAvailable == true ?'green':'red'}" />
+            </q-item-label>
           </q-item-section>
         </q-item>
       </div>
@@ -65,5 +69,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.pointer {
+  cursor: pointer;
+  margin-left: 20px;
+  font-size: 12px;
+  border-radius: 50%;
+}
 </style>
 
