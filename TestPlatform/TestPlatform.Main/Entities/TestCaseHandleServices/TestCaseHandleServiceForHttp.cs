@@ -110,7 +110,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 {
                     Code = TestPlatformTextCodes.NotFoundScriptTemplateByName,
                     DefaultFormatting = "找不到名称为{0}的脚本模板",
-                    ReplaceParameters = new List<object>() { ScriptTemplateNames.LocustTcp }
+                    ReplaceParameters = new List<object>() { ScriptTemplateNames.LocustHttp }
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundScriptTemplateByName, fragment, 1, 0);
