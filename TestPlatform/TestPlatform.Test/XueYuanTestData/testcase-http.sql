@@ -1,8 +1,8 @@
 SELECT * FROM tpmain.testcase;
-SELECT id, name FROM tpmain.testcase;
+SELECT id, name, sequence FROM tpmain.testcase;
 
 REPLACE INTO tpmain.testcase
-VALUES('b4c2acd0-cd7a-11ea-852b-00ffb1d16cf9', '822114cf-5277-4667-961f-e231f9e67e4d', '46f8bcca-af6e-11ea-8e6a-0242ac110002', 'Http', 'XueYuanTestHttp', '', '0', now(), now(), '2');
+VALUES('b4c2acd0-cd7a-11ea-852b-00ffb1d16cf9', '822114cf-5277-4667-961f-e231f9e67e4d', '46f8bcca-af6e-11ea-8e6a-0242ac110002', 'Http', 'XueYuanTestHttp', '', '0', now(), now(), '72');
 
 UPDATE tpmain.testcase
 SET status = '0'
