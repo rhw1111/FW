@@ -46,7 +46,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("            else:");
             sbCode.AppendLine("                return \"\"");
             sbCode.AppendLine("        else:");
-            sbCode.AppendLine("            print(\"[%s][%s]: Http Post Fail, Url, %s%s, StatusCode, %s, Text, %s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, connect.base_url, url, response.status_code, response.text))");
+            sbCode.AppendLine("            print(\"[%s] [%s]: Http Post Fail, Url, %s%s, StatusCode, %s, Text, %s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, connect.base_url, url, response.status_code, response.text))");
             sbCode.AppendLine("");
             sbCode.AppendLine("            return \"\"");
             sbCode.AppendLine("    except Exception as e:");
