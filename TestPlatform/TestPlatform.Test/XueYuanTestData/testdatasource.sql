@@ -493,4 +493,3 @@ REPLACE INTO tpmain.testdatasource(id, type, name, data, createtime, modifytime)
 VALUES('1039e6cd-d096-11ea-b225-00ffb1d16cf9', 'Label', 'datasource_host', '{$getjsonrowdatainvoke({$datasource(host_list)})}', now(), now());
 
 
-
