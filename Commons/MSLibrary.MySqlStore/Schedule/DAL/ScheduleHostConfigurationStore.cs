@@ -14,7 +14,7 @@ using System.Threading;
 
 namespace MSLibrary.MySqlStore.Schedule.DAL
 {
-    [Injection(InterfaceType = typeof(IScheduleActionGroupStore), Scope = InjectionScope.Singleton)]
+    [Injection(InterfaceType = typeof(IScheduleHostConfigurationStore), Scope = InjectionScope.Singleton)]
     public class ScheduleHostConfigurationStore : IScheduleHostConfigurationStore
     {
         private IScheduleConnectionFactory _dbConnectionFactory;

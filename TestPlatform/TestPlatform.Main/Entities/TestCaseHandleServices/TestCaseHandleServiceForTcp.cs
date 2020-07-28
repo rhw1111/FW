@@ -71,6 +71,8 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task<string> GetSlaveLog(TestHost host, CancellationToken cancellationToken = default)
         {
+            await host.SSHEndpoint.ExecuteCommand($"cat log_slave_* > log_slave", 10, cancellationToken);
+            //下载日志文件
             string result = string.Empty;
             await host.SSHEndpoint.DownloadFile(
                 async (fileStream) =>
@@ -298,7 +300,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     {
                         async (preResult)=>
                         {
-                            return await Task.FromResult($"rm -rf {_testFilePath}{string.Format(_testLogFileName, "_slave_*")}");
+                            return await Task.FromResult($"rm -rf {_testFilePath}{string.Format(_testLogFileName, "_slave*")}");
                         }
                     };
 

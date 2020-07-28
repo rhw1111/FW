@@ -1,42 +1,84 @@
 <template>
-  <!-- 历史记录列表 -->
-  <q-list bordered
-          class="col-xs-12 col-sm-5 col-xl-5">
-    <q-table title="历史记录列表"
-             :data="HistoryList"
-             :columns="HistoryColumns"
-             row-key="id"
-             selection="multiple"
-             :selected.sync="HistorySelected"
-             :rows-per-page-options=[0]
-             table-style="max-height: 500px"
-             no-data-label="暂无数据更新">
-      <template v-slot:top-right>
-        <q-btn class="btn"
-               style="background: #FF0000; color: white"
-               label="删 除"
-               :disable="isNoRun!=1?false:true"
-               @click="deleteHistory" />
-      </template>
-      <template v-slot:body-cell-id="props">
-        <q-td :props="props">
+  <div class="col-xs-12 col-sm-5 col-xl-5">
+    <!-- 历史记录列表 -->
+    <q-list bordered>
+      <q-table title="历史记录列表"
+               :data="HistoryList"
+               :columns="HistoryColumns"
+               row-key="id"
+               selection="multiple"
+               :selected.sync="HistorySelected"
+               :rows-per-page-options=[0]
+               table-style="max-height: 500px"
+               no-data-label="暂无数据更新">
+        <template v-slot:top-right>
           <q-btn class="btn"
-                 color="primary"
-                 label="查 看"
+                 style="background: #FF0000; color: white"
+                 label="删 除"
                  :disable="isNoRun!=1?false:true"
-                 @click="toHistoryDetail(props)" />
-        </q-td>
-      </template>
-      <template v-slot:bottom>
-        <q-pagination v-model="pagination.page"
-                      :max="pagination.rowsNumber"
-                      :input="true"
-                      class="col offset-md-8"
-                      @input="switchPage">
-        </q-pagination>
-      </template>
-    </q-table>
-  </q-list>
+                 @click="deleteHistory" />
+        </template>
+        <template v-slot:body-cell-id="props">
+          <q-td :props="props">
+            <q-btn class="btn"
+                   color="primary"
+                   label="查 看"
+                   :disable="isNoRun!=1?false:true"
+                   @click="getHistoryDetail(props)" />
+          </q-td>
+        </template>
+        <template v-slot:bottom>
+          <q-pagination v-model="pagination.page"
+                        :max="pagination.rowsNumber"
+                        :input="true"
+                        class="col offset-md-8"
+                        @input="switchPage">
+          </q-pagination>
+        </template>
+      </q-table>
+    </q-list>
+    <!-- 查看历史记录列表 -->
+    <q-dialog v-model="lookHistoryDetailFlag"
+              persistent>
+      <q-card style="width: 100%; max-width: 60vw;">
+        <q-card-section>
+          <div class="text-h6">历史记录</div>
+        </q-card-section>
+
+        <q-separator />
+        <div class="new_input">
+          <div class="row input_row">
+            <q-input v-model="createTime"
+                     :dense="false"
+                     class="col">
+              <template v-slot:before>
+                <span style="font-size:14px">创建时间:</span>
+              </template>
+            </q-input>
+          </div>
+          <div class="row input_row">
+            <q-input v-model="summary"
+                     :dense="false"
+                     class="col"
+                     type="textarea"
+                     outlined>
+              <template v-slot:before>
+                <span style="font-size:14px">总结:</span>
+              </template>
+            </q-input>
+          </div>
+        </div>
+        <q-separator />
+
+        <q-card-actions align="right">
+          <q-btn flat
+                 label="关闭"
+                 color="primary"
+                 @click="lookHistoryDetailFlag = false" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+  </div>
 </template>
 
 <script>
@@ -46,7 +88,7 @@ export default {
   props: ['isNoRun', 'detailData'],
   data () {
     return {
-      createFixed: true,
+      lookHistoryDetailFlag: false,
       HistoryList: [],//历史记录列表
       HistorySelected: [],//历史记录选择
       //历史记录表格配置
@@ -66,6 +108,9 @@ export default {
         page: 1,          //页码
         rowsNumber: 1     //总页数
       },
+
+      createTime: '',
+      summary: ''
     }
   },
   methods: {
@@ -83,6 +128,21 @@ export default {
         this.HistoryList = res.data.results;
         this.HistorySelected = [];
         this.$q.loading.hide()
+      })
+    },
+    //获得历史记录详情
+    getHistoryDetail (value) {
+      this.$q.loading.show()
+      let para = {
+        caseId: this.$route.query.id,
+        historyId: value.row.id
+      }
+      Apis.getHistoryDetail(para).then((res) => {
+        console.log(res)
+        this.createTime = res.data.createTime;
+        this.summary = JSON.stringify(JSON.parse(res.data.summary), null, 2);
+        this.$q.loading.hide();
+        this.lookHistoryDetailFlag = true;
       })
     },
     //删除历史记录
