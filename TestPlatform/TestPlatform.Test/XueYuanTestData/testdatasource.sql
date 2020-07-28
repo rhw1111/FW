@@ -473,3 +473,24 @@ VALUES('d8864747-c5ab-11ea-95ce-00ffb1d16cf9', 'Json', 'datasource_user_paramete
         "Parameter2": "lisilisilisilisilisilisi"
     }
 ]', now(), now());
+
+REPLACE INTO tpmain.testdatasource(id, type, name, data, createtime, modifytime)
+VALUES('66f9e279-d094-11ea-b225-00ffb1d16cf9', 'Json', 'datasource_address_list', '[
+    ("127.0.0.1", 12345),
+    ("localhost", 12345)
+]', now(), now());
+
+REPLACE INTO tpmain.testdatasource(id, type, name, data, createtime, modifytime)
+VALUES('727ce130-d094-11ea-b225-00ffb1d16cf9', 'Label', 'datasource_address', '{$getjsonrowdatainvoke({$datasource(address_list)})}', now(), now());
+
+REPLACE INTO tpmain.testdatasource(id, type, name, data, createtime, modifytime)
+VALUES('0b320b8f-d096-11ea-b225-00ffb1d16cf9', 'Json', 'datasource_host_list', '[
+    "http://52.188.14.158:8082",
+    "http://52.188.14.158:8082"
+]', now(), now());
+
+REPLACE INTO tpmain.testdatasource(id, type, name, data, createtime, modifytime)
+VALUES('1039e6cd-d096-11ea-b225-00ffb1d16cf9', 'Label', 'datasource_host', '{$getjsonrowdatainvoke({$datasource(host_list)})}', now(), now());
+
+
+
