@@ -39,10 +39,6 @@
              @click="lookMasterLog" />
       <q-btn class="btn"
              color="primary"
-             label="查 看 从 主 机 日 志"
-             @click="lookSlaveLog" />
-      <q-btn class="btn"
-             color="primary"
              label="性 能 监 测"
              @click="lookMonitorUrl" />
     </div>
@@ -139,6 +135,10 @@
                  no-data-label="暂无数据更新">
           <template v-slot:body-cell-id="props">
             <q-td :props="props">
+              <q-btn class="btn"
+                     color="primary"
+                     label="查 看 日 志"
+                     @click="lookSlaveLog(props)" />
               <q-btn class="btn"
                      color="primary"
                      label="更 新"
@@ -255,7 +255,7 @@ export default {
           format: val => `${val}`,
         },
         { name: 'address', align: 'left', label: 'ip', field: 'address', },
-        { name: 'count', align: 'left', label: '数量', field: 'count', },
+        { name: 'count', align: 'left', label: '数量', field: 'count', style: 'max-width: 50px', headerStyle: 'max-width: 50px' },
         { name: 'extensionInfo', label: '扩展信息', align: 'left', field: 'extensionInfo', style: 'width:100px;' },
         { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
       ],
@@ -275,9 +275,8 @@ export default {
       Apis.getTestCaseDetail({ id: this.$route.query.id }).then((res) => {
         console.log(res)
         this.detailData = res.data;
-        this.getMasterHostList();
+        //this.getMasterHostList();
         this.getSlaveHostsList();
-        this.getTestCaseStatus();
         this.getDataSourceName();
         this.$refs.TestCaseHistory.getHistoryList();
         if (res.data.status == 1) {
@@ -301,6 +300,7 @@ export default {
     },
     //获得主机列表
     getMasterHostList () {
+      this.$q.loading.show()
       Apis.getMasterHostList().then((res) => {
         console.log(res)
         this.masterHostList = res.data;
@@ -320,6 +320,7 @@ export default {
       Apis.getDataSourceName(para).then((res) => {
         console.log(res)
         this.dataSourceName = res.data;
+        this.$q.loading.hide()
       })
     },
     //查看TestCase是否运行
@@ -329,14 +330,16 @@ export default {
         if (!res.data) {
           clearInterval(this.timerOut);
           this.timerOut = null;
+          this.getTestCaseDetail();
         }
       })
     },
 
     //双击从机host
     dblSlaveHostHost () {
-      this.createFixed = false;
       this.SlaveHostFixed = true;
+
+      this.getMasterHostList()
     },
     //添加从机Host
     addSlaveHostHost (value) {
@@ -347,13 +350,11 @@ export default {
       this.SlaveHostHostId = this.masterHostList[value].id;
       this.SlaveHostHostIndex = value;
       this.SlaveHostFixed = false;
-      this.createFixed = true;
       console.log(this.SlaveHostHostSelect, this.SlaveHostHostId, this.SlaveHostHostIndex)
     },
     //取消添加从机Host
     cancelSlaveHostHost () {
       this.SlaveHostFixed = false;
-      this.createFixed = true;
       this.$refs.SlaveHostHostlookUp.selectIndex = this.SlaveHostHostIndex;
     },
 
@@ -563,37 +564,50 @@ export default {
       })
     },
     //查看Slave日志
-    lookSlaveLog () {
-      if (this.SlaveHostSelected.length == 0) {
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '请选择从主机',
-          color: 'red',
-        })
-      } else if (this.SlaveHostSelected.length == 1) {
-        //选择单个slavehost
-        this.$q.loading.show()
-        let para = {
-          caseId: this.$route.query.id,
-          slaveHostId: this.SlaveHostSelected[0].id
-        }
-        Apis.getSlaveLog(para).then((res) => {
-          this.$q.loading.hide()
-          this.$q.dialog({
-            title: '提示',
-            message: res.data,
-            style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
-          })
-        })
-      } else if (this.SlaveHostSelected.length > 1) {
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '只能选择一个从主机',
-          color: 'red',
-        })
+    lookSlaveLog (value) {
+      let para = {
+        caseId: this.$route.query.id,
+        slaveHostId: value.row.id
       }
+      this.$q.loading.show()
+      Apis.getSlaveLog(para).then((res) => {
+        this.$q.loading.hide()
+        this.$q.dialog({
+          title: '提示',
+          message: res.data,
+          style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
+        })
+      })
+      // if (this.SlaveHostSelected.length == 0) {
+      //   this.$q.notify({
+      //     position: 'top',
+      //     message: '提示',
+      //     caption: '请选择从主机',
+      //     color: 'red',
+      //   })
+      // } else if (this.SlaveHostSelected.length == 1) {
+      //   //选择单个slavehost
+      //   this.$q.loading.show()
+      //   let para = {
+      //     caseId: this.$route.query.id,
+      //     slaveHostId: this.SlaveHostSelected[0].id
+      //   }
+      //   Apis.getSlaveLog(para).then((res) => {
+      //     this.$q.loading.hide()
+      //     this.$q.dialog({
+      //       title: '提示',
+      //       message: res.data,
+      //       style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
+      //     })
+      //   })
+      // } else if (this.SlaveHostSelected.length > 1) {
+      //   this.$q.notify({
+      //     position: 'top',
+      //     message: '提示',
+      //     caption: '只能选择一个从主机',
+      //     color: 'red',
+      //   })
+      // }
     },
     //查看MonitorUrl
     lookMonitorUrl () {
@@ -635,7 +649,6 @@ export default {
 </style>
 <style lang="scss">
 .q-table {
-  table-layout: fixed;
   .cursor-pointer {
     .text-left {
       white-space: nowrap;
