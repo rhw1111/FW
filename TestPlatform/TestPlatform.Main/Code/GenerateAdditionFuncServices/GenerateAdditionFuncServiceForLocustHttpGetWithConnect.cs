@@ -25,7 +25,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("");
             sbCode.AppendLine("    try:");
             sbCode.AppendLine("        if not headers:");
-            sbCode.AppendLine("            headers = {\"User - Agent\": \"Mozilla / 5.0(Windows NT 10.0; WOW64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 69.0.3497.100 Safari / 537.36\"}");
+            sbCode.AppendLine("            headers = {\"User-Agent\": \"Mozilla/5.0(Windows NT 10.0; WOW64) AppleWebKit/537.36(KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36\"}");
             sbCode.AppendLine("");
             sbCode.AppendLine("        response = connect.get(url, headers=headers)");
             sbCode.AppendLine("");
@@ -35,7 +35,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("            result = response.text");
             sbCode.AppendLine("");
             sbCode.AppendLine("            p = re.compile(receivereg, re.S)");
-            sbCode.AppendLine("            result = re.findall(p, data)");
+            sbCode.AppendLine("            result = re.findall(p, result)");
             sbCode.AppendLine("");
             sbCode.AppendLine("            if len(result) > 0:");
             sbCode.AppendLine("                return result[0]");

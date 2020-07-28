@@ -146,7 +146,7 @@ SET configuration = '{
             },
             {
                 "Name": "package",
-                "Content": "{$dessecurity(package,\'abcdefghjhijklmn\')}"
+                "Content": "{\'CaseID\': \'ce514456-8da9-432f-8999-1010fa94a83a\', \'ConnectCount\': \'0\', \'ConnectFailCount\': \'0\', \'ReqCount\': \'0\', \'ReqFailCount\': \'0\', \'MaxDuration\': \'0\', \'MinDurartion\': \'0\', \'AvgDuration\': \'0\'}"
             },
             {
                 "Name": "self.senddata",
@@ -171,6 +171,10 @@ SET configuration = '{
             {
                 "Name": "package",
                 "Content": "request_body"
+            },
+            {
+                "Name": "package",
+                "Content": "{\'CaseID\': \'ce514456-8da9-432f-8999-1010fa94a83a\', \'ConnectCount\': \'0\', \'ConnectFailCount\': \'0\', \'ReqCount\': \'0\', \'ReqFailCount\': \'0\', \'MaxDuration\': \'0\', \'MinDurartion\': \'0\', \'AvgDuration\': \'0\'}"
             },
             {
                 "Name": "self.senddata",

@@ -25,10 +25,10 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("");
             sbCode.AppendLine("    try:");
             sbCode.AppendLine("        if not headers:");
-            sbCode.AppendLine("            headers = {\"User - Agent\": \"Mozilla / 5.0(Windows NT 10.0; WOW64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 69.0.3497.100 Safari / 537.36\"}");
+            sbCode.AppendLine("            headers = {\"User-Agent\": \"Mozilla/5.0(Windows NT 10.0; WOW64) AppleWebKit/537.36(KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36\"}");
             sbCode.AppendLine("");
             sbCode.AppendLine("        if type(senddata) == dict:");
-            sbCode.AppendLine("            headers = {\"Content - Type\": \"application / json\"}");
+            sbCode.AppendLine("            headers = {\"Content-Type\": \"application/json\"}");
             sbCode.AppendLine("            response = connect.post(url, headers=headers, json=senddata)");
             sbCode.AppendLine("        else:");
             sbCode.AppendLine("            response = connect.post(url, headers=headers, data=senddata)");
@@ -39,7 +39,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("            result = response.text");
             sbCode.AppendLine("");
             sbCode.AppendLine("            p = re.compile(receivereg, re.S)");
-            sbCode.AppendLine("            result = re.findall(p, data)");
+            sbCode.AppendLine("            result = re.findall(p, result)");
             sbCode.AppendLine("");
             sbCode.AppendLine("            if len(result) > 0:");
             sbCode.AppendLine("                return result[0]");
