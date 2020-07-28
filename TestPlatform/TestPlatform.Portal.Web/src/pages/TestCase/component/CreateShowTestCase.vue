@@ -1,5 +1,3 @@
-/* eslint-disable vue/valid-v-for */
-/* eslint-disable vue/valid-v-for */
 <template>
   <div>
     <!--  主机选择框  -->
@@ -467,13 +465,6 @@
           <template v-slot:header>
             <q-item-section>
               配置文本:
-            </q-item-section>
-            <q-item-section side>
-              <q-btn class="btn tag"
-                     color="primary"
-                     style="margin:10px 0 10px 20px;float:right"
-                     label="复 制"
-                     @click="CopyPageText(Configuration)" />
             </q-item-section>
             <q-item-section side>
               <q-btn class="btn"

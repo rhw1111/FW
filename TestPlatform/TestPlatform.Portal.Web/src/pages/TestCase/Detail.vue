@@ -41,6 +41,10 @@
              color="primary"
              label="性 能 监 测"
              @click="lookMonitorUrl" />
+      <q-btn class="btn"
+             color="primary"
+             label="复 制"
+             @click="CopyTestCase" />
     </div>
     <!-- TestCase字段 -->
     <div class="q-pa-md">
@@ -116,6 +120,40 @@
                  label="创建"
                  color="primary"
                  @click="newCreate" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <!-- 复制创建TestCase -->
+    <q-dialog v-model="CopyTestCaseFixed"
+              persistent>
+      <q-card style="width: 100%; max-width: 60vw;">
+        <q-card-section>
+          <div class="text-h6">创建测试用例</div>
+        </q-card-section>
+
+        <q-separator />
+        <div class="new_input">
+          <div class="row input_row">
+            <q-input v-model="CopyTestCaseName"
+                     :dense="false"
+                     class="col">
+              <template v-slot:before>
+                <span style="font-size:14px">测试用例名称:</span>
+              </template>
+            </q-input>
+          </div>
+        </div>
+        <q-separator />
+
+        <q-card-actions align="right">
+          <q-btn flat
+                 label="取消"
+                 color="primary"
+                 @click="CopyTestCaseCancel" />
+          <q-btn flat
+                 label="创建"
+                 color="primary"
+                 @click="CopyTestCaseCreate" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -259,6 +297,9 @@ export default {
         { name: 'extensionInfo', label: '扩展信息', align: 'left', field: 'extensionInfo', style: 'width:100px;' },
         { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
       ],
+
+      CopyTestCaseFixed: false,//复制创建TestCaseFlag
+      CopyTestCaseName: '',//复制创建TestCase名称
     }
   },
   mounted () {
@@ -373,7 +414,7 @@ export default {
           caption: '保存成功',
           color: 'secondary',
         })
-        this.$q.loading.hide()
+        this.getTestCaseDetail();
       })
 
     },
@@ -612,6 +653,37 @@ export default {
     //查看MonitorUrl
     lookMonitorUrl () {
       window.open(this.detailData.monitorUrl);
+    },
+    //复制创建TestCase打开
+    CopyTestCase () {
+      this.CopyTestCaseFixed = true;
+      this.CopyTestCaseName = this.detailData.name + '_1';
+    },
+    //复制创建TestCase取消
+    CopyTestCaseCancel () {
+      this.CopyTestCaseFixed = false;
+      this.CopyTestCaseName = '';
+    },
+    //复制创建TestCase创建
+    CopyTestCaseCreate () {
+      this.$q.loading.show()
+      let para = {
+        Name: this.CopyTestCaseName,
+        Configuration: this.detailData.configuration,
+        EngineType: this.detailData.engineType,
+        MasterHostID: this.detailData.masterHostID
+      }
+      Apis.postCreateTestCase(para).then((res) => {
+        console.log(res)
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '创建成功',
+          color: 'secondary',
+        })
+        this.CopyTestCaseFixed = false;
+        this.$q.loading.hide()
+      })
     },
   }
 }
