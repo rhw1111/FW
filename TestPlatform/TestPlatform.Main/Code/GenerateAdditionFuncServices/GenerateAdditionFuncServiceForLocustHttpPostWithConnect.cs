@@ -33,9 +33,9 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("        else:");
             sbCode.AppendLine("            response = connect.post(url, headers=headers, data=senddata)");
             sbCode.AppendLine("");
-            sbCode.AppendLine("        Print(\"Http Post Success, Url, % s, StatusCode, % s, Text, % s.\" % (url, response.status_code, response.text))");
-            sbCode.AppendLine("");
             sbCode.AppendLine("        if response.status_code == 200:");
+            sbCode.AppendLine("            Print(\"Http Post Success, Url, % s, StatusCode, % s, Text, % s.\" % (url, response.status_code, response.text))");
+            sbCode.AppendLine("");
             sbCode.AppendLine("            result = response.text");
             sbCode.AppendLine("");
             sbCode.AppendLine("            p = re.compile(receivereg, re.S)");
@@ -46,6 +46,8 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("            else:");
             sbCode.AppendLine("                return \"\"");
             sbCode.AppendLine("        else:");
+            sbCode.AppendLine("            print(\"[%s][%s]: Http Post Fail, Url, % s, StatusCode, % s, Text, % s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, url, response.status_code, response.text))");
+            sbCode.AppendLine("");
             sbCode.AppendLine("            return \"\"");
             sbCode.AppendLine("    except Exception as e:");
             sbCode.AppendLine("        print(\"[%s] [%s]: Error, % s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))");

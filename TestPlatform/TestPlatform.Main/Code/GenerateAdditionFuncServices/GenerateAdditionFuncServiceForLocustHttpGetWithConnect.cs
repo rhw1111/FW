@@ -28,9 +28,10 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("            headers = {\"User - Agent\": \"Mozilla / 5.0(Windows NT 10.0; WOW64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 69.0.3497.100 Safari / 537.36\"}");
             sbCode.AppendLine("");
             sbCode.AppendLine("        response = connect.get(url, headers=headers)");
-            sbCode.AppendLine("        Print(\"Http Get Success, Url, % s, StatusCode, % s, Text, % s.\" % (url, response.status_code, response.text))");
             sbCode.AppendLine("");
             sbCode.AppendLine("        if response.status_code == 200:");
+            sbCode.AppendLine("            Print(\"Http Get Success, Url, % s, StatusCode, % s, Text, % s.\" % (url, response.status_code, response.text))");
+            sbCode.AppendLine("");
             sbCode.AppendLine("            result = response.text");
             sbCode.AppendLine("");
             sbCode.AppendLine("            p = re.compile(receivereg, re.S)");
@@ -41,6 +42,8 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("            else:");
             sbCode.AppendLine("                return \"\"");
             sbCode.AppendLine("        else:");
+            sbCode.AppendLine("            print(\"[%s][%s]: Http Get Fail, Url, % s, StatusCode, % s, Text, % s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, url, response.status_code, response.text))");
+            sbCode.AppendLine("");
             sbCode.AppendLine("            return \"\"");
             sbCode.AppendLine("    except Exception as e:");
             sbCode.AppendLine("        print(\"[%s] [%s]: Error, % s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))");
