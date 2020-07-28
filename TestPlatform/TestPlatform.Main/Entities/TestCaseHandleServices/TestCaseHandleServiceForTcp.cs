@@ -70,6 +70,8 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task<string> GetSlaveLog(TestHost host, CancellationToken cancellationToken = default)
         {
+            await host.SSHEndpoint.ExecuteCommand($"cat log_slave_* > log_slave", 10, cancellationToken);
+            //下载日志文件
             string result = string.Empty;
             await host.SSHEndpoint.DownloadFile(
                 async (fileStream) =>
