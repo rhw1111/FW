@@ -99,11 +99,11 @@ namespace MSLibrary.CommandLine.SSH
         {
             get
             {
-                return GetAttribute<DateTime>("CreateTime");
+                return GetAttribute<DateTime>(nameof(CreateTime));
             }
             set
             {
-                SetAttribute<DateTime>("CreateTime", value);
+                SetAttribute<DateTime>(nameof(CreateTime), value);
             }
         }
 
@@ -114,11 +114,11 @@ namespace MSLibrary.CommandLine.SSH
         {
             get
             {
-                return GetAttribute<DateTime>("ModifyTime");
+                return GetAttribute<DateTime>(nameof(ModifyTime));
             }
             set
             {
-                SetAttribute<DateTime>("ModifyTime", value);
+                SetAttribute<DateTime>(nameof(ModifyTime), value);
             }
         }
 
@@ -306,7 +306,7 @@ namespace MSLibrary.CommandLine.SSH
                 var fragment = new TextFragment()
                 {
                     Code = CommandLineTextCodes.NotFoundISSHEndpointServiceByType,
-                    DefaultFormatting = "找不到类型为{0}的SSH终结点服务，发生位置为{1}”",
+                    DefaultFormatting = "找不到类型为{0}的SSH终结点服务，发生位置为{1}",
                     ReplaceParameters = new List<object>() { type, $"{this.GetType().FullName}.SSHEndpointServiceFactories" }
                 };
 

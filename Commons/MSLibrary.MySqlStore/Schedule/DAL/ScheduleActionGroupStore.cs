@@ -245,23 +245,25 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
                 {
                     Connection = (MySqlConnection)conn,
                     CommandType = CommandType.Text,
-                    CommandText = string.Format(@"SET @currentpage = @page;
+                    CommandText = string.Format(@"
                                                 SELECT COUNT(*)
                                                 FROM scheduleactiongroup
-                                                WHERE name like @name into @count;
+                                                WHERE name like @name;
 
-    
                                                 select {0}
                                                 from scheduleactiongroup
                                                 where sequence in
                                                 (
+                                                select t.sequence from
+                                                (
                                                     select sequence
                                                     from scheduleactiongroup
                                                     where name like @name
-                                                    order by sequence limit (@pagesize * (@currentpage - 1)), @pagesize                                                   
+                                                    order by sequence limit {1}, {2}                                                   
+                                                ) as t
                                                 )
                                                 ",
-                                                StoreHelper.GetScheduleActionGroupSelectFields(string.Empty)),
+                                                StoreHelper.GetScheduleActionGroupSelectFields(string.Empty),(page-1)*pageSize,pageSize),
                     Transaction = sqlTran
                 })
                 {
@@ -271,29 +273,18 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new MySqlParameter("@page", SqlDbType.Int)
+                    parameter = new MySqlParameter("@page", MySqlDbType.Int32)
                     {
                         Value = page
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new MySqlParameter("@pagesize", SqlDbType.Int)
+                    parameter = new MySqlParameter("@pagesize", MySqlDbType.Int32)
                     {
                         Value = pageSize
                     };
                     command.Parameters.Add(parameter);
 
-                    parameter = new MySqlParameter("@count", SqlDbType.Int)
-                    {
-                        Direction = ParameterDirection.Output
-                    };
-                    command.Parameters.Add(parameter);
-
-                    parameter = new MySqlParameter("@currentpage", SqlDbType.Int)
-                    {
-                        Direction = ParameterDirection.Output
-                    };
-                    command.Parameters.Add(parameter);
 
                     await command.PrepareAsync();
 
@@ -301,16 +292,23 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
 
                     await using (reader = await command.ExecuteReaderAsync())
                     {
-                        while (await reader.ReadAsync())
+                        if (await reader.ReadAsync())
                         {
-                            var scheduleActionGroup = new ScheduleActionGroup();
-                            StoreHelper.SetScheduleActionGroupSelectFields(scheduleActionGroup, reader, string.Empty);
+                            result.TotalCount = reader.GetInt32(0);
 
-                            result.Results.Add(scheduleActionGroup);
+                            if (await reader.NextResultAsync())
+                            {
+                                while (await reader.ReadAsync())
+                                {
+                                    var scheduleActionGroup = new ScheduleActionGroup();
+                                    StoreHelper.SetScheduleActionGroupSelectFields(scheduleActionGroup, reader, string.Empty);
+
+                                    result.Results.Add(scheduleActionGroup);
+                                }
+                            }
                         }
+
                         await reader.CloseAsync();
-                        result.TotalCount = (int)command.Parameters["@count"].Value;
-                        result.CurrentPage = (int)command.Parameters["@currentpage"].Value;
                     }
                 }
             });
