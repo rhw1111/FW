@@ -20,7 +20,7 @@ namespace FW.TestPlatform.Main.Application
             _testCaseRepository = testCaseRepository;
         }
 
-        public async Task<string> Do(Guid caseId, Guid slaveHostId, CancellationToken cancellationToken = default)
+        public async Task<string> Do(Guid caseId, Guid slaveHostId, int idx, CancellationToken cancellationToken = default)
         {
             var queryResult = await _testCaseRepository.QueryByID(caseId, cancellationToken);
             if (queryResult == null)
@@ -34,7 +34,7 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
             }
-            return await queryResult.GetSlaveLog(slaveHostId, cancellationToken);
+            return await queryResult.GetSlaveLog(slaveHostId, idx, cancellationToken);
         }
         
     }

@@ -38,6 +38,8 @@ const apiConstants = {
 
   getSlaveLog: 'api/testcase/getslavelog',//查看Slave日志
 
+  getSlaveIndexLog: 'api/testcase/GetSlaveLog',//查看Slave日志
+
   getCheckStatus: 'api/testcase/checkstatus',//查看状态
 
   getTestCaseStatus: 'api/testcase/querytestcasestatus',//查看当前TestCase状态

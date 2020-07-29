@@ -43,6 +43,10 @@ import {
   QBadge,
   QSelect,
   QExpansionItem,
+  QSplitter,
+  QTabPanels,
+  QTabPanel,
+  QTab,
   // 事件
   Ripple,
   ClosePopup,
@@ -89,7 +93,11 @@ Vue.use(Quasar, {
     QPagination,
     QBadge,
     QSelect,
-    QExpansionItem
+    QExpansionItem,
+    QSplitter,
+    QTabPanel,
+    QTabPanels,
+    QTab
   },
   directives: {
     Ripple,

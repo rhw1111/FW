@@ -310,4 +310,12 @@ namespace FW.TestPlatform.Main
     {
         public const string AppName = "appname";
     }
+    
+    /// <summary>
+    /// 批处理动作初始化类型集合
+    /// </summary>
+    public static class ScheduleActionInitTypes
+    {
+        public const string Default = "Default";
+    }
 }

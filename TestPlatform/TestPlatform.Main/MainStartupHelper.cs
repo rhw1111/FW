@@ -256,13 +256,13 @@ namespace FW.TestPlatform.Main
 
             EnvironmentClaimGeneratorIMP.EnvironmentClaimGeneratorServiceFactories[ClaimContextGeneratorTypes.Default] = DIContainerContainer.Get<EnvironmentClaimGeneratorServiceForDefaultFactory>();
 
+            ScheduleActionGroupIMP.ScheduleActionInitGeneratorServiceFactories[ScheduleActionInitTypes.Default] = DIContainerContainer.Get<ScheduleActionInitGeneratorForDefaultFactory>();
 
 
             var applicationConfiguration = ConfigurationContainer.Get<ApplicationConfiguration>(ConfigurationNames.Application);
 
 
             UserAuthorizeFilter.ErrorCatalogName = applicationConfiguration.ApplicationName;
-
 
 
             DBTransactionHelper.DBConnGenerates[DBTypes.MySql] = new DBConnGenerateForMySql();
