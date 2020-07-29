@@ -123,7 +123,7 @@ namespace MSLibrary.Template
 
                         if (dictResult.TryGetValue(match.Index, out string matchResult))
                         {
-                            return matchResult;
+                            return matchResult.Replace(@"\", @"\\").Replace(@"}", @"\}").Replace(@"$", @"\$").Replace(@",", @"\,");
                         }
                         else
                         {
@@ -176,7 +176,7 @@ namespace MSLibrary.Template
             // 去空格
             for (int i = 0; i < arrayParamaters.Length; i++)
             {
-                arrayParamaters[i] = arrayParamaters[i].Trim();
+                arrayParamaters[i] = arrayParamaters[i].Trim().Replace(@"\}", "}").Replace(@"\$", "$").Replace(@"\,", ",").Replace(@"\\", @"\");
             }
 
             var parameter = await _labelParameterRepository.QueryByName(strLabelName);
