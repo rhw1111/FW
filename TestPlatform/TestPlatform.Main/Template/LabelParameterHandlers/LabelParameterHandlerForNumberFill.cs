@@ -58,7 +58,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
             //    throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
             //}
 
-            strCode.Append($"NumberFill({parameters[0]}, {parameters[1]}, {parameters[2]})");
+            strCode.Append($"NumberFill({parameters[0]}\\, {parameters[1]}\\, {parameters[2]})");
 
             return strCode.ToString();
         }

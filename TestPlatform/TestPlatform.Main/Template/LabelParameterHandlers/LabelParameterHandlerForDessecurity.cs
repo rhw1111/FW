@@ -55,7 +55,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.LabelParameterDesSecurityKeyError, fragment, 1, 0);
             }
 
-            strCode.Append($"DesSecurity({parameters[0]}, {parameters[1]})");
+            strCode.Append($"DesSecurity({parameters[0]}\\, {parameters[1]})");
 
             return strCode.ToString();
         }
