@@ -44,7 +44,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
             }
 
-            strCode.Append($"HttpPostWithConnect({parameters[0]}, {parameters[1]}, {parameters[2]}, {parameters[3]}, {parameters[4]})");
+            strCode.Append($"HttpPostWithConnect({parameters[0]}\\, {parameters[1]}\\, {parameters[2]}\\, {parameters[3]}\\, {parameters[4]})");
 
             return strCode.ToString();
         }

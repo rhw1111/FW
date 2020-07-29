@@ -141,6 +141,16 @@
                 <span style="font-size:14px">测试用例名称:</span>
               </template>
             </q-input>
+            <q-select v-model="CopyTestCaseSlaveFlag"
+                      :options="['是','否']"
+                      class="col"
+                      :dense="false">
+              <template v-slot:before>
+                <span style="font-size:14px">是否复制从主机:</span>
+              </template>
+              <template v-slot:prepend>
+              </template>
+            </q-select>
           </div>
         </div>
         <q-separator />
@@ -325,6 +335,7 @@ export default {
 
       CopyTestCaseFixed: false,//复制创建TestCaseFlag
       CopyTestCaseName: '',//复制创建TestCase名称
+      CopyTestCaseSlaveFlag: '否',
 
       tab: 'tab0',
       splitterModel: 2,
@@ -355,8 +366,13 @@ export default {
             setTimeout(this.getTestCaseStatus(), 0);
           }, 3000);
         } else {
-          clearInterval(this.timerOut);
-          this.timerOut = null;
+          Apis.getTestCaseStatus({ caseId: this.$route.query.id }).then((res) => {
+            this.isNoRun = res.data;
+            if (!res.data) {
+              clearInterval(this.timerOut);
+              this.timerOut = null;
+            }
+          })
         }
       })
     },
@@ -728,9 +744,12 @@ export default {
     CopyTestCaseCancel () {
       this.CopyTestCaseFixed = false;
       this.CopyTestCaseName = '';
+      this.CopyTestCaseSlaveFlag = '否'
+
     },
     //复制创建TestCase创建
     CopyTestCaseCreate () {
+      let _this = this;
       this.$q.loading.show()
       let para = {
         Name: this.CopyTestCaseName,
@@ -740,22 +759,78 @@ export default {
       }
       Apis.postCreateTestCase(para).then((res) => {
         console.log(res)
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '创建成功',
-          color: 'secondary',
-        })
-        this.CopyTestCaseFixed = false;
-        this.$q.loading.hide()
-        this.$router.push({
-          name: 'TestCaseDetail',
-          query: {
-            id: res.data.id
-          },
-        });
+        if (this.CopyTestCaseSlaveFlag == '是') {
+          if (this.SlaveHostList.length != 0) {
+            CopyCreateSlaveHost(res, 0)
+          } else {
+            this.$q.notify({
+              position: 'top',
+              message: '提示',
+              caption: '创建成功',
+              color: 'secondary',
+            })
+            this.CopyTestCaseFixed = false;
+            this.$q.loading.hide()
+            this.$router.push({
+              name: 'TestCaseDetail',
+              query: {
+                id: res.data.id
+              },
+            });
+          }
+        } else {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '创建成功',
+            color: 'secondary',
+          })
+          this.CopyTestCaseFixed = false;
+          this.$q.loading.hide()
+          this.$router.push({
+            name: 'TestCaseDetail',
+            query: {
+              id: res.data.id
+            },
+          });
+        }
         this.getTestCaseDetail();
       })
+
+      function CopyCreateSlaveHost (res, SalveHostNum) {
+        console.log(SalveHostNum, _this.SlaveHostList.length)
+        if (SalveHostNum == _this.SlaveHostList.length) {
+          _this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '创建成功',
+            color: 'secondary',
+          })
+          _this.CopyTestCaseFixed = false;
+          _this.$q.loading.hide()
+          _this.$router.push({
+            name: 'TestCaseDetail',
+            query: {
+              id: res.data.id
+            },
+          });
+          _this.getTestCaseDetail();
+        } else {
+          console.log(_this.SlaveHostList, SalveHostNum, _this.SlaveHostList[SalveHostNum], _this.SlaveHostList[SalveHostNum].HostID)
+          let para = {
+            "HostID": _this.SlaveHostList[SalveHostNum].hostID,
+            "TestCaseID": res.data.id,
+            "SlaveName": _this.SlaveHostList[SalveHostNum].slaveName,
+            "Count": _this.SlaveHostList[SalveHostNum].count,
+            "ExtensionInfo": _this.SlaveHostList[SalveHostNum].extensionInfo
+          }
+          Apis.postCreateSlaveHost(para).then(() => {
+            CopyCreateSlaveHost(res, SalveHostNum + 1)
+          })
+        }
+      }
+
+
     },
   }
 }

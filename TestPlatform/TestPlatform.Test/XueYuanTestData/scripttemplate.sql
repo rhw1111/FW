@@ -214,9 +214,9 @@ class TcpTestUser(User):
         is_success = self.client.connect(self.address)
 
         if is_success:
-            print("[%s] [%s]: Connect Success, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.host, self.port))
+            print("[%s] [%s]: Connect Success, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.address[0], self.address[1]))
         else:
-            print("[%s] [%s]: Connect Fail, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.host, self.port))
+            print("[%s] [%s]: Connect Fail, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.address[0], self.address[1]))
 
         return is_success
 
