@@ -142,9 +142,9 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         }
 
         [HttpGet("getslavelog")]
-        public async Task<string> GetSlaveLog(Guid caseId, Guid slaveHostId)
+        public async Task<string> GetSlaveLog(Guid caseId, Guid slaveHostId, int idx)
         {
-            return await _appQuerySlaveLog.Do(caseId, slaveHostId);
+            return await _appQuerySlaveLog.Do(caseId, slaveHostId, idx);
         }
 
         //查询增加修改删除SlaveHost

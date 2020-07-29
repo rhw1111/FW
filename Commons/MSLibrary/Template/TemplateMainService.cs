@@ -133,7 +133,7 @@ namespace MSLibrary.Template
                 }
                 finally
                 {
-                    foreach(var item in lockObjs)
+                    foreach (var item in lockObjs)
                     {
                         item.Value.Dispose();
                     }
@@ -171,7 +171,7 @@ namespace MSLibrary.Template
 
             //分割多个参数
             Regex regex = new Regex(@"(?<!\\),");
-            var arrayParamaters=regex.Split(strParameters);
+            var arrayParamaters = regex.Split(strParameters);
 
             // 去空格
             for (int i = 0; i < arrayParamaters.Length; i++)

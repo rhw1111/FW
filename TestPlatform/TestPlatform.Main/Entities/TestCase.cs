@@ -269,9 +269,9 @@ namespace FW.TestPlatform.Main.Entities
         {
             return await _imp.GetMasterLog(this, cancellationToken);
         }
-        public async Task<string> GetSlaveLog(Guid slaveID, CancellationToken cancellationToken = default)
+        public async Task<string> GetSlaveLog(Guid slaveID, int idx, CancellationToken cancellationToken = default)
         {
-            return await _imp.GetSlaveLog(this, slaveID, cancellationToken);
+            return await _imp.GetSlaveLog(this, slaveID, idx, cancellationToken);
         }
         public async Task AddSlaveHost(TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
@@ -336,7 +336,7 @@ namespace FW.TestPlatform.Main.Entities
         Task Stop(TestCase tCase, CancellationToken cancellationToken = default);
         Task<bool> IsEngineRun(TestCase tCase, CancellationToken cancellationToken = default);
         Task<string> GetMasterLog(TestCase tCase, CancellationToken cancellationToken = default);
-        Task<string> GetSlaveLog(TestCase tCase,Guid slaveID, CancellationToken cancellationToken = default);
+        Task<string> GetSlaveLog(TestCase tCase,Guid slaveID,int idx, CancellationToken cancellationToken = default);
         Task DeleteSlaveHosts(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default);
         Task DeleteHistories(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default);
     }
@@ -568,7 +568,7 @@ namespace FW.TestPlatform.Main.Entities
             return host;
         }
 
-        public async Task<string> GetSlaveLog(TestCase tCase, Guid slaveID, CancellationToken cancellationToken = default)
+        public async Task<string> GetSlaveLog(TestCase tCase, Guid slaveID, int idx, CancellationToken cancellationToken = default)
         {
             var slaveHost=await GetSlaveHost(tCase, slaveID, cancellationToken);
             if (slaveHost==null)
@@ -584,7 +584,7 @@ namespace FW.TestPlatform.Main.Entities
             }
             //开始运行获取log的程序
             var handleService = getHandleService(tCase.EngineType);
-            return await handleService.GetSlaveLog(slaveHost.Host, cancellationToken);
+            return await handleService.GetSlaveLog(slaveHost.Host,idx, cancellationToken);
         }
 
         public async Task<bool> IsEngineRun(TestCase tCase, CancellationToken cancellationToken = default)
@@ -798,6 +798,6 @@ namespace FW.TestPlatform.Main.Entities
         Task Stop(TestCase tCase, CancellationToken cancellationToken = default);
         Task<bool> IsEngineRun(TestCase tCase, CancellationToken cancellationToken = default);
         Task<string> GetMasterLog(TestHost host, CancellationToken cancellationToken = default);
-        Task<string> GetSlaveLog(TestHost host, CancellationToken cancellationToken = default);
+        Task<string> GetSlaveLog(TestHost host, int idx, CancellationToken cancellationToken = default);
     }
 }
