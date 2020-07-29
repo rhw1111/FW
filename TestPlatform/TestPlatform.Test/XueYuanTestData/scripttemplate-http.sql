@@ -365,7 +365,7 @@ class HttpTestUser(HttpUser):
                     master_data["MinDurartion"] = str(stats_send.min_response_time)
                     master_data["AvgDuration"] = str(stats_send.avg_response_time)
 
-                    Print("add_master_data, %s." % master_data)
+                    Print("add_master_data, %s" % master_data)
                     HttpTestUser.post_api("api/monitor/addmasterdata", master_data)
         except Exception as e:
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
@@ -389,7 +389,7 @@ class HttpTestUser(HttpUser):
                     worker_data = []
                     worker_data.append(worker_data_data)
 
-                    Print("add_worker_data, %s." % worker_data)
+                    Print("add_worker_data, %s" % worker_data)
 
                     if stats_send.current_rps > 0.0:
                         HttpTestUser.post_api("api/monitor/addslavedata", worker_data)
@@ -419,7 +419,7 @@ class HttpTestUser(HttpUser):
                     history_data["MinDurartion"] = stats_send.min_response_time
                     history_data["AvgDuration"] = stats_send.avg_response_time
 
-                    Print("add_history_data, %s." % history_data)
+                    Print("add_history_data, %s" % history_data)
                     HttpTestUser.post_api("api/report/addhistory", history_data)
             else:
                 history_data = {}
@@ -435,7 +435,7 @@ class HttpTestUser(HttpUser):
                 history_data["MinDurartion"] = 0.0
                 history_data["AvgDuration"] = 0.0
 
-                Print("add_history_data, %s." % history_data)
+                Print("add_history_data, %s" % history_data)
                 HttpTestUser.post_api("api/report/addhistory", history_data)
         except Exception as e:
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
@@ -454,7 +454,7 @@ class HttpTestUser(HttpUser):
             history_data["MinDurartion"] = 0.0
             history_data["AvgDuration"] = 0.0
 
-            Print("add_history_data, %s." % history_data)
+            Print("add_history_data, %s" % history_data)
             HttpTestUser.post_api("api/report/addhistory", history_data)
 
     def post_api(path, data):
@@ -472,17 +472,18 @@ class HttpTestUser(HttpUser):
 
             if response.status_code == 200:
                 result = response.text
-                Print("Http Post: Success, %s" % result)
-            else:
-                print("[%s] [%s]: Error, Url, %s, StatusCode, %s, Reason, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, url, str(response.status_code), str(response.reason)))
 
-                return None
+                Print("Http Post Success, Url, %s, StatusCode, %s, Reason, %s, Text, %s" % (url, response.status_code, response.reason, response.text))
+            else:
+                print("[%s] [%s]: Http Post Fail, Url, %s, StatusCode, %s, Reason, %s, Text, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, url, response.status_code, response.reason, response.text))
+
+                return ""
 
         except Exception as e:
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, traceback.format_exc()))
 
-            return None
+            return ""
 
     def quitting():
         # print("quitting")

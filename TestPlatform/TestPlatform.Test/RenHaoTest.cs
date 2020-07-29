@@ -225,6 +225,8 @@ namespace TestPlatform.Test
         [Test]
         public async Task TestSchedule()
         {
+            var n=typeof(FW.TestPlatform.Main.Schedule.Actions.ScheduleActionServiceForTestFactory).AssemblyQualifiedName;
+            var id=Guid.NewGuid();
             var testDataSourceStore = DIContainerContainer.Get<IScheduleActionGroupStore>();
             var result=await testDataSourceStore.QueryByPage("", 1, 1);
         }

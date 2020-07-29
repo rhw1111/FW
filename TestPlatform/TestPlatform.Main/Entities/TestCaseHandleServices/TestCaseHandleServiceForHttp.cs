@@ -277,7 +277,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     {
                         async (preResult)=>
                         {
-                            return await Task.FromResult($"rm -rf {_testFilePath}{string.Format(_testLogFileName, "_slave_*")}");
+                            return await Task.FromResult($"rm -rf {_testFilePath}{string.Format(_testLogFileName, "_slave*")}");
                         }
                     };
 

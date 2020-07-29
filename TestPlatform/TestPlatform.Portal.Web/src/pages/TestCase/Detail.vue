@@ -207,28 +207,52 @@
                ref="TestCaseHistory" />
     </div>
     <!-- 日志提示 -->
-    <!-- <q-dialog v-model="lookLogFlag"
-              style="width: '100%'; max-width: '65vw'; white-space: pre-line; overflow-x: hidden;word-break:break-all;">
-      <q-card class="q-dialog-plugin"
-              style="width: 100%; max-width: 60vw;position:relative;">
-        <q-card-section>
-          <div class="text-h6">提示</div>
+    <q-dialog v-model="lookLogFlag"
+              persistent>
+      <q-card class="q-dialog-plugin full-height"
+              style="width: 100%; max-width: 80vw;height:800px;overflow:hidden;">
+        <q-card-section class="row">
+          <div class="text-h6 col-11">查看从主机日志</div>
+          <q-btn color="primary"
+                 label="关 闭"
+                 class="col-1"
+                 @click="cancelLookLog" />
         </q-card-section>
 
         <q-separator />
-        <q-card-section>
-          <div>
-            {{lookLogText}}
-          </div>
+        <q-card-section style="height:85%;overflow:hidden;">
+          <q-splitter v-model="splitterModel"
+                      style="height:100%;">
+
+            <template v-slot:before>
+              <q-tabs v-model="tab"
+                      vertical
+                      :no-caps="true"
+                      class="text-primary">
+                <q-tab v-for="(val,index) in SLaveHostSelect.count"
+                       :name="'tab'+index"
+                       :key="index"
+                       :label="SLaveHostSelect.slaveName+'_'+(index)"
+                       @click="lookSalveIndexLog(index)" />
+              </q-tabs>
+            </template>
+
+            <template v-slot:after>
+              <q-tab-panel name=""
+                           style="height:100%;overflow: hidden scroll;white-space: pre-line;word-break:break-all;">
+                {{SlaveLogText}}
+              </q-tab-panel>
+            </template>
+
+          </q-splitter>
         </q-card-section>
         <q-separator />
-        <q-card-actions align="right"
-                        style="position:absolute;right:0;bottom:0;">
+        <!-- <q-card-actions align="right">
           <q-btn color="primary"
                  label="OK" />
-        </q-card-actions>
+        </q-card-actions> -->
       </q-card>
-    </q-dialog> -->
+    </q-dialog>
   </div>
 </template>
 
@@ -247,7 +271,7 @@ export default {
   data () {
     return {
       createFixed: false,//createslave Flag
-      lookLogFlag: false,//查看日志log
+      lookLogFlag: false,//查看从主机日志log
       lookLogText: '',//日志内容
       isNoRun: 0,//判断是否在运行
       timerOut: null, //定时器
@@ -281,6 +305,7 @@ export default {
       SlaveHostHostIndex: -1,  //主机已选择下标
 
       SlaveHostList: [],       //从机列表
+      SLaveHostSelect: '',//从机单选数据
       SlaveHostSelected: [],   //从机表格选择
       //从机表格配置
       columns: [
@@ -300,6 +325,11 @@ export default {
 
       CopyTestCaseFixed: false,//复制创建TestCaseFlag
       CopyTestCaseName: '',//复制创建TestCase名称
+
+      tab: 'tab0',
+      splitterModel: 2,
+      SlaveLogText: '',
+      SlaveLogTextArr: []
     }
   },
   mounted () {
@@ -606,19 +636,27 @@ export default {
     },
     //查看Slave日志
     lookSlaveLog (value) {
-      let para = {
-        caseId: this.$route.query.id,
-        slaveHostId: value.row.id
+      console.log(value)
+      this.SLaveHostSelect = value.row;
+      this.tab = 'tab0';
+      this.lookLogFlag = true;
+      for (let i = 0; i < value.row.count; i++) {
+        this.SlaveLogTextArr.push('')
       }
-      this.$q.loading.show()
-      Apis.getSlaveLog(para).then((res) => {
-        this.$q.loading.hide()
-        this.$q.dialog({
-          title: '提示',
-          message: res.data,
-          style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
-        })
-      })
+      this.lookSalveIndexLog(0);
+      // let para = {
+      //   caseId: this.$route.query.id,
+      //   slaveHostId: value.row.id
+      // }
+      // this.$q.loading.show()
+      // Apis.getSlaveLog(para).then((res) => {
+      //   this.$q.loading.hide()
+      //   this.$q.dialog({
+      //     title: '提示',
+      //     message: res.data,
+      //     style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
+      //   })
+      // })
       // if (this.SlaveHostSelected.length == 0) {
       //   this.$q.notify({
       //     position: 'top',
@@ -649,6 +687,33 @@ export default {
       //     color: 'red',
       //   })
       // }
+    },
+    //查看指定Slave日志
+    lookSalveIndexLog (index) {
+      console.log(index, this.SlaveLogTextArr[index])
+      if (this.SlaveLogTextArr[index] != '') {
+        this.SlaveLogText = this.SlaveLogTextArr[index];
+        return;
+      }
+      let para = {
+        caseId: this.$route.query.id,
+        slaveHostId: this.SLaveHostSelect.id,
+        idx: index
+      }
+      console.log(this.splitterModel)
+      this.$q.loading.show()
+      Apis.getSlaveLog(para).then((res) => {
+        console.log(res)
+        this.SlaveLogText = res.data;
+        this.SlaveLogTextArr[index] = res.data;
+        this.$q.loading.hide()
+      })
+    },
+    //关闭Salve日志界面
+    cancelLookLog () {
+      this.SLaveHostSelect = '';
+      this.lookLogFlag = false;
+      this.SlaveLogTextArr = [];
     },
     //查看MonitorUrl
     lookMonitorUrl () {

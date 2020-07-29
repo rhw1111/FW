@@ -1,0 +1,23 @@
+{
+  "GlobalLogLevels": {
+    "HttpRequest": "4",
+    "DIWrapper": "2",
+    "SystemAuthentication": "4",
+    "ContextExtension": "4"
+  },
+  "RemainAllProvider": false,
+  "GlobalLogDefaultMinLevel": "4",
+  "Providers": [
+    {
+      "Type": "Local",
+      "LogLevels": {
+        "TestPlatform.Portal.Api": "4",
+        "DIWrapper": "2",
+        "HttpRequest": "4",
+        "SystemAuthentication": "4",
+        "ContextExtension": "4"
+      },
+      "DefaultMinLevel": "4"
+    }
+  ]
+  }
