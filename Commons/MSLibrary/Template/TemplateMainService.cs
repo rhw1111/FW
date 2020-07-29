@@ -123,7 +123,7 @@ namespace MSLibrary.Template
 
                         if (dictResult.TryGetValue(match.Index, out string matchResult))
                         {
-                            return matchResult.Replace(@"\", @"\\").Replace(@"}", @"\}").Replace(@"$", @"\$").Replace(@",", @"\,");
+                            return matchResult;
                         }
                         else
                         {
@@ -133,7 +133,7 @@ namespace MSLibrary.Template
                 }
                 finally
                 {
-                    foreach(var item in lockObjs)
+                    foreach (var item in lockObjs)
                     {
                         item.Value.Dispose();
                     }
@@ -171,12 +171,12 @@ namespace MSLibrary.Template
 
             //分割多个参数
             Regex regex = new Regex(@"(?<!\\),");
-            var arrayParamaters=regex.Split(strParameters);
+            var arrayParamaters = regex.Split(strParameters);
 
             // 去空格
             for (int i = 0; i < arrayParamaters.Length; i++)
             {
-                arrayParamaters[i] = arrayParamaters[i].Trim().Replace(@"\}", "}").Replace(@"\$", "$").Replace(@"\,", ",").Replace(@"\\", @"\");
+                arrayParamaters[i] = arrayParamaters[i].Trim();
             }
 
             var parameter = await _labelParameterRepository.QueryByName(strLabelName);
