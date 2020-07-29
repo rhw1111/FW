@@ -63,9 +63,7 @@ namespace MSLibrary.CommandLine.SSH.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-
-
-
+           
                     endpoint = await (from item in dbContext.SSHEndpoints
                                      where item.Name == name
                                      select item).FirstOrDefaultAsync(cancellationToken);

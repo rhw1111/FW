@@ -200,6 +200,10 @@ namespace MSLibrary.CommandLine.SSH
             await _imp.ExecuteCommand(this, action, timeoutSeconds, cancellationToken);
         }
 
+        public async Task<bool> ExistsFile(string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
+        {
+            return await _imp.ExistsFile(this, path, timeoutSeconds, cancellationToken);
+        }
         public async Task Add(CancellationToken cancellationToken = default)
         {
             await _imp.Add(this, cancellationToken);
@@ -231,6 +235,7 @@ namespace MSLibrary.CommandLine.SSH
         Task Add(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
         Task Delete(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
         Task Update(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
+        Task<bool> ExistsFile(SSHEndpoint sshEndPoint, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
     }
 
     public interface ISSHEndpointService
@@ -245,6 +250,8 @@ namespace MSLibrary.CommandLine.SSH
 
         Task UploadFile(string configuration, Func<ISSHEndpointUploadFileService,Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
         Task ExecuteCommand(string configuration, Func<ISSHEndpointCommandService,Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
+
+        Task<bool> ExistsFile(string configuration, string path,int timeoutSeconds = -1, CancellationToken cancellationToken = default);
     }
 
     [Injection(InterfaceType = typeof(ISSHEndpointIMP), Scope = InjectionScope.Transient)]
@@ -345,6 +352,12 @@ namespace MSLibrary.CommandLine.SSH
         public async Task Update(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default)
         {
             await _sshEndpointStore.Update(sshEndPoint, cancellationToken);
+        }
+
+        public async Task<bool> ExistsFile(SSHEndpoint sshEndPoint, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
+        {
+            var service = getService(sshEndPoint.Type);
+            return await service.ExistsFile(await getContent(sshEndPoint.Configuration), path, timeoutSeconds, cancellationToken);
         }
     }
 

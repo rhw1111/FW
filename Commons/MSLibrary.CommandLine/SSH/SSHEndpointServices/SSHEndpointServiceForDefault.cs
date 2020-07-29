@@ -121,6 +121,25 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             return result??string.Empty;
         }
 
+        public async Task<bool> ExistsFile(string configuration, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
+        {
+            bool result = true;
+            await exceptionHandle(async () =>
+            {
+                var configurationObj = getConfiguration(configuration);
+                using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
+                {
+                    client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    client.Connect();
+                    result=client.Exists(path);
+                    client.Disconnect();
+                }
+                await Task.FromResult(0);
+            });
+
+            return result;
+        }
+
         public async Task UploadFile(string configuration, Stream stream, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
             await exceptionHandle(async () =>
