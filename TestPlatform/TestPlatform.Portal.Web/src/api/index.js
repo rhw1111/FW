@@ -352,6 +352,15 @@ export const getDataSourceName = payload =>
     payload
   })
 
+//获得指定的从主机日志log
+export const getSlaveIndexLog = payload =>
+  action({
+    apiName: 'getSlaveIndexLog',
+    payload
+  })
+
+
+
 
 
 
