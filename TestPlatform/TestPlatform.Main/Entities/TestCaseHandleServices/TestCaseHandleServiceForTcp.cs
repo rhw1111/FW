@@ -69,9 +69,9 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             return result;
         }
 
-        public async Task<string> GetSlaveLog(TestHost host, CancellationToken cancellationToken = default)
+        public async Task<string> GetSlaveLog(TestHost host,int idx, CancellationToken cancellationToken = default)
         {
-            await host.SSHEndpoint.ExecuteCommand($"cat log_slave_* > log_slave", 10, cancellationToken);
+            //await host.SSHEndpoint.ExecuteCommand($"cat {_testFilePath}{string.Format(_testLogFileName, "_slave_*")} > {_testFilePath}{string.Format(_testLogFileName, "_slave")}", 10, cancellationToken);
             //下载日志文件
             string result = string.Empty;
             await host.SSHEndpoint.DownloadFile(
@@ -85,7 +85,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     var realSize = await fileStream.ReadAsync(memoryBytes);
                     result = UTF8Encoding.UTF8.GetString(memoryBytes.Slice(0, realSize).Span);
                 },
-                $"{_testFilePath}{string.Format(_testLogFileName,"_slave")}",10,
+                $"{_testFilePath}{string.Format(_testLogFileName,"_slave_" + idx)}",10,
                 cancellationToken
                 );
             return result;
@@ -214,7 +214,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 //}
 #endif
                 #endregion
-
                 await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{_testFilePath}{string.Format(_testFileName,string.Empty)}",10, cancellationToken);
                 textStream.Close();
             }
@@ -234,7 +233,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     //为该Slave测试机下的每个Slave上传文件
 
                     try
-                    {
+                    {                        
                         await item.Host.SSHEndpoint.UploadFile(
                             async (service) =>
                             {
@@ -251,6 +250,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                             , 30,
                             cancellationToken
                           );
+                        
                     }
                     catch(UtilityException ex)
                     {

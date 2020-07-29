@@ -65,9 +65,9 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             return result;
         }
 
-        public async Task<string> GetSlaveLog(TestHost host, CancellationToken cancellationToken = default)
+        public async Task<string> GetSlaveLog(TestHost host, int idx, CancellationToken cancellationToken = default)
         {
-            await host.SSHEndpoint.ExecuteCommand($"cat log_slave_* > log_slave", 10, cancellationToken);
+            //await host.SSHEndpoint.ExecuteCommand($"cat {_testFilePath}{string.Format(_testLogFileName, "_slave_*")} > {_testFilePath}{string.Format(_testLogFileName, "_slave")}", 10, cancellationToken);
             //下载日志文件
             string result = string.Empty;
             await host.SSHEndpoint.DownloadFile(
@@ -81,7 +81,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     var realSize = await fileStream.ReadAsync(memoryBytes);
                     result = UTF8Encoding.UTF8.GetString(memoryBytes.Slice(0, realSize).Span);
                 },
-                $"{_testFilePath}{string.Format(_testLogFileName, "_slave")}",10,
+                $"{_testFilePath}{string.Format(_testLogFileName, "_slave_" + idx)}",10,
                 cancellationToken
                 );
             return result;
