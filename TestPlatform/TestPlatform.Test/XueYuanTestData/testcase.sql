@@ -149,6 +149,10 @@ SET configuration = '{
                 "Content": "request_body_all"
             },
             {
+                "Name": "testNumberFill",
+                "Content": "{$numberfill({$getnameserialnoinvoke({$currconnectkv(\'user_name\')},\'int\',0)},0,6)}"
+            },
+            {
                 "Name": "package",
                 "Content": "request_body"
             },
