@@ -189,7 +189,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         }
 
         //获得历史记录列表
-        [HttpGet("selectedhistories")]
+        [HttpPost("selectedhistories")]
         public async Task<List<TestCaseHistoryDetailViewData>> GetHistoriesByIds(MultipleDeleteModel model)
         {
             return await _appQueryHistoriesByIds.Do(model.CaseID, model.IDS);
