@@ -134,6 +134,9 @@ namespace FW.TestPlatform.Main
         /// 从测试机上传测试文件超时
         /// </summary>
         SlaveHostUploadTestFileTimeout= 325710220,
-
+        /// <summary>
+        /// 找不到指定路径的从主机日志文件
+        /// </summary>
+        NotFoundLogFileByPath = 325710221
     }
 }

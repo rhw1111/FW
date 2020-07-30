@@ -24,6 +24,7 @@ from locust.event import EventHook
 from locust.env import Environment
 from locust.stats import stats_printer
 from locust.log import setup_logging
+from locust.contrib.fasthttp import FastHttpUser
 import requests
 from urllib import request, parse
 
@@ -98,7 +99,7 @@ lock = threading.Lock()
 # -----------------------------------------------------------
 
 
-class HttpTestUser(HttpUser):
+class HttpTestUser(FastHttpUser):
     wait_time = between(min_wait, max_wait)
     # 连接的Http服务的地址
     host = host
@@ -357,7 +358,7 @@ class HttpTestUser(HttpUser):
                 if stats_send:
                     master_data = {}
                     master_data["CaseID"] = case_id
-                    master_data["ConnectCount"] = str(0)
+                    master_data["ConnectCount"] = str(HttpTestUser.environment.parsed_options.num_users if HttpTestUser.environment.parsed_options.num_users else 0)
                     master_data["ConnectFailCount"] = str(0)
                     master_data["ReqCount"] = str(stats_send.num_requests)
                     master_data["ReqFailCount"] = str(stats_send.num_failures)
@@ -408,7 +409,7 @@ class HttpTestUser(HttpUser):
                 if stats_send:
                     history_data = {}
                     history_data["CaseID"] = case_id
-                    history_data["ConnectCount"] = 0
+                    history_data["ConnectCount"] = (HttpTestUser.environment.parsed_options.num_users if HttpTestUser.environment.parsed_options.num_users else 0)
                     history_data["ConnectFailCount"] = 0
                     history_data["ReqCount"] = stats_send.num_requests
                     history_data["ReqFailCount"] = stats_send.num_failures

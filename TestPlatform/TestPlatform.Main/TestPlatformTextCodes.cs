@@ -225,5 +225,11 @@ namespace FW.TestPlatform.Main
         /// {0}：测试机名称
         /// </summary>
         public const string SlaveHostUploadTestFileTimeout = "SlaveHostUploadTestFileTimeout";
+        /// <summary>
+        /// 找不到指定路径的日志文件
+        /// 格式为“找不到指定路径为{0}的日志文件”
+        /// {0}：日志文件路径
+        /// </summary>
+        public const string NotFoundLogFileByPath = "NotFoundLogFileByPath";
     }
 }

@@ -85,7 +85,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
             //    throw new UtilityException((int)Errors.LabelParameterMinMaxError, fragment, 1, 0);
             //}
 
-            strCode.Append($"DecimalRange({parameters[0]}, {parameters[1]})");
+            strCode.Append($"DecimalRange({parameters[0]}\\, {parameters[1]})");
 
             return strCode.ToString();
         }

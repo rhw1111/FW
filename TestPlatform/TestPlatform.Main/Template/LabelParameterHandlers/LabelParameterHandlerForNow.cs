@@ -9,20 +9,21 @@ using MSLibrary.LanguageTranslate;
 using FW.TestPlatform.Main.Code;
 using FW.TestPlatform.Main.Entities;
 using FW.TestPlatform.Main.Entities.TestCaseHandleServices;
+using System.Text.RegularExpressions;
 
 namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 {
     /// <summary>
     ///针对全局数据变量声明的标签参数处理
-    ///格式:{$dessecurity(data,key)}
+    ///格式:{$now(formate)}
     ///要求context中的Parameters中
     ///包含EngineType参数，参数类型为string
-    [Injection(InterfaceType = typeof(LabelParameterHandlerForDesSecurity), Scope = InjectionScope.Singleton)]
-    public class LabelParameterHandlerForDesSecurity : ILabelParameterHandler
+    [Injection(InterfaceType = typeof(LabelParameterHandlerForNow), Scope = InjectionScope.Singleton)]
+    public class LabelParameterHandlerForNow : ILabelParameterHandler
     {
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForDesSecurity(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForNow(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
@@ -31,31 +32,19 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
         {
             StringBuilder strCode = new StringBuilder();
 
-            if (parameters.Length < 2)
+            if (parameters.Length < 1)
             {
                 var fragment = new TextFragment()
                 {
                     Code = TextCodes.LabelParameterCountError,
                     DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
-                    ReplaceParameters = new List<object>() { "{$dessecurity(data,key)}", 2, parameters.Length }
+                    ReplaceParameters = new List<object>() { "{$now(formate)}", 1, parameters.Length }
                 };
 
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
             }
 
-            if (parameters[1].Replace("'", "").Replace("\"", "").Length % 16 != 0)
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TextCodes.LabelParameterDesSecurityKeyError,
-                    DefaultFormatting = "标签{0}要求的参数中，加密算法Key错误，应该为{1}位，而实际为{2}",
-                    ReplaceParameters = new List<object>() { "{$dessecurity(data,key)}", 16, parameters[1] }
-                };
-
-                throw new UtilityException((int)Errors.LabelParameterDesSecurityKeyError, fragment, 1, 0);
-            }
-
-            strCode.Append($"DesSecurity({parameters[0]}\\, {parameters[1]})");
+            strCode.Append($"datetime.datetime.now().strftime({parameters[0]})");
 
             return strCode.ToString();
         }

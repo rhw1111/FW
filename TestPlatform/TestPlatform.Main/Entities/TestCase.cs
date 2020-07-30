@@ -314,6 +314,10 @@ namespace FW.TestPlatform.Main.Entities
         {
             await _imp.DeleteHistories(this, ids, cancellationToken);
         }
+        public async Task<List<TestCaseHistory>> GetHistoriesByCaseIdAndIds(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetHistoriesByCaseIdAndIds(this, ids, cancellationToken);
+        }
     }
 
     public interface ITestCaseIMP
@@ -339,6 +343,7 @@ namespace FW.TestPlatform.Main.Entities
         Task<string> GetSlaveLog(TestCase tCase,Guid slaveID,int idx, CancellationToken cancellationToken = default);
         Task DeleteSlaveHosts(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default);
         Task DeleteHistories(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default);
+        Task<List<TestCaseHistory>> GetHistoriesByCaseIdAndIds(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default); 
     }
 
 
@@ -764,13 +769,30 @@ namespace FW.TestPlatform.Main.Entities
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.NotFoundTestCaseHistoryByID,
-                    DefaultFormatting = "批量删除异常, 不能找到所有测试用例Id为{0}的测试从机Id为{1}",
+                    DefaultFormatting = "批量删除异常, Id为{0}的测试用例,不能找到所有Id为{1}历史记录",
                     ReplaceParameters = new List<object>() { tCase.ID.ToString(), string.Join(",", ids.ToArray()) }
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseHistoryById, fragment, 1, 0);
             }
             await _testCaseHistoryStore.DeleteHistories(ids, cancellationToken);
+        }
+
+        public async Task<List<TestCaseHistory>> GetHistoriesByCaseIdAndIds(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            List<TestCaseHistory> histories = await _testCaseHistoryStore.QueryByCaseIdAndHistoryIds(tCase.ID, ids, cancellationToken);
+            if (histories.Count == 0 || histories.Count != ids.Count)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestCaseHistoryByID,
+                    DefaultFormatting = "Id为{0}的测试用例,不能找到所有Id为{1}的历史记录",
+                    ReplaceParameters = new List<object>() { tCase.ID.ToString(), string.Join(",", ids.ToArray()) }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseHistoryById, fragment, 1, 0);
+            }
+            return histories;
         }
 
         private ITestCaseHandleService getHandleService(string engineType)

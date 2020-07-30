@@ -362,6 +362,8 @@ namespace FW.TestPlatform.Main
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.Print] = DIContainerContainer.Get<LabelParameterHandlerForPrintFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.HttpGetWithConnectInvoke] = DIContainerContainer.Get<LabelParameterHandlerForHttpGetWithConnectInvokeFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.HttpPostWithConnectInvoke] = DIContainerContainer.Get<LabelParameterHandlerForHttpPostWithConnectInvokeFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.Now] = DIContainerContainer.Get<LabelParameterHandlerForNowFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.Sleep] = DIContainerContainer.Get<LabelParameterHandlerForSleepFactory>();
 
             GetSeparatorServiceSelector.GetSeparatorServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSeparatorServiceForLocustFactory>();
 
