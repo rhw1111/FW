@@ -1,8 +1,8 @@
 SELECT * FROM tpmain.testcase;
-SELECT id, name FROM tpmain.testcase;
+SELECT id, name, sequence FROM tpmain.testcase;
 
 REPLACE INTO tpmain.testcase
-VALUES('b4c2acd0-cd7a-11ea-852b-00ffb1d16cf9', '822114cf-5277-4667-961f-e231f9e67e4d', '46f8bcca-af6e-11ea-8e6a-0242ac110002', 'Http', 'XueYuanTestHttp', '', '0', now(), now(), '2');
+VALUES('b4c2acd0-cd7a-11ea-852b-00ffb1d16cf9', '822114cf-5277-4667-961f-e231f9e67e4d', '46f8bcca-af6e-11ea-8e6a-0242ac110002', 'Http', 'XueYuanTestHttp', '', '0', now(), now(), '72');
 
 UPDATE tpmain.testcase
 SET status = '0'
@@ -35,6 +35,18 @@ SET configuration = '{
             "Name": "user_parameter_list",
             "Type": "",
             "DataSourceName": "datasource_user_parameter_list",
+            "Data": ""
+        },
+        {
+            "Name": "host_list",
+            "Type": "",
+            "DataSourceName": "datasource_host_list",
+            "Data": ""
+        },
+        {
+            "Name": "host",
+            "Type": "",
+            "DataSourceName": "datasource_host",
             "Data": ""
         }
     ],
@@ -90,7 +102,7 @@ SET configuration = '{
             },
             {
                 "Name": "self.is_success",
-                "Content": "len(self.recvdata) == 0 and self.user_name"
+                "Content": "len(self.recvdata) > 0 and self.user_name"
             }
         ]
     },
@@ -134,7 +146,7 @@ SET configuration = '{
             },
             {
                 "Name": "package",
-                "Content": "{$dessecurity(package,\'abcdefghjhijklmn\')}"
+                "Content": "{\'CaseID\': \'ce514456-8da9-432f-8999-1010fa94a83a\', \'ConnectCount\': \'0\', \'ConnectFailCount\': \'0\', \'ReqCount\': \'0\', \'ReqFailCount\': \'0\', \'MaxDuration\': \'0\', \'MinDurartion\': \'0\', \'AvgDuration\': \'0\'}"
             },
             {
                 "Name": "self.senddata",
@@ -163,6 +175,10 @@ SET configuration = '{
             {
                 "Name": "package",
                 "Content": "request_body"
+            },
+            {
+                "Name": "package",
+                "Content": "{\'CaseID\': \'ce514456-8da9-432f-8999-1010fa94a83a\', \'ConnectCount\': \'0\', \'ConnectFailCount\': \'0\', \'ReqCount\': \'0\', \'ReqFailCount\': \'0\', \'MaxDuration\': \'0\', \'MinDurartion\': \'0\', \'AvgDuration\': \'0\'}"
             },
             {
                 "Name": "self.senddata",

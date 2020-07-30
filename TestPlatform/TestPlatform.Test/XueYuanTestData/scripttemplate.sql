@@ -47,6 +47,8 @@ setup_logging("INFO", None)
 is_print_log = {IsPrintLog}
 host = "{Address}"
 port = {Port}
+# address
+address = None
 # client_id
 client_id = "{SlaveName}"
 # case_id
@@ -172,7 +174,7 @@ class TcpTestUser(User):
     host = host
     # 连接的TCP服务的端口
     port = port
-    ADDR = (host, port)
+    address = None
     request_body = ""
     worker_report_time = datetime.datetime.now()
     environment = None
@@ -204,12 +206,17 @@ class TcpTestUser(User):
         TcpTestUser.environment = self.environment
 
     def connect(self):
-        is_success = self.client.connect(self.ADDR)
+        if type(address) == tuple:
+            self.address = address
+        else:
+            self.address = (host, port)
+
+        is_success = self.client.connect(self.address)
 
         if is_success:
-            print("[%s] [%s]: Connect Success, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.host, self.port))
+            print("[%s] [%s]: Connect Success, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.address[0], self.address[1]))
         else:
-            print("[%s] [%s]: Connect Fail, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.host, self.port))
+            print("[%s] [%s]: Connect Fail, %s:%s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.address[0], self.address[1]))
 
         return is_success
 
@@ -471,7 +478,7 @@ class TcpTestUser(User):
                     master_data["MinDurartion"] = str(stats_send.min_response_time)
                     master_data["AvgDuration"] = str(stats_send.avg_response_time)
 
-                    Print("add_master_data, %s." % master_data)
+                    Print("add_master_data, %s" % master_data)
                     TcpTestUser.post_api("api/monitor/addmasterdata", master_data)
         except Exception as e:
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
@@ -495,7 +502,7 @@ class TcpTestUser(User):
                     worker_data = []
                     worker_data.append(worker_data_data)
 
-                    Print("add_worker_data, %s." % worker_data)
+                    Print("add_worker_data, %s" % worker_data)
 
                     if stats_send.current_rps > 0.0:
                         TcpTestUser.post_api("api/monitor/addslavedata", worker_data)
@@ -526,7 +533,7 @@ class TcpTestUser(User):
                     history_data["MinDurartion"] = stats_send.min_response_time
                     history_data["AvgDuration"] = stats_send.avg_response_time
 
-                    Print("add_history_data, %s." % history_data)
+                    Print("add_history_data, %s" % history_data)
                     TcpTestUser.post_api("api/report/addhistory", history_data)   
             else:
                 history_data = {}
@@ -542,7 +549,7 @@ class TcpTestUser(User):
                 history_data["MinDurartion"] = 0.0
                 history_data["AvgDuration"] = 0.0
 
-                Print("add_history_data, %s." % history_data)
+                Print("add_history_data, %s" % history_data)
                 TcpTestUser.post_api("api/report/addhistory", history_data)
         except Exception as e:
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
@@ -561,7 +568,7 @@ class TcpTestUser(User):
             history_data["MinDurartion"] = 0.0
             history_data["AvgDuration"] = 0.0
 
-            Print("add_history_data, %s." % history_data)
+            Print("add_history_data, %s" % history_data)
             TcpTestUser.post_api("api/report/addhistory", history_data)
 
     def post_api(path, data):
@@ -579,17 +586,18 @@ class TcpTestUser(User):
 
             if response.status_code == 200:
                 result = response.text
-                Print("Http Post: Success, %s" % result)
-            else:
-                print("[%s] [%s]: Error, Url, %s, StatusCode, %s, Reason, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, url, str(response.status_code), str(response.reason)))
 
-                return None
+                Print("Http Post Success, Url, %s, StatusCode, %s, Reason, %s, Text, %s" % (url, response.status_code, response.reason, response.text))
+            else:
+                print("[%s] [%s]: Http Post Fail, Url, %s, StatusCode, %s, Reason, %s, Text, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, url, response.status_code, response.reason, response.text))
+
+                return ""
 
         except Exception as e:
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, traceback.format_exc()))
 
-            return None
+            return ""
 
     def quitting():
         # print("quitting")

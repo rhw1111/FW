@@ -6,4 +6,39 @@
     <RootNamespace>FW.TestPlatform.Schedule</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Configurations\app.json" />
+    <None Remove="Configurations\Langs\language.json" />
+    <None Remove="Configurations\logger.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Configurations\app.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Configurations\Langs\language.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Configurations\logger.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Commons\MSLibrary.MySqlStore\MSLibrary.MySqlStore.csproj" />
+    <ProjectReference Include="..\..\Commons\MSLibrary.StreamingDB\MSLibrary.StreamingDB.csproj" />
+    <ProjectReference Include="..\..\Commons\MSLibrary\MSLibrary.csproj" />
+    <ProjectReference Include="..\TestPlatform.Main\TestPlatform.Main.csproj" />
+  </ItemGroup>
+
 </Project>

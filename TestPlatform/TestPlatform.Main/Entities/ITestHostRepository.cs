@@ -1,4 +1,5 @@
 ﻿using MSLibrary;
+using MSLibrary.CommandLine.SSH;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,5 +16,6 @@ namespace FW.TestPlatform.Main.Entities
         Task<Guid?> QueryByNameNoLock(string address, CancellationToken cancellationToken = default);
         Task<QueryResult<TestHost>> QueryByPage(string matchAddress, int page, int pageSize, CancellationToken cancellationToken = default);
         Task DeleteTestHosts(List<Guid> ids, CancellationToken cancellationToken = default);
+        Task<bool> GetTestHostsBySSHEndpointId(Guid sshEndPointId, CancellationToken cancellationToken = default);
     }
 }

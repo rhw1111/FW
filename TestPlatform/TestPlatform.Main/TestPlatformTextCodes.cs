@@ -219,5 +219,17 @@ namespace FW.TestPlatform.Main
         /// {0}：名称
         /// </summary>
         public const string SSHEndpointIsUsedByTestHosts = "SSHEndpointIsUsedByTestHosts";
+        /// <summary>
+        /// 从测试机上传测试文件超时
+        /// 格式为“从测试机{0}上传测试文件超时”
+        /// {0}：测试机名称
+        /// </summary>
+        public const string SlaveHostUploadTestFileTimeout = "SlaveHostUploadTestFileTimeout";
+        /// <summary>
+        /// 找不到指定路径的日志文件
+        /// 格式为“找不到指定路径为{0}的日志文件”
+        /// {0}：日志文件路径
+        /// </summary>
+        public const string NotFoundLogFileByPath = "NotFoundLogFileByPath";
     }
 }

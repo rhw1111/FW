@@ -26,12 +26,14 @@ namespace FW.TestPlatform.Main.Application
             var queryResult = _testHostRepository.GetHosts(cancellationToken);
             await foreach (var item in queryResult)
             {
+                bool isRun = await item.IsHostRun(cancellationToken);
                 result.Add(
                     new TestHostViewData()
                     {
                         ID = item.ID,
                         Address = item.Address,
-                        SSHEndpointID = item.SSHEndpointID
+                        SSHEndpointID = item.SSHEndpointID,
+                        IsAvailable = !isRun
                     }
                     );
             }

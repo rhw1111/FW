@@ -23,6 +23,5 @@ namespace MSLibrary.CommandLine.SSH.DAL
         Task<QueryResult<SSHEndpoint>> QueryByPage(string matchName, int page, int pageSize, CancellationToken cancellationToken = default);
         Task DeleteMutiple(List<Guid> ids, CancellationToken cancellationToken = default);
         IAsyncEnumerable<SSHEndpoint> GetSSHEndpoints(CancellationToken cancellationToken = default);
-        Task<bool> IsUsedByTestHosts(Guid id, CancellationToken cancellationToken = default);
     }
 }

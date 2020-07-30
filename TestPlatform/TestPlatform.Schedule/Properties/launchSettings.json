@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Dev": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "appname": "TestPlatform_Schedule",
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "http://localhost:8080/"
+    }
+  }
+}

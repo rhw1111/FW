@@ -47,6 +47,8 @@ setup_logging("INFO", None)
 is_print_log = {IsPrintLog}
 host = "{Address}"
 port = {Port}
+# address
+address = None
 # client_id
 client_id = "{SlaveName}"
 # case_id
@@ -103,7 +105,7 @@ class HttpTestUser(FastHttpUser):
     host = host
     # 连接的Http服务的端口
     port = port
-    ADDR = (host, port)
+    address = None
     request_body = ""
     worker_report_time = datetime.datetime.now()
     environment = None
@@ -154,8 +156,8 @@ class HttpTestUser(FastHttpUser):
 
         if self.is_success:
             self.is_success = True
-        elif self.recvdata and self.user_name:
-            self.is_success = True
+        # elif self.recvdata and self.user_name:
+        #     self.is_success = True
         else:
             self.is_success = False
 
@@ -206,8 +208,8 @@ class HttpTestUser(FastHttpUser):
 
         if self.is_success:
             self.is_success = True
-        elif self.recvdata:
-            self.is_success = True
+        # elif self.recvdata == 0:
+        #     self.is_success = True
         else:
             self.is_success = False
 
@@ -242,8 +244,8 @@ class HttpTestUser(FastHttpUser):
 
         if self.is_success:
             self.is_success = True
-        elif self.recvdata:
-            self.is_success = True
+        # elif self.recvdata == 0:
+        #     self.is_success = True
         else:
             self.is_success = False
 
@@ -356,7 +358,7 @@ class HttpTestUser(FastHttpUser):
                 if stats_send:
                     master_data = {}
                     master_data["CaseID"] = case_id
-                    master_data["ConnectCount"] = str(0)
+                    master_data["ConnectCount"] = str(HttpTestUser.environment.parsed_options.num_users if HttpTestUser.environment.parsed_options.num_users else 0)
                     master_data["ConnectFailCount"] = str(0)
                     master_data["ReqCount"] = str(stats_send.num_requests)
                     master_data["ReqFailCount"] = str(stats_send.num_failures)
@@ -364,7 +366,7 @@ class HttpTestUser(FastHttpUser):
                     master_data["MinDurartion"] = str(stats_send.min_response_time)
                     master_data["AvgDuration"] = str(stats_send.avg_response_time)
 
-                    Print("add_master_data, %s." % master_data)
+                    Print("add_master_data, %s" % master_data)
                     HttpTestUser.post_api("api/monitor/addmasterdata", master_data)
         except Exception as e:
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
@@ -388,7 +390,7 @@ class HttpTestUser(FastHttpUser):
                     worker_data = []
                     worker_data.append(worker_data_data)
 
-                    Print("add_worker_data, %s." % worker_data)
+                    Print("add_worker_data, %s" % worker_data)
 
                     if stats_send.current_rps > 0.0:
                         HttpTestUser.post_api("api/monitor/addslavedata", worker_data)
@@ -407,7 +409,7 @@ class HttpTestUser(FastHttpUser):
                 if stats_send:
                     history_data = {}
                     history_data["CaseID"] = case_id
-                    history_data["ConnectCount"] = 0
+                    history_data["ConnectCount"] = (HttpTestUser.environment.parsed_options.num_users if HttpTestUser.environment.parsed_options.num_users else 0)
                     history_data["ConnectFailCount"] = 0
                     history_data["ReqCount"] = stats_send.num_requests
                     history_data["ReqFailCount"] = stats_send.num_failures
@@ -418,7 +420,7 @@ class HttpTestUser(FastHttpUser):
                     history_data["MinDurartion"] = stats_send.min_response_time
                     history_data["AvgDuration"] = stats_send.avg_response_time
 
-                    Print("add_history_data, %s." % history_data)
+                    Print("add_history_data, %s" % history_data)
                     HttpTestUser.post_api("api/report/addhistory", history_data)
             else:
                 history_data = {}
@@ -434,7 +436,7 @@ class HttpTestUser(FastHttpUser):
                 history_data["MinDurartion"] = 0.0
                 history_data["AvgDuration"] = 0.0
 
-                Print("add_history_data, %s." % history_data)
+                Print("add_history_data, %s" % history_data)
                 HttpTestUser.post_api("api/report/addhistory", history_data)
         except Exception as e:
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
@@ -453,7 +455,7 @@ class HttpTestUser(FastHttpUser):
             history_data["MinDurartion"] = 0.0
             history_data["AvgDuration"] = 0.0
 
-            Print("add_history_data, %s." % history_data)
+            Print("add_history_data, %s" % history_data)
             HttpTestUser.post_api("api/report/addhistory", history_data)
 
     def post_api(path, data):
@@ -471,17 +473,18 @@ class HttpTestUser(FastHttpUser):
 
             if response.status_code == 200:
                 result = response.text
-                Print("Http Post: Success, %s" % result)
-            else:
-                print("[%s] [%s]: Error, Url, %s, StatusCode, %s, Reason, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, url, str(response.status_code), str(response.reason)))
 
-                return None
+                Print("Http Post Success, Url, %s, StatusCode, %s, Reason, %s, Text, %s" % (url, response.status_code, response.reason, response.text))
+            else:
+                print("[%s] [%s]: Http Post Fail, Url, %s, StatusCode, %s, Reason, %s, Text, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, url, response.status_code, response.reason, response.text))
+
+                return ""
 
         except Exception as e:
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, traceback.format_exc()))
 
-            return None
+            return ""
 
     def quitting():
         # print("quitting")

@@ -47,6 +47,18 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task<string> GetMasterLog(TestHost host, CancellationToken cancellationToken = default)
         {
+            bool fileExisted = await host.SSHEndpoint.ExistsFile($"{_testFilePath}{string.Format(_testLogFileName, string.Empty)}", 10, cancellationToken);
+            if (!fileExisted)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundLogFileByPath,
+                    DefaultFormatting = "找不到路径为{0}的日志文件",
+                    ReplaceParameters = new List<object>() { $"{_testFilePath}{string.Format(_testLogFileName, string.Empty)}" }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundLogFileByPath, fragment, 1, 0);
+            }
             string result = string.Empty;
             await host.SSHEndpoint.DownloadFile(
                 async (fileStream) =>
@@ -59,14 +71,28 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     var realSize = await fileStream.ReadAsync(memoryBytes);
                     result = UTF8Encoding.UTF8.GetString(memoryBytes.Slice(0, realSize).Span);
                 },
-                $"{_testFilePath}{string.Format(_testLogFileName, string.Empty)}",
+                $"{_testFilePath}{string.Format(_testLogFileName, string.Empty)}",10,
                 cancellationToken
                 );
             return result;
         }
 
-        public async Task<string> GetSlaveLog(TestHost host, CancellationToken cancellationToken = default)
+        public async Task<string> GetSlaveLog(TestHost host, int idx, CancellationToken cancellationToken = default)
         {
+            //await host.SSHEndpoint.ExecuteCommand($"cat {_testFilePath}{string.Format(_testLogFileName, "_slave_*")} > {_testFilePath}{string.Format(_testLogFileName, "_slave")}", 10, cancellationToken);
+            bool fileExisted = await host.SSHEndpoint.ExistsFile($"{_testFilePath}{string.Format(_testLogFileName, "_slave_" + idx)}", 10, cancellationToken);
+            if (!fileExisted)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundLogFileByPath,
+                    DefaultFormatting = "找不到路径为{0}的日志文件",
+                    ReplaceParameters = new List<object>() { $"{_testFilePath}{string.Format(_testLogFileName, "_slave_" + idx)}" }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundLogFileByPath, fragment, 1, 0);
+            }
+            //下载日志文件
             string result = string.Empty;
             await host.SSHEndpoint.DownloadFile(
                 async (fileStream) =>
@@ -79,7 +105,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     var realSize = await fileStream.ReadAsync(memoryBytes);
                     result = UTF8Encoding.UTF8.GetString(memoryBytes.Slice(0, realSize).Span);
                 },
-                $"{_testFilePath}{string.Format(_testLogFileName, "_slave")}",
+                $"{_testFilePath}{string.Format(_testLogFileName, "_slave_" + idx)}",10,
                 cancellationToken
                 );
             return result;
@@ -88,7 +114,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         public async Task<bool> IsEngineRun(TestCase tCase, CancellationToken cancellationToken = default)
         {
             //执行主机查进程命令
-            var result = await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}'", cancellationToken);
+            var result = await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}'",10, cancellationToken);
             if (string.IsNullOrEmpty(result))
             {
                 return false;
@@ -110,7 +136,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 {
                     Code = TestPlatformTextCodes.NotFoundScriptTemplateByName,
                     DefaultFormatting = "找不到名称为{0}的脚本模板",
-                    ReplaceParameters = new List<object>() { ScriptTemplateNames.LocustTcp }
+                    ReplaceParameters = new List<object>() { ScriptTemplateNames.LocustHttp }
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundScriptTemplateByName, fragment, 1, 0);
@@ -209,7 +235,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 #endif
                 #endregion
 
-                await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{_testFilePath}{string.Format(_testFileName, string.Empty)}", cancellationToken);
+                await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{_testFilePath}{string.Format(_testFileName, string.Empty)}",10, cancellationToken);
                 textStream.Close();
             }
 
@@ -223,7 +249,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 async (item) =>
                 {
                     //先删除文件夹内现有的所有文件
-                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{string.Format(_testFileName, "_*")}", cancellationToken);
+                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{string.Format(_testFileName, "_*")}",10, cancellationToken);
 
                     //为该Slave测试机下的每个Slave上传文件
 
@@ -237,7 +263,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                                 {
                                     await service.Upload(textStream, $"{_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")}");
                                 }
-                                ,
+                                ,10,
                                 cancellationToken
                               );
 
@@ -266,7 +292,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                    return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName,string.Empty)} --master --headless --expect-workers {slaveCount.ToString()} -t {configuration.Duration.ToString()} -u {configuration.UserCount.ToString()} -r {configuration.PerSecondUserCount.ToString()} > {_testFilePath}{string.Format(_testLogFileName,string.Empty)} 2>&1 &");
                }
             };
-            await tCase.MasterHost.SSHEndpoint.ExecuteCommandBatch(commands, cancellationToken);
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommandBatch(commands,10, cancellationToken);
 
             //执行从属机测试命令
             foreach (var item in slaveHostList)
@@ -290,14 +316,14 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                             //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")} --slave --master-host={tCase.MasterHost.Address} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{string.Format(_testLogFileName, "_slave")} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
                             //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --logfile {_testFilePath}{string.Format(_testLogFileName, $"_slave")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {_testFilePath}{string.Format(_testOutFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
                             //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {_testFilePath}{string.Format(_testLogFileName, $"_slave")} 2>&1 &");
-                            return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {_testFilePath}{string.Format(_testLogFileName, $"_slave")}{ (innerIndex == 0 ? "" : "_" + innerIndex.ToString())} 2>&1 &");
+                            return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {_testFilePath}{string.Format(_testLogFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
                             //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --logfile {_testFilePath}{string.Format(_testLogFileName, $"_slave")} --worker --headless --master-host 127.0.0.1 --master-port 5557 > {_testFilePath}{string.Format(_testOutFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
                             //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host 127.0.0.1 --master-port 5557 > {_testFilePath}{string.Format(_testLogFileName, $"_slave")} 2>&1 &");
                         }
                    );
                 }
 
-                await item.Host.SSHEndpoint.ExecuteCommandBatch(slaveCommands, cancellationToken);
+                await item.Host.SSHEndpoint.ExecuteCommandBatch(slaveCommands,10, cancellationToken);
             }
 
         }
@@ -305,12 +331,12 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         public async Task Stop(TestCase tCase, CancellationToken cancellationToken = default)
         {
             //执行主机杀进程命令
-            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}' | xargs kill -9", cancellationToken);
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}' | xargs kill -9",10, cancellationToken);
             //执行slave杀进程命令
             var slaveHosts = tCase.GetAllSlaveHosts(cancellationToken);
             await foreach (var item in slaveHosts)
             {
-                await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}' | xargs kill -9", cancellationToken);
+                await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}' | xargs kill -9",10, cancellationToken);
             }
         }
     }

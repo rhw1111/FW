@@ -39,12 +39,12 @@
              @click="lookMasterLog" />
       <q-btn class="btn"
              color="primary"
-             label="查 看 从 主 机 日 志"
-             @click="lookSlaveLog" />
-      <q-btn class="btn"
-             color="primary"
              label="性 能 监 测"
              @click="lookMonitorUrl" />
+      <q-btn class="btn"
+             color="primary"
+             label="复 制"
+             @click="CopyTestCase" />
     </div>
     <!-- TestCase字段 -->
     <div class="q-pa-md">
@@ -123,6 +123,50 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <!-- 复制创建TestCase -->
+    <q-dialog v-model="CopyTestCaseFixed"
+              persistent>
+      <q-card style="width: 100%; max-width: 60vw;">
+        <q-card-section>
+          <div class="text-h6">创建测试用例</div>
+        </q-card-section>
+
+        <q-separator />
+        <div class="new_input">
+          <div class="row input_row">
+            <q-input v-model="CopyTestCaseName"
+                     :dense="false"
+                     class="col">
+              <template v-slot:before>
+                <span style="font-size:14px">测试用例名称:</span>
+              </template>
+            </q-input>
+            <q-select v-model="CopyTestCaseSlaveFlag"
+                      :options="['是','否']"
+                      class="col"
+                      :dense="false">
+              <template v-slot:before>
+                <span style="font-size:14px">是否复制从主机:</span>
+              </template>
+              <template v-slot:prepend>
+              </template>
+            </q-select>
+          </div>
+        </div>
+        <q-separator />
+
+        <q-card-actions align="right">
+          <q-btn flat
+                 label="取消"
+                 color="primary"
+                 @click="CopyTestCaseCancel" />
+          <q-btn flat
+                 label="创建"
+                 color="primary"
+                 @click="CopyTestCaseCreate" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <!-- 从机和历史记录列表 -->
     <div class="q-pa-md row HostList">
       <!-- 从机列表 -->
@@ -139,6 +183,10 @@
                  no-data-label="暂无数据更新">
           <template v-slot:body-cell-id="props">
             <q-td :props="props">
+              <q-btn class="btn"
+                     color="primary"
+                     label="查 看 日 志"
+                     @click="lookSlaveLog(props)" />
               <q-btn class="btn"
                      color="primary"
                      label="更 新"
@@ -169,28 +217,52 @@
                ref="TestCaseHistory" />
     </div>
     <!-- 日志提示 -->
-    <!-- <q-dialog v-model="lookLogFlag"
-              style="width: '100%'; max-width: '65vw'; white-space: pre-line; overflow-x: hidden;word-break:break-all;">
-      <q-card class="q-dialog-plugin"
-              style="width: 100%; max-width: 60vw;position:relative;">
-        <q-card-section>
-          <div class="text-h6">提示</div>
+    <q-dialog v-model="lookLogFlag"
+              persistent>
+      <q-card class="q-dialog-plugin full-height"
+              style="width: 100%; max-width: 80vw;height:800px;overflow:hidden;">
+        <q-card-section class="row">
+          <div class="text-h6 col-11">查看从主机日志</div>
+          <q-btn color="primary"
+                 label="关 闭"
+                 class="col-1"
+                 @click="cancelLookLog" />
         </q-card-section>
 
         <q-separator />
-        <q-card-section>
-          <div>
-            {{lookLogText}}
-          </div>
+        <q-card-section style="height:85%;overflow:hidden;">
+          <q-splitter v-model="splitterModel"
+                      style="height:100%;">
+
+            <template v-slot:before>
+              <q-tabs v-model="tab"
+                      vertical
+                      :no-caps="true"
+                      class="text-primary">
+                <q-tab v-for="(val,index) in SLaveHostSelect.count"
+                       :name="'tab'+index"
+                       :key="index"
+                       :label="SLaveHostSelect.slaveName+'_'+(index)"
+                       @click="lookSalveIndexLog(index)" />
+              </q-tabs>
+            </template>
+
+            <template v-slot:after>
+              <q-tab-panel name=""
+                           style="height:100%;overflow: hidden scroll;white-space: pre-line;word-break:break-all;">
+                {{SlaveLogText}}
+              </q-tab-panel>
+            </template>
+
+          </q-splitter>
         </q-card-section>
         <q-separator />
-        <q-card-actions align="right"
-                        style="position:absolute;right:0;bottom:0;">
+        <!-- <q-card-actions align="right">
           <q-btn color="primary"
                  label="OK" />
-        </q-card-actions>
+        </q-card-actions> -->
       </q-card>
-    </q-dialog> -->
+    </q-dialog>
   </div>
 </template>
 
@@ -209,7 +281,7 @@ export default {
   data () {
     return {
       createFixed: false,//createslave Flag
-      lookLogFlag: false,//查看日志log
+      lookLogFlag: false,//查看从主机日志log
       lookLogText: '',//日志内容
       isNoRun: 0,//判断是否在运行
       timerOut: null, //定时器
@@ -243,6 +315,7 @@ export default {
       SlaveHostHostIndex: -1,  //主机已选择下标
 
       SlaveHostList: [],       //从机列表
+      SLaveHostSelect: '',//从机单选数据
       SlaveHostSelected: [],   //从机表格选择
       //从机表格配置
       columns: [
@@ -255,10 +328,19 @@ export default {
           format: val => `${val}`,
         },
         { name: 'address', align: 'left', label: 'ip', field: 'address', },
-        { name: 'count', align: 'left', label: '数量', field: 'count', },
+        { name: 'count', align: 'left', label: '数量', field: 'count', style: 'max-width: 50px', headerStyle: 'max-width: 50px' },
         { name: 'extensionInfo', label: '扩展信息', align: 'left', field: 'extensionInfo', style: 'width:100px;' },
         { name: 'id', label: '操作', align: 'right', field: 'id', headerStyle: 'text-align:center' },
       ],
+
+      CopyTestCaseFixed: false,//复制创建TestCaseFlag
+      CopyTestCaseName: '',//复制创建TestCase名称
+      CopyTestCaseSlaveFlag: '否',
+
+      tab: 'tab0',
+      splitterModel: 2,
+      SlaveLogText: '',
+      SlaveLogTextArr: []
     }
   },
   mounted () {
@@ -275,9 +357,8 @@ export default {
       Apis.getTestCaseDetail({ id: this.$route.query.id }).then((res) => {
         console.log(res)
         this.detailData = res.data;
-        this.getMasterHostList();
+        //this.getMasterHostList();
         this.getSlaveHostsList();
-        this.getTestCaseStatus();
         this.getDataSourceName();
         this.$refs.TestCaseHistory.getHistoryList();
         if (res.data.status == 1) {
@@ -285,8 +366,13 @@ export default {
             setTimeout(this.getTestCaseStatus(), 0);
           }, 3000);
         } else {
-          clearInterval(this.timerOut);
-          this.timerOut = null;
+          Apis.getTestCaseStatus({ caseId: this.$route.query.id }).then((res) => {
+            this.isNoRun = res.data;
+            if (!res.data) {
+              clearInterval(this.timerOut);
+              this.timerOut = null;
+            }
+          })
         }
       })
     },
@@ -301,6 +387,7 @@ export default {
     },
     //获得主机列表
     getMasterHostList () {
+      this.$q.loading.show()
       Apis.getMasterHostList().then((res) => {
         console.log(res)
         this.masterHostList = res.data;
@@ -320,6 +407,7 @@ export default {
       Apis.getDataSourceName(para).then((res) => {
         console.log(res)
         this.dataSourceName = res.data;
+        this.$q.loading.hide()
       })
     },
     //查看TestCase是否运行
@@ -329,14 +417,16 @@ export default {
         if (!res.data) {
           clearInterval(this.timerOut);
           this.timerOut = null;
+          this.getTestCaseDetail();
         }
       })
     },
 
     //双击从机host
     dblSlaveHostHost () {
-      this.createFixed = false;
       this.SlaveHostFixed = true;
+
+      this.getMasterHostList()
     },
     //添加从机Host
     addSlaveHostHost (value) {
@@ -347,13 +437,11 @@ export default {
       this.SlaveHostHostId = this.masterHostList[value].id;
       this.SlaveHostHostIndex = value;
       this.SlaveHostFixed = false;
-      this.createFixed = true;
       console.log(this.SlaveHostHostSelect, this.SlaveHostHostId, this.SlaveHostHostIndex)
     },
     //取消添加从机Host
     cancelSlaveHostHost () {
       this.SlaveHostFixed = false;
-      this.createFixed = true;
       this.$refs.SlaveHostHostlookUp.selectIndex = this.SlaveHostHostIndex;
     },
 
@@ -372,7 +460,7 @@ export default {
           caption: '保存成功',
           color: 'secondary',
         })
-        this.$q.loading.hide()
+        this.getTestCaseDetail();
       })
 
     },
@@ -563,41 +651,186 @@ export default {
       })
     },
     //查看Slave日志
-    lookSlaveLog () {
-      if (this.SlaveHostSelected.length == 0) {
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '请选择从主机',
-          color: 'red',
-        })
-      } else if (this.SlaveHostSelected.length == 1) {
-        //选择单个slavehost
-        this.$q.loading.show()
-        let para = {
-          caseId: this.$route.query.id,
-          slaveHostId: this.SlaveHostSelected[0].id
-        }
-        Apis.getSlaveLog(para).then((res) => {
-          this.$q.loading.hide()
-          this.$q.dialog({
-            title: '提示',
-            message: res.data,
-            style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
-          })
-        })
-      } else if (this.SlaveHostSelected.length > 1) {
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '只能选择一个从主机',
-          color: 'red',
-        })
+    lookSlaveLog (value) {
+      console.log(value)
+      this.SLaveHostSelect = value.row;
+      this.tab = 'tab0';
+      this.lookLogFlag = true;
+      for (let i = 0; i < value.row.count; i++) {
+        this.SlaveLogTextArr.push('')
       }
+      this.lookSalveIndexLog(0);
+      // let para = {
+      //   caseId: this.$route.query.id,
+      //   slaveHostId: value.row.id
+      // }
+      // this.$q.loading.show()
+      // Apis.getSlaveLog(para).then((res) => {
+      //   this.$q.loading.hide()
+      //   this.$q.dialog({
+      //     title: '提示',
+      //     message: res.data,
+      //     style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
+      //   })
+      // })
+      // if (this.SlaveHostSelected.length == 0) {
+      //   this.$q.notify({
+      //     position: 'top',
+      //     message: '提示',
+      //     caption: '请选择从主机',
+      //     color: 'red',
+      //   })
+      // } else if (this.SlaveHostSelected.length == 1) {
+      //   //选择单个slavehost
+      //   this.$q.loading.show()
+      //   let para = {
+      //     caseId: this.$route.query.id,
+      //     slaveHostId: this.SlaveHostSelected[0].id
+      //   }
+      //   Apis.getSlaveLog(para).then((res) => {
+      //     this.$q.loading.hide()
+      //     this.$q.dialog({
+      //       title: '提示',
+      //       message: res.data,
+      //       style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
+      //     })
+      //   })
+      // } else if (this.SlaveHostSelected.length > 1) {
+      //   this.$q.notify({
+      //     position: 'top',
+      //     message: '提示',
+      //     caption: '只能选择一个从主机',
+      //     color: 'red',
+      //   })
+      // }
+    },
+    //查看指定Slave日志
+    lookSalveIndexLog (index) {
+      console.log(index, this.SlaveLogTextArr[index])
+      if (this.SlaveLogTextArr[index] != '') {
+        this.SlaveLogText = this.SlaveLogTextArr[index];
+        return;
+      }
+      let para = {
+        caseId: this.$route.query.id,
+        slaveHostId: this.SLaveHostSelect.id,
+        idx: index
+      }
+      console.log(this.splitterModel)
+      this.$q.loading.show()
+      Apis.getSlaveLog(para).then((res) => {
+        console.log(res)
+        this.SlaveLogText = res.data;
+        this.SlaveLogTextArr[index] = res.data;
+        this.$q.loading.hide()
+      })
+    },
+    //关闭Salve日志界面
+    cancelLookLog () {
+      this.SLaveHostSelect = '';
+      this.lookLogFlag = false;
+      this.SlaveLogTextArr = [];
     },
     //查看MonitorUrl
     lookMonitorUrl () {
       window.open(this.detailData.monitorUrl);
+    },
+    //复制创建TestCase打开
+    CopyTestCase () {
+      this.CopyTestCaseFixed = true;
+      this.CopyTestCaseName = this.detailData.name + '_1';
+    },
+    //复制创建TestCase取消
+    CopyTestCaseCancel () {
+      this.CopyTestCaseFixed = false;
+      this.CopyTestCaseName = '';
+      this.CopyTestCaseSlaveFlag = '否'
+
+    },
+    //复制创建TestCase创建
+    CopyTestCaseCreate () {
+      let _this = this;
+      this.$q.loading.show()
+      let para = {
+        Name: this.CopyTestCaseName,
+        Configuration: this.detailData.configuration,
+        EngineType: this.detailData.engineType,
+        MasterHostID: this.detailData.masterHostID
+      }
+      Apis.postCreateTestCase(para).then((res) => {
+        console.log(res)
+        if (this.CopyTestCaseSlaveFlag == '是') {
+          if (this.SlaveHostList.length != 0) {
+            CopyCreateSlaveHost(res, 0)
+          } else {
+            this.$q.notify({
+              position: 'top',
+              message: '提示',
+              caption: '创建成功',
+              color: 'secondary',
+            })
+            this.CopyTestCaseFixed = false;
+            this.$q.loading.hide()
+            this.$router.push({
+              name: 'TestCaseDetail',
+              query: {
+                id: res.data.id
+              },
+            });
+          }
+        } else {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '创建成功',
+            color: 'secondary',
+          })
+          this.CopyTestCaseFixed = false;
+          this.$q.loading.hide()
+          this.$router.push({
+            name: 'TestCaseDetail',
+            query: {
+              id: res.data.id
+            },
+          });
+        }
+        this.getTestCaseDetail();
+      })
+
+      function CopyCreateSlaveHost (res, SalveHostNum) {
+        console.log(SalveHostNum, _this.SlaveHostList.length)
+        if (SalveHostNum == _this.SlaveHostList.length) {
+          _this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '创建成功',
+            color: 'secondary',
+          })
+          _this.CopyTestCaseFixed = false;
+          _this.$q.loading.hide()
+          _this.$router.push({
+            name: 'TestCaseDetail',
+            query: {
+              id: res.data.id
+            },
+          });
+          _this.getTestCaseDetail();
+        } else {
+          console.log(_this.SlaveHostList, SalveHostNum, _this.SlaveHostList[SalveHostNum], _this.SlaveHostList[SalveHostNum].HostID)
+          let para = {
+            "HostID": _this.SlaveHostList[SalveHostNum].hostID,
+            "TestCaseID": res.data.id,
+            "SlaveName": _this.SlaveHostList[SalveHostNum].slaveName,
+            "Count": _this.SlaveHostList[SalveHostNum].count,
+            "ExtensionInfo": _this.SlaveHostList[SalveHostNum].extensionInfo
+          }
+          Apis.postCreateSlaveHost(para).then(() => {
+            CopyCreateSlaveHost(res, SalveHostNum + 1)
+          })
+        }
+      }
+
+
     },
   }
 }
@@ -635,7 +868,6 @@ export default {
 </style>
 <style lang="scss">
 .q-table {
-  table-layout: fixed;
   .cursor-pointer {
     .text-left {
       white-space: nowrap;

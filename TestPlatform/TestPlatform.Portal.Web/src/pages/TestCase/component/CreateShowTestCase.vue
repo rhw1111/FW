@@ -1,5 +1,3 @@
-/* eslint-disable vue/valid-v-for */
-/* eslint-disable vue/valid-v-for */
 <template>
   <div>
     <!--  主机选择框  -->
@@ -106,12 +104,12 @@
                  v-model="paraConfig.Address"
                  class="col"
                  :dense="true"
-                 placeholder="请输入ipv4地址">
+                 placeholder="请输入被测服务器地址">
           <template v-slot:before>
             <span style="font-size:14px;width:100px;">被测服务器:</span>
           </template>
           <template v-slot:append>
-            <span style="font-size:14px">ip地址</span>
+            <span style="font-size:14px">地址</span>
           </template>
         </q-input>
         <!-- 被测服务器端口 -->
@@ -507,10 +505,12 @@
 </template>
 
 <script>
+import * as Apis from "@/api/index"
 import lookUp from "@/components/lookUp.vue"
+import Clipboard from 'clipboard';
 export default {
   name: 'CreateShowTestCase',
-  props: ['masterHostList', 'dataSourceName', 'detailData'],
+  props: ['dataSourceName', 'detailData'],
   components: {
     lookUp
   },
@@ -561,6 +561,7 @@ export default {
       HostFixed: false,     //主机flag
       masterHostSelect: '', //主机选择
       masterHostIndex: -1,//主机下标
+      masterHostList: [],//主机列表
 
       dataSource: [],//数据源名称数组
 
@@ -622,6 +623,16 @@ export default {
     //打开主机lookUP选择框
     masterHost () {
       this.HostFixed = true;
+      this.$q.loading.show();
+      this.getMasterHostList();
+    },
+    //获得主机列表
+    getMasterHostList () {
+      Apis.getMasterHostList().then((res) => {
+        console.log(res)
+        this.masterHostList = res.data;
+        this.$q.loading.hide()
+      })
     },
     //主机lookUP选择框添加按钮
     addMasterHost (value) {
@@ -705,11 +716,47 @@ export default {
       }
     },
     // ---------------------------------------- 参数配置 ------------------------------------ 
+    //复制文本
+    CopyPageText (data) {
+      if (data.trim() == '') {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '当前配置文本为空',
+          color: 'red',
+        })
+        return;
+      }
+      let clipboard = new Clipboard('.tag', {
+        text: function () {
+          return data
+        }
+      })
+      clipboard.on('success', () => {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '复制成功',
+          color: 'secondary',
+        })
+        // 释放内存
+        clipboard.destroy()
+      })
+      clipboard.on('error', () => {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '复制失败，当前浏览器不支持复制。',
+          color: 'red',
+        })
+        clipboard.destroy()
+      })
+    },
     //生成JSON
     CreateJson () {
       if (this.Configuration.trim() == '') {
         //验证ip地址是否正确
-        if (!this.isValidIp(this.paraConfig.Address)) { return; }
+        //if (!this.isValidIp(this.paraConfig.Address)) { return; }
         //验证端口号是否正确
         if (!this.isPort(this.paraConfig.Port)) { return; }
         if (!this.ifDataVars()) { return; }
@@ -736,7 +783,7 @@ export default {
         this.ConfigTextExpanded = true;
       } else if (this.isJSON(this.Configuration.trim())) {
         //验证ip地址是否正确
-        if (!this.isValidIp(this.paraConfig.Address)) { return; }
+        //if (!this.isValidIp(this.paraConfig.Address)) { return; }
         //验证端口号是否正确
         if (!this.isPort(this.paraConfig.Port)) { return; }
         if (!this.ifDataVars()) { return; }

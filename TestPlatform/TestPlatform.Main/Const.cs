@@ -302,4 +302,20 @@ namespace FW.TestPlatform.Main
     {
         public const string Default = "Default";
     }
+
+    /// <summary>
+    /// 环境变量名称集合
+    /// </summary>
+    public static class EnvironmentVarNames
+    {
+        public const string AppName = "appname";
+    }
+    
+    /// <summary>
+    /// 批处理动作初始化类型集合
+    /// </summary>
+    public static class ScheduleActionInitTypes
+    {
+        public const string Default = "Default";
+    }
 }

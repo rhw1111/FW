@@ -11,6 +11,7 @@ using MSLibrary.Transaction;
 using FW.TestPlatform.Main.DAL;
 using Microsoft.AspNetCore.Http.Features.Authentication;
 using MSLibrary.Collections;
+using MongoDB.Driver;
 
 namespace FW.TestPlatform.Main.Entities.DAL
 {
@@ -311,6 +312,51 @@ namespace FW.TestPlatform.Main.Entities.DAL
             });
 
             return result;
+        }
+
+        public async Task<bool> GetTestHostsBySSHEndpointId(Guid id, CancellationToken cancellationToken = default)
+        {
+            bool result = false;
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    var count = await (from item in dbContext.TestHosts
+                                       where item.SSHEndpointID == id
+                                       select item.ID).CountAsync();
+                    if (count > 0)
+                        result = true;
+                }
+            });
+            return result;
+        }
+
+        public async Task<List<TestCase>> GetRunningTestCasesByHostId(Guid id, CancellationToken cancellationToken = default)
+        {
+            List<TestCase> testCases = new List<TestCase>();
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    var testCaseIds = (from slaveItem in dbContext.TestCaseSlaveHosts
+                                       where slaveItem.HostID == id
+                                       select slaveItem.TestCaseID).Distinct();
+
+                    testCases = await (from item in dbContext.TestCases
+                                       where (item.MasterHostID == id || testCaseIds.Contains(item.ID)) && item.Status == TestCaseStatus.Running
+                                       select item).Distinct().ToListAsync();
+                }
+            });
+            return testCases;
         }
     }
 }

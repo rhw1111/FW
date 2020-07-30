@@ -36,6 +36,18 @@ SET configuration = '{
             "Type": "",
             "DataSourceName": "datasource_user_parameter_list",
             "Data": ""
+        },
+        {
+            "Name": "address_list",
+            "Type": "",
+            "DataSourceName": "datasource_address_list",
+            "Data": ""
+        },
+        {
+            "Name": "address",
+            "Type": "",
+            "DataSourceName": "datasource_address",
+            "Data": ""
         }
     ],
     "ConnectInit": {
@@ -135,6 +147,10 @@ SET configuration = '{
             {
                 "Name": "request_body",
                 "Content": "request_body_all"
+            },
+            {
+                "Name": "testNumberFill",
+                "Content": "{$numberfill({$getnameserialnoinvoke({$currconnectkv(\'user_name\')},\'int\',0)},0,6)}"
             },
             {
                 "Name": "package",

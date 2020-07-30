@@ -12,7 +12,7 @@ namespace FW.TestPlatform.Main.Application
     public interface IAppQuerySlaveLog
     {
         
-        Task<string> Do(Guid caseId, Guid slaveHostId, CancellationToken cancellationToken = default);
+        Task<string> Do(Guid caseId, Guid slaveHostId, int idx, CancellationToken cancellationToken = default);
         
     }
 }
