@@ -24,6 +24,7 @@ from locust.event import EventHook
 from locust.env import Environment
 from locust.stats import stats_printer
 from locust.log import setup_logging
+from locust.contrib.fasthttp import FastHttpUser
 import requests
 from urllib import request, parse
 
@@ -96,7 +97,7 @@ lock = threading.Lock()
 # -----------------------------------------------------------
 
 
-class HttpTestUser(HttpUser):
+class HttpTestUser(FastHttpUser):
     wait_time = between(min_wait, max_wait)
     # 连接的Http服务的地址
     host = host

@@ -145,6 +145,10 @@ SET configuration = '{
                 "Content": "{$httppostwithconnectinvoke({$curconnect()},\'/api/monitor/addmasterdata\', \'\',self.senddata,\'.*\')}"
             },
             {
+                "Name": "self.recvdata",
+                "Content": "{$httpgetwithconnectinvoke({$curconnect()}, \'/weatherforecast\', \'\', \'.*\')}"
+            },
+            {
                 "Name": "self.is_success",
                 "Content": "len(self.recvdata) == 0"
             }
