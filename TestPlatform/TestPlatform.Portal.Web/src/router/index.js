@@ -56,18 +56,6 @@ export default new Router({
           name: 'MasterHost',
           component: () => import('@/pages/MasterHost/index.vue'),
         },
-        //SSH端口详情
-        {
-          path: '/SSHEndpointDetail',
-          name: 'SSHEndpointDetail',
-          component: () => import('@/pages/MasterHost/SSHEndpointDetail.vue'),
-        },
-        //主机详情
-        {
-          path: '/TestHostDetail',
-          name: 'TestHostDetail',
-          component: () => import('@/pages/MasterHost/TestHostDetail.vue'),
-        },
       ]
     },
   ]

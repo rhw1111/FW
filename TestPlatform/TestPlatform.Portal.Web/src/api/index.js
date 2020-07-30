@@ -359,6 +359,15 @@ export const getSlaveIndexLog = payload =>
     payload
   })
 
+//获得批量历史记录详情
+export const postSelectedHistories = payload =>
+  action({
+    apiName: 'postSelectedHistories',
+    payload
+  })
+
+
+
 
 
 

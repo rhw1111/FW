@@ -24,9 +24,11 @@ const apiConstants = {
 
   getHistoryList: 'api/testcase/histories',//获得历史记录列表
 
+  postSelectedHistories: 'api/testcase/selectedhistories',//获得批量历史记录详情
+
   getHistoryDetail: 'api/testcase/history',//获得历史记录详情
 
-  deleteHistory: 'api/testcase/deletehistory',//删除单挑历史记录
+  deleteHistory: 'api/testcase/deletehistory',//删除单条历史记录
 
   deleteHistoryArr: 'api/testcase/deletehistories',//批量删除历史记录
 

@@ -13,6 +13,12 @@
                no-data-label="暂无数据更新">
         <template v-slot:top-right>
           <q-btn class="btn"
+                 color="primary"
+                 style="margin-right:20px;"
+                 label="比 较"
+                 :disable="isNoRun!=1?false:true"
+                 @click="compareLog" />
+          <q-btn class="btn"
                  style="background: #FF0000; color: white"
                  label="删 除"
                  :disable="isNoRun!=1?false:true"
@@ -78,6 +84,34 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <!-- 历史记录比较列表 -->
+    <q-dialog v-model="HistoryCompareLogFlag"
+              persistent>
+      <q-card style="width: 100%; max-width: 85vw;">
+        <q-card-section>
+          <div class="text-h6">日志比较</div>
+        </q-card-section>
+
+        <q-separator />
+        <q-table :data="HistoryCompareLogList"
+                 :columns="HistoryCompareColumns"
+                 row-key="id"
+                 :rows-per-page-options=[0]
+                 table-style="max-height: 500px"
+                 no-data-label="暂无数据更新">
+          <template v-slot:bottom
+                    style="height:20px;">
+          </template>
+        </q-table>
+        <q-separator />
+        <q-card-actions align="right">
+          <q-btn flat
+                 label="关闭"
+                 color="primary"
+                 @click="cancelHistoryCompare" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -89,6 +123,7 @@ export default {
   data () {
     return {
       lookHistoryDetailFlag: false,
+      HistoryCompareLogFlag: false,
       HistoryList: [],//历史记录列表
       HistorySelected: [],//历史记录选择
       //历史记录表格配置
@@ -109,8 +144,31 @@ export default {
         rowsNumber: 1     //总页数
       },
 
-      createTime: '',
-      summary: ''
+      createTime: '',   //历史记录创建时间
+      summary: '',       //历史记录总结 
+
+      HistoryCompareLogList: [],//比较日志列表
+      HistoryCompareColumns: [
+        {
+          name: 'createTime',
+          required: true,
+          label: '创建时间',
+          align: 'left',
+          field: row => row.createTime,
+          format: val => `${val}`,
+          sortable: true
+        },
+        { name: 'ConnectCount', label: '连接数', align: 'left', field: 'ConnectCount', sortable: true },
+        { name: 'ConnectFailCount', label: '连接失败数', align: 'left', field: 'ConnectFailCount', sortable: true },
+        { name: 'ReqCount', label: '请求数', align: 'left', field: 'ReqCount', sortable: true },
+        { name: 'ReqFailCount', label: '请求失败数', align: 'left', field: 'ReqFailCount', sortable: true },
+        { name: 'MaxQPS', label: '最大QPS', align: 'left', field: 'MaxQPS', sortable: true },
+        { name: 'MinQPS', label: '最小QPS', align: 'left', field: 'MinQPS', sortable: true },
+        { name: 'AvgQPS', label: '平均QPS', align: 'left', field: 'AvgQPS', sortable: true },
+        { name: 'MaxDuration', label: '最大持续时间', align: 'left', field: 'MaxDuration', sortable: true },
+        { name: 'MinDurartion', label: '最小持续事件', align: 'left', field: 'MinDurartion', sortable: true },
+        { name: 'AvgDuration', label: '平均持续时间', align: 'left', field: 'AvgDuration', sortable: true },
+      ]
     }
   },
   methods: {
@@ -210,6 +268,64 @@ export default {
         }
       })
     },
+    //------------------------------日志比较--------------------------
+    //打开比较日志
+    compareLog () {
+      console.log(this.HistorySelected)
+      //let _this = this;
+      if (this.HistorySelected.length == 0 || this.HistorySelected.length == 1) {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '请选择两个或两个以上的历史记录进行比较。',
+          color: 'red',
+        })
+        return;
+      }
+      let idsArr = [];
+      for (let i = 0; i < this.HistorySelected.length; i++) {
+        idsArr.push(this.HistorySelected[i].id)
+      }
+      this.$q.loading.show()
+      let para = {
+        CaseID: this.$route.query.id,
+        IDS: idsArr
+      }
+      Apis.postSelectedHistories(para).then((res) => {
+        console.log(res)
+        for (let i = 0; i < res.data.length; i++) {
+          this.HistoryCompareLogList.push(JSON.parse(res.data[i].summary));
+          this.HistoryCompareLogList[i].createTime = res.data[i].createTime;
+        }
+        this.$q.loading.hide()
+        this.HistoryCompareLogFlag = true;
+      })
+      // getHistoryDetail(this.HistorySelected, 0)
+      // function getHistoryDetail (value, num) {
+      //   console.log(num)
+      //   if (num != _this.HistorySelected.length) {
+      //     let para = {
+      //       caseId: _this.$route.query.id,
+      //       historyId: value[num].id
+      //     }
+      //     Apis.getHistoryDetail(para).then((res) => {
+      //       console.log(res)
+      //       _this.HistoryCompareLogList.push(JSON.parse(res.data.summary));
+      //       _this.HistoryCompareLogList[num].createTime = res.data.createTime;
+      //       getHistoryDetail(_this.HistorySelected, num + 1)
+      //     })
+      //   } else {
+      //     console.log(_this.HistoryCompareLogList)
+      //     _this.$q.loading.hide()
+      //     _this.HistoryCompareLogFlag = true;
+      //   }
+      // }
+    },
+    //关闭比较日志
+    cancelHistoryCompare () {
+      this.HistoryCompareLogFlag = false;
+      this.HistoryCompareLogList = [];
+    }
   }
 }
 </script>
