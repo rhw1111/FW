@@ -245,6 +245,8 @@ namespace FW.TestPlatform.Main
         public const string Print = "print";
         public const string HttpGetWithConnectInvoke = "httpgetwithconnectinvoke";
         public const string HttpPostWithConnectInvoke = "httppostwithconnectinvoke";
+        public const string Now = "now";
+        public const string Sleep = "sleep";
     }
 
     public static class LabelTypes

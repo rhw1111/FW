@@ -289,7 +289,9 @@ namespace FW.TestPlatform.Main
                 AdditionFuncNames.SplitJsonData,
                 AdditionFuncNames.Print,
                 AdditionFuncNames.HttpGetWithConnect,
-                AdditionFuncNames.HttpPostWithConnect };
+                AdditionFuncNames.HttpPostWithConnect,
+                AdditionFuncNames.Now,
+                AdditionFuncNames.Sleep };
 
             TestCaseHandleServiceForHttp.AdditionFuncNames = new List<string> {
                 AdditionFuncNames.NameOnceJsonData,
@@ -362,6 +364,8 @@ namespace FW.TestPlatform.Main
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.Print] = DIContainerContainer.Get<LabelParameterHandlerForPrintFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.HttpGetWithConnectInvoke] = DIContainerContainer.Get<LabelParameterHandlerForHttpGetWithConnectInvokeFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.HttpPostWithConnectInvoke] = DIContainerContainer.Get<LabelParameterHandlerForHttpPostWithConnectInvokeFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.Now] = DIContainerContainer.Get<LabelParameterHandlerForNowFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.Sleep] = DIContainerContainer.Get<LabelParameterHandlerForSleepFactory>();
 
             GetSeparatorServiceSelector.GetSeparatorServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSeparatorServiceForLocustFactory>();
 
