@@ -289,9 +289,7 @@ namespace FW.TestPlatform.Main
                 AdditionFuncNames.SplitJsonData,
                 AdditionFuncNames.Print,
                 AdditionFuncNames.HttpGetWithConnect,
-                AdditionFuncNames.HttpPostWithConnect,
-                AdditionFuncNames.Now,
-                AdditionFuncNames.Sleep };
+                AdditionFuncNames.HttpPostWithConnect };
 
             TestCaseHandleServiceForHttp.AdditionFuncNames = new List<string> {
                 AdditionFuncNames.NameOnceJsonData,
