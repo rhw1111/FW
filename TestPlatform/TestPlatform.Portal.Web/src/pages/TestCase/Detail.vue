@@ -216,7 +216,7 @@
                :detailData="detailData"
                ref="TestCaseHistory" />
     </div>
-    <!-- 日志提示 -->
+    <!-- 从主机日志提示 -->
     <q-dialog v-model="lookLogFlag"
               persistent>
       <q-card class="q-dialog-plugin full-height"
@@ -261,6 +261,25 @@
           <q-btn color="primary"
                  label="OK" />
         </q-card-actions> -->
+      </q-card>
+    </q-dialog>
+    <!-- 主机日志提示 -->
+    <q-dialog v-model="lookMasterLogFlag">
+      <q-card class="q-dialog-plugin full-height"
+              style="width: 100%; max-width: 80vw;height:800px;overflow:hidden;">
+        <q-card-section class="row">
+          <div class="text-h6 col-11">主机日志</div>
+          <q-btn color="primary"
+                 label="关 闭"
+                 class="col-1"
+                 @click="lookMasterLogFlag = false" />
+        </q-card-section>
+
+        <q-separator />
+        <q-card-section style="height:85%;overflow:hidden scroll; white-space: pre-line; word-break: break-all;">
+          {{lookMasterLogText}}
+        </q-card-section>
+        <q-separator />
       </q-card>
     </q-dialog>
   </div>
@@ -339,8 +358,12 @@ export default {
 
       tab: 'tab0',
       splitterModel: 2,
-      SlaveLogText: '',
-      SlaveLogTextArr: []
+      SlaveLogText: '',        //从机日志内容
+      SlaveLogTextArr: [],    //从机日志arr
+
+
+      lookMasterLogFlag: false,//主机日志Flag
+      lookMasterLogText: ''//主机日志内容
     }
   },
   mounted () {
@@ -641,13 +664,13 @@ export default {
       this.$q.loading.show()
       Apis.getMasterLog({ caseId: this.$route.query.id }).then((res) => {
         this.$q.loading.hide()
-        // this.lookLogFlag = true;
-        // this.lookLogText = res.data;
-        this.$q.dialog({
-          title: '提示',
-          message: res.data,
-          style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
-        })
+        this.lookMasterLogFlag = true;
+        this.lookMasterLogText = res.data;
+        // this.$q.dialog({
+        //   title: '提示',
+        //   message: res.data,
+        //   style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
+        // })
       })
     },
     //查看Slave日志
