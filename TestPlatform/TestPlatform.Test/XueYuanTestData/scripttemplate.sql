@@ -353,12 +353,20 @@ class TcpTestUser(User):
         return self.is_success
 
     def recv_data_thread_nothing(self):
+        start_time = time.time()
+
         while True:
             try:
                 if is_print_log:
                     print("[%s] [%s] [%s]: Recv Waitting...." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name))
-            
+                
+                start_time = time.time()
                 data = self.client.recv(buff_size)
+                total_time = int((time.time() - start_time) * second_unit)
+                self.environment.events.request_success.fire(
+                    request_type=request_type, name="recv_data",
+                    response_time=total_time, response_length=0)
+
 
                 if is_print_log:
                     print("[%s] [%s] [%s]: RecvData, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, data))
@@ -368,6 +376,12 @@ class TcpTestUser(User):
 
                     break
             except Exception as e:
+                total_time = int((time.time() - start_time) * second_unit)
+                self.environment.events.request_failure.fire(
+                    request_type=request_type, name="recv_data",
+                    response_time=total_time, response_length=len(str(e)),
+                    exception=e)
+
                 print("[%s] [%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, str(e)))
                 print("[%s] [%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, traceback.format_exc()))
 
