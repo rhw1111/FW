@@ -496,6 +496,23 @@ class TcpTestUser(User):
 
                     Print("add_master_data, %s" % master_data)
                     TcpTestUser.post_api("api/monitor/addmasterdata", master_data)
+            elif ("connect", request_type) in TcpTestUser.environment.runner.stats.entries:
+                stats = TcpTestUser.environment.runner.stats
+                stats_connect = stats.entries[("connect", request_type)]
+
+                if stats_connect:
+                    master_data = {}
+                    master_data["CaseID"] = case_id
+                    master_data["ConnectCount"] = str(stats_connect.num_requests)
+                    master_data["ConnectFailCount"] = str(stats_connect.num_failures)
+                    master_data["ReqCount"] = str(stats_connect.num_requests)
+                    master_data["ReqFailCount"] = str(stats_connect.num_failures)
+                    master_data["MaxDuration"] = str(stats_connect.max_response_time)
+                    master_data["MinDurartion"] = str(stats_connect.min_response_time)
+                    master_data["AvgDuration"] = str(stats_connect.avg_response_time)
+
+                    Print("add_master_data, %s" % master_data)
+                    TcpTestUser.post_api("api/monitor/addmasterdata", master_data)                    
         except Exception as e:
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, traceback.format_exc()))
