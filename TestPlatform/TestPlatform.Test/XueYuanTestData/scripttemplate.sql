@@ -87,6 +87,8 @@ is_security_data = True
 is_qps_master = True
 # 时间单位，秒=1，毫秒=1000，微妙=1000000，纳秒=1000000000
 second_unit = 1000000
+# FireEventRequest request_type
+request_type = "tcpsocket"
 
 # default is 2 seconds
 all_locusts_spawned = Semaphore()
@@ -113,7 +115,7 @@ class TcpSocketClient(socket.socket):
         except Exception as e:
             total_time = int((time.time() - start_time) * second_unit)
             self._locust_environment.events.request_failure.fire(
-                request_type="tcpsocket", name="connect",
+                request_type=request_type, name="connect",
                 response_time=total_time, response_length=len(str(e)),
                 exception=e)
 
@@ -121,7 +123,7 @@ class TcpSocketClient(socket.socket):
         else:
             total_time = int((time.time() - start_time) * second_unit)
             self._locust_environment.events.request_success.fire(
-                request_type="tcpsocket", name="connect",
+                request_type=request_type, name="connect",
                 response_time=total_time, response_length=0)
 
             return True
@@ -134,7 +136,7 @@ class TcpSocketClient(socket.socket):
         except Exception as e:
             total_time = int((time.time() - start_time) * second_unit)
             self._locust_environment.events.request_failure.fire(
-                request_type="tcpsocket", name="send",
+                request_type=request_type, name="send",
                 response_time=total_time, response_length=len(str(e)),
                 exception=e)
 
@@ -142,7 +144,7 @@ class TcpSocketClient(socket.socket):
         else:
             total_time = int((time.time() - start_time) * second_unit)
             self._locust_environment.events.request_success.fire(
-                request_type="tcpsocket", name="send",
+                request_type=request_type, name="send",
                 response_time=total_time, response_length=0)
 
             return True
@@ -156,13 +158,13 @@ class TcpSocketClient(socket.socket):
         except Exception as e:
             total_time = int((time.time() - start_time) * second_unit)
             self._locust_environment.events.request_failure.fire(
-                request_type="tcpsocket", name="recv",
+                request_type=request_type, name="recv",
                 response_time=total_time, response_length=len(str(e)),
                 exception=e)
         else:
             total_time = int((time.time() - start_time) * second_unit)
             self._locust_environment.events.request_success.fire(
-                request_type="tcpsocket", name="recv",
+                request_type=request_type, name="recv",
                 response_time=total_time, response_length=0)
 
         return recv_data
@@ -351,12 +353,20 @@ class TcpTestUser(User):
         return self.is_success
 
     def recv_data_thread_nothing(self):
+        start_time = time.time()
+
         while True:
             try:
                 if is_print_log:
                     print("[%s] [%s] [%s]: Recv Waitting...." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name))
-            
+                
+                start_time = time.time()
                 data = self.client.recv(buff_size)
+                total_time = int((time.time() - start_time) * second_unit)
+                self.environment.events.request_success.fire(
+                    request_type=request_type, name="recv_data",
+                    response_time=total_time, response_length=0)
+
 
                 if is_print_log:
                     print("[%s] [%s] [%s]: RecvData, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, data))
@@ -366,6 +376,12 @@ class TcpTestUser(User):
 
                     break
             except Exception as e:
+                total_time = int((time.time() - start_time) * second_unit)
+                self.environment.events.request_failure.fire(
+                    request_type=request_type, name="recv_data",
+                    response_time=total_time, response_length=len(str(e)),
+                    exception=e)
+
                 print("[%s] [%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, str(e)))
                 print("[%s] [%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, self.user_name, traceback.format_exc()))
 
@@ -385,9 +401,9 @@ class TcpTestUser(User):
         QPS = 0
 
         try:
-            if ("send_data", "tcpsocket") in TcpTestUser.environment.runner.stats.entries:
+            if ("send_data", request_type) in TcpTestUser.environment.runner.stats.entries:
                 stats = TcpTestUser.environment.runner.stats
-                stats_send = stats.entries[("send_data", "tcpsocket")]
+                stats_send = stats.entries[("send_data", request_type)]
 
                 if stats_send:
                     QPS = stats_send.current_rps
@@ -462,10 +478,10 @@ class TcpTestUser(User):
         # print("add_master_data")
 
         try:
-            if ("send_data", "tcpsocket") in TcpTestUser.environment.runner.stats.entries:
+            if ("send_data", request_type) in TcpTestUser.environment.runner.stats.entries:
                 stats = TcpTestUser.environment.runner.stats
-                stats_connect = stats.entries[("connect", "tcpsocket")]
-                stats_send = stats.entries[("send_data", "tcpsocket")]
+                stats_connect = stats.entries[("connect", request_type)]
+                stats_send = stats.entries[("send_data", request_type)]
 
                 if stats_connect and stats_send:
                     master_data = {}
@@ -480,6 +496,23 @@ class TcpTestUser(User):
 
                     Print("add_master_data, %s" % master_data)
                     TcpTestUser.post_api("api/monitor/addmasterdata", master_data)
+            elif ("connect", request_type) in TcpTestUser.environment.runner.stats.entries:
+                stats = TcpTestUser.environment.runner.stats
+                stats_connect = stats.entries[("connect", request_type)]
+
+                if stats_connect:
+                    master_data = {}
+                    master_data["CaseID"] = case_id
+                    master_data["ConnectCount"] = str(stats_connect.num_requests)
+                    master_data["ConnectFailCount"] = str(stats_connect.num_failures)
+                    master_data["ReqCount"] = str(stats_connect.num_requests)
+                    master_data["ReqFailCount"] = str(stats_connect.num_failures)
+                    master_data["MaxDuration"] = str(stats_connect.max_response_time)
+                    master_data["MinDurartion"] = str(stats_connect.min_response_time)
+                    master_data["AvgDuration"] = str(stats_connect.avg_response_time)
+
+                    Print("add_master_data, %s" % master_data)
+                    TcpTestUser.post_api("api/monitor/addmasterdata", master_data)                    
         except Exception as e:
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, traceback.format_exc()))
@@ -488,9 +521,9 @@ class TcpTestUser(User):
         # print("add_worker_data")
 
         try:
-            if ("send_data", "tcpsocket") in TcpTestUser.environment.runner.stats.entries:
+            if ("send_data", request_type) in TcpTestUser.environment.runner.stats.entries:
                 stats = TcpTestUser.environment.runner.stats
-                stats_send = stats.entries[("send_data", "tcpsocket")]
+                stats_send = stats.entries[("send_data", request_type)]
 
                 if stats_send:
                     worker_data_data = {}
@@ -514,10 +547,10 @@ class TcpTestUser(User):
         print("add_history_data")
 
         try:
-            if ("send_data", "tcpsocket") in TcpTestUser.environment.runner.stats.entries:
+            if ("send_data", request_type) in TcpTestUser.environment.runner.stats.entries:
                 stats = TcpTestUser.environment.runner.stats
-                stats_connect = stats.entries[("connect", "tcpsocket")]
-                stats_send = stats.entries[("send_data", "tcpsocket")]
+                stats_connect = stats.entries[("connect", request_type)]
+                stats_send = stats.entries[("send_data", request_type)]
 
                 if stats_connect and stats_send:
                     history_data = {}
@@ -727,13 +760,13 @@ class TcpTestUser(User):
                 print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, traceback.format_exc()))
                 total_time = int((time.time() - start_time) * second_unit)
                 self.environment.events.request_failure.fire(
-                    request_type="tcpsocket", name="send_data",
+                    request_type=request_type, name="send_data",
                     response_time=total_time, response_length=len(str(e)),
                     exception=e)
             else:
                 total_time = int((time.time() - start_time) * second_unit)
                 self.environment.events.request_success.fire(
-                    request_type="tcpsocket", name="send_data",
+                    request_type=request_type, name="send_data",
                     response_time=total_time, response_length=0)
         elif self.is_need_login:
             self.is_login = self.login()
