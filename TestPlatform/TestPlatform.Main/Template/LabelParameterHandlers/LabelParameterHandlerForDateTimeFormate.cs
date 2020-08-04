@@ -15,15 +15,15 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 {
     /// <summary>
     ///针对全局数据变量声明的标签参数处理
-    ///格式:{$httppostwithconnectinvoke(connect,url,headers,senddata,receivereg)}
+    ///格式:{$datetimeformate(dt,formate)}
     ///要求context中的Parameters中
     ///包含EngineType参数，参数类型为string
-    [Injection(InterfaceType = typeof(LabelParameterHandlerForHttpPostWithConnectInvoke), Scope = InjectionScope.Singleton)]
-    public class LabelParameterHandlerForHttpPostWithConnectInvoke : ILabelParameterHandler
+    [Injection(InterfaceType = typeof(LabelParameterHandlerForDateTimeFormate), Scope = InjectionScope.Singleton)]
+    public class LabelParameterHandlerForDateTimeFormate : ILabelParameterHandler
     {
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForHttpPostWithConnectInvoke(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForDateTimeFormate(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
@@ -32,26 +32,19 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
         {
             StringBuilder strCode = new StringBuilder();
 
-            if (parameters.Length < 5)
+            if (parameters.Length < 2)
             {
                 var fragment = new TextFragment()
                 {
                     Code = TextCodes.LabelParameterCountError,
                     DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
-                    ReplaceParameters = new List<object>() { "{$httppostwithconnectinvoke(connect,url,headers,senddata,receivereg)}", 5, parameters.Length }
+                    ReplaceParameters = new List<object>() { "{$datetimeformate(dt,formate)}", 2, parameters.Length }
                 };
 
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
             }
 
-            if (parameters.Length == 5)
-            {
-                strCode.Append($"HttpPostWithConnect({parameters[0]}\\, {parameters[1]}\\, {parameters[2]}\\, {parameters[3]}\\, {parameters[4]})");
-            }
-            else if (parameters.Length == 7)
-            {
-                strCode.Append($"HttpPostWithConnect({parameters[0]}\\, {parameters[1]}\\, {parameters[2]}\\, {parameters[3]}\\, {parameters[4]}\\, {parameters[5]}\\, {parameters[6]})");
-            }
+            strCode.Append($"DateTimeFormate({parameters[0]}\\, {parameters[1]})");
 
             return strCode.ToString();
         }

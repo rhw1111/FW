@@ -289,6 +289,8 @@ namespace FW.TestPlatform.Main
                 AdditionFuncNames.SplitJsonData,
                 AdditionFuncNames.Print,
                 AdditionFuncNames.FireEventRequest,
+                AdditionFuncNames.DateTimeFormate,
+                AdditionFuncNames.DateTimeAdd,
                 AdditionFuncNames.HttpGetWithConnect,
                 AdditionFuncNames.HttpPostWithConnect };
 
@@ -309,6 +311,8 @@ namespace FW.TestPlatform.Main
                 AdditionFuncNames.SplitJsonData,
                 AdditionFuncNames.Print,
                 AdditionFuncNames.FireEventRequest,
+                AdditionFuncNames.DateTimeFormate,
+                AdditionFuncNames.DateTimeAdd,
                 AdditionFuncNames.HttpGetWithConnect,
                 AdditionFuncNames.HttpPostWithConnect };
 
@@ -328,6 +332,8 @@ namespace FW.TestPlatform.Main
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.SplitJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustSplitJsonDataFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.Print}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustPrintFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.FireEventRequest}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustFireEventRequestFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.DateTimeFormate}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustDateTimeFormateFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.DateTimeAdd}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustDateTimeAddFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.HttpGetWithConnect}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustHttpGetWithConnectFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.HttpPostWithConnect}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustHttpPostWithConnectFactory>();
 
@@ -369,6 +375,8 @@ namespace FW.TestPlatform.Main
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.Time] = DIContainerContainer.Get<LabelParameterHandlerForTimeFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.Sleep] = DIContainerContainer.Get<LabelParameterHandlerForSleepFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.FireEventRequest] = DIContainerContainer.Get<LabelParameterHandlerForFireEventRequestFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.DateTimeFormate] = DIContainerContainer.Get<LabelParameterHandlerForFireEventRequestFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.DateTimeAdd] = DIContainerContainer.Get<LabelParameterHandlerForFireEventRequestFactory>();
 
             GetSeparatorServiceSelector.GetSeparatorServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSeparatorServiceForLocustFactory>();
 

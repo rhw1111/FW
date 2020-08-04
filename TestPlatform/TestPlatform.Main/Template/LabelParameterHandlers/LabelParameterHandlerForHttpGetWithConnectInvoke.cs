@@ -44,7 +44,14 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
             }
 
-            strCode.Append($"HttpGetWithConnect({parameters[0]}\\, {parameters[1]}\\, {parameters[2]}\\, {parameters[3]})");
+            if (parameters.Length == 4)
+            {
+                strCode.Append($"HttpGetWithConnect({parameters[0]}\\, {parameters[1]}\\, {parameters[2]}\\, {parameters[3]})");
+            }
+            else if (parameters.Length == 6)
+            {
+                strCode.Append($"HttpGetWithConnect({parameters[0]}\\, {parameters[1]}\\, {parameters[2]}\\, {parameters[3]}\\, {parameters[4]}\\, {parameters[5]})");
+            }
 
             return strCode.ToString();
         }

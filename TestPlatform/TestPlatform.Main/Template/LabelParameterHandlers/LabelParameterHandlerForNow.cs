@@ -32,19 +32,19 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
         {
             StringBuilder strCode = new StringBuilder();
 
-            if (parameters.Length < 1)
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TextCodes.LabelParameterCountError,
-                    DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
-                    ReplaceParameters = new List<object>() { "{$now(formate)}", 1, parameters.Length }
-                };
+            //if (parameters.Length < 1)
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TextCodes.LabelParameterCountError,
+            //        DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
+            //        ReplaceParameters = new List<object>() { "{$now(formate)}", 1, parameters.Length }
+            //    };
 
-                throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
-            }
+            //    throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
+            //}
 
-            if (string.IsNullOrEmpty(parameters[0]))
+            if (parameters.Length == 0 || string.IsNullOrEmpty(parameters[0]))
             {
                 strCode.Append($"datetime.datetime.now()");
             }
