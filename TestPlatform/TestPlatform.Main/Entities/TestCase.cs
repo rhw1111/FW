@@ -391,12 +391,26 @@ namespace FW.TestPlatform.Main.Entities
                     DefaultFormatting = "已经存在名称为{0}的测试用例",
                     ReplaceParameters = new List<object>() { tCase.Name }
                 };
-
                 throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseByName, fragment, 1, 0);
-
             }
-            tCase.OwnerID = await _systemConfigurationService.GetDefaultUserIDAsync();
-            await _testCaseStore.Add(tCase, cancellationToken);
+            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel=System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
+            {
+                tCase.OwnerID = await _systemConfigurationService.GetDefaultUserIDAsync();
+                await _testCaseStore.Add(tCase, cancellationToken);
+                //检查是否有名称重复的
+                newId = await _testCaseStore.QueryByNameNoLock(tCase.Name, cancellationToken);
+                if (newId != tCase.ID)
+                {
+                    var fragment = new TextFragment()
+                    {
+                        Code = TestPlatformTextCodes.ExistTestCaseByName,
+                        DefaultFormatting = "已经存在名称为{0}的测试用例",
+                        ReplaceParameters = new List<object>() { tCase.Name }
+                    };
+                    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseByName, fragment, 1, 0);
+                }
+                scope.Complete();
+            }   
         }
 
         //public async Task AddHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default)
@@ -407,7 +421,7 @@ namespace FW.TestPlatform.Main.Entities
 
         public async Task AddHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default)
         {
-            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
+            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
             {
 
                 //修改case状态为完成
@@ -434,18 +448,6 @@ namespace FW.TestPlatform.Main.Entities
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
             }
-            //var testCase = await _testCaseStore.QueryByID(slaveHost.TestCaseID, cancellationToken);
-            //if (testCase == null)
-            //{
-            //    var fragment = new TextFragment()
-            //    {
-            //        Code = TestPlatformTextCodes.NotFoundTestCaseByID,
-            //        DefaultFormatting = "找不到Id为{0}的测试用例",
-            //        ReplaceParameters = new List<object>() { slaveHost.TestCaseID.ToString() }
-            //    };
-
-            //    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
-            //}
             Guid? newId = await _testCaseSlaveHostStore.QueryByNameNoLock(tCase.ID, slaveHost.SlaveName, cancellationToken);
             if(newId != null)
             {
@@ -458,8 +460,23 @@ namespace FW.TestPlatform.Main.Entities
 
                 throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseSlaveName, fragment, 1, 0);
             }
-            //slaveHost.TestCaseID = tCase.ID;
-            await _testCaseSlaveHostStore.Add(slaveHost, cancellationToken);
+            await using(DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel= System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
+            {
+                slaveHost.TestCaseID = tCase.ID;
+                await _testCaseSlaveHostStore.Add(slaveHost, cancellationToken);
+                newId = await _testCaseSlaveHostStore.QueryByNameNoLock(tCase.ID, slaveHost.SlaveName, cancellationToken);
+                if (newId != slaveHost.ID)
+                {
+                    var fragment = new TextFragment()
+                    {
+                        Code = TestPlatformTextCodes.ExistTestCaseSlaveByName,
+                        DefaultFormatting = "已经存在名称为{0}的主测试从机",
+                        ReplaceParameters = new List<object>() { slaveHost.SlaveName }
+                    };
+                    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseSlaveName, fragment, 1, 0);
+                }
+                scope.Complete();
+            }
         }
 
         public async Task Delete(TestCase tCase, CancellationToken cancellationToken = default)
@@ -696,7 +713,39 @@ namespace FW.TestPlatform.Main.Entities
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
             }
-            await _testCaseStore.Update(tCase, cancellationToken);
+            //检查是否有名称重复的
+            var newId = await _testCaseStore.QueryByNameNoLock(tCase.Name, cancellationToken);
+            if (newId != null && tCase.ID != newId)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.ExistTestCaseByName,
+                    DefaultFormatting = "已经存在名称为{0}的测试案例",
+                    ReplaceParameters = new List<object>() { tCase.Name }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseByName, fragment, 1, 0);
+
+            }
+
+            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
+            {
+                await _testCaseStore.Update(tCase, cancellationToken);
+                //检查是否有名称重复的
+                newId = await _testCaseStore.QueryByNameNoLock(tCase.Name, cancellationToken);
+                if (newId != null && tCase.ID != newId)
+                {
+                    var fragment = new TextFragment()
+                    {
+                        Code = TestPlatformTextCodes.ExistTestCaseByName,
+                        DefaultFormatting = "已经存在名称为{0}的测试数据源",
+                        ReplaceParameters = new List<object>() { tCase.Name }
+                    };
+
+                    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseByName, fragment, 1, 0);
+                }
+                scope.Complete();
+            }
         }
 
         public Task UpdateHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default)
@@ -706,17 +755,6 @@ namespace FW.TestPlatform.Main.Entities
 
         public async Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default)
         {
-            //var testCase = await _testCaseStore.QueryByID(tCase.ID, cancellationToken);
-            //if (testCase == null)
-            //{
-            //    var fragment = new TextFragment()
-            //    {
-            //        Code = TestPlatformTextCodes.NotFoundTestCaseByID,
-            //        DefaultFormatting = "找不到Id为{0}的测试用例",
-            //        ReplaceParameters = new List<object>() { tCase.ID.ToString() }
-            //    };
-            //    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
-            //}
             if (tCase.Status != TestCaseStatus.NoRun)
             {
                 var fragment = new TextFragment()
@@ -740,9 +778,41 @@ namespace FW.TestPlatform.Main.Entities
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
             }
+            //检查是否有名称重复的
+            var newId = await _testCaseSlaveHostStore.QueryByNameNoLock(tCase.ID, slaveHost.SlaveName, cancellationToken);
+            if (newId != null && slaveHost.ID != newId)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.ExistTestCaseSlaveByName,
+                    DefaultFormatting = "已经存在名称为{0}的从主机",
+                    ReplaceParameters = new List<object>() { slaveHost.SlaveName }
+                };
 
-            slaveHost.TestCaseID = tCase.ID;
-            await _testCaseSlaveHostStore.Update(slaveHost, cancellationToken);
+                throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseSlaveName, fragment, 1, 0);
+
+            }
+            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
+            {
+                slaveHost.TestCaseID = tCase.ID;
+                await _testCaseSlaveHostStore.Update(slaveHost, cancellationToken);
+                //检查是否有名称重复的
+                newId = await _testCaseSlaveHostStore.QueryByNameNoLock(tCase.ID, slaveHost.SlaveName, cancellationToken);
+                if (newId != null && slaveHost.ID != newId)
+                {
+                    var fragment = new TextFragment()
+                    {
+                        Code = TestPlatformTextCodes.ExistTestCaseSlaveByName,
+                        DefaultFormatting = "已经存在名称为{0}的从主机",
+                        ReplaceParameters = new List<object>() { slaveHost.SlaveName }
+                    };
+
+                    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseSlaveName, fragment, 1, 0);
+
+                }
+                scope.Complete();
+            }
+            
         }
 
         public async Task DeleteSlaveHosts(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default)

@@ -189,35 +189,35 @@ namespace FW.TestPlatform.Main.Entities
             }
         }
 
-        public async Task Add(CancellationToken cancellationToken = default)
-        {
-            await _imp.Add(this, cancellationToken);
-        }
+        //public async Task Add(CancellationToken cancellationToken = default)
+        //{
+        //    await _imp.Add(this, cancellationToken);
+        //}
 
-        public async Task Add()
-        {
-            await _imp.Add(this);
-        }
+        //public async Task Add()
+        //{
+        //    await _imp.Add(this);
+        //}
 
-        public async Task Update(CancellationToken cancellationToken = default)
-        {
-            await _imp.Update(this, cancellationToken);
-        }
+        //public async Task Update(CancellationToken cancellationToken = default)
+        //{
+        //    await _imp.Update(this, cancellationToken);
+        //}
 
-        public async Task Update()
-        {
-            await _imp.Update(this);
-        }
+        //public async Task Update()
+        //{
+        //    await _imp.Update(this);
+        //}
 
-        public async Task Delete(CancellationToken cancellationToken = default)
-        {
-            await _imp.Delete(this, cancellationToken);
-        }
+        //public async Task Delete(CancellationToken cancellationToken = default)
+        //{
+        //    await _imp.Delete(this, cancellationToken);
+        //}
 
-        public async Task Delete()
-        {
-            await _imp.Delete(this);
-        }
+        //public async Task Delete()
+        //{
+        //    await _imp.Delete(this);
+        //}
     }
 
     [Injection(InterfaceType = typeof(ITestCaseSlaveHostIMP), Scope = InjectionScope.Transient)]
@@ -230,42 +230,42 @@ namespace FW.TestPlatform.Main.Entities
             _testCaseSlaveHostStore = testCaseSlaveHostStore;
         }
 
-        public async Task Add(TestCaseSlaveHost caseSlaveHost, CancellationToken cancellationToken = default)
-        {
-            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
-            {
-                await _testCaseSlaveHostStore.Add(caseSlaveHost, cancellationToken);
-                //检查是否有名称重复的
+        //public async Task Add(TestCaseSlaveHost caseSlaveHost, CancellationToken cancellationToken = default)
+        //{
+        //    await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
+        //    {
+        //        await _testCaseSlaveHostStore.Add(caseSlaveHost, cancellationToken);
+        //        //检查是否有名称重复的
 
-                scope.Complete();
-            }
-        }
+        //        scope.Complete();
+        //    }
+        //}
 
-        public async Task Delete(TestCaseSlaveHost caseSlaveHost, CancellationToken cancellationToken = default)
-        {
-            await _testCaseSlaveHostStore.Delete(caseSlaveHost.ID, cancellationToken);
-        }
+        //public async Task Delete(TestCaseSlaveHost caseSlaveHost, CancellationToken cancellationToken = default)
+        //{
+        //    await _testCaseSlaveHostStore.Delete(caseSlaveHost.ID, cancellationToken);
+        //}
 
-        public async Task Update(TestCaseSlaveHost caseSlaveHost, CancellationToken cancellationToken = default)
-        {
-            TestCaseSlaveHost? testCaseSlaveHost = await _testCaseSlaveHostStore.QueryByID(caseSlaveHost.ID, cancellationToken);
-            if (testCaseSlaveHost != null)
-            {
-                await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
-                {
-                    await _testCaseSlaveHostStore.Update(caseSlaveHost, cancellationToken);
-                    //检查是否有名称重复的
+        //public async Task Update(TestCaseSlaveHost caseSlaveHost, CancellationToken cancellationToken = default)
+        //{
+        //    TestCaseSlaveHost? testCaseSlaveHost = await _testCaseSlaveHostStore.QueryByID(caseSlaveHost.ID, cancellationToken);
+        //    if (testCaseSlaveHost != null)
+        //    {
+        //        await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
+        //        {
+        //            await _testCaseSlaveHostStore.Update(caseSlaveHost, cancellationToken);
+        //            //检查是否有名称重复的
 
-                    scope.Complete();
-                }
-            }
-        }
+        //            scope.Complete();
+        //        }
+        //    }
+        //}
     }
 
     public interface ITestCaseSlaveHostIMP
     {
-        Task Add(TestCaseSlaveHost tCaseSlaveHost, CancellationToken cancellationToken = default);
-        Task Delete(TestCaseSlaveHost tCaseSlaveHost, CancellationToken cancellationToken = default);
-        Task Update(TestCaseSlaveHost tCaseSlaveHost, CancellationToken cancellationToken = default);
+        //Task Add(TestCaseSlaveHost tCaseSlaveHost, CancellationToken cancellationToken = default);
+        //Task Delete(TestCaseSlaveHost tCaseSlaveHost, CancellationToken cancellationToken = default);
+        //Task Update(TestCaseSlaveHost tCaseSlaveHost, CancellationToken cancellationToken = default);
     }
 }
