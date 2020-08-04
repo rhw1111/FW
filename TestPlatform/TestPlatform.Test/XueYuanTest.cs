@@ -193,9 +193,9 @@ namespace TestPlatform.Test
                 ExtensionInfo = ""
             };
 
-            await testCaseSlaveHost.Add();
+            //await testCaseSlaveHost.Add();
 
-            Assert.Pass();
+            //Assert.Pass();
         }
 
         //[Test]
@@ -213,7 +213,7 @@ namespace TestPlatform.Test
             Assert.Pass();
         }
 
-        //[Test]
+        [Test]
         public async Task TestTestCaseRun()
         {
             TestCase testCase = new TestCase()
@@ -232,7 +232,7 @@ namespace TestPlatform.Test
             Assert.Pass();
         }
 
-        [Test]
+        //[Test]
         public async Task TestTestCaseHttpRun()
         {
             TestCase testCase = new TestCase()

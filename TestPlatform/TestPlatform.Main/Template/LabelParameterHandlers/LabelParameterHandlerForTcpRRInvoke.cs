@@ -15,7 +15,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 {
     /// <summary>
     ///针对全局数据变量声明的标签参数处理
-    ///格式:{$tcprrinvoke(address, port,senddata,receivereg)}
+    ///格式:{$tcprrinvoke(address, port,senddata,receivereg,name=None,self=None)}
     ///要求context中的Parameters中
     ///包含EngineType参数，参数类型为string
     [Injection(InterfaceType = typeof(LabelParameterHandlerForTcpRRInvoke), Scope = InjectionScope.Singleton)]
@@ -38,7 +38,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 {
                     Code = TextCodes.LabelParameterCountError,
                     DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
-                    ReplaceParameters = new List<object>() { "{$tcprrinvoke(address,port,senddata,receivereg)}", 4, parameters.Length }
+                    ReplaceParameters = new List<object>() { "{$tcprrinvoke(address,port,senddata,receivereg,name=None,self=None)}", 4, parameters.Length }
                 };
 
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);

@@ -14,7 +14,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 {
     /// <summary>
     ///针对全局数据变量声明的标签参数处理
-    ///格式:{$tcprrwithconnectinvoke(connect,senddata,receivereg)}
+    ///格式:{$tcprrwithconnectinvoke(connect,senddata,receivereg,name=None,self=None)}
     ///要求context中的Parameters中
     ///包含EngineType参数，参数类型为string
     [Injection(InterfaceType = typeof(LabelParameterHandlerForTcpRRWithConnectInvoke), Scope = InjectionScope.Singleton)]
@@ -37,17 +37,17 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 {
                     Code = TextCodes.LabelParameterCountError,
                     DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
-                    ReplaceParameters = new List<object>() { "{$tcprrwithconnectinvoke(connect,senddata,receivereg)}", 3, parameters.Length }
+                    ReplaceParameters = new List<object>() { "{$tcprrwithconnectinvoke(connect,senddata,receivereg,name=None,self=None)}", 3, parameters.Length }
                 };
 
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
             }
 
-            if (parameters.Length == 4)
+            if (parameters.Length == 3)
             {
                 strCode.Append($"TcpRRWithConnect({parameters[0]}\\, {parameters[1]}\\, {parameters[2]})");
             }
-            else if (parameters.Length == 6)
+            else if (parameters.Length == 5)
             {
                 strCode.Append($"TcpRRWithConnect({parameters[0]}\\, {parameters[1]}\\, {parameters[2]}\\, {parameters[3]}\\, {parameters[4]})");
             }
