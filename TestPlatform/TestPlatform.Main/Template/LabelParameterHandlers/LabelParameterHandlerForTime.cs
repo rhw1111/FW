@@ -15,15 +15,15 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 {
     /// <summary>
     ///针对全局数据变量声明的标签参数处理
-    ///格式:{$now(formate)}
+    ///格式:{$time(formate)}
     ///要求context中的Parameters中
     ///包含EngineType参数，参数类型为string
-    [Injection(InterfaceType = typeof(LabelParameterHandlerForNow), Scope = InjectionScope.Singleton)]
-    public class LabelParameterHandlerForNow : ILabelParameterHandler
+    [Injection(InterfaceType = typeof(LabelParameterHandlerForTime), Scope = InjectionScope.Singleton)]
+    public class LabelParameterHandlerForTime : ILabelParameterHandler
     {
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForNow(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForTime(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
@@ -38,7 +38,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 {
                     Code = TextCodes.LabelParameterCountError,
                     DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
-                    ReplaceParameters = new List<object>() { "{$now(formate)}", 1, parameters.Length }
+                    ReplaceParameters = new List<object>() { "{$time(formate)}", 1, parameters.Length }
                 };
 
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
@@ -46,11 +46,11 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             if (string.IsNullOrEmpty(parameters[0]))
             {
-                strCode.Append($"datetime.datetime.now()");
+                strCode.Append($"time.time()");
             }
             else
             {
-                strCode.Append($"datetime.datetime.now().strftime({parameters[0]})");
+                strCode.Append($"time.time().strftime({parameters[0]})");
             }
 
             return strCode.ToString();

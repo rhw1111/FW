@@ -15,15 +15,15 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 {
     /// <summary>
     ///针对全局数据变量声明的标签参数处理
-    ///格式:{$now(formate)}
+    ///格式:{$fireeventrequest(is_success,name,start_time,e)}
     ///要求context中的Parameters中
     ///包含EngineType参数，参数类型为string
-    [Injection(InterfaceType = typeof(LabelParameterHandlerForNow), Scope = InjectionScope.Singleton)]
-    public class LabelParameterHandlerForNow : ILabelParameterHandler
+    [Injection(InterfaceType = typeof(LabelParameterHandlerForFireEventRequest), Scope = InjectionScope.Singleton)]
+    public class LabelParameterHandlerForFireEventRequest : ILabelParameterHandler
     {
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForNow(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForFireEventRequest(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
@@ -32,26 +32,19 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
         {
             StringBuilder strCode = new StringBuilder();
 
-            if (parameters.Length < 1)
+            if (parameters.Length < 4)
             {
                 var fragment = new TextFragment()
                 {
                     Code = TextCodes.LabelParameterCountError,
                     DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
-                    ReplaceParameters = new List<object>() { "{$now(formate)}", 1, parameters.Length }
+                    ReplaceParameters = new List<object>() { "{$fireeventrequest(is_success,name,start_time,e)}", 4, parameters.Length }
                 };
 
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
             }
 
-            if (string.IsNullOrEmpty(parameters[0]))
-            {
-                strCode.Append($"datetime.datetime.now()");
-            }
-            else
-            {
-                strCode.Append($"datetime.datetime.now().strftime({parameters[0]})");
-            }
+            strCode.Append($"FireEventRequest(self\\, {parameters[0]}\\, {parameters[1]}\\, {parameters[2]}\\, {parameters[3]})");
 
             return strCode.ToString();
         }

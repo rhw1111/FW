@@ -246,7 +246,9 @@ namespace FW.TestPlatform.Main
         public const string HttpGetWithConnectInvoke = "httpgetwithconnectinvoke";
         public const string HttpPostWithConnectInvoke = "httppostwithconnectinvoke";
         public const string Now = "now";
+        public const string Time = "time";
         public const string Sleep = "sleep";
+        public const string FireEventRequest = "fireeventrequest";
     }
 
     public static class LabelTypes
@@ -293,6 +295,7 @@ namespace FW.TestPlatform.Main
         public const string GetJsonData = "GetJsonData";
         public const string SplitJsonData = "SplitJsonData";
         public const string Print = "Print";
+        public const string FireEventRequest = "FireEventRequest";
         public const string HttpGetWithConnect = "HttpGetWithConnect";
         public const string HttpPostWithConnect = "HttpPostWithConnect";
     }
