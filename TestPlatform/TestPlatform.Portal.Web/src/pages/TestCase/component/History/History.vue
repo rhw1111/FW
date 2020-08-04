@@ -165,9 +165,9 @@ export default {
         { name: 'MaxQPS', label: '最大QPS', align: 'left', field: 'MaxQPS', sortable: true },
         { name: 'MinQPS', label: '最小QPS', align: 'left', field: 'MinQPS', sortable: true },
         { name: 'AvgQPS', label: '平均QPS', align: 'left', field: 'AvgQPS', sortable: true },
-        { name: 'MaxDuration', label: '最大持续时间', align: 'left', field: 'MaxDuration', sortable: true },
-        { name: 'MinDurartion', label: '最小持续事件', align: 'left', field: 'MinDurartion', sortable: true },
-        { name: 'AvgDuration', label: '平均持续时间', align: 'left', field: 'AvgDuration', sortable: true },
+        { name: 'MaxDuration', label: '最大响应时间（微秒）', align: 'left', field: 'MaxDuration', sortable: true },
+        { name: 'MinDurartion', label: '最小响应时间（微秒）', align: 'left', field: 'MinDurartion', sortable: true },
+        { name: 'AvgDuration', label: '平均响应时间（微秒）', align: 'left', field: 'AvgDuration', sortable: true },
       ]
     }
   },
