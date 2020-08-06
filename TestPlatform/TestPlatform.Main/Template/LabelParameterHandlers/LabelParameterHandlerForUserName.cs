@@ -9,22 +9,22 @@ using MSLibrary.LanguageTranslate;
 using FW.TestPlatform.Main.Code;
 using FW.TestPlatform.Main.Entities;
 using FW.TestPlatform.Main.Entities.TestCaseHandleServices;
-using System.Text.RegularExpressions;
 
 namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 {
     /// <summary>
     ///针对全局数据变量声明的标签参数处理
-    ///格式:{$time(formate)}
+    ///格式:{$username()}
     ///要求context中的Parameters中
     ///包含EngineType参数，参数类型为string
-    [Injection(InterfaceType = typeof(LabelParameterHandlerForTime), Scope = InjectionScope.Singleton)]
-    public class LabelParameterHandlerForTime : ILabelParameterHandler
+    ///包含DataSourceVars参数，参数类型为List<ConfigurationDataForDataSourceVar>
+    [Injection(InterfaceType = typeof(LabelParameterHandlerForUserName), Scope = InjectionScope.Singleton)]
+    public class LabelParameterHandlerForUserName : ILabelParameterHandler
     {
         private readonly ISelector<IFactory<IGenerateVarInvokeService>> _generateVarInvokeServiceSelector;
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForTime(ISelector<IFactory<IGenerateVarInvokeService>> generateVarInvokeServiceSelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForUserName(ISelector<IFactory<IGenerateVarInvokeService>> generateVarInvokeServiceSelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
             _generateVarInvokeServiceSelector = generateVarInvokeServiceSelector;
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
@@ -48,20 +48,8 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
 
             StringBuilder strCode = new StringBuilder();
 
-            if (parameters.Length > 1)
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TextCodes.LabelParameterCountError,
-                    DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
-                    ReplaceParameters = new List<object>() { "{$time(formate)}", 1, parameters.Length }
-                };
-
-                throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
-            }
-
-            var funService = _generateVarInvokeServiceSelector.Choose($"{engineType}-{LabelParameterTypes.Time}").Create();
-            string strTemp = await funService.Generate($"{LabelParameterTypes.Time}", parameters);
+            var funService = _generateVarInvokeServiceSelector.Choose($"{engineType}").Create();
+            string strTemp = await funService.Generate("self.user_name", parameters);
             strCode.Append(strTemp);
 
             return strCode.ToString();

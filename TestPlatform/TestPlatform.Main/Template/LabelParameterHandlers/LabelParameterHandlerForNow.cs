@@ -21,15 +21,31 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
     [Injection(InterfaceType = typeof(LabelParameterHandlerForNow), Scope = InjectionScope.Singleton)]
     public class LabelParameterHandlerForNow : ILabelParameterHandler
     {
+        private readonly ISelector<IFactory<IGenerateVarInvokeService>> _generateVarInvokeServiceSelector;
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForNow(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForNow(ISelector<IFactory<IGenerateVarInvokeService>> generateVarInvokeServiceSelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
+            _generateVarInvokeServiceSelector = generateVarInvokeServiceSelector;
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
 
         public async Task<string> Execute(TemplateContext context, string[] parameters)
         {
+            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.EngineType, out object? objEngineType))
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.NotFoundParameterInTemplateContextByName,
+                    DefaultFormatting = "在模板上下文中找不到名称为{0}的参数",
+                    ReplaceParameters = new List<object>() { TemplateContextParameterNames.EngineType }
+                };
+
+                throw new UtilityException((int)Errors.NotFoundParameterInTemplateContextByName, fragment, 1, 0);
+            }
+
+            var engineType = (string)objEngineType;
+
             StringBuilder strCode = new StringBuilder();
 
             if (parameters.Length > 1)
@@ -44,14 +60,9 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
             }
 
-            if (parameters.Length == 0 || string.IsNullOrEmpty(parameters[0]))
-            {
-                strCode.Append($"datetime.datetime.now()");
-            }
-            else
-            {
-                strCode.Append($"datetime.datetime.now().strftime({parameters[0]})");
-            }
+            var funService = _generateVarInvokeServiceSelector.Choose($"{engineType}-{LabelParameterTypes.Now}").Create();
+            string strTemp = await funService.Generate($"{LabelParameterTypes.Now}", parameters);
+            strCode.Append(strTemp);
 
             return strCode.ToString();
         }

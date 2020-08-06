@@ -381,6 +381,7 @@ namespace FW.TestPlatform.Main
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.FireEventRequest] = DIContainerContainer.Get<LabelParameterHandlerForFireEventRequestFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.DateTimeFormate] = DIContainerContainer.Get<LabelParameterHandlerForFireEventRequestFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.DateTimeAdd] = DIContainerContainer.Get<LabelParameterHandlerForFireEventRequestFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.UserName] = DIContainerContainer.Get<LabelParameterHandlerForUserNameFactory>();
 
             GetSeparatorServiceSelector.GetSeparatorServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSeparatorServiceForLocustFactory>();
             GetSpaceServiceSelector.GetSpaceServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSpaceServiceForLocustFactory>();
@@ -392,7 +393,14 @@ namespace FW.TestPlatform.Main
             GenerateDataVarDeclareServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{DataSourceTypes.Json}"] = DIContainerContainer.Get<GenerateDataVarDeclareServiceForLocustJsonFactory>();
 
             GenerateFuncInvokeServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}"] = DIContainerContainer.Get<GenerateFuncInvokeServiceForLocustFactory>();
+
             GenerateVarInvokeServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}"] = DIContainerContainer.Get<GenerateVarInvokeServiceForLocustFactory>();
+            GenerateVarInvokeServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{LabelParameterTypes.CurrConnectKV}"] = DIContainerContainer.Get<GenerateVarInvokeServiceForLocustCurrConnectKVFactory>();
+            GenerateVarInvokeServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{LabelParameterTypes.Now}"] = DIContainerContainer.Get<GenerateVarInvokeServiceForLocustNowFactory>();
+            GenerateVarInvokeServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{LabelParameterTypes.Time}"] = DIContainerContainer.Get<GenerateVarInvokeServiceForLocustTimeFactory>();
+            GenerateVarInvokeServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{LabelParameterTypes.Sleep}"] = DIContainerContainer.Get<GenerateVarInvokeServiceForLocustSleepFactory>();
+            GenerateVarInvokeServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{LabelParameterTypes.VarKV}"] = DIContainerContainer.Get<GenerateVarInvokeServiceForLocustVarKVFactory>();
+
             GenerateVarSettingServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}"] = DIContainerContainer.Get<GenerateVarSettingServiceForLocustFactory>();
         }
 
