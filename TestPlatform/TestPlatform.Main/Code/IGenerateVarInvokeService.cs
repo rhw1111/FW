@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace FW.TestPlatform.Main.Code
 {
-    public interface IGenerateFuncInvokeService
+    public interface IGenerateVarInvokeService
     {
         /// <summary>
         /// 生成代码块

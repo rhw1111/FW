@@ -79,6 +79,10 @@ namespace FW.TestPlatform.Main
         /// </summary>
         NotFoundGetSpaceServiceByName = 325710036,
         /// <summary>
+        /// 找不到指定名称的变量调用生成服务
+        /// </summary>
+        NotFoundGenerateVarInvokeServiceByName = 325710037,
+        /// <summary>
         /// 在上下文参数DataSourceFuncs中找不到指定函数名称的记录
         /// </summary>
         NotFoundFuncNameInDataSourceFuncsFormContext = 325710040,

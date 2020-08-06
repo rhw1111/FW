@@ -9,7 +9,7 @@ namespace FW.TestPlatform.Main.Code
 {
     /// <summary>
     /// 附件函数生成服务的服务选择器
-    /// GenerateDataSourceFuncServiceFactories键值对中的键为
+    /// GenerateFuncInvokeServiceFactories键值对中的键为
     /// EngineType+FunName
     /// </summary>
     [Injection(InterfaceType = typeof(ISelector<IFactory<IGenerateFuncInvokeService>>), Scope = InjectionScope.Singleton)]
@@ -24,7 +24,7 @@ namespace FW.TestPlatform.Main.Code
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.NotFoundGenerateFuncInvokeServiceByName,
-                    DefaultFormatting = "找不到名称为{0}的附件函数生成服务，发生位置为{1}",
+                    DefaultFormatting = "找不到名称为{0}的函数调用生成服务，发生位置为{1}",
                     ReplaceParameters = new List<object>() { name, $"{this.GetType().FullName}.ServiceFactories" }
                 };
 

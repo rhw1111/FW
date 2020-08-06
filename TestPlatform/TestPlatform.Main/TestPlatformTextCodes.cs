@@ -162,6 +162,13 @@ namespace FW.TestPlatform.Main
         /// </summary>
         public const string NotFoundGenerateFuncInvokeServiceByName = "NotFoundGenerateFuncInvokeServiceByName";
         /// <summary>
+        /// 找不到指定名称的函数调用生成服务
+        /// 格式为“找不到名称为{0}的变量调用生成服务，发生位置为{1}”
+        /// {0}：名称
+        /// {1}：发生位置
+        /// </summary>
+        public const string NotFoundGenerateVarInvokeServiceByName = "NotFoundGenerateVarInvokeServiceByName";
+        /// <summary>
         /// 找不到指定Id的测试案例
         /// 格式为“找不到Id为{0}的测试案例”
         /// {0}：测试案例ID

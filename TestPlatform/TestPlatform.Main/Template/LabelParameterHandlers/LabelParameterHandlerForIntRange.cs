@@ -21,18 +21,34 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
     [Injection(InterfaceType = typeof(LabelParameterHandlerForIntRange), Scope = InjectionScope.Singleton)]
     public class LabelParameterHandlerForIntRange : ILabelParameterHandler
     {
+        private readonly ISelector<IFactory<IGenerateFuncInvokeService>> _generateFuncInvokeServiceSelector;
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForIntRange(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForIntRange(ISelector<IFactory<IGenerateFuncInvokeService>> generateFuncInvokeServiceSelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
+            _generateFuncInvokeServiceSelector = generateFuncInvokeServiceSelector;
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
 
         public async Task<string> Execute(TemplateContext context, string[] parameters)
         {
+            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.EngineType, out object? objEngineType))
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.NotFoundParameterInTemplateContextByName,
+                    DefaultFormatting = "在模板上下文中找不到名称为{0}的参数",
+                    ReplaceParameters = new List<object>() { TemplateContextParameterNames.EngineType }
+                };
+
+                throw new UtilityException((int)Errors.NotFoundParameterInTemplateContextByName, fragment, 1, 0);
+            }
+
+            var engineType = (string)objEngineType;
+
             StringBuilder strCode = new StringBuilder();
 
-            if (parameters.Length < 2)
+            if (parameters.Length != 2)
             {
                 var fragment = new TextFragment()
                 {
@@ -85,7 +101,9 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
             //    throw new UtilityException((int)Errors.LabelParameterMinMaxError, fragment, 1, 0);
             //}
 
-            strCode.Append($"IntRange({parameters[0]}\\, {parameters[1]})");
+            var funService = _generateFuncInvokeServiceSelector.Choose($"{engineType}").Create();
+            string strTemp = await funService.Generate("IntRange", parameters);
+            strCode.Append(strTemp);
 
             return strCode.ToString();
         }

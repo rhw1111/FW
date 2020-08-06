@@ -118,6 +118,8 @@ using FW.TestPlatform.Main.Code.GenerateAdditionFuncServices;
 using MSLibrary.CommandLine.SSH;
 using MSLibrary.CommandLine.SSH.SSHEndpointServices;
 using FW.TestPlatform.Main.Code.GenerateVarSettingServices;
+using FW.TestPlatform.Main.Code.GenerateFuncInvokeServices;
+using FW.TestPlatform.Main.Code.GenerateVarInvokeServices;
 
 namespace FW.TestPlatform.Main
 {
@@ -389,6 +391,8 @@ namespace FW.TestPlatform.Main
             GenerateDataVarDeclareServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{DataSourceTypes.Int}"] = DIContainerContainer.Get<GenerateDataVarDeclareServiceForLocustIntFactory>();
             GenerateDataVarDeclareServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{DataSourceTypes.Json}"] = DIContainerContainer.Get<GenerateDataVarDeclareServiceForLocustJsonFactory>();
 
+            GenerateFuncInvokeServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}"] = DIContainerContainer.Get<GenerateFuncInvokeServiceForLocustFactory>();
+            GenerateVarInvokeServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}"] = DIContainerContainer.Get<GenerateVarInvokeServiceForLocustFactory>();
             GenerateVarSettingServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}"] = DIContainerContainer.Get<GenerateVarSettingServiceForLocustFactory>();
         }
 

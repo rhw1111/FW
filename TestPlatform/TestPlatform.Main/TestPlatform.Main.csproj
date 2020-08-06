@@ -24,8 +24,4 @@
     <ProjectReference Include="..\..\Commons\MSLibrary\MSLibrary.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Code\GenerateFuncInvokeServices\" />
-  </ItemGroup>
-
 </Project>

@@ -66,7 +66,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
             var separatorService = _getSeparatorServiceSelector.Choose(engineType).Create();
             var strFuncSeparator = await separatorService.GetFuncSeparator();
 
-            if (parameters.Length < 1)
+            if (parameters.Length != 1)
             {
                 var fragment = new TextFragment()
                 {

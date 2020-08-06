@@ -31,7 +31,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
         {
             StringBuilder strCode = new StringBuilder();
 
-            if (parameters.Length < 1)
+            if (parameters.Length != 1)
             {
                 var fragment = new TextFragment()
                 {

@@ -32,13 +32,13 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
         {
             StringBuilder strCode = new StringBuilder();
 
-            if (parameters.Length < 3)
+            if (parameters.Length != 1)
             {
                 var fragment = new TextFragment()
                 {
                     Code = TextCodes.LabelParameterCountError,
                     DefaultFormatting = "标签{0}要求的参数个数为{1}，而实际参数个数为{2}",
-                    ReplaceParameters = new List<object>() { "{$Sleep(number,direct,length)}", 3, parameters.Length }
+                    ReplaceParameters = new List<object>() { "{$Sleep(number,direct,length)}", 1, parameters.Length }
                 };
 
                 throw new UtilityException((int)Errors.LabelParameterCountError, fragment, 1, 0);
