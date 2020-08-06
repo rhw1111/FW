@@ -112,6 +112,7 @@ using FW.TestPlatform.Main.Entities.TestCaseHandleServices;
 using FW.TestPlatform.Main.Template.LabelParameterHandlers;
 using FW.TestPlatform.Main.Code;
 using FW.TestPlatform.Main.Code.GetSeparatorServices;
+using FW.TestPlatform.Main.Code.GetSpaceServices;
 using FW.TestPlatform.Main.Code.GenerateDataVarDeclareServices;
 using FW.TestPlatform.Main.Code.GenerateAdditionFuncServices;
 using MSLibrary.CommandLine.SSH;
@@ -379,6 +380,7 @@ namespace FW.TestPlatform.Main
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.DateTimeAdd] = DIContainerContainer.Get<LabelParameterHandlerForFireEventRequestFactory>();
 
             GetSeparatorServiceSelector.GetSeparatorServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSeparatorServiceForLocustFactory>();
+            GetSpaceServiceSelector.GetSpaceServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSpaceServiceForLocustFactory>();
 
             GenerateDataVarDeclareServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}"] = DIContainerContainer.Get<GenerateDataVarDeclareServiceForLocustFactory>();
             GenerateDataVarDeclareServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{DataSourceTypes.Label}"] = DIContainerContainer.Get<GenerateDataVarDeclareServiceForLocustLabelFactory>();

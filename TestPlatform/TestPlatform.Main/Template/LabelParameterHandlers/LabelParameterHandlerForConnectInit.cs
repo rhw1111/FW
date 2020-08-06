@@ -23,10 +23,12 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
     public class LabelParameterHandlerForConnectInit : ILabelParameterHandler
     {
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
+        private readonly ISelector<IFactory<IGetSpaceService>> _getSpaceServiceSelector;
 
-        public LabelParameterHandlerForConnectInit(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForConnectInit(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector, ISelector<IFactory<IGetSpaceService>> getSpaceServiceSelector)
         {
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
+            _getSpaceServiceSelector = getSpaceServiceSelector;
         }
 
         public async Task<string> Execute(TemplateContext context, string[] parameters)
@@ -89,7 +91,8 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
             }
 
-            string strSpace = this.RepeatString(" ", int.Parse(parameters[0]));
+            var spaceService = _getSpaceServiceSelector.Choose(engineType).Create();
+            var strSpace = await spaceService.GetSpace(int.Parse(parameters[0]));
             bool isFirstLine = true;
 
             foreach (var item in vars)
@@ -123,19 +126,6 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
         public async Task<bool> IsIndividual()
         {
             return await Task.FromResult(false);
-        }
-
-        public string RepeatString(string str, int n)
-        {
-            char[] arr = str.ToCharArray();
-            char[] arrDest = new char[arr.Length * n];
-
-            for (int i = 0; i < n; i++)
-            {
-                Buffer.BlockCopy(arr, 0, arrDest, i * arr.Length * 2, arr.Length * 2);
-            }
-
-            return new string(arrDest);
         }
     }
 }

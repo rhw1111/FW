@@ -224,18 +224,18 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             {
                 #region Test Code
 #if DEBUG
-                //string testFilePath = @"E:\Downloads\script.py";
+                string testFilePath = @"E:\Downloads\script.py";
 
-                //if (File.Exists(testFilePath))
-                //{
-                //    File.Delete(testFilePath);
-                //}
+                if (File.Exists(testFilePath))
+                {
+                    File.Delete(testFilePath);
+                }
 
-                //using (FileStream fileStream = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.Write))
-                //{
-                //    BinaryWriter w = new BinaryWriter(fileStream);
-                //    w.Write(textStream.ToArray());
-                //}
+                using (FileStream fileStream = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.Write))
+                {
+                    BinaryWriter w = new BinaryWriter(fileStream);
+                    w.Write(textStream.ToArray());
+                }
 #endif
                 #endregion
                 await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{_testFilePath}{string.Format(_testFileName,string.Empty)}",10, cancellationToken);
