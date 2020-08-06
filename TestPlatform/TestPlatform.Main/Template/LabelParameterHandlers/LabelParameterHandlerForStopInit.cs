@@ -22,11 +22,13 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
     [Injection(InterfaceType = typeof(LabelParameterHandlerForStopInit), Scope = InjectionScope.Singleton)]
     public class LabelParameterHandlerForStopInit : ILabelParameterHandler
     {
+        private readonly ISelector<IFactory<IGenerateVarSettingService>> _generateVarSettingServiceFactorySelector;
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
         private readonly ISelector<IFactory<IGetSpaceService>> _getSpaceServiceSelector;
 
-        public LabelParameterHandlerForStopInit(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector, ISelector<IFactory<IGetSpaceService>> getSpaceServiceSelector)
+        public LabelParameterHandlerForStopInit(ISelector<IFactory<IGenerateVarSettingService>> generateVarSettingServiceFactorySelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector, ISelector<IFactory<IGetSpaceService>> getSpaceServiceSelector)
         {
+            _generateVarSettingServiceFactorySelector = generateVarSettingServiceFactorySelector;
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
             _getSpaceServiceSelector = getSpaceServiceSelector;
         }
@@ -95,6 +97,31 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
             var strSpace = await spaceService.GetSpace(int.Parse(parameters[0]));
             bool isFirstLine = true;
 
+            //foreach (var item in vars)
+            //{
+            //    if (!isFirstLine)
+            //    {
+            //        strCode.Append(strSpace);
+            //    }
+
+            //    // 如果Content里有换行的话，需事先处理一下
+            //    string strContent = item.Content.Replace("\r\n", strFuncSeparator);
+            //    // 加上缩进
+            //    strContent = strContent.Replace(strFuncSeparator, strFuncSeparator + strSpace);
+
+            //    if (string.IsNullOrEmpty(item.Name))
+            //    {
+            //        strCode.Append($"{strContent}");
+            //    }
+            //    else
+            //    {
+            //        strCode.Append($"{item.Name} = {strContent}");
+            //    }
+
+            //    strCode.Append(strFuncSeparator);
+            //    isFirstLine = false;
+            //}
+
             foreach (var item in vars)
             {
                 if (!isFirstLine)
@@ -102,20 +129,14 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                     strCode.Append(strSpace);
                 }
 
+                var funService = _generateVarSettingServiceFactorySelector.Choose($"{engineType}").Create();
                 // 如果Content里有换行的话，需事先处理一下
                 string strContent = item.Content.Replace("\r\n", strFuncSeparator);
                 // 加上缩进
                 strContent = strContent.Replace(strFuncSeparator, strFuncSeparator + strSpace);
-
-                if (string.IsNullOrEmpty(item.Name))
-                {
-                    strCode.Append($"{strContent}");
-                }
-                else
-                {
-                    strCode.Append($"{item.Name} = {strContent}");
-                }
-
+                string strTemp = await funService.Generate(item.Name, strContent);
+                strTemp = strTemp.Replace(strFuncSeparator, strFuncSeparator + strSpace);
+                strCode.Append(strTemp);
                 strCode.Append(strFuncSeparator);
                 isFirstLine = false;
             }

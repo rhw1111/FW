@@ -67,6 +67,10 @@ namespace FW.TestPlatform.Main
         /// </summary>
         NotFoundGenerateFuncInvokeServiceByName = 325710033,
         /// <summary>
+        /// 找不到指定名称的变量设置声明代码块生成服务
+        /// </summary>
+        NotFoundGenerateVarSettingServiceByName = 325710034,
+        /// <summary>
         /// 找不到指定名称的获取分隔符服务
         /// </summary>
         NotFoundGetSeparatorServiceByName = 325710035,

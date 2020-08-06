@@ -135,6 +135,13 @@ namespace FW.TestPlatform.Main
         /// </summary>
         public const string NotFoundGenerateDataVarDeclareServiceByName = "NotFoundGenerateDataVarDeclareServiceByName";
         /// <summary>
+        /// 找不到指定名称的变量设置声明代码块生成服务
+        /// 格式为“找不到名称为{1}的变量设置声明代码块生成服务,发生位置为{1}”
+        /// {0}：名称
+        /// {1}：发生位置
+        /// </summary>
+        public const string NotFoundGenerateVarSettingServiceByName = "NotFoundGenerateVarSettingServiceByName";
+        /// <summary>
         /// 找不到指定名称的测试数据源
         /// 格式为“找不到名称为{0}的测试数据源”
         /// {0}：数据源名称
