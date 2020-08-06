@@ -179,16 +179,16 @@ namespace FW.TestPlatform.Main.Entities
         /// <summary>
         /// 测试案例ID
         /// </summary>
-        public Guid TestCaseHistoryID
+        public Guid? TestCaseHistoryID
         {
             get
             {
 
-                return GetAttribute<Guid>(nameof(TestCaseHistoryID));
+                return GetAttribute<Guid?>(nameof(TestCaseHistoryID));
             }
             set
             {
-                SetAttribute<Guid>(nameof(TestCaseHistoryID), value);
+                SetAttribute<Guid?>(nameof(TestCaseHistoryID), value);
             }
         }
 
