@@ -160,6 +160,7 @@ CREATE TABLE `testcase` (
   `id` char(36) NOT NULL,
   `masterhostid` char(36) NOT NULL,
   `ownerid` char(36) NOT NULL,
+  `testcasehistoryid` char(36) NOT NULL,
   `enginetype` varchar(150) NOT NULL DEFAULT '',
   `name` varchar(150) NOT NULL DEFAULT '',
   `configuration` mediumtext NOT NULL,
