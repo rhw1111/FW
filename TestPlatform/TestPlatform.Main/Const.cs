@@ -251,6 +251,7 @@ namespace FW.TestPlatform.Main
         public const string FireEventRequest = "fireeventrequest";
         public const string DateTimeFormate = "datetimeformate";
         public const string DateTimeAdd = "datetimeadd";
+        public const string UserName = "username";
     }
 
     public static class LabelTypes

@@ -21,20 +21,36 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
     [Injection(InterfaceType = typeof(LabelParameterHandlerForRequestBody), Scope = InjectionScope.Singleton)]
     public class LabelParameterHandlerForRequestBody : ILabelParameterHandler
     {
-        private readonly ISelector<IFactory<IGenerateDataVarDeclareService>> _generateDataVarDeclareServiceFactorySelector;
+        private readonly ISelector<IFactory<IGenerateVarInvokeService>> _generateVarInvokeServiceSelector;
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForRequestBody(ISelector<IFactory<IGenerateDataVarDeclareService>> generateDataVarDeclareServiceFactorySelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForRequestBody(ISelector<IFactory<IGenerateVarInvokeService>> generateVarInvokeServiceSelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
-            _generateDataVarDeclareServiceFactorySelector = generateDataVarDeclareServiceFactorySelector;
+            _generateVarInvokeServiceSelector = generateVarInvokeServiceSelector;
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
 
         public async Task<string> Execute(TemplateContext context, string[] parameters)
         {
+            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.EngineType, out object? objEngineType))
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.NotFoundParameterInTemplateContextByName,
+                    DefaultFormatting = "在模板上下文中找不到名称为{0}的参数",
+                    ReplaceParameters = new List<object>() { TemplateContextParameterNames.EngineType }
+                };
+
+                throw new UtilityException((int)Errors.NotFoundParameterInTemplateContextByName, fragment, 1, 0);
+            }
+
+            var engineType = (string)objEngineType;
+
             StringBuilder strCode = new StringBuilder();
 
-            strCode.Append($"{context.Parameters[TemplateContextParameterNames.RequestBody]}");
+            var funService = _generateVarInvokeServiceSelector.Choose($"{engineType}").Create();
+            string strTemp = await funService.Generate($"{context.Parameters[TemplateContextParameterNames.RequestBody]}", parameters);
+            strCode.Append(strTemp);
 
             return strCode.ToString();
         }

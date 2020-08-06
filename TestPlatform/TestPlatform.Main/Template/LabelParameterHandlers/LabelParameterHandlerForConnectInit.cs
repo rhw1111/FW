@@ -22,11 +22,15 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
     [Injection(InterfaceType = typeof(LabelParameterHandlerForConnectInit), Scope = InjectionScope.Singleton)]
     public class LabelParameterHandlerForConnectInit : ILabelParameterHandler
     {
+        private readonly ISelector<IFactory<IGenerateVarSettingService>> _generateVarSettingServiceFactorySelector;
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
+        private readonly ISelector<IFactory<IGetSpaceService>> _getSpaceServiceSelector;
 
-        public LabelParameterHandlerForConnectInit(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForConnectInit(ISelector<IFactory<IGenerateVarSettingService>> generateVarSettingServiceFactorySelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector, ISelector<IFactory<IGetSpaceService>> getSpaceServiceSelector)
         {
+            _generateVarSettingServiceFactorySelector = generateVarSettingServiceFactorySelector;
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
+            _getSpaceServiceSelector = getSpaceServiceSelector;
         }
 
         public async Task<string> Execute(TemplateContext context, string[] parameters)
@@ -63,7 +67,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
             var separatorService = _getSeparatorServiceSelector.Choose(engineType).Create();
             var strFuncSeparator = await separatorService.GetFuncSeparator();
 
-            if (parameters.Length < 1)
+            if (parameters.Length != 1)
             {
                 var fragment = new TextFragment()
                 {
@@ -89,8 +93,34 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
             }
 
-            string strSpace = this.RepeatString(" ", int.Parse(parameters[0]));
+            var spaceService = _getSpaceServiceSelector.Choose(engineType).Create();
+            var strSpace = await spaceService.GetSpace(int.Parse(parameters[0]));
             bool isFirstLine = true;
+
+            //foreach (var item in vars)
+            //{
+            //    if (!isFirstLine)
+            //    {
+            //        strCode.Append(strSpace);
+            //    }
+
+            //    // 如果Content里有换行的话，需事先处理一下
+            //    string strContent = item.Content.Replace("\r\n", strFuncSeparator);
+            //    // 加上缩进
+            //    strContent = strContent.Replace(strFuncSeparator, strFuncSeparator + strSpace);
+
+            //    if (string.IsNullOrEmpty(item.Name))
+            //    {
+            //        strCode.Append($"{strContent}");
+            //    }
+            //    else
+            //    {
+            //        strCode.Append($"{item.Name} = {strContent}");
+            //    }
+
+            //    strCode.Append(strFuncSeparator);
+            //    isFirstLine = false;
+            //}
 
             foreach (var item in vars)
             {
@@ -99,20 +129,14 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                     strCode.Append(strSpace);
                 }
 
+                var funService = _generateVarSettingServiceFactorySelector.Choose($"{engineType}").Create();
                 // 如果Content里有换行的话，需事先处理一下
                 string strContent = item.Content.Replace("\r\n", strFuncSeparator);
                 // 加上缩进
                 strContent = strContent.Replace(strFuncSeparator, strFuncSeparator + strSpace);
-
-                if (string.IsNullOrEmpty(item.Name))
-                {
-                    strCode.Append($"{strContent}");
-                }
-                else
-                {
-                    strCode.Append($"{item.Name} = {strContent}");
-                }
-
+                string strTemp = await funService.Generate(item.Name, strContent);
+                strTemp = strTemp.Replace(strFuncSeparator, strFuncSeparator + strSpace);
+                strCode.Append(strTemp);
                 strCode.Append(strFuncSeparator);
                 isFirstLine = false;
             }
@@ -123,19 +147,6 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
         public async Task<bool> IsIndividual()
         {
             return await Task.FromResult(false);
-        }
-
-        public string RepeatString(string str, int n)
-        {
-            char[] arr = str.ToCharArray();
-            char[] arrDest = new char[arr.Length * n];
-
-            for (int i = 0; i < n; i++)
-            {
-                Buffer.BlockCopy(arr, 0, arrDest, i * arr.Length * 2, arr.Length * 2);
-            }
-
-            return new string(arrDest);
         }
     }
 }
