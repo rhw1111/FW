@@ -81,16 +81,16 @@ namespace IdentityCenter.Main.DTOModel
             }
         }
         [DataMember]
-        public List<ScopeViewModel> ResourceScopes
+        public List<string> ResourceScopes
         {
             get
             {
 
-                return GetAttribute<List<ScopeViewModel>>(nameof(ResourceScopes));
+                return GetAttribute<List<string>>(nameof(ResourceScopes));
             }
             set
             {
-                SetAttribute<List<ScopeViewModel>>(nameof(ResourceScopes), value);
+                SetAttribute<List<string>>(nameof(ResourceScopes), value);
             }
 
         }

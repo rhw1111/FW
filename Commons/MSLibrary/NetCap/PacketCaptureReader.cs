@@ -119,8 +119,8 @@ namespace MSLibrary.NetCap
             if (_BaseStream.Position == _BaseStream.Length) return null;
             UnixTime timestamp = new UnixTime(m_Reader.ReadInt32());
             int millseconds = m_Reader.ReadInt32();
-            if (millseconds > 1000000)
-                throw new InvalidDataException("读取到无效的数据格式。");
+            //if (millseconds > 1000000)
+                //throw new InvalidDataException("读取到无效的数据格式。");
             int len = m_Reader.ReadInt32();
             int rawLen = m_Reader.ReadInt32();
             if (len > rawLen)

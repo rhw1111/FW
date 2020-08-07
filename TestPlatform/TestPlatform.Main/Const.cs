@@ -76,6 +76,7 @@ namespace FW.TestPlatform.Main
     public static class LoggerProviderHandlerNames
     {
         public const string Local = "Local";
+        public const string Console = "Console";
     }
 
     /// <summary>

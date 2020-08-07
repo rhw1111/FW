@@ -65,13 +65,16 @@ namespace IdentityCenter.Server.Controllers
             }
 
             ConsentResponse grantedConsent = null;
-
+          
             // user clicked 'no' - send back the standard 'access_denied' response
             if (!model.Accept)
             {
-                grantedConsent = ConsentResponse.Denied;
+                grantedConsent = new ConsentResponse()
+                {
+                    Error = AuthorizationError.AccessDenied
+                }; 
                 // emit event
-                await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.ClientId, request.ScopesRequested));
+                await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId, request.Client.AllowedScopes));
             }
             // user clicked 'yes' - validate the data
             else
@@ -79,10 +82,10 @@ namespace IdentityCenter.Server.Controllers
                 grantedConsent = new ConsentResponse
                 {
                     RememberConsent = model.RememberConsent,
-                    ScopesConsented = request.ScopesRequested,
+                     ScopesValuesConsented= request.Client.AllowedScopes
                 };
                 // emit event
-                await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.ClientId, request.ScopesRequested, grantedConsent.ScopesConsented, grantedConsent.RememberConsent));
+                await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.Client.ClientId, request.Client.AllowedScopes, grantedConsent.ScopesValuesConsented, grantedConsent.RememberConsent));
             }
             // communicate outcome of consent back to identityserver
             await _interaction.GrantConsentAsync(request, grantedConsent);
@@ -96,7 +99,7 @@ namespace IdentityCenter.Server.Controllers
             var request = await _interaction.GetAuthorizationContextAsync(returnUrl);
             if (request != null)
             {
-                var client = await _clientStore.FindEnabledClientByIdAsync(request.ClientId);
+                var client = await _clientStore.FindEnabledClientByIdAsync(request.Client.ClientId);
                 if (client != null)
                 {
                     vm = new ConsentViewModel
@@ -107,16 +110,16 @@ namespace IdentityCenter.Server.Controllers
                         ClientLogoUrl = client.LogoUri,
                         AllowRememberConsent = client.AllowRememberConsent
                     };
-                    var resources = await _resourceStore.FindEnabledResourcesByScopeAsync(request.ScopesRequested);
+                    var resources = await _resourceStore.FindEnabledResourcesByScopeAsync(request.Client.AllowedScopes);
                     if (resources != null && (resources.IdentityResources.Any() || resources.ApiResources.Any()))
                     {
                         vm.IdentityScopes = resources.IdentityResources.Select(x => CreateScopeViewModel(x)).ToList();
-                        vm.ResourceScopes = resources.ApiResources.SelectMany(x => x.Scopes).Select(x => CreateScopeViewModel(x)).ToList();
+                        vm.ResourceScopes = resources.ApiResources.SelectMany(x => x.Scopes).ToList();
                     }
                     else
                     {
                         vm.IdentityScopes = new List<ScopeViewModel>();
-                        vm.ResourceScopes = new List<ScopeViewModel>();
+                        vm.ResourceScopes = new List<string>();
                     }
 
                 }
@@ -126,7 +129,7 @@ namespace IdentityCenter.Server.Controllers
                     {
                         Code = IdentityCenterTextCodes.NotFoundIdentityServerClientByID,
                         DefaultFormatting = "找不到id为{0}的认证服务客户端",
-                        ReplaceParameters = new List<object>() { request.ClientId }
+                        ReplaceParameters = new List<object>() { request.Client.ClientId }
                     };
 
                     throw new UtilityException((int)IdentityCenterErrorCodes.NotFoundIdentityServerClientByID, fragment, 1, 0);
@@ -156,18 +159,6 @@ namespace IdentityCenter.Server.Controllers
                 Description = identity.Description,
                 Emphasize = identity.Emphasize,
                 Required = identity.Required
-            };
-        }
-
-        private ScopeViewModel CreateScopeViewModel(Scope scope)
-        {
-            return new ScopeViewModel
-            {
-                Name = scope.Name,
-                DisplayName = scope.DisplayName,
-                Description = scope.Description,
-                Emphasize = scope.Emphasize,
-                Required = scope.Required
             };
         }
 

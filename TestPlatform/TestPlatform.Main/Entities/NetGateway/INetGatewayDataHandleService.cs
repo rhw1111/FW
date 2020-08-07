@@ -9,7 +9,7 @@ namespace FW.TestPlatform.Main.NetGateway
 {
     public interface INetGatewayDataHandleService
     {
-        Task Execute(CancellationToken cancellationToken = default);
+        Task<INetGatewayDataHandleResult> Execute(CancellationToken cancellationToken = default);
     }
 
     public interface INetGatewayDataHandleConfigurationService
@@ -55,5 +55,10 @@ namespace FW.TestPlatform.Main.NetGateway
         public int? RunDuration { get; set; }
     }
 
-   
+    public interface INetGatewayDataHandleResult
+    {
+        Task Stop();
+    }
+
+
 }

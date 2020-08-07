@@ -13,17 +13,17 @@ namespace IdentityCenter.Main.IdentityServer
         private readonly IIdentityConsentRepository _identityConsentRepository;
         private readonly IUserConsentStore _userConsentStore;
         private readonly IRefreshTokenStore _refreshTokenStore;
-
+   
         public MainPersistedGrantService(IIdentityConsentRepository identityConsentRepository, IUserConsentStore userConsentStore, IRefreshTokenStore refreshTokenStore)
         {
             _identityConsentRepository = identityConsentRepository;
             _userConsentStore = userConsentStore;
             _refreshTokenStore = refreshTokenStore;
         }
-        public async Task<IEnumerable<Consent>> GetAllGrantsAsync(string subjectId)
+        public async Task<IEnumerable<Grant>> GetAllGrantsAsync(string subjectId)
         {
             var identityConsents = await _identityConsentRepository.QueryBySubject(subjectId);
-            List<Consent> consents = new List<Consent>();
+            List<Grant> consents = new List<Grant>();
 
             foreach(var item in identityConsents)
             {
@@ -33,7 +33,7 @@ namespace IdentityCenter.Main.IdentityServer
             return consents;
         }
 
-        public async Task RemoveAllGrantsAsync(string subjectId, string clientId)
+        public async Task RemoveAllGrantsAsync(string subjectId, string clientId = null, string sessionId = null)
         {
             await _refreshTokenStore.RemoveRefreshTokensAsync(subjectId, clientId);
             await _userConsentStore.RemoveUserConsentAsync(subjectId, clientId);

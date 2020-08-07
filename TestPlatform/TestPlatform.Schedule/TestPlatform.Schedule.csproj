@@ -31,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="3.1.6" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.6" />
   </ItemGroup>
 
@@ -39,6 +40,12 @@
     <ProjectReference Include="..\..\Commons\MSLibrary.StreamingDB\MSLibrary.StreamingDB.csproj" />
     <ProjectReference Include="..\..\Commons\MSLibrary\MSLibrary.csproj" />
     <ProjectReference Include="..\TestPlatform.Main\TestPlatform.Main.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
