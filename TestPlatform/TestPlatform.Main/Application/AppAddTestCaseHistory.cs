@@ -27,7 +27,6 @@ namespace FW.TestPlatform.Main.Application
         public async Task Do(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default)
         {
             TestCase? testCase = await _testCaseRepository.QueryByID(model.CaseID);
-
             if (testCase == null)
             {
                 var fragment = new TextFragment()
@@ -36,13 +35,22 @@ namespace FW.TestPlatform.Main.Application
                     DefaultFormatting = "找不到ID为{0}的测试案例",
                     ReplaceParameters = new List<object>() { model.CaseID }
                 };
-
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
+            }
+            if (testCase.TestCaseHistoryID == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestCaseByID,
+                    DefaultFormatting = "生成测试案例的历史记录，ID为{0}的测试案例，测试历史记录ID为空",
+                    ReplaceParameters = new List<object>() { model.CaseID }
+                };
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
             }
 
             TestCaseHistory history = new TestCaseHistory();
             history.CaseID = model.CaseID;
-            //history.Case = testCase;                
+            history.ID = (Guid)testCase.TestCaseHistoryID;               
             history.Summary = JsonSerializerHelper.Serializer(model);
 
             await testCase.AddHistory(history);

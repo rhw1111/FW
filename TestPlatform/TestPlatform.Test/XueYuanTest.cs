@@ -193,9 +193,9 @@ namespace TestPlatform.Test
                 ExtensionInfo = ""
             };
 
-            await testCaseSlaveHost.Add();
+            //await testCaseSlaveHost.Add();
 
-            Assert.Pass();
+            //Assert.Pass();
         }
 
         //[Test]

@@ -15,13 +15,16 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
         public async Task<string> Generate()
         {
             StringBuilder sbCode = new StringBuilder();
-            sbCode.AppendLine("def HttpGetWithConnect(connect, url, headers, receivereg):");
+            sbCode.AppendLine("def HttpGetWithConnect(connect, url, headers, receivereg, name=None, self=None):");
             sbCode.AppendLine("    # print(\"HttpGetWithConnect\")");
             sbCode.AppendLine("    import re");
             sbCode.AppendLine("    import traceback");
+            sbCode.AppendLine("    import time");
             sbCode.AppendLine("");
             sbCode.AppendLine("    if not url:");
             sbCode.AppendLine("        return \"\"");
+            sbCode.AppendLine("");
+            sbCode.AppendLine("    start_time = time.time()");
             sbCode.AppendLine("");
             sbCode.AppendLine("    try:");
             sbCode.AppendLine("        if not headers:");
@@ -30,7 +33,13 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("        response = connect.get(url, headers=headers)");
             sbCode.AppendLine("");
             sbCode.AppendLine("        if response.status_code == 200:");
-            sbCode.AppendLine("            Print(\"Http Get Success, Url, %s%s, StatusCode, %s, Reason, %s, Text, %s\" % (connect.base_url, url, response.status_code, response.reason, response.text))");
+            sbCode.AppendLine("            if name and self:");
+            sbCode.AppendLine("                total_time = int((time.time() - start_time) * second_unit)");
+            sbCode.AppendLine("                self.environment.events.request_success.fire(");
+            sbCode.AppendLine("                    request_type=request_type, name=name,");
+            sbCode.AppendLine("                    response_time=total_time, response_length=0)");
+            sbCode.AppendLine("");
+            sbCode.AppendLine("            Print(\"Http Get Success, Url, %s%s, StatusCode, %s, Text, %s\" % (connect.base_url, url, response.status_code, response.text))");
             sbCode.AppendLine("");
             sbCode.AppendLine("            result = response.text");
             sbCode.AppendLine("");
@@ -42,10 +51,24 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("            else:");
             sbCode.AppendLine("                return \"\"");
             sbCode.AppendLine("        else:");
-            sbCode.AppendLine("            print(\"[%s] [%s]: Http Get Fail, Url, %s%s, StatusCode, %s, Reason, %s, Text, %s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, connect.base_url, url, response.status_code, response.reason, response.text))");
+            sbCode.AppendLine("            if name and self:");
+            sbCode.AppendLine("                total_time = int((time.time() - start_time) * second_unit)");
+            sbCode.AppendLine("                self.environment.events.request_failure.fire(");
+            sbCode.AppendLine("                    request_type=request_type, name=name,");
+            sbCode.AppendLine("                    response_time=total_time, response_length=0,");
+            sbCode.AppendLine("                    exception=None)");
+            sbCode.AppendLine("");
+            sbCode.AppendLine("            print(\"[%s] [%s]: Http Get Fail, Url, %s%s, StatusCode, %s, Text, %s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, connect.base_url, url, response.status_code, response.text))");
             sbCode.AppendLine("");
             sbCode.AppendLine("            return \"\"");
             sbCode.AppendLine("    except Exception as e:");
+            sbCode.AppendLine("        if name and self:");
+            sbCode.AppendLine("            total_time = int((time.time() - start_time) * second_unit)");
+            sbCode.AppendLine("            self.environment.events.request_failure.fire(");
+            sbCode.AppendLine("                request_type=request_type, name=name,");
+            sbCode.AppendLine("                response_time=total_time, response_length=len(str(e)),");
+            sbCode.AppendLine("                exception=e)");
+            sbCode.AppendLine("");
             sbCode.AppendLine("        print(\"[%s] [%s]: Error, % s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))");
             sbCode.AppendLine("        print(\"[%s] [%s]: Error, % s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, traceback.format_exc()))");
             sbCode.AppendLine("");

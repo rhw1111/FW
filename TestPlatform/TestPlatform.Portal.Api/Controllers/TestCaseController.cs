@@ -39,10 +39,11 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppDeleteSlaveHosts _appDeleteSlaveHosts;
         private readonly IAppDeleteHistories _appDeleteHistories;
         private readonly IAppQueryTestCaseStatus _appQueryTestCaseStatus;
+        private readonly IAppQueryHistoriesByIds _appQueryHistoriesByIds;
         public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQuerySingleTestCase appQuerySingleTestCase, IAppUpdateTestCase appUpdateTestCase,
             IAppDeleteTestCase appDeleteTestCase, IAppRunTestCase appRunTestCase, IAppStopTestCase appStopTestCase, IAppCheckTestCaseStatus appCheckTestCaseStatus, IAppAddSlaveHost appAddSlaveHost,
             IAppQueryMasterLog appQueryMasterLog, IAppQuerySlaveLog appQuerySlaveLog, IAppQuerySlaveHost appQuerySlaveHost, IAppQueryTestCaseHistory appQueryTestCaseHistory, IAppQuerySingleTestCaseHistory appQuerySingleTestCaseHistory, IAppUpdateSlaveHost appUpdateSlaveHost,
-            IAppDeleteTestCaseHistory appDeleteTestCaseHistory, IAppDeleteSlaveHost appDeleteSlaveHost, IAppDeleteHistories appDeleteHistories, IAppDeleteSlaveHosts appDeleteSlaveHosts, IAppQueryTestCaseStatus appQueryTestCaseStatus)
+            IAppDeleteTestCaseHistory appDeleteTestCaseHistory, IAppDeleteSlaveHost appDeleteSlaveHost, IAppDeleteHistories appDeleteHistories, IAppDeleteSlaveHosts appDeleteSlaveHosts, IAppQueryTestCaseStatus appQueryTestCaseStatus, IAppQueryHistoriesByIds appQueryHistoriesByIds)
         {
             _appQueryTestCase = appQueryTestCase;
             _appAddTestCase = appAddTestCase;
@@ -64,6 +65,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _appDeleteHistories = appDeleteHistories;
             _appDeleteSlaveHosts = appDeleteSlaveHosts;
             _appQueryTestCaseStatus = appQueryTestCaseStatus;
+            _appQueryHistoriesByIds = appQueryHistoriesByIds;
         }
         //查询增加修改执行TestCase
         [HttpGet("querybypage")]
@@ -184,6 +186,13 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         public async Task<QueryResult<TestCaseHistoryListViewData>> GetHistories(Guid caseID, int page, int pageSize)
         {
             return await _appQueryTestCaseHistory.Do(caseID, page, pageSize);
+        }
+
+        //获得历史记录列表
+        [HttpPost("selectedhistories")]
+        public async Task<List<TestCaseHistoryDetailViewData>> GetHistoriesByIds(MultipleDeleteModel model)
+        {
+            return await _appQueryHistoriesByIds.Do(model.CaseID, model.IDS);
         }
 
         [HttpGet("history")]

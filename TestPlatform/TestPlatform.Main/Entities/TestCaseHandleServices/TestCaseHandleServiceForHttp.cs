@@ -14,6 +14,7 @@ using MSLibrary.LanguageTranslate;
 using MSLibrary.CommandLine.SSH;
 using FW.TestPlatform.Main.Configuration;
 using MSLibrary.Thread;
+using MSLibrary.CommandLine;
 
 namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 {
@@ -47,6 +48,18 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task<string> GetMasterLog(TestHost host, CancellationToken cancellationToken = default)
         {
+            bool fileExisted = await host.SSHEndpoint.ExistsFile($"{_testFilePath}{string.Format(_testLogFileName, string.Empty)}", 10, cancellationToken);
+            if (!fileExisted)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundLogFileByPath,
+                    DefaultFormatting = "找不到路径为{0}的日志文件",
+                    ReplaceParameters = new List<object>() { $"{_testFilePath}{string.Format(_testLogFileName, string.Empty)}" }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundLogFileByPath, fragment, 1, 0);
+            }
             string result = string.Empty;
             await host.SSHEndpoint.DownloadFile(
                 async (fileStream) =>
@@ -68,6 +81,18 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         public async Task<string> GetSlaveLog(TestHost host, int idx, CancellationToken cancellationToken = default)
         {
             //await host.SSHEndpoint.ExecuteCommand($"cat {_testFilePath}{string.Format(_testLogFileName, "_slave_*")} > {_testFilePath}{string.Format(_testLogFileName, "_slave")}", 10, cancellationToken);
+            bool fileExisted = await host.SSHEndpoint.ExistsFile($"{_testFilePath}{string.Format(_testLogFileName, "_slave_" + idx)}", 10, cancellationToken);
+            if (!fileExisted)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundLogFileByPath,
+                    DefaultFormatting = "找不到路径为{0}的日志文件",
+                    ReplaceParameters = new List<object>() { $"{_testFilePath}{string.Format(_testLogFileName, "_slave_" + idx)}" }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundLogFileByPath, fragment, 1, 0);
+            }
             //下载日志文件
             string result = string.Empty;
             await host.SSHEndpoint.DownloadFile(
@@ -225,25 +250,45 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 async (item) =>
                 {
                     //先删除文件夹内现有的所有文件
-                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{string.Format(_testFileName, "_*")}",10, cancellationToken);
+                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{string.Format(_testFileName, "_*")}", 10, cancellationToken);
 
                     //为该Slave测试机下的每个Slave上传文件
 
-                    var index = 0;
-                    for (index = 0; index <= item.Count - 1; index++)
+                    try
                     {
-                        using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}", $"{item.SlaveName}-{index.ToString()}"))))
-                        {
-                            await item.Host.SSHEndpoint.UploadFile(
-                                async (service) =>
+                        await item.Host.SSHEndpoint.UploadFile(
+                            async (service) =>
+                            {
+                                var index = 0;
+                                for (index = 0; index <= item.Count - 1; index++)
                                 {
-                                    await service.Upload(textStream, $"{_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")}");
+                                    using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}", $"{item.SlaveName}-{index.ToString()}"))))
+                                    {
+                                        await service.Upload(textStream, $"{_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")}");
+                                        textStream.Close();
+                                    }
                                 }
-                                ,10,
-                                cancellationToken
-                              );
+                            }
+                            , 30,
+                            cancellationToken
+                            );
 
-                            textStream.Close();
+                    }
+                    catch (UtilityException ex)
+                    {
+                        if (ex.Code == (int)CommandLineErrorCodes.SSHOperationTimeout)
+                        {
+                            var fragment = new TextFragment()
+                            {
+                                Code = TestPlatformTextCodes.SlaveHostUploadTestFileTimeout,
+                                DefaultFormatting = "从测试机{0}上传测试文件超时",
+                                ReplaceParameters = new List<object>() { item.SlaveName }
+                            };
+                            throw new UtilityException((int)TestPlatformErrorCodes.SlaveHostUploadTestFileTimeout, fragment, 1, 0);
+                        }
+                        else
+                        {
+                            throw;
                         }
                     }
 

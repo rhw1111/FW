@@ -192,7 +192,9 @@
             </q-item-section>
           </template>
           <q-card>
-            <q-card-section v-show="paraConfig.DataSourceVars.length==0">暂无参数配置，请点击添加数据源参数按钮进行添加。</q-card-section>
+            <q-card-section v-show="paraConfig.DataSourceVars.length==0">
+              暂无参数配置，请点击添加数据源参数按钮进行添加。
+            </q-card-section>
             <transition-group name="MoveList">
               <q-card-section v-for="(val,ind) in paraConfig.DataSourceVars"
                               :key="ind">
@@ -234,10 +236,17 @@
                            label="删 除"
                            @click="deleteDataVars('DataSource',ind)" />
                   </div>
+
                 </div>
+
               </q-card-section>
             </transition-group>
 
+            <q-btn class="btn "
+                   color="primary"
+                   style="margin:0px 0px 20px 20px;"
+                   label="添加数据源参数"
+                   @click="addDataVars('DataSource')" />
           </q-card>
         </q-expansion-item>
         <!-- 连接初始化 -->
@@ -306,6 +315,11 @@
               </q-card-section>
             </transition-group>
 
+            <q-btn class="btn "
+                   color="primary"
+                   style="margin:0px 0px 20px 0px;"
+                   label="添加初始化参数"
+                   @click="addDataVars('ConnectInit')" />
           </q-card>
         </q-expansion-item>
         <!-- 发送初始化 -->
@@ -374,6 +388,11 @@
               </q-card-section>
             </transition-group>
 
+            <q-btn class="btn "
+                   color="primary"
+                   style="margin:0px 0px 20px 0px;"
+                   label="添加初始化参数"
+                   @click="addDataVars('SendInit')" />
           </q-card>
         </q-expansion-item>
         <!-- 停止初始化 -->
@@ -441,7 +460,11 @@
                 </div>
               </q-card-section>
             </transition-group>
-
+            <q-btn class="btn "
+                   color="primary"
+                   style="margin:0px 0px 20px 0px;"
+                   label="添加初始化参数"
+                   @click="addDataVars('StopInit')" />
           </q-card>
         </q-expansion-item>
       </q-list>

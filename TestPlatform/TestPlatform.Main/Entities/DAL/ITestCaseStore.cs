@@ -27,5 +27,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
         Task<IList<TestCase>> QueryByNames(IList<string> names, CancellationToken cancellationToken = default);
         Task<QueryResult<TestCase>> QueryByPage(int page, int pageSize, CancellationToken cancellationToken = default);
         Task<TestCaseStatus?> QueryStatusByID(Guid id, CancellationToken cancellationToken = default);
+        Task UpdateHistoryIdAndStatus(Guid id, Guid historyId, TestCaseStatus status, CancellationToken cancellationToken = default);
+        Task UpdateHistoryId(Guid id, Guid historyId, CancellationToken cancellationToken = default);
     }
 }

@@ -99,6 +99,13 @@ namespace FW.TestPlatform.Main
         /// </summary>
         public const string NotFoundGetSeparatorServiceByName = "NotFoundGetSeparatorServiceByName";
         /// <summary>
+        /// 找不到指定名称的获取空格服务
+        /// 格式为“找不到名称为{0}的获取空格服务，发生位置为{1}”
+        /// {0}：名称
+        /// {1}：发生位置
+        /// </summary>
+        public const string NotFoundGetSpaceServiceByName = "NotFoundGetSpaceServiceByName";
+        /// <summary>
         /// 在上下文参数DataSourceFuncs中找不到指定函数名称的记录
         /// 格式为“在上下文参数DataSourceFuncs中找不到函数名称为{0}的记录，发生位置为{1}”
         /// {0}：函数名称
@@ -128,6 +135,13 @@ namespace FW.TestPlatform.Main
         /// </summary>
         public const string NotFoundGenerateDataVarDeclareServiceByName = "NotFoundGenerateDataVarDeclareServiceByName";
         /// <summary>
+        /// 找不到指定名称的变量设置声明代码块生成服务
+        /// 格式为“找不到名称为{1}的变量设置声明代码块生成服务,发生位置为{1}”
+        /// {0}：名称
+        /// {1}：发生位置
+        /// </summary>
+        public const string NotFoundGenerateVarSettingServiceByName = "NotFoundGenerateVarSettingServiceByName";
+        /// <summary>
         /// 找不到指定名称的测试数据源
         /// 格式为“找不到名称为{0}的测试数据源”
         /// {0}：数据源名称
@@ -140,6 +154,20 @@ namespace FW.TestPlatform.Main
         /// {1}：发生位置
         /// </summary>
         public const string NotFoundGenerateAdditionFuncServiceByName = "NotFoundGenerateAdditionFuncServiceByName";
+        /// <summary>
+        /// 找不到指定名称的函数调用生成服务
+        /// 格式为“找不到名称为{0}的函数调用生成服务，发生位置为{1}”
+        /// {0}：名称
+        /// {1}：发生位置
+        /// </summary>
+        public const string NotFoundGenerateFuncInvokeServiceByName = "NotFoundGenerateFuncInvokeServiceByName";
+        /// <summary>
+        /// 找不到指定名称的函数调用生成服务
+        /// 格式为“找不到名称为{0}的变量调用生成服务，发生位置为{1}”
+        /// {0}：名称
+        /// {1}：发生位置
+        /// </summary>
+        public const string NotFoundGenerateVarInvokeServiceByName = "NotFoundGenerateVarInvokeServiceByName";
         /// <summary>
         /// 找不到指定Id的测试案例
         /// 格式为“找不到Id为{0}的测试案例”
@@ -225,5 +253,11 @@ namespace FW.TestPlatform.Main
         /// {0}：测试机名称
         /// </summary>
         public const string SlaveHostUploadTestFileTimeout = "SlaveHostUploadTestFileTimeout";
+        /// <summary>
+        /// 找不到指定路径的日志文件
+        /// 格式为“找不到指定路径为{0}的日志文件”
+        /// {0}：日志文件路径
+        /// </summary>
+        public const string NotFoundLogFileByPath = "NotFoundLogFileByPath";
     }
 }

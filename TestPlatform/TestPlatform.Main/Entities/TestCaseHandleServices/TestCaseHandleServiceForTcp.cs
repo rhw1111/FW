@@ -51,6 +51,18 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task<string> GetMasterLog(TestHost host, CancellationToken cancellationToken = default)
         {
+            bool fileExisted = await host.SSHEndpoint.ExistsFile($"{_testFilePath}{string.Format(_testLogFileName, string.Empty)}", 10, cancellationToken);
+            if (!fileExisted)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundLogFileByPath,
+                    DefaultFormatting = "找不到路径为{0}的日志文件",
+                    ReplaceParameters = new List<object>() { $"{_testFilePath}{string.Format(_testLogFileName, string.Empty)}" }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundLogFileByPath, fragment, 1, 0);
+            }
             string result = string.Empty;
             await host.SSHEndpoint.DownloadFile(
                 async(fileStream)=>
@@ -72,6 +84,18 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         public async Task<string> GetSlaveLog(TestHost host,int idx, CancellationToken cancellationToken = default)
         {
             //await host.SSHEndpoint.ExecuteCommand($"cat {_testFilePath}{string.Format(_testLogFileName, "_slave_*")} > {_testFilePath}{string.Format(_testLogFileName, "_slave")}", 10, cancellationToken);
+            bool fileExisted = await host.SSHEndpoint.ExistsFile($"{_testFilePath}{string.Format(_testLogFileName, "_slave_" + idx)}",10,cancellationToken);
+            if (!fileExisted)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundLogFileByPath,
+                    DefaultFormatting = "找不到路径为{0}的日志文件",
+                    ReplaceParameters = new List<object>() { $"{_testFilePath}{string.Format(_testLogFileName, "_slave_" + idx)}" }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundLogFileByPath, fragment, 1, 0);
+            }
             //下载日志文件
             string result = string.Empty;
             await host.SSHEndpoint.DownloadFile(

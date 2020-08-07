@@ -24,6 +24,7 @@ from locust.event import EventHook
 from locust.env import Environment
 from locust.stats import stats_printer
 from locust.log import setup_logging
+from locust.contrib.fasthttp import FastHttpUser
 import requests
 from urllib import request, parse
 
@@ -86,6 +87,8 @@ is_security_data = False
 is_qps_master = True
 # 时间单位，秒=1，毫秒=1000，微妙=1000000，纳秒=1000000000
 second_unit = 1000000
+# FireEventRequest request_type
+request_type = "http"
 
 # default is 2 seconds
 all_locusts_spawned = Semaphore()
@@ -98,7 +101,7 @@ lock = threading.Lock()
 # -----------------------------------------------------------
 
 
-class HttpTestUser(HttpUser):
+class HttpTestUser(FastHttpUser):
     wait_time = between(min_wait, max_wait)
     # 连接的Http服务的地址
     host = host
@@ -273,9 +276,9 @@ class HttpTestUser(HttpUser):
         QPS = 0
 
         try:
-            if ("send_data", "http") in HttpTestUser.environment.runner.stats.entries:
+            if ("send_data", request_type) in HttpTestUser.environment.runner.stats.entries:
                 stats = HttpTestUser.environment.runner.stats
-                stats_send = stats.entries[("send_data", "http")]
+                stats_send = stats.entries[("send_data", request_type)]
 
                 if stats_send:
                     QPS = stats_send.current_rps
@@ -350,9 +353,9 @@ class HttpTestUser(HttpUser):
         # print("add_master_data")
 
         try:
-            if ("send_data", "http") in HttpTestUser.environment.runner.stats.entries:
+            if ("send_data", request_type) in HttpTestUser.environment.runner.stats.entries:
                 stats = HttpTestUser.environment.runner.stats
-                stats_send = stats.entries[("send_data", "http")]
+                stats_send = stats.entries[("send_data", request_type)]
 
                 if stats_send:
                     master_data = {}
@@ -367,6 +370,23 @@ class HttpTestUser(HttpUser):
 
                     Print("add_master_data, %s" % master_data)
                     HttpTestUser.post_api("api/monitor/addmasterdata", master_data)
+            elif ("connect", request_type) in TcpTestUser.environment.runner.stats.entries:
+                stats = TcpTestUser.environment.runner.stats
+                stats_connect = stats.entries[("connect", request_type)]
+
+                if stats_connect:
+                    master_data = {}
+                    master_data["CaseID"] = case_id
+                    master_data["ConnectCount"] = str(stats_connect.num_requests)
+                    master_data["ConnectFailCount"] = str(stats_connect.num_failures)
+                    master_data["ReqCount"] = str(stats_connect.num_requests)
+                    master_data["ReqFailCount"] = str(stats_connect.num_failures)
+                    master_data["MaxDuration"] = str(stats_connect.max_response_time)
+                    master_data["MinDurartion"] = str(stats_connect.min_response_time)
+                    master_data["AvgDuration"] = str(stats_connect.avg_response_time)
+
+                    Print("add_master_data, %s" % master_data)
+                    TcpTestUser.post_api("api/monitor/addmasterdata", master_data)                    
         except Exception as e:
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))
             print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, traceback.format_exc()))
@@ -375,9 +395,9 @@ class HttpTestUser(HttpUser):
         # print("add_worker_data")
 
         try:
-            if ("send_data", "http") in HttpTestUser.environment.runner.stats.entries:
+            if ("send_data", request_type) in HttpTestUser.environment.runner.stats.entries:
                 stats = HttpTestUser.environment.runner.stats
-                stats_send = stats.entries[("send_data", "http")]
+                stats_send = stats.entries[("send_data", request_type)]
 
                 if stats_send:
                     worker_data_data = {}
@@ -401,9 +421,9 @@ class HttpTestUser(HttpUser):
         print("add_history_data")
 
         try:
-            if ("send_data", "http") in HttpTestUser.environment.runner.stats.entries:
+            if ("send_data", request_type) in HttpTestUser.environment.runner.stats.entries:
                 stats = HttpTestUser.environment.runner.stats
-                stats_send = stats.entries[("send_data", "http")]
+                stats_send = stats.entries[("send_data", request_type)]
 
                 if stats_send:
                     history_data = {}
@@ -601,13 +621,13 @@ class HttpTestUser(HttpUser):
                 print("[%s] [%s]: Error, %s." % (datetime.datetime.now().strftime(datetime_format), client_id, traceback.format_exc()))
                 total_time = int((time.time() - start_time) * second_unit)
                 self.environment.events.request_failure.fire(
-                    request_type="http", name="send_data",
+                    request_type=request_type, name="send_data",
                     response_time=total_time, response_length=len(str(e)),
                     exception=e)
             else:
                 total_time = int((time.time() - start_time) * second_unit)
                 self.environment.events.request_success.fire(
-                    request_type="http", name="send_data",
+                    request_type=request_type, name="send_data",
                     response_time=total_time, response_length=0)
         elif self.is_need_login:
             self.is_login = self.login()
