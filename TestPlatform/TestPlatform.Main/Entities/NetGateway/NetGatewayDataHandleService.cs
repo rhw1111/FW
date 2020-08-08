@@ -107,7 +107,7 @@ namespace FW.TestPlatform.Main.NetGateway
                                       await _getSourceDataFromStreamService.Get(stream,
                                           async (sourceData) =>
                                           {
-                                              var data = await _convertNetDataFromSourceService.Convert(sourceData, cancellationToken);
+                                              var data = await _convertNetDataFromSourceService.Convert(prefix,sourceData, cancellationToken);
 
                                               if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
                                               {
@@ -243,7 +243,7 @@ namespace FW.TestPlatform.Main.NetGateway
 
                                   if (qps != 0)
                                   {
-                                      await _qpsCollectService.Collect(qps, maxCreateTime!.Value, cancellationToken);
+                                      await _qpsCollectService.Collect(prefix,qps, maxCreateTime!.Value, cancellationToken);
                                   }
 
 

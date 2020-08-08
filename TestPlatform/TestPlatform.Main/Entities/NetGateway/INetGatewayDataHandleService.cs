@@ -62,7 +62,7 @@ namespace FW.TestPlatform.Main.NetGateway
     /// </summary>
     public interface IConvertNetDataFromSourceService
     {
-        Task<NetData> Convert(string sourceData, CancellationToken cancellationToken = default);
+        Task<NetData> Convert(string prefix,string sourceData, CancellationToken cancellationToken = default);
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ namespace FW.TestPlatform.Main.NetGateway
     /// </summary>
     public interface IQPSCollectService
     {
-        Task Collect(int qps,DateTime time, CancellationToken cancellationToken = default);
+        Task Collect(string prefix,int qps,DateTime time, CancellationToken cancellationToken = default);
     }
     /// <summary>
     /// 延迟指标收集服务
