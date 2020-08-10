@@ -10,6 +10,8 @@ using MSLibrary;
 using MSLibrary.DI;
 using MSLibrary.Thread;
 using MSLibrary.Logger;
+using MSLibrary.StreamingDB.InfluxDB;
+using MSLibrary.LanguageTranslate;
 
 namespace FW.TestPlatform.Main.NetGateway
 {
@@ -262,7 +264,7 @@ namespace FW.TestPlatform.Main.NetGateway
 
                                   if (maxCreateTime != null)
                                   {
-                                      await _netDurationCollectService.Collect(minResponse, maxResponse, avgResponse, maxCreateTime!.Value, cancellationToken);
+                                      await _netDurationCollectService.Collect(prefix,minResponse, maxResponse, avgResponse, maxCreateTime!.Value, cancellationToken);
                                   }
 
                               //处理只有request的数据
@@ -464,6 +466,78 @@ namespace FW.TestPlatform.Main.NetGateway
         {
             IsStop = true;
             await _action;
+        }
+    }
+
+    [Injection(InterfaceType = typeof(IQPSCollectService), Scope = InjectionScope.Singleton)]
+    public class QPSCollectService : IQPSCollectService
+    {
+        private readonly IInfluxDBEndpointRepository _influxDBEndpointRepository;
+
+        public QPSCollectService(IInfluxDBEndpointRepository influxDBEndpointRepository)
+        {
+            _influxDBEndpointRepository = influxDBEndpointRepository;
+        }
+
+        public async Task Collect(string prefix, int qps, DateTime time, CancellationToken cancellationToken)
+        {
+            InfluxDBEndpoint? influxDBEndpoint = await _influxDBEndpointRepository.QueryByName(InfluxDBParameters.EndpointName);
+            if (influxDBEndpoint == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundInfluxDBEndpoint,
+                    DefaultFormatting = "找不到指定名称{0}的InfluxDB数据源配置",
+                    ReplaceParameters = new List<object>() { InfluxDBParameters.EndpointName }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundInfluxDBEndpoint, fragment, 1, 0);
+            }
+
+            InfluxDBRecord influxDBRecord = new InfluxDBRecord();
+            influxDBRecord.MeasurementName = InfluxDBParameters.NetGatewaySlaveMeasurementName;
+            TimeSpan ts = time - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            influxDBRecord.Timestamp = Convert.ToInt64(((long)(ts.TotalMilliseconds)).ToString().PadRight(19, '0'));
+            influxDBRecord.Tags.Add("HistoryCaseID", prefix);
+            influxDBRecord.Fields.Add("QPS", qps.ToString());
+            await influxDBEndpoint.AddData(InfluxDBParameters.DBName, influxDBRecord);
+        }
+    }
+
+    [Injection(InterfaceType = typeof(INetDurationCollectService), Scope = InjectionScope.Singleton)]
+    public class NetDurationCollectService : INetDurationCollectService
+    {
+        private readonly IInfluxDBEndpointRepository _influxDBEndpointRepository;
+
+        public NetDurationCollectService(IInfluxDBEndpointRepository influxDBEndpointRepository)
+        {
+            _influxDBEndpointRepository = influxDBEndpointRepository;
+        }
+
+        public async Task Collect(string prefix,double min, double max, double avg, DateTime time, CancellationToken cancellationToken = default)
+        {
+            InfluxDBEndpoint? influxDBEndpoint = await _influxDBEndpointRepository.QueryByName(InfluxDBParameters.EndpointName);
+            if (influxDBEndpoint == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundInfluxDBEndpoint,
+                    DefaultFormatting = "找不到指定名称{0}的InfluxDB数据源配置",
+                    ReplaceParameters = new List<object>() { InfluxDBParameters.EndpointName }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundInfluxDBEndpoint, fragment, 1, 0);
+            }
+
+            InfluxDBRecord influxDBRecord = new InfluxDBRecord();
+            influxDBRecord.MeasurementName = InfluxDBParameters.NetGatewayMasterMeasurementName;
+            TimeSpan ts = time - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            influxDBRecord.Timestamp = Convert.ToInt64(((long)(ts.TotalMilliseconds)).ToString().PadRight(19, '0'));
+            influxDBRecord.Tags.Add("HistoryCaseID", prefix);
+            influxDBRecord.Fields.Add("MaxDuration", max.ToString());
+            influxDBRecord.Fields.Add("MinDurartion", min.ToString());
+            influxDBRecord.Fields.Add("AvgDuration", avg.ToString());
+            await influxDBEndpoint.AddData(InfluxDBParameters.DBName, influxDBRecord);
         }
     }
 }

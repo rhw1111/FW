@@ -79,7 +79,7 @@ namespace FW.TestPlatform.Main.NetGateway
     /// </summary>
     public interface INetDurationCollectService
     {
-        Task Collect(double min,double max,double avg, DateTime time, CancellationToken cancellationToken = default);
+        Task Collect(string prefix, double min,double max,double avg, DateTime time, CancellationToken cancellationToken = default);
     }
 
     public enum NetDataType
