@@ -12,6 +12,9 @@ using MSLibrary.Thread;
 using MSLibrary.Logger;
 using MSLibrary.StreamingDB.InfluxDB;
 using MSLibrary.LanguageTranslate;
+using Haukcode.PcapngUtils;
+using Haukcode.PcapngUtils.Common;
+using Haukcode.PcapngUtils.PcapNG;
 
 namespace FW.TestPlatform.Main.NetGateway
 {
@@ -22,17 +25,19 @@ namespace FW.TestPlatform.Main.NetGateway
         private readonly INetGatewayDataHandleConfigurationService _netGatewayDataHandleConfigurationService;
         private readonly IResolveFileNamePrefixService _resolveFileNamePrefixService;
         private readonly IGetSourceDataFromStreamService _getSourceDataFromStreamService;
+        private readonly IGetSourceDataFromFileService _getSourceDataFromFileService;
         private readonly IConvertNetDataFromSourceService _convertNetDataFromSourceService;
         private readonly IQPSCollectService _qpsCollectService;
         private readonly INetDurationCollectService _netDurationCollectService;
 
         public static string LoggerCategoryName { get; set; } = "NetGatewayDataHandle";
 
-        public NetGatewayDataHandleService(INetGatewayDataHandleConfigurationService netGatewayDataHandleConfigurationService, IResolveFileNamePrefixService resolveFileNamePrefixService, IGetSourceDataFromStreamService getSourceDataFromStreamService, IConvertNetDataFromSourceService convertNetDataFromSourceService, IQPSCollectService qpsCollectService, INetDurationCollectService netDurationCollectService)
+        public NetGatewayDataHandleService(INetGatewayDataHandleConfigurationService netGatewayDataHandleConfigurationService, IResolveFileNamePrefixService resolveFileNamePrefixService, IGetSourceDataFromStreamService getSourceDataFromStreamService, IGetSourceDataFromFileService getSourceDataFromFileService, IConvertNetDataFromSourceService convertNetDataFromSourceService, IQPSCollectService qpsCollectService, INetDurationCollectService netDurationCollectService)
         {
             _netGatewayDataHandleConfigurationService = netGatewayDataHandleConfigurationService;
             _resolveFileNamePrefixService = resolveFileNamePrefixService;
             _getSourceDataFromStreamService = getSourceDataFromStreamService;
+            _getSourceDataFromFileService = getSourceDataFromFileService;
             _convertNetDataFromSourceService = convertNetDataFromSourceService;
             _qpsCollectService = qpsCollectService;
             _netDurationCollectService = netDurationCollectService;
@@ -112,7 +117,7 @@ namespace FW.TestPlatform.Main.NetGateway
                                     await _getSourceDataFromStreamService.Get(stream,
                                         async (sourceData) =>
                                         {
-                                            var data = await _convertNetDataFromSourceService.Convert(prefix,sourceData, cancellationToken);
+                                            var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
 
                                             if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
                                             {
@@ -164,11 +169,67 @@ namespace FW.TestPlatform.Main.NetGateway
                                             }
                                         },
                                         cancellationToken
-                                        );
+                                    );
 
                                     stream.Close();
                                 }
 
+                                //await _getSourceDataFromFileService.Get(fileName,
+                                //    async (sourceData) =>
+                                //    {
+                                //        var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
+
+                                //        if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
+                                //        {
+                                //            lock (containerDatas)
+                                //            {
+                                //                if (!containerDatas.TryGetValue(data.ID, out containerData))
+                                //                {
+                                //                    if (data.Type == NetDataType.Request)
+                                //                    {
+                                //                        containerData = new DataContainer()
+                                //                        {
+                                //                            FileName = fileName
+                                //                        };
+                                //                        containerDatas[data.ID] = containerData;
+                                //                    }
+                                //                    else
+                                //                    {
+                                //                        if (!singleResponseDatas.TryGetValue(prefix, out List<DataContainer>? singleDatas))
+                                //                        {
+                                //                            lock (singleResponseDatas)
+                                //                            {
+                                //                                if (!singleResponseDatas.TryGetValue(prefix, out singleDatas))
+                                //                                {
+                                //                                    singleDatas = new List<DataContainer>();
+                                //                                    singleResponseDatas[prefix] = singleDatas;
+                                //                                }
+                                //                            }
+                                //                        }
+
+                                //                        lock (singleDatas)
+                                //                        {
+                                //                            singleDatas.Add(new DataContainer() { FileName = fileName, Response = data });
+                                //                        }
+                                //                    }
+                                //                }
+                                //            }
+                                //        }
+
+                                //        if (containerData != null)
+                                //        {
+                                //            if (data.Type == NetDataType.Request)
+                                //            {
+                                //                containerData.Request = data;
+                                //            }
+                                //            else
+                                //            {
+                                //                containerData.Response = data;
+                                //            }
+                                //        }
+                                //    },
+                                //    cancellationToken
+                                //);
                             }
                         );
 
@@ -322,7 +383,7 @@ namespace FW.TestPlatform.Main.NetGateway
                             break;
                         }
 
-                        await Task.Delay(10000);
+                        //await Task.Delay(10000);
                     }
                     catch (Exception ex)
                     {
@@ -337,7 +398,7 @@ namespace FW.TestPlatform.Main.NetGateway
             return netGatewayDataHandleResult;
         }
 
-        private Task listenFileCompleted(NetGatewayDataHandleResultDefault result,string folderName, Dictionary<string, string> completedFileNames, Action<FileDataInfo> completedAction)
+        private Task listenFileCompleted(NetGatewayDataHandleResultDefault result, string folderName, Dictionary<string, string> completedFileNames, Action<FileDataInfo> completedAction)
         {
             return Task.Run(async () =>
             {
@@ -349,9 +410,11 @@ namespace FW.TestPlatform.Main.NetGateway
                         {
                             break;
                         }
+
                         var fileNames = Directory.GetFiles(folderName);
 
                         List<FileDataInfo> fileDatas = new List<FileDataInfo>();
+
                         foreach (var item in fileNames)
                         {
                             var fileInfo = new FileInfo(item);
@@ -361,6 +424,7 @@ namespace FW.TestPlatform.Main.NetGateway
                         fileDatas = fileDatas.OrderBy((f) => f.CreateTime).ToList();
 
                         List<string> deleteFileNames = new List<string>();
+
                         foreach (var item in completedFileNames)
                         {
                             if (!fileNames.Contains(item.Key))
@@ -374,7 +438,6 @@ namespace FW.TestPlatform.Main.NetGateway
                             completedFileNames.Remove(item);
                         }
 
-
                         foreach (var item in fileDatas)
                         {
                             if (!completedFileNames.ContainsKey(item.FileName))
@@ -382,6 +445,7 @@ namespace FW.TestPlatform.Main.NetGateway
                                 FileInfo fileInfo = new FileInfo(item.FileName);
 
                                 long old_length;
+
                                 do
                                 {
                                     old_length = fileInfo.Length;
@@ -398,6 +462,7 @@ namespace FW.TestPlatform.Main.NetGateway
                         {
                             break;
                         }
+
                         await Task.Delay(10000);
                     }
                     catch(Exception ex)
@@ -479,7 +544,112 @@ namespace FW.TestPlatform.Main.NetGateway
         /// <returns></returns>
         Task IGetSourceDataFromStreamService.Get(Stream stream, Func<string, Task> sourceDataAction, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            if (stream != null)
+            {
+                return Task.CompletedTask;
+            }
+
+            using (PcapNGReader reader = new PcapNGReader(stream, false))
+            {
+                reader.OnReadPacketEvent += (context, packet) =>
+                {
+                    IPacket ipacket = packet;
+                };
+                reader.ReadPackets(new System.Threading.CancellationToken());
+            }
+
+            //using (MemoryStream stream = new MemoryStream(byteblock))
+            //{
+            //    using (BinaryReader binaryReader = new BinaryReader(stream))
+            //    {
+            //        AbstractBlock block = AbstractBlockFactory.ReadNextBlock(binaryReader, reorder, null);
+            //        Assert.IsNotNull(block);
+            //        postPacketBlock = block as EnchantedPacketBlock;
+            //        Assert.IsNotNull(postPacketBlock);
+
+            //        Assert.AreEqual(prePacketBlock.BlockType, postPacketBlock.BlockType);
+            //        Assert.AreEqual(prePacketBlock.Data, postPacketBlock.Data);
+            //        Assert.AreEqual(prePacketBlock.InterfaceID, postPacketBlock.InterfaceID);
+            //        Assert.AreEqual(prePacketBlock.Microseconds, postPacketBlock.Microseconds);
+            //        Assert.AreEqual(prePacketBlock.PacketLength, postPacketBlock.PacketLength);
+            //        Assert.AreEqual(prePacketBlock.PositionInStream, postPacketBlock.PositionInStream);
+            //        Assert.AreEqual(prePacketBlock.Seconds, postPacketBlock.Seconds);
+            //        Assert.AreEqual(prePacketBlock.Options.Comment, postPacketBlock.Options.Comment);
+            //        Assert.AreEqual(prePacketBlock.Options.DropCount, postPacketBlock.Options.DropCount);
+            //        Assert.AreEqual(prePacketBlock.Options.Hash, postPacketBlock.Options.Hash);
+            //        Assert.AreEqual(prePacketBlock.Options.PacketFlag, postPacketBlock.Options.PacketFlag);
+            //    }
+            //}
+
+            //using (var reader = IReaderFactory.GetReader(fileName))
+            //{
+            //    reader.OnReadPacketEvent += (context, packet) =>
+            //    {
+            //        IPacket ipacket = packet;
+
+            //        //解析出基本包  
+            //        var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
+
+            //        var payloadPacket = ethernetPacket;
+
+            //        while (payloadPacket.HasPayloadPacket)
+            //        {
+            //            payloadPacket = payloadPacket.PayloadPacket;
+            //        }
+
+            //        var payloadData = payloadPacket.PayloadData;
+
+            //        sourceDataAction.Invoke(payloadData.ToString());
+            //    };
+            //    reader.ReadPackets(cancellationToken);
+            //}
+
+            return Task.CompletedTask;
+        }
+    }
+
+    [Injection(InterfaceType = typeof(IGetSourceDataFromFileService), Scope = InjectionScope.Singleton)]
+    public class GetSourceDataFromFileService : IGetSourceDataFromFileService
+    {
+        /// <summary>
+        /// 获取源数据字符串
+        /// sourceDataAction中可以得到从流中获取的每个源数据字符串
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="sourceDataAction"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task IGetSourceDataFromFileService.Get(string fileName, Func<string, Task> sourceDataAction, CancellationToken cancellationToken)
+        {
+            if (!File.Exists(fileName))
+            {
+                return Task.CompletedTask;
+            }
+
+            using (var reader = IReaderFactory.GetReader(fileName))
+            {
+                reader.OnReadPacketEvent += (context, packet) =>
+                {
+                    IPacket ipacket = packet;
+
+                    //解析出基本包  
+                    var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
+
+                    var payloadPacket = ethernetPacket;
+
+                    while (payloadPacket.HasPayloadPacket)
+                    {
+                        payloadPacket = payloadPacket.PayloadPacket;
+                    }
+
+                    var payloadData = payloadPacket.PayloadData;
+
+                    sourceDataAction.Invoke(payloadData.ToString());
+                };
+                reader.ReadPackets(cancellationToken);
+            }
+
+            return Task.CompletedTask;
         }
     }
 
@@ -493,6 +663,7 @@ namespace FW.TestPlatform.Main.NetGateway
                 return string.Empty;
             }
 
+            fileName = Path.GetFileNameWithoutExtension(fileName);
             string prefix = fileName.Substring(0, fileName.IndexOf("_"));
 
             return prefix;
@@ -504,7 +675,13 @@ namespace FW.TestPlatform.Main.NetGateway
     {
         Task<NetData> IConvertNetDataFromSourceService.Convert(string prefix, string sourceData, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            NetData netData = new NetData();
+            netData.Type = NetDataType.Request;
+            netData.ID = prefix;
+            netData.CreateTime = DateTime.Now;
+            netData.RunDuration = null;
+
+            return Task.FromResult(netData);
         }
     }
 

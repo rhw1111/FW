@@ -299,15 +299,15 @@ namespace TestPlatform.Test
         //    Assert.Pass();
         //}
 
-        //[Test]
+        [Test]
         public async Task TestCap()
         {
-            this.OpenPcapORPcapNFFile("E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\abc_00000_20200729102649.cap");
+            this.OpenPcapORPcapNFFile("E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\7fc391a7-dba0-11ea-b236-00ffb1d16cf9_20200729102649.cap");
         }
 
-        public void OpenPcapORPcapNFFile(string filename, CancellationToken token = default)
+        public void OpenPcapORPcapNFFile(string fileName, CancellationToken token = default)
         {
-            using (var reader = IReaderFactory.GetReader(filename))
+            using (var reader = IReaderFactory.GetReader(fileName))
             {
                 reader.OnReadPacketEvent += reader_OnReadPacketEvent;
                 reader.ReadPackets(token);
@@ -372,7 +372,7 @@ namespace TestPlatform.Test
             }
         }
 
-        [Test]
+        //[Test]
         public async Task TestNetGateway()
         {
             var netGatewayDataHandleService = DIContainerContainer.Get<INetGatewayDataHandleService>();
