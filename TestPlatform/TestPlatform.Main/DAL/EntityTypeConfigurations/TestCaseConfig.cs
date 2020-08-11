@@ -26,6 +26,8 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
             builder.Property((entity) => entity.OwnerID).IsRequired().HasColumnType("char(36)");
             builder.HasOne((entity) => entity.Owner).WithMany().HasForeignKey(entity => entity.OwnerID);
 
+            builder.Property((entity) => entity.TestCaseHistoryID).HasColumnType("char(36)");
+
             builder.Property((entity) => entity.CreateTime).HasColumnType("datetime").Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             builder.Property((entity) => entity.ModifyTime).HasColumnType("datetime");
             var sequenceProperty=builder.Property<long>("Sequence").HasColumnName("sequence").HasColumnType("bigint").Metadata;

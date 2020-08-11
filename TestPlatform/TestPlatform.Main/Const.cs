@@ -76,6 +76,7 @@ namespace FW.TestPlatform.Main
     public static class LoggerProviderHandlerNames
     {
         public const string Local = "Local";
+        public const string Console = "Console";
     }
 
     /// <summary>
@@ -204,6 +205,16 @@ namespace FW.TestPlatform.Main
         /// SlaveData
         /// </summary>
         public const string SlaveMeasurementName = "SlaveData";
+
+        /// <summary>
+        /// NetGatewayMasterData
+        /// </summary>
+        public const string NetGatewayMasterMeasurementName = "NetGatewayMasterData";
+
+        /// <summary>
+        /// NetGatewaySlaveData
+        /// </summary>
+        public const string NetGatewaySlaveMeasurementName = "NetGatewaySlaveData";
     }
 
     /// <summary>
@@ -249,6 +260,9 @@ namespace FW.TestPlatform.Main
         public const string Time = "time";
         public const string Sleep = "sleep";
         public const string FireEventRequest = "fireeventrequest";
+        public const string DateTimeFormate = "datetimeformate";
+        public const string DateTimeAdd = "datetimeadd";
+        public const string UserName = "username";
     }
 
     public static class LabelTypes
@@ -296,6 +310,8 @@ namespace FW.TestPlatform.Main
         public const string SplitJsonData = "SplitJsonData";
         public const string Print = "Print";
         public const string FireEventRequest = "FireEventRequest";
+        public const string DateTimeFormate = "DateTimeFormate";
+        public const string DateTimeAdd = "DateTimeAdd";
         public const string HttpGetWithConnect = "HttpGetWithConnect";
         public const string HttpPostWithConnect = "HttpPostWithConnect";
     }

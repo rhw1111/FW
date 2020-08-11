@@ -23,11 +23,13 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
     {
         private readonly ISelector<IFactory<IGenerateAdditionFuncService>> _generateAdditionFuncServiceFactorySelector;
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
+        private readonly ISelector<IFactory<IGetSpaceService>> _getSpaceServiceSelector;
 
-        public LabelParameterHandlerForAdditionFunc(ISelector<IFactory<IGenerateAdditionFuncService>> generateAdditionFuncServiceFactorySelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForAdditionFunc(ISelector<IFactory<IGenerateAdditionFuncService>> generateAdditionFuncServiceFactorySelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector, ISelector<IFactory<IGetSpaceService>> getSpaceServiceSelector)
         {
             _generateAdditionFuncServiceFactorySelector = generateAdditionFuncServiceFactorySelector;
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
+            _getSpaceServiceSelector = getSpaceServiceSelector;
         }
 
         public async Task<string> Execute(TemplateContext context, string[] parameters)
@@ -64,7 +66,7 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
             var separatorService = _getSeparatorServiceSelector.Choose(engineType).Create();
             var strFuncSeparator = await separatorService.GetFuncSeparator();
 
-            if (parameters.Length < 1)
+            if (parameters.Length != 1)
             {
                 var fragment = new TextFragment()
                 {
@@ -90,7 +92,8 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
                 throw new UtilityException((int)Errors.LabelParameterTypeError, fragment, 1, 0);
             }
 
-            string strSpace = this.RepeatString(" ", int.Parse(parameters[0]));
+            var spaceService = _getSpaceServiceSelector.Choose(engineType).Create();
+            var strSpace = await spaceService.GetSpace(int.Parse(parameters[0]));
             bool isFirstLine = true;
 
             foreach (var item in vars)
@@ -117,19 +120,6 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
         public async Task<bool> IsIndividual()
         {
             return await Task.FromResult(false);
-        }
-
-        public string RepeatString(string str, int n)
-        {
-            char[] arr = str.ToCharArray();
-            char[] arrDest = new char[arr.Length * n];
-
-            for (int i = 0; i < n; i++)
-            {
-                Buffer.BlockCopy(arr, 0, arrDest, i * arr.Length * 2, arr.Length * 2);
-            }
-
-            return new string(arrDest);
         }
     }
 }

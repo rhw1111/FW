@@ -20,18 +20,36 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
     [Injection(InterfaceType = typeof(LabelParameterHandlerForCaseServiceBaseAddress), Scope = InjectionScope.Singleton)]
     public class LabelParameterHandlerForCaseServiceBaseAddress : ILabelParameterHandler
     {
+        private readonly ISelector<IFactory<IGenerateVarInvokeService>> _generateVarInvokeServiceSelector;
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForCaseServiceBaseAddress(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForCaseServiceBaseAddress(ISelector<IFactory<IGenerateVarInvokeService>> generateVarInvokeServiceSelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
+            _generateVarInvokeServiceSelector = generateVarInvokeServiceSelector;
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
 
         public async Task<string> Execute(TemplateContext context, string[] parameters)
         {
+            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.EngineType, out object? objEngineType))
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.NotFoundParameterInTemplateContextByName,
+                    DefaultFormatting = "在模板上下文中找不到名称为{0}的参数",
+                    ReplaceParameters = new List<object>() { TemplateContextParameterNames.EngineType }
+                };
+
+                throw new UtilityException((int)Errors.NotFoundParameterInTemplateContextByName, fragment, 1, 0);
+            }
+
+            var engineType = (string)objEngineType;
+
             StringBuilder strCode = new StringBuilder();
 
-            strCode.Append($"case_service_base_address");
+            var funService = _generateVarInvokeServiceSelector.Choose($"{engineType}").Create();
+            string strTemp = await funService.Generate("case_service_base_address", parameters);
+            strCode.Append(strTemp);
 
             return strCode.ToString();
         }

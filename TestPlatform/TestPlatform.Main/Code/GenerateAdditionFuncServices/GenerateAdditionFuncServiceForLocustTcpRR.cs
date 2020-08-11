@@ -15,11 +15,12 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
         public async Task<string> Generate()
         {
             StringBuilder sbCode = new StringBuilder();
-            sbCode.AppendLine("def TcpRR(address, port, senddata, receivereg):");
+            sbCode.AppendLine("def TcpRR(address, port, senddata, receivereg, name=None, self=None):");
             sbCode.AppendLine("    # print(\"TcpRR\")");
             sbCode.AppendLine("    import socket");
             sbCode.AppendLine("    import re");
             sbCode.AppendLine("    import traceback");
+            sbCode.AppendLine("    import time");
             sbCode.AppendLine("");
             sbCode.AppendLine("    if address is None or address == \"\" or port is None or port == \"\":");
             sbCode.AppendLine("        return \"\"");
@@ -34,6 +35,7 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("    port = port");
             sbCode.AppendLine("    ADDR = (host, port)");
             sbCode.AppendLine("    buffsize = 10240");
+            sbCode.AppendLine("    start_time = time.time()");
             sbCode.AppendLine("");
             sbCode.AppendLine("    connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)");
             sbCode.AppendLine("");
@@ -50,6 +52,12 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("            data = connect.recv(buffsize).decode()");
             sbCode.AppendLine("            Print(\"RecvData, %s\" % data)");
             sbCode.AppendLine("");
+            sbCode.AppendLine("            if name and self:");
+            sbCode.AppendLine("                total_time = int((time.time() - start_time) * second_unit)");
+            sbCode.AppendLine("                self.environment.events.request_success.fire(");
+            sbCode.AppendLine("                    request_type=request_type, name=name,");
+            sbCode.AppendLine("                    response_time=total_time, response_length=0)");
+            sbCode.AppendLine("");
             sbCode.AppendLine("            p = re.compile(receivereg, re.S)");
             sbCode.AppendLine("            result = re.findall(p, data)");
             sbCode.AppendLine("");
@@ -58,8 +66,21 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("            else:");
             sbCode.AppendLine("                return \"\"");
             sbCode.AppendLine("        else:");
+            sbCode.AppendLine("            if name and self:");
+            sbCode.AppendLine("                total_time = int((time.time() - start_time) * second_unit)");
+            sbCode.AppendLine("                self.environment.events.request_success.fire(");
+            sbCode.AppendLine("                    request_type=request_type, name=name,");
+            sbCode.AppendLine("                    response_time=total_time, response_length=0)");
+            sbCode.AppendLine("");
             sbCode.AppendLine("            return \"OK\"");
             sbCode.AppendLine("    except Exception as e:");
+            sbCode.AppendLine("        if name and self:");
+            sbCode.AppendLine("            total_time = int((time.time() - start_time) * second_unit)");
+            sbCode.AppendLine("            self.environment.events.request_failure.fire(");
+            sbCode.AppendLine("                request_type=request_type, name=name,");
+            sbCode.AppendLine("                response_time=total_time, response_length=len(str(e)),");
+            sbCode.AppendLine("                exception=e)");
+            sbCode.AppendLine("");
             sbCode.AppendLine("        print(\"[%s] [%s]: Error, % s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, str(e)))");
             sbCode.AppendLine("        print(\"[%s] [%s]: Error, % s.\" % (datetime.datetime.now().strftime(datetime_format), client_id, traceback.format_exc()))");
             sbCode.AppendLine("");

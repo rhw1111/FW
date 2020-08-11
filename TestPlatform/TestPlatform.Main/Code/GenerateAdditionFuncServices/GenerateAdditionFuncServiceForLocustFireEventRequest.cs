@@ -20,6 +20,9 @@ namespace FW.TestPlatform.Main.Code.GenerateAdditionFuncServices
             sbCode.AppendLine("");
             sbCode.AppendLine("    import time");
             sbCode.AppendLine("");
+            sbCode.AppendLine("    if not self or not name or not start_time:");
+            sbCode.AppendLine("        return");
+            sbCode.AppendLine("");
             sbCode.AppendLine("    total_time = int((time.time() - start_time) * second_unit)");
             sbCode.AppendLine("");
             sbCode.AppendLine("    if is_success:");

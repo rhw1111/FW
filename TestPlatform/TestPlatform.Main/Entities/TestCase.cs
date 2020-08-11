@@ -176,6 +176,21 @@ namespace FW.TestPlatform.Main.Entities
             }
         }
 
+        /// <summary>
+        /// 测试案例ID
+        /// </summary>
+        public Guid? TestCaseHistoryID
+        {
+            get
+            {
+
+                return GetAttribute<Guid?>(nameof(TestCaseHistoryID));
+            }
+            set
+            {
+                SetAttribute<Guid?>(nameof(TestCaseHistoryID), value);
+            }
+        }
 
         /// <summary>
         /// 创建时间
@@ -660,7 +675,9 @@ namespace FW.TestPlatform.Main.Entities
                 }
 
                 await handleService.Run(tCase, cancellationToken);
-                await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.Running, cancellationToken);
+                //await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.Running, cancellationToken);
+                await _testCaseStore.UpdateHistoryIdAndStatus(tCase.ID, Guid.NewGuid(), TestCaseStatus.Running, cancellationToken);
+
                 scope.Complete();
             }   
         }

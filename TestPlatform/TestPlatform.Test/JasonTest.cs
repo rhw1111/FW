@@ -25,6 +25,7 @@ using FW.TestPlatform.Main.Application;
 using FW.TestPlatform.Main.DTOModel;
 using MSLibrary.StreamingDB.InfluxDB;
 using MSLibrary.StreamingDB.InfluxDB.DAL;
+using FW.TestPlatform.Main.NetGateway;
 
 namespace TestPlatform.Test
 {
@@ -81,7 +82,32 @@ namespace TestPlatform.Test
             //await CreateMonitorDB();
             //await AddMasterData();
 
-            await AddSlaveData();
+            await AddMasterData1();
+
+            await AddSlaveData1();
+        }
+
+
+        private async Task AddSlaveData1()
+        {
+            Random rondom = new Random();
+            IQPSCollectService sss = DIContainerContainer.Get<IQPSCollectService>();
+            for (int i = 0; i < 100; i++)
+            {
+                await sss.Collect("c7a290e6-eddd-4126-abc9-5e129718e0fc",  rondom.Next(100, 200), DateTime.UtcNow);
+                Thread.Sleep(1000);
+            }
+        }
+
+        private async Task AddMasterData1()
+        {
+            Random rondom = new Random();
+            INetDurationCollectService sss = DIContainerContainer.Get<INetDurationCollectService>();
+            for (int i = 0;i<100;i++)
+            {
+                await sss.Collect("c7a290e6-eddd-4126-abc9-5e129718e0fc", rondom.Next(0, 10), rondom.Next(100, 200), rondom.Next(70, 100), DateTime.UtcNow);
+                Thread.Sleep(1000);
+            }
         }
 
         private async Task CreateMonitorDB()
@@ -173,9 +199,7 @@ namespace TestPlatform.Test
                 await test.Do(modelList);
                 Thread.Sleep(1000);
 
-            }
-
-            
+            }            
         }
 
         private long ConvertToTimeStamp(string time)

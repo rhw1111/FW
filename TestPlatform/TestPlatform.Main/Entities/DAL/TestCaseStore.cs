@@ -292,7 +292,6 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     }
                     Guid mHostGuid = source.MasterHostID;
                     source.ModifyTime = DateTime.UtcNow;
-                    //source.CreateTime = DateTime.UtcNow;
                     dbContext.TestCases.Attach(source);
 
                     var entry = dbContext.Entry(source);
@@ -313,8 +312,29 @@ namespace FW.TestPlatform.Main.Entities.DAL
             if(testCase != null)
             {
                 testCase.Status = status;
-                await Update(testCase);
+                await Update(testCase,cancellationToken);
             }            
+        }
+
+        public async Task UpdateHistoryId(Guid id, Guid historyId, CancellationToken cancellationToken = default)
+        {
+            TestCase? testCase = await QueryByID(id);
+            if (testCase != null)
+            {
+                testCase.TestCaseHistoryID = historyId;
+                await Update(testCase,cancellationToken);
+            }
+        }
+
+        public async Task UpdateHistoryIdAndStatus(Guid id, Guid historyId, TestCaseStatus status, CancellationToken cancellationToken = default)
+        {
+            TestCase? testCase = await QueryByID(id);
+            if (testCase != null)
+            {
+                testCase.TestCaseHistoryID = historyId;
+                testCase.Status = status;
+                await Update(testCase,cancellationToken);
+            }
         }
         public async Task<List<TestCase>> QueryCountNolockByStatus(TestCaseStatus status, IList<Guid> hostIds, CancellationToken cancellationToken = default)
         {

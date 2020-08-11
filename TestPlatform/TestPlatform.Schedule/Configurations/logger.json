@@ -9,6 +9,18 @@
   "GlobalLogDefaultMinLevel": "4",
   "Providers": [
     {
+      "Type": "Console",
+      "LogLevels": {
+        "TestPlatform.Portal.Api": "4",
+        "DIWrapper": "2",
+        "HttpRequest": "4",
+        "SystemAuthentication": "4",
+        "ContextExtension": "4",
+        "Test": "1"
+      },
+      "DefaultMinLevel": "4"
+    }
+    /*{
       "Type": "Local",
       "LogLevels": {
         "TestPlatform.Portal.Api": "4",
@@ -18,6 +30,6 @@
         "ContextExtension": "4"
       },
       "DefaultMinLevel": "4"
-    }
+    }*/
   ]
   }

@@ -86,11 +86,11 @@ namespace IdentityCenter.Server.Controllers
 
                 return loginViewModel;
             }
-
+          
             var allowLocal = true;
-            if (context?.ClientId != null)
+            if (context.Client!=null && context.Client.ClientId != null)
             {
-                var client = await _clientStore.FindEnabledClientByIdAsync(context.ClientId);
+                var client = await _clientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
                 if (client != null)
                 {
                     allowLocal = client.EnableLocalLogin;
@@ -115,7 +115,7 @@ namespace IdentityCenter.Server.Controllers
             var context = await _interaction.GetAuthorizationContextAsync(request.ReturnUrl);
 
             var loginResult = await _appLogin.Do(request, HttpContext.RequestAborted);
-            await _events.RaiseAsync(new UserLoginSuccessEvent(loginResult.UserName, loginResult.SubjectID, loginResult.UserName, clientId: context?.ClientId));
+            await _events.RaiseAsync(new UserLoginSuccessEvent(loginResult.UserName, loginResult.SubjectID, loginResult.UserName, clientId: context.Client.ClientId));
 
 
             AuthenticationProperties props = null;
@@ -128,8 +128,21 @@ namespace IdentityCenter.Server.Controllers
                 };
             };
 
+            ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(
+                new List<ClaimsIdentity>()
+                { 
+                    new ClaimsIdentity(
+                        new List<Claim>()
+                        {
+                            new Claim("name",loginResult.UserName)
+                        },
+                        "user"
+                        )
+
+                }
+                );
             // issue authentication cookie with subject ID and username
-            await HttpContext.SignInAsync(loginResult.SubjectID, loginResult.UserName, props);
+            await HttpContext.SignInAsync(loginResult.SubjectID, claimsPrincipal, props);
 
             if (context != null)
             {
@@ -165,7 +178,7 @@ namespace IdentityCenter.Server.Controllers
                 // if the user cancels, send a result back into IdentityServer as if they 
                 // denied the consent (even if this client does not require consent).
                 // this will send back an access denied OIDC error response to the client.
-                await _interaction.GrantConsentAsync(context, ConsentResponse.Denied);
+                await _interaction.GrantConsentAsync(context, new ConsentResponse() { Error= AuthorizationError.AccessDenied });
                 return Redirect(returnUrl);
             }
             else
@@ -236,11 +249,25 @@ namespace IdentityCenter.Server.Controllers
 
             if (loginResult.ExistsUserAccount)
             {
+                ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(
+                        new List<ClaimsIdentity>()
+                        {
+                            new ClaimsIdentity(
+                                new List<Claim>()
+                                {
+                                    new Claim("name",loginResult.UserName)
+                                },
+                                "user"
+                                )
+
+                        }
+                );
+
                 var context = await _interaction.GetAuthorizationContextAsync(loginResult.ReturnUrl);
                 AuthenticationProperties props = null;
-                await HttpContext.SignInAsync(loginResult.SubjectID, loginResult.UserName, props);
+                await HttpContext.SignInAsync(loginResult.SubjectID, claimsPrincipal, props);
                 await HttpContext.SignOutAsync(IdentityServer4.IdentityServerConstants.ExternalCookieAuthenticationScheme);
-                await _events.RaiseAsync(new UserLoginSuccessEvent(loginResult.SchemeName, loginResult.ProviderUserId, loginResult.SubjectID, loginResult.UserName, true, context?.ClientId));
+                await _events.RaiseAsync(new UserLoginSuccessEvent(loginResult.SchemeName, loginResult.ProviderUserId, loginResult.SubjectID, loginResult.UserName, true, context.Client.ClientId));
                 return Redirect(loginResult.ReturnUrl);
             }
             else
@@ -267,11 +294,25 @@ namespace IdentityCenter.Server.Controllers
 
             var bindResult=await _appExternalBind.Do(bindUser, result, HttpContext.RequestAborted);
 
+            ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(
+                new List<ClaimsIdentity>()
+                {
+                            new ClaimsIdentity(
+                                new List<Claim>()
+                                {
+                                    new Claim("name",bindResult.UserName)
+                                },
+                                "user"
+                                )
+
+                }
+            );
+
             var context = await _interaction.GetAuthorizationContextAsync(bindResult.ReturnUrl);
             AuthenticationProperties props = null;
-            await HttpContext.SignInAsync(bindResult.SubjectID, bindResult.UserName, props);
+            await HttpContext.SignInAsync(bindResult.SubjectID, claimsPrincipal, props);
             await HttpContext.SignOutAsync(IdentityServer4.IdentityServerConstants.ExternalCookieAuthenticationScheme);
-            await _events.RaiseAsync(new UserLoginSuccessEvent(bindResult.SchemeName, bindResult.ProviderUserId, bindResult.SubjectID, bindResult.UserName, true, context?.ClientId));
+            await _events.RaiseAsync(new UserLoginSuccessEvent(bindResult.SchemeName, bindResult.ProviderUserId, bindResult.SubjectID, bindResult.UserName, true, context.Client.ClientId));
             return Redirect(bindResult.ReturnUrl);
 
         }

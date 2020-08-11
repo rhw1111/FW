@@ -20,18 +20,36 @@ namespace FW.TestPlatform.Main.Template.LabelParameterHandlers
     [Injection(InterfaceType = typeof(LabelParameterHandlerForSlaveName), Scope = InjectionScope.Singleton)]
     public class LabelParameterHandlerForSlaveName : ILabelParameterHandler
     {
+        private readonly ISelector<IFactory<IGenerateVarInvokeService>> _generateVarInvokeServiceSelector;
         private readonly ISelector<IFactory<IGetSeparatorService>> _getSeparatorServiceSelector;
 
-        public LabelParameterHandlerForSlaveName(ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
+        public LabelParameterHandlerForSlaveName(ISelector<IFactory<IGenerateVarInvokeService>> generateVarInvokeServiceSelector, ISelector<IFactory<IGetSeparatorService>> getSeparatorServiceSelector)
         {
+            _generateVarInvokeServiceSelector = generateVarInvokeServiceSelector;
             _getSeparatorServiceSelector = getSeparatorServiceSelector;
         }
 
         public async Task<string> Execute(TemplateContext context, string[] parameters)
         {
+            if (!context.Parameters.TryGetValue(TemplateContextParameterNames.EngineType, out object? objEngineType))
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.NotFoundParameterInTemplateContextByName,
+                    DefaultFormatting = "在模板上下文中找不到名称为{0}的参数",
+                    ReplaceParameters = new List<object>() { TemplateContextParameterNames.EngineType }
+                };
+
+                throw new UtilityException((int)Errors.NotFoundParameterInTemplateContextByName, fragment, 1, 0);
+            }
+
+            var engineType = (string)objEngineType;
+
             StringBuilder strCode = new StringBuilder();
 
-            strCode.Append($"client_id");
+            var funService = _generateVarInvokeServiceSelector.Choose($"{engineType}").Create();
+            string strTemp = await funService.Generate("client_id", parameters);
+            strCode.Append(strTemp);
 
             return strCode.ToString();
         }

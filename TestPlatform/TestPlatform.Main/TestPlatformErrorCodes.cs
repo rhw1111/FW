@@ -63,9 +63,25 @@ namespace FW.TestPlatform.Main
         /// </summary>
         NotFoundGenerateAdditionFuncServiceByName = 325710032,
         /// <summary>
+        /// 找不到指定名称的函数调用生成服务
+        /// </summary>
+        NotFoundGenerateFuncInvokeServiceByName = 325710033,
+        /// <summary>
+        /// 找不到指定名称的变量设置声明代码块生成服务
+        /// </summary>
+        NotFoundGenerateVarSettingServiceByName = 325710034,
+        /// <summary>
         /// 找不到指定名称的获取分隔符服务
         /// </summary>
         NotFoundGetSeparatorServiceByName = 325710035,
+        /// <summary>
+        /// 找不到指定名称的获取空格服务
+        /// </summary>
+        NotFoundGetSpaceServiceByName = 325710036,
+        /// <summary>
+        /// 找不到指定名称的变量调用生成服务
+        /// </summary>
+        NotFoundGenerateVarInvokeServiceByName = 325710037,
         /// <summary>
         /// 在上下文参数DataSourceFuncs中找不到指定函数名称的记录
         /// </summary>

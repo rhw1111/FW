@@ -1,0 +1,14 @@
+syntax= "proto2";
+
+import "google/protobuf/descriptor.proto";
+extend google.protobuf.FileOptions {
+	optional string serviceID = 50000;
+	optional string methodName = 50001;
+}
+extend google.protobuf.FieldOptions {
+	optional string metaNum = 50002;
+	optional bool metaDate = 50003;
+}
+
+option java_package = "sample.demo";
+option java_outer_classname = "CustomedOptionsContainer";
