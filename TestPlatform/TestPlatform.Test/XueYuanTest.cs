@@ -23,6 +23,11 @@ using FW.TestPlatform.Main.Entities;
 using FW.TestPlatform.Main.Entities.DAL;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.Template;
+using MSLibrary.NetCap;
+using Ctrade.Message;
+using Haukcode.PcapngUtils;
+using Haukcode.PcapngUtils.Common;
+using PacketDotNet;
 
 namespace TestPlatform.Test
 {
@@ -213,7 +218,7 @@ namespace TestPlatform.Test
             Assert.Pass();
         }
 
-        [Test]
+        //[Test]
         public async Task TestTestCaseRun()
         {
             TestCase testCase = new TestCase()
@@ -293,5 +298,77 @@ namespace TestPlatform.Test
         //    Assert.Pass();
         //}
 
+        [Test]
+        public async Task TestCap()
+        {
+            this.OpenPcapORPcapNFFile("E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\abc_00000_20200729102649.cap");
+        }
+
+        public void OpenPcapORPcapNFFile(string filename, CancellationToken token = default)
+        {
+            using (var reader = IReaderFactory.GetReader(filename))
+            {
+                reader.OnReadPacketEvent += reader_OnReadPacketEvent;
+                reader.ReadPackets(token);
+                reader.OnReadPacketEvent -= reader_OnReadPacketEvent;
+            }
+        }
+
+        void reader_OnReadPacketEvent(object context, IPacket packet)
+        {
+            Console.WriteLine(string.Format("Packet received {0}.{1}", packet.Seconds, packet.Microseconds));
+
+            ////解析出基本包  
+            var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
+            string ret = "";
+            PrintPacket(ref ret, ethernetPacket);
+            Console.WriteLine(string.Format("PayloadData {0}", ret));
+
+            var payloadPacket = ethernetPacket;
+
+            while (payloadPacket.HasPayloadPacket)
+            {
+                payloadPacket = payloadPacket.PayloadPacket;
+            }
+
+            var payloadData = payloadPacket.PayloadData;
+
+            try
+            {
+                //var data = APIOrderCancelReplyMsg.Parser.ParseFrom(payloadData);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        /// <summary>  
+        /// 过滤条件关键字  
+        /// </summary>  
+        public string filter;
+
+        /// <summary>  
+        /// 打印包信息，组合包太复杂了，所以直接把hex字符串打出来了  
+        /// </summary>  
+        /// <param name="str"></param>  
+        /// <param name="p"></param>  
+        private void PrintPacket(ref string str, Packet p)
+        {
+            if (p != null)
+            {
+                string s = p.ToString();
+
+                if (!string.IsNullOrEmpty(filter) && !s.Contains(filter))
+                {
+                    return;
+                }
+
+                str += "\r\n" + s + "\r\n";
+                ////尝试创建新的TCP/IP数据包对象，  
+                ////第一个参数为以太头长度，第二个为数据包数据块  
+                str += p.PrintHex() + "\r\n";
+            }
+        }
     }
 }
