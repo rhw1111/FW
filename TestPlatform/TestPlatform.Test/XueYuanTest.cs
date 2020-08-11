@@ -28,6 +28,7 @@ using Ctrade.Message;
 using Haukcode.PcapngUtils;
 using Haukcode.PcapngUtils.Common;
 using PacketDotNet;
+using FW.TestPlatform.Main.NetGateway;
 
 namespace TestPlatform.Test
 {
@@ -298,7 +299,7 @@ namespace TestPlatform.Test
         //    Assert.Pass();
         //}
 
-        [Test]
+        //[Test]
         public async Task TestCap()
         {
             this.OpenPcapORPcapNFFile("E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\abc_00000_20200729102649.cap");
@@ -370,5 +371,14 @@ namespace TestPlatform.Test
                 str += p.PrintHex() + "\r\n";
             }
         }
+
+        [Test]
+        public async Task TestNetGateway()
+        {
+            var netGatewayDataHandleService = DIContainerContainer.Get<INetGatewayDataHandleService>();
+
+            await netGatewayDataHandleService.Execute();
+        }
+
     }
 }
