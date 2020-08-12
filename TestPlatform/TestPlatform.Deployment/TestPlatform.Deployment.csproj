@@ -8,10 +8,14 @@
   <ItemGroup>
     <Folder Include="DockerCompose\BaseImages\" />
     <Folder Include="DockerCompose\DockerFiles\CaseServiceBin\" />
+    <Folder Include="DockerCompose\DockerFiles\NetGateway\" />
     <Folder Include="DockerCompose\DockerFiles\PortalApiBin\" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="DockerCompose\DockerFiles\Dockerfile-NetGateway">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="DockerCompose\DockerFiles\Dockerfile-PortalApi">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

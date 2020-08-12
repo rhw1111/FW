@@ -43,7 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Dockerfile">
+    <None Update="Dockerfile-NetGateway">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
