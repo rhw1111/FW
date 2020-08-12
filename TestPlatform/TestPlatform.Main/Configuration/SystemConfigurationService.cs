@@ -158,10 +158,11 @@ namespace FW.TestPlatform.Main.Configuration
 
         public async Task<string> GetMonitorAddressAsync(string enginType, CancellationToken cancellationToken = default)
         {
-            if(enginType == string.Empty)
-                return await Task.FromResult(GetTestCaseHistoryMonitorAddress(cancellationToken));
-            else
-                return await Task.FromResult(GetMonitorAddress(enginType,cancellationToken));
+            return await Task.FromResult(GetMonitorAddress(enginType,cancellationToken));
+        }
+        public async Task<string> GetCaseHistoryMonitorAddressAsync(CancellationToken cancellationToken = default)
+        {
+            return await Task.FromResult(GetTestCaseHistoryMonitorAddress(cancellationToken));
         }
     }
 }
