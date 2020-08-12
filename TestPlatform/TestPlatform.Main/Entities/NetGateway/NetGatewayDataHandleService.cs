@@ -90,12 +90,11 @@ namespace FW.TestPlatform.Main.NetGateway
 
                         ConcurrentDictionary<string, List<DataContainer>> singleResponseDatas = new ConcurrentDictionary<string, List<DataContainer>>();
 
-
                         var fileNames = (from item in completedFiles
                                         orderby item.Value.CreateTime
                                         select item.Value.FileName).Take(_maxFileCount).ToList();
 
-                        await ParallelHelper.ForEach(fileNames, 10,
+                        await ParallelHelper.ForEach(fileNames, 1,
                             async (fileName) =>
                             {
                                 var prefix = _resolveFileNamePrefixService.Resolve(fileName);
