@@ -137,9 +137,31 @@ namespace FW.TestPlatform.Main.Configuration
             return appConfiguration.GetConfigurationValue<string>();
         }
 
+        public string GetTestCaseHistoryMonitorAddress(CancellationToken cancellationToken = default)
+        {
+            var systemConfigurationRepositoryCacheProxy = DIContainerContainer.Get<ISystemConfigurationRepositoryCacheProxy>();
+            var appConfiguration = systemConfigurationRepositoryCacheProxy.QueryByName(SystemConfigurationItemNames.TestCaseHistoryMonitorAddress);
+            if (appConfiguration == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.NotFoundSystemConfigurationByName,
+                    DefaultFormatting = "找不到名称为{0}的系统配置",
+                    ReplaceParameters = new List<object>() { SystemConfigurationItemNames.TestCaseHistoryMonitorAddress }
+                };
+
+                throw new UtilityException((int)Errors.NotFoundSystemConfigurationByName, fragment, 1, 0);
+            }
+
+            return appConfiguration.GetConfigurationValue<string>();
+        }
+
         public async Task<string> GetMonitorAddressAsync(string enginType, CancellationToken cancellationToken = default)
         {
-            return await Task.FromResult(GetMonitorAddress(enginType,cancellationToken));
+            if(enginType == string.Empty)
+                return await Task.FromResult(GetTestCaseHistoryMonitorAddress(cancellationToken));
+            else
+                return await Task.FromResult(GetMonitorAddress(enginType,cancellationToken));
         }
     }
 }
