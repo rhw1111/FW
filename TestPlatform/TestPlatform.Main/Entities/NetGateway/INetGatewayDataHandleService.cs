@@ -34,6 +34,24 @@ namespace FW.TestPlatform.Main.NetGateway
     /// 一个文件流中有多个源数据字符串
     /// sourceDataAction针对每个源数据字符串做处理
     /// </summary>
+    public interface IGetSourceDataFromFileService
+    {
+        /// <summary>
+        /// 获取源数据字符串
+        /// sourceDataAction中可以得到从流中获取的每个源数据字符串
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="sourceDataAction"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task Get(string fileName, Func<string,Task> sourceDataAction, CancellationToken cancellationToken = default);
+    }
+
+    /// <summary>
+    /// 从文件流中获取源数据字符串服务
+    /// 一个文件流中有多个源数据字符串
+    /// sourceDataAction针对每个源数据字符串做处理
+    /// </summary>
     public interface IGetSourceDataFromStreamService
     {
         /// <summary>
@@ -44,7 +62,7 @@ namespace FW.TestPlatform.Main.NetGateway
         /// <param name="sourceDataAction"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task Get(Stream stream,Func<string,Task> sourceDataAction, CancellationToken cancellationToken = default);
+        Task Get(Stream stream, Func<string, Task> sourceDataAction, CancellationToken cancellationToken = default);
     }
 
     /// <summary>
@@ -79,7 +97,7 @@ namespace FW.TestPlatform.Main.NetGateway
     /// </summary>
     public interface INetDurationCollectService
     {
-        Task Collect(double min,double max,double avg, DateTime time, CancellationToken cancellationToken = default);
+        Task Collect(string prefix, double min,double max,double avg, DateTime time, CancellationToken cancellationToken = default);
     }
 
     public enum NetDataType

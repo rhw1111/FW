@@ -23,19 +23,6 @@ export default new Router({
           name: 'TestCaseDetail',
           component: () => import('@/pages/TestCase/Detail.vue'),
         },
-        //测试用例从主机详情
-        {
-          path: '/TestCase/Detail/SlaveHostDetail',
-          name: 'SlaveHostDetail',
-          component: () => import('@/pages/TestCase/SlaveHostDetail.vue'),
-        },
-        //测试用例历史记录详情
-        {
-          path: '/TestCase/Detail/HistoryDetail',
-          name: 'HistoryDetail',
-          component: () => import('@/pages/TestCase/component/History/HistoryDetail.vue'),
-        },
-
         // ---------------------------------------------- 测试数据源 ------------------------------------------------
         //测试数据源首页
         {
