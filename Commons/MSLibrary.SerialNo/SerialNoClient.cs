@@ -237,6 +237,13 @@ namespace MSLibrary.SerialNo
                 _configurationName = configurationName;
             }
 
+            /// <summary>
+            /// 加载状态
+            /// 0：初始状态，未加载
+            /// 1：加载完成
+            /// 2：加载出错
+            /// 3：正在加载
+            /// </summary>
             public int LoadStatus
             {
                 get

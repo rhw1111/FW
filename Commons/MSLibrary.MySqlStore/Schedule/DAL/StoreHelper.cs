@@ -73,7 +73,7 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
             }
             if (reader[string.Format("{0}ScheduleActionServiceFactoryTypeUseDI", prefix)] != DBNull.Value)
             {
-                action.ScheduleActionServiceFactoryTypeUseDI = (bool)reader[string.Format("{0}ScheduleActionServiceFactoryTypeUseDI", prefix)];
+                action.ScheduleActionServiceFactoryTypeUseDI = Convert.ToBoolean(reader[string.Format("{0}ScheduleActionServiceFactoryTypeUseDI", prefix)]);
             }
             if (reader[string.Format("{0}ScheduleActionServiceWebUrl", prefix)] != DBNull.Value)
             {
@@ -129,7 +129,7 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
             actionGroup.Name = reader[string.Format("{0}name", prefix)].ToString();
             actionGroup.CreateTime = (DateTime)reader[string.Format("{0}createtime", prefix)];
             actionGroup.ModifyTime = (DateTime)reader[string.Format("{0}modifytime", prefix)];
-            actionGroup.UseLog = (bool)reader[string.Format("{0}uselog", prefix)];
+            actionGroup.UseLog = Convert.ToBoolean(reader[string.Format("{0}uselog", prefix)]);
             actionGroup.ExecuteActionInitType = reader[string.Format("{0}executeactioninittype", prefix)].ToString();
             actionGroup.ExecuteActionInitConfiguration = reader[string.Format("{0}executeactioninitconfiguration", prefix)].ToString();
         }
@@ -160,7 +160,7 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
                              ,claimcontextgeneratorname
                              ,createtime
                              ,modifytime
-                             ,[sequence]";
+                             ,sequence";
             }
             return string.Format(strSelect, prefix);
         }
