@@ -94,7 +94,7 @@ namespace FW.TestPlatform.Main.NetGateway
                                         orderby item.Value.CreateTime
                                         select item.Value.FileName).Take(_maxFileCount).ToList();
 
-                        await ParallelHelper.ForEach(fileNames, 1,
+                        await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
                             {
                                 var prefix = _resolveFileNamePrefixService.Resolve(fileName);
