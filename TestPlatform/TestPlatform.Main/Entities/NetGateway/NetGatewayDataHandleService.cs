@@ -395,6 +395,7 @@ namespace FW.TestPlatform.Main.NetGateway
 
             waitTasks.Add(t2);
 
+            resultTask.Start();
             return netGatewayDataHandleResult;
         }
 

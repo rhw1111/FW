@@ -212,7 +212,12 @@ namespace TestPlatform.Test
         public async Task TestCap()
         {
 
-                
+            Task tt = new Task(async()=>
+            {
+                var aa = 1;
+            });
+            tt.Start();
+            await tt;
             await using (var stream=File.OpenRead(@"D:\1.cap"))
             {
                 PacketCaptureReader reader = new PacketCaptureReader(stream);
@@ -236,7 +241,7 @@ namespace TestPlatform.Test
         [Test]
         public async Task TestSchedule()
         {
-            var n=typeof(FW.TestPlatform.Main.Schedule.Actions.ScheduleActionServiceForTestFactory).AssemblyQualifiedName;
+            var n=typeof(FW.TestPlatform.Main.Schedule.Actions.ScheduleActionServiceForNetGatewayFactory).AssemblyQualifiedName;
             var id=Guid.NewGuid();
             var testDataSourceStore = DIContainerContainer.Get<IScheduleActionGroupStore>();
             var result=await testDataSourceStore.QueryByPage("", 1, 1);
