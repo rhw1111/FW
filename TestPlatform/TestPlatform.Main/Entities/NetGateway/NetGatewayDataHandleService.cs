@@ -68,7 +68,7 @@ namespace FW.TestPlatform.Main.NetGateway
             {
                 lock (completedFiles)
                 {
-                    completedFiles[info.FileName]=info;
+                    completedFiles[info.FileName] = info;
                 }
             });
 
@@ -112,124 +112,145 @@ namespace FW.TestPlatform.Main.NetGateway
                                     }
                                 }
 
-                                await using (var stream = File.OpenRead(fileName))
-                                {
-                                    await _getSourceDataFromStreamService.Get(stream,
-                                        async (sourceData) =>
-                                        {
-                                            var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
-
-                                            if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
-                                            {
-                                                lock (containerDatas)
-                                                {
-                                                    if (!containerDatas.TryGetValue(data.ID, out containerData))
-                                                    {
-                                                        if (data.Type == NetDataType.Request)
-                                                        {
-                                                            containerData = new DataContainer()
-                                                            {
-                                                                FileName = fileName
-                                                            };
-                                                            containerDatas[data.ID] = containerData;
-                                                        }
-                                                        else
-                                                        {
-                                                            if (!singleResponseDatas.TryGetValue(prefix, out List<DataContainer>? singleDatas))
-                                                            {
-                                                                lock (singleResponseDatas)
-                                                                {
-                                                                    if (!singleResponseDatas.TryGetValue(prefix, out singleDatas))
-                                                                    {
-                                                                        singleDatas = new List<DataContainer>();
-                                                                        singleResponseDatas[prefix] = singleDatas;
-                                                                    }
-                                                                }
-                                                            }
-
-                                                            lock (singleDatas)
-                                                            {
-                                                                singleDatas.Add(new DataContainer() { FileName = fileName, Response = data });
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                            if (containerData != null)
-                                            {
-                                                if (data.Type == NetDataType.Request)
-                                                {
-                                                    containerData.Request = data;
-                                                }
-                                                else
-                                                {
-                                                    containerData.Response = data;
-                                                }
-                                            }
-                                        },
-                                        cancellationToken
-                                    );
-
-                                    stream.Close();
-                                }
-
-                                //await _getSourceDataFromFileService.Get(fileName,
-                                //    async (sourceData) =>
-                                //    {
-                                //        var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
-
-                                //        if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
+                                //await using (var stream = File.OpenRead(fileName))
+                                //{
+                                //    await _getSourceDataFromStreamService.Get(stream,
+                                //        async (sourceData) =>
                                 //        {
-                                //            lock (containerDatas)
+                                //            var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
+
+                                //            if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
                                 //            {
-                                //                if (!containerDatas.TryGetValue(data.ID, out containerData))
+                                //                lock (containerDatas)
                                 //                {
-                                //                    if (data.Type == NetDataType.Request)
+                                //                    if (!containerDatas.TryGetValue(data.ID, out containerData))
                                 //                    {
-                                //                        containerData = new DataContainer()
+                                //                        if (data.Type == NetDataType.Request)
                                 //                        {
-                                //                            FileName = fileName
-                                //                        };
-                                //                        containerDatas[data.ID] = containerData;
-                                //                    }
-                                //                    else
-                                //                    {
-                                //                        if (!singleResponseDatas.TryGetValue(prefix, out List<DataContainer>? singleDatas))
-                                //                        {
-                                //                            lock (singleResponseDatas)
+                                //                            containerData = new DataContainer()
                                 //                            {
-                                //                                if (!singleResponseDatas.TryGetValue(prefix, out singleDatas))
+                                //                                FileName = fileName
+                                //                            };
+                                //                            containerDatas[data.ID] = containerData;
+                                //                        }
+                                //                        else
+                                //                        {
+                                //                            if (!singleResponseDatas.TryGetValue(prefix, out List<DataContainer>? singleDatas))
+                                //                            {
+                                //                                lock (singleResponseDatas)
                                 //                                {
-                                //                                    singleDatas = new List<DataContainer>();
-                                //                                    singleResponseDatas[prefix] = singleDatas;
+                                //                                    if (!singleResponseDatas.TryGetValue(prefix, out singleDatas))
+                                //                                    {
+                                //                                        singleDatas = new List<DataContainer>();
+                                //                                        singleResponseDatas[prefix] = singleDatas;
+                                //                                    }
                                 //                                }
                                 //                            }
-                                //                        }
 
-                                //                        lock (singleDatas)
-                                //                        {
-                                //                            singleDatas.Add(new DataContainer() { FileName = fileName, Response = data });
+                                //                            lock (singleDatas)
+                                //                            {
+                                //                                singleDatas.Add(new DataContainer() { FileName = fileName, Response = data });
+                                //                            }
                                 //                        }
                                 //                    }
                                 //                }
                                 //            }
+
+                                //            if (containerData != null)
+                                //            {
+                                //                if (data.Type == NetDataType.Request)
+                                //                {
+                                //                    containerData.Request = data;
+                                //                }
+                                //                else
+                                //                {
+                                //                    containerData.Response = data;
+                                //                }
+                                //            }
+                                //        },
+                                //        cancellationToken
+                                //    );
+
+                                //    stream.Close();
+                                //}
+
+                                //using (var reader = IReaderFactory.GetReader("E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\7fc391a7-dba0-11ea-b236-00ffb1d16cf9_20200729102649.cap"))
+                                //{
+                                //    reader.OnReadPacketEvent += (context, packet) =>
+                                //    {
+                                //        IPacket ipacket = packet;
+
+                                //        //解析出基本包  
+                                //        var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
+
+                                //        var payloadPacket = ethernetPacket;
+
+                                //        while (payloadPacket.HasPayloadPacket)
+                                //        {
+                                //            payloadPacket = payloadPacket.PayloadPacket;
                                 //        }
 
-                                //        if (containerData != null)
-                                //        {
-                                //            if (data.Type == NetDataType.Request)
-                                //            {
-                                //                containerData.Request = data;
-                                //            }
-                                //            else
-                                //            {
-                                //                containerData.Response = data;
-                                //            }
-                                //        }
-                                //    },
-                                //    cancellationToken
-                                //);
+                                //        var payloadData = payloadPacket.PayloadData;
+                                //    };
+                                //    reader.ReadPackets(cancellationToken);
+                                //}
+
+                                await _getSourceDataFromFileService.Get(fileName,
+                                    async (sourceData) =>
+                                    {
+                                        var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
+
+                                        if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
+                                        {
+                                            lock (containerDatas)
+                                            {
+                                                if (!containerDatas.TryGetValue(data.ID, out containerData))
+                                                {
+                                                    if (data.Type == NetDataType.Request)
+                                                    {
+                                                        containerData = new DataContainer()
+                                                        {
+                                                            FileName = fileName
+                                                        };
+                                                        containerDatas[data.ID] = containerData;
+                                                    }
+                                                    else
+                                                    {
+                                                        if (!singleResponseDatas.TryGetValue(prefix, out List<DataContainer>? singleDatas))
+                                                        {
+                                                            lock (singleResponseDatas)
+                                                            {
+                                                                if (!singleResponseDatas.TryGetValue(prefix, out singleDatas))
+                                                                {
+                                                                    singleDatas = new List<DataContainer>();
+                                                                    singleResponseDatas[prefix] = singleDatas;
+                                                                }
+                                                            }
+                                                        }
+
+                                                        lock (singleDatas)
+                                                        {
+                                                            singleDatas.Add(new DataContainer() { FileName = fileName, Response = data });
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        if (containerData != null)
+                                        {
+                                            if (data.Type == NetDataType.Request)
+                                            {
+                                                containerData.Request = data;
+                                            }
+                                            else
+                                            {
+                                                containerData.Response = data;
+                                            }
+                                        }
+                                    },
+                                    cancellationToken
+                                );
                             }
                         );
 
@@ -396,6 +417,7 @@ namespace FW.TestPlatform.Main.NetGateway
             waitTasks.Add(t2);
 
             resultTask.Start();
+
             return netGatewayDataHandleResult;
         }
 
@@ -545,65 +567,33 @@ namespace FW.TestPlatform.Main.NetGateway
         /// <returns></returns>
         Task IGetSourceDataFromStreamService.Get(Stream stream, Func<string, Task> sourceDataAction, CancellationToken cancellationToken)
         {
-            if (stream != null)
+            if (stream == null)
             {
                 return Task.CompletedTask;
             }
 
-            //using (PcapNGReader reader = new PcapNGReader(stream, false))
-            //{
-            //    reader.OnReadPacketEvent += (context, packet) =>
-            //    {
-            //        IPacket ipacket = packet;
-            //    };
-            //    reader.ReadPackets(new System.Threading.CancellationToken());
-            //}
+            using (PcapNGReader reader = new PcapNGReader(stream, false))
+            {
+                reader.OnReadPacketEvent += (context, packet) =>
+                {
+                    IPacket ipacket = packet;
 
-            //using (MemoryStream stream = new MemoryStream(byteblock))
-            //{
-            //    using (BinaryReader binaryReader = new BinaryReader(stream))
-            //    {
-            //        AbstractBlock block = AbstractBlockFactory.ReadNextBlock(binaryReader, reorder, null);
-            //        Assert.IsNotNull(block);
-            //        postPacketBlock = block as EnchantedPacketBlock;
-            //        Assert.IsNotNull(postPacketBlock);
+                    //解析出基本包  
+                    var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
 
-            //        Assert.AreEqual(prePacketBlock.BlockType, postPacketBlock.BlockType);
-            //        Assert.AreEqual(prePacketBlock.Data, postPacketBlock.Data);
-            //        Assert.AreEqual(prePacketBlock.InterfaceID, postPacketBlock.InterfaceID);
-            //        Assert.AreEqual(prePacketBlock.Microseconds, postPacketBlock.Microseconds);
-            //        Assert.AreEqual(prePacketBlock.PacketLength, postPacketBlock.PacketLength);
-            //        Assert.AreEqual(prePacketBlock.PositionInStream, postPacketBlock.PositionInStream);
-            //        Assert.AreEqual(prePacketBlock.Seconds, postPacketBlock.Seconds);
-            //        Assert.AreEqual(prePacketBlock.Options.Comment, postPacketBlock.Options.Comment);
-            //        Assert.AreEqual(prePacketBlock.Options.DropCount, postPacketBlock.Options.DropCount);
-            //        Assert.AreEqual(prePacketBlock.Options.Hash, postPacketBlock.Options.Hash);
-            //        Assert.AreEqual(prePacketBlock.Options.PacketFlag, postPacketBlock.Options.PacketFlag);
-            //    }
-            //}
+                    var payloadPacket = ethernetPacket;
 
-            //using (var reader = IReaderFactory.GetReader(fileName))
-            //{
-            //    reader.OnReadPacketEvent += (context, packet) =>
-            //    {
-            //        IPacket ipacket = packet;
+                    while (payloadPacket.HasPayloadPacket)
+                    {
+                        payloadPacket = payloadPacket.PayloadPacket;
+                    }
 
-            //        //解析出基本包  
-            //        var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
+                    var payloadData = payloadPacket.PayloadData;
 
-            //        var payloadPacket = ethernetPacket;
-
-            //        while (payloadPacket.HasPayloadPacket)
-            //        {
-            //            payloadPacket = payloadPacket.PayloadPacket;
-            //        }
-
-            //        var payloadData = payloadPacket.PayloadData;
-
-            //        sourceDataAction.Invoke(payloadData.ToString());
-            //    };
-            //    reader.ReadPackets(cancellationToken);
-            //}
+                    sourceDataAction.Invoke(payloadData.ToString());
+                };
+                reader.ReadPackets(cancellationToken);
+            }
 
             return Task.CompletedTask;
         }
