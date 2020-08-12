@@ -212,7 +212,12 @@ namespace TestPlatform.Test
         public async Task TestCap()
         {
 
-                
+            Task tt = new Task(async()=>
+            {
+                var aa = 1;
+            });
+            tt.Start();
+            await tt;
             await using (var stream=File.OpenRead(@"D:\1.cap"))
             {
                 PacketCaptureReader reader = new PacketCaptureReader(stream);
