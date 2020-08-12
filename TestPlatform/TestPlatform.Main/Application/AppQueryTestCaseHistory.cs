@@ -41,7 +41,7 @@ namespace FW.TestPlatform.Main.Application
             var result = await queryResult.GetHistories(caseId, page, pageSize, cancellationToken);
             if(result != null && result.Results != null && result.Results.Count > 0)
             {
-                var monitorAddress = await _systemConfigurationService.GetMonitorAddressAsync("", cancellationToken);
+                var monitorAddress = await _systemConfigurationService.GetCaseHistoryMonitorAddressAsync(cancellationToken);
                 foreach (TestCaseHistory history in result.Results)
                 {           
                     histories.Results.Add(new TestCaseHistoryListViewData()
