@@ -299,7 +299,7 @@ namespace TestPlatform.Test
         //    Assert.Pass();
         //}
 
-        [Test]
+        //[Test]
         public async Task TestCap()
         {
             this.OpenPcapORPcapNFFile("E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\7fc391a7-dba0-11ea-b236-00ffb1d16cf9_20200729102649.cap");
@@ -378,6 +378,22 @@ namespace TestPlatform.Test
             var netGatewayDataHandleService = DIContainerContainer.Get<INetGatewayDataHandleService>();
 
             await netGatewayDataHandleService.Execute();
+        }
+
+        [Test]
+        public async Task TestTask()
+        {
+            Console.WriteLine("1");
+
+            var t2 = Task.Run(async () =>
+            {
+                while (true)
+                {
+                    Console.WriteLine("1");
+                    await Task.Delay(10000);
+                    Console.WriteLine("2");
+                }
+            });
         }
 
     }
