@@ -68,6 +68,10 @@ namespace FW.TestPlatform.Main
         /// </summary>
         public const string TestMonitorAddress="{0}_TestMonitorAddress";
         public const string CaseServiceBaseAddress = "CaseServiceBaseAddress";
+        /// <summary>
+        /// 测试历史记录监控地址
+        /// </summary>
+        public const string TestCaseHistoryMonitorAddress = "TestHistoryMonitorAddress";
     }
 
     /// <summary>

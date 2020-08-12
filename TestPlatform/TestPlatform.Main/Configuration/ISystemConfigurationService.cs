@@ -50,6 +50,12 @@ namespace FW.TestPlatform.Main.Configuration
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<string> GetMonitorAddressAsync(string enginType, CancellationToken cancellationToken = default);
+        /// <summary>
+        /// 获取测试历史记录的监控地址
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        string GetTestCaseHistoryMonitorAddress(CancellationToken cancellationToken = default);
 
     }
 }
