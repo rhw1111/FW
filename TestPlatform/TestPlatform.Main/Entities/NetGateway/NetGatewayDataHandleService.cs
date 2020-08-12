@@ -383,7 +383,7 @@ namespace FW.TestPlatform.Main.NetGateway
                             break;
                         }
 
-                        //await Task.Delay(10000);
+                        await Task.Delay(10000);
                     }
                     catch (Exception ex)
                     {
@@ -549,14 +549,14 @@ namespace FW.TestPlatform.Main.NetGateway
                 return Task.CompletedTask;
             }
 
-            using (PcapNGReader reader = new PcapNGReader(stream, false))
-            {
-                reader.OnReadPacketEvent += (context, packet) =>
-                {
-                    IPacket ipacket = packet;
-                };
-                reader.ReadPackets(new System.Threading.CancellationToken());
-            }
+            //using (PcapNGReader reader = new PcapNGReader(stream, false))
+            //{
+            //    reader.OnReadPacketEvent += (context, packet) =>
+            //    {
+            //        IPacket ipacket = packet;
+            //    };
+            //    reader.ReadPackets(new System.Threading.CancellationToken());
+            //}
 
             //using (MemoryStream stream = new MemoryStream(byteblock))
             //{
