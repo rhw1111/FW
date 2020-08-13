@@ -80,7 +80,7 @@ namespace FW.TestPlatform.Main.DAL
             {
                 return CreateAllForLocalCommonLog();
             }
-            return _systemConfigurationService.GetConnectionString("confifurationread");
+            return _systemConfigurationService.GetConnectionString("configurationread");
         }
 
         public string CreateReadForMain()
