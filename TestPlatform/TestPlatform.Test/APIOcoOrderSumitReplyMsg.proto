@@ -1,0 +1,53 @@
+syntax = "proto2";
+
+package ctrade.message;
+
+import "standard.proto";
+import "Header.proto";
+import "User.proto";
+
+option java_package ="cn.com.cfets.data.ctrade.message";
+option java_outer_classname ="APIOcoOrderSubmitReplyMsgProbuf";
+
+option (serviceID) = "CTRADE-ORDER-DATA-SUBMIT-REPLY";
+//option (methodName) = "APIOcoOrderSubmitReplyMsg";      
+
+// 订单提交反馈
+message APIOcoOrderSubmitReply
+{
+    //required string exec_ack_status = 1;	//处理结果
+    required string order_id = 1; 		//订单编号
+    //required string order_req_id = 3; 		//订单操作参考序号
+    //required string exec_org_id = 4; 		//执行方机构ID
+    //required string exec_user_id = 5; 		//执行方用户ID
+    //optional string tran_time = 6;		//激活时间
+    //required string text = 7; 			//失败原因
+
+    //required User user = 100;
+};
+
+// OCO订单提交(ME)
+message APIOcoOrderSumitReply
+{
+	required int32 mkt = 1;			// 市场标识
+	//optional int32 expire_tp = 2;		// 到期时间类型
+	//optional int32 expire_min = 3;		// 订单有效时长
+	//optional string expire_tm = 4;		// 订单到期时间
+	//optional int32 is_exec = 5;		// 是否强制执行
+	
+        required string exec_ack_status = 2;	//处理结果
+        optional string tran_time = 3;		//激活时间
+        optional string order_req_id = 6; 	//订单操作参考序号
+        optional string text = 7; 		//失败原因
+        optional int64 oco_order_no = 8;        //oco订单号
+
+	repeated APIOcoOrderSubmitReply orders = 98;
+	
+        required User usr = 100;
+};
+
+message APIOcoOrderSumitReplyMsg
+{
+	optional Header header = 1;
+	optional APIOcoOrderSumitReply body = 2;
+};

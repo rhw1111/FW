@@ -1,0 +1,40 @@
+syntax = "proto2";
+
+package ctrade.message;
+
+import "standard.proto";
+import "Header.proto";
+
+option java_package ="cn.com.cfets.data.ctrade.message";
+option java_outer_classname ="ApiMarketDataRequestProbuf";
+
+option (serviceID) = "CTRADE-API-MARKETDATA-REQUEST";
+// option (methodName) = "ApiMarketDataRequest";      
+
+// Market date of price level
+message InstrumentMdReq {
+    required string symbol = 1; // currency pair name
+    required int32 market_indicator = 2; // market indicator, 11-fx swap
+    required string cntrct_nm = 3; // contract name
+};
+
+// Market data body
+message ApiMarketDataRequestBody {
+    required string md_req_id = 1; // request id which is from subscribe request
+    required string appl_token = 2; // token which is from logon request
+    required int32 subscription_request_type = 3; // subscribe request type, 1-subscribe; 2-unsubscribe
+    required int32 md_book_type = 4; // market data type, 1-best market data; 2-price level market data; 105-public best market data;
+    required string market_depth = 5; // the price level number, such as 5
+    required string transact_time = 6 ; // request time, the format: YYYYMMDD-HH:MM:SS.sss
+    required string org_id = 7; // org id
+    required string user_id = 8; // user id
+
+    repeated InstrumentMdReq instruments = 9; // subscribe instruments
+};
+
+// API market data request message
+message ApiMarketDataRequest
+{
+    optional Header header = 1;
+    optional ApiMarketDataRequestBody body = 2;
+};

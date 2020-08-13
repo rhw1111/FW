@@ -1,0 +1,33 @@
+syntax = "proto2";
+
+package ctrade.message;
+
+import "standard.proto";
+import "Header.proto";
+import "User.proto";
+
+option java_package ="cn.com.cfets.data.ctrade.message";
+option java_outer_classname ="APICreditUpdateReplyMsgProbuf";
+
+option (serviceID) = "CTRADE-ORDER-DATA-SUBMIT";
+//option (methodName) = "CreditUpdateReplyMsg";  
+
+
+// 授信修改
+message APICreditUpdateReply {
+	required string risk_limit_req_id = 1;
+	required int32 market_indicator = 2 [default = 11]; /// 市场标识
+	optional string inst_scope_security_type = 3 [default = "FXSWAP"]; 
+	required int32 risk_limit_result = 4;
+	optional string reject_text = 5;
+	required string exec_org_id = 6; ///执行方机构ID
+	required string exec_user_id = 7; ///执行方用户ID
+	required User user = 100;
+
+};
+
+message APICreditUpdateReplyMsg 
+{
+	optional Header header = 1;	//TODO 待确定
+	optional APICreditUpdateReply body = 2;
+};

@@ -15,6 +15,10 @@ using MSLibrary.LanguageTranslate;
 using Haukcode.PcapngUtils;
 using Haukcode.PcapngUtils.Common;
 using Haukcode.PcapngUtils.PcapNG;
+using Haukcode.PcapngUtils.PcapNG.BlockTypes;
+using System.Runtime.ExceptionServices;
+using Haukcode.PcapngUtils.Pcap;
+using Haukcode.PcapngUtils.Extensions;
 
 namespace FW.TestPlatform.Main.NetGateway
 {
@@ -97,7 +101,8 @@ namespace FW.TestPlatform.Main.NetGateway
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
                             {
-                                var prefix = _resolveFileNamePrefixService.Resolve(fileName);
+                                string dataformat = string.Empty;
+                                var prefix = _resolveFileNamePrefixService.Resolve(fileName, out dataformat);
 
                                 if (!datas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? containerDatas))
                                 {
@@ -173,28 +178,7 @@ namespace FW.TestPlatform.Main.NetGateway
                                 //    stream.Close();
                                 //}
 
-                                //using (var reader = IReaderFactory.GetReader("E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\7fc391a7-dba0-11ea-b236-00ffb1d16cf9_20200729102651.cap"))
-                                //{
-                                //    reader.OnReadPacketEvent += (context, packet) =>
-                                //    {
-                                //        IPacket ipacket = packet;
-
-                                //        //解析出基本包  
-                                //        var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
-
-                                //        var payloadPacket = ethernetPacket;
-
-                                //        while (payloadPacket.HasPayloadPacket)
-                                //        {
-                                //            payloadPacket = payloadPacket.PayloadPacket;
-                                //        }
-
-                                //        var payloadData = payloadPacket.PayloadData;
-                                //    };
-                                //    reader.ReadPackets(cancellationToken);
-                                //}
-
-                                await _getSourceDataFromFileService.Get(fileName,
+                                await _getSourceDataFromFileService.Get(fileName, dataformat,
                                     async (sourceData) =>
                                     {
                                         var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
@@ -292,7 +276,8 @@ namespace FW.TestPlatform.Main.NetGateway
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
                             {
-                                var prefix = _resolveFileNamePrefixService.Resolve(fileName);
+                                string dataformat = string.Empty;
+                                var prefix = _resolveFileNamePrefixService.Resolve(fileName, out dataformat);
 
                                 if (!datas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? containerDatas))
                                 {
@@ -561,10 +546,11 @@ namespace FW.TestPlatform.Main.NetGateway
         /// sourceDataAction中可以得到从流中获取的每个源数据字符串
         /// </summary>
         /// <param name="stream"></param>
+        /// <param name="dataformat"></param>
         /// <param name="sourceDataAction"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task IGetSourceDataFromStreamService.Get(Stream stream, Func<string, Task> sourceDataAction, CancellationToken cancellationToken)
+        Task IGetSourceDataFromStreamService.Get(Stream stream, string dataformat, Func<string, Task> sourceDataAction, CancellationToken cancellationToken)
         {
             if (stream == null)
             {
@@ -606,57 +592,325 @@ namespace FW.TestPlatform.Main.NetGateway
         /// sourceDataAction中可以得到从流中获取的每个源数据字符串
         /// </summary>
         /// <param name="fileName"></param>
+        /// <param name="dataformat"></param>
         /// <param name="sourceDataAction"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task IGetSourceDataFromFileService.Get(string fileName, Func<string, Task> sourceDataAction, CancellationToken cancellationToken)
+        Task IGetSourceDataFromFileService.Get(string fileName, string dataformat, Func<string, Task> sourceDataAction, CancellationToken cancellationToken)
         {
             if (!File.Exists(fileName))
             {
                 return Task.CompletedTask;
             }
 
-            using (var reader = IReaderFactory.GetReader(fileName))
-            {
-                reader.OnReadPacketEvent += (context, packet) =>
-                {
-                    IPacket ipacket = packet;
-
-                    //解析出基本包  
-                    var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
-
-                    var payloadPacket = ethernetPacket;
-
-                    while (payloadPacket.HasPayloadPacket)
-                    {
-                        payloadPacket = payloadPacket.PayloadPacket;
-                    }
-
-                    var payloadData = payloadPacket.PayloadData;
-
-                    sourceDataAction.Invoke(payloadData.ToString());
-                };
-                reader.ReadPackets(cancellationToken);
-            }
+            this.OpenPcapORPcapNFFile(fileName, sourceDataAction, cancellationToken);
 
             return Task.CompletedTask;
+        }
+
+        private object syncRoot = new object();
+
+        public void OpenPcapORPcapNFFile(string fileName, Func<string, Task> sourceDataAction, CancellationToken cancellationToken = default)
+        {
+            using (var stream = File.OpenRead(fileName))
+            //using (var stream = new FileStream(fileName, FileMode.Open))
+            {
+                using (BinaryReader binaryReader = new BinaryReader(stream))
+                {
+                    if (binaryReader.BaseStream.Length < 12)
+                        throw new ArgumentException(string.Format("[IReaderFactory.GetReader] file {0} is too short ", fileName));
+
+                    UInt32 mask = 0;
+                    mask = binaryReader.ReadUInt32();
+
+                    if (mask == (uint)BaseBlock.Types.SectionHeader)
+                    {
+                        binaryReader.ReadUInt32();
+                        mask = binaryReader.ReadUInt32();
+                    }
+
+                    switch (mask)
+                    {
+                        case (uint)Haukcode.PcapngUtils.Pcap.SectionHeader.MagicNumbers.microsecondIdentical:
+                        case (uint)Haukcode.PcapngUtils.Pcap.SectionHeader.MagicNumbers.microsecondSwapped:
+                        case (uint)Haukcode.PcapngUtils.Pcap.SectionHeader.MagicNumbers.nanosecondSwapped:
+                        case (uint)Haukcode.PcapngUtils.Pcap.SectionHeader.MagicNumbers.nanosecondIdentical:
+                            this.ReadPackets_Pcap(binaryReader, sourceDataAction, cancellationToken);
+
+                            break;
+                        case (uint)Haukcode.PcapngUtils.PcapNG.BlockTypes.SectionHeaderBlock.MagicNumbers.Identical:
+                            this.ReadPackets_PcapNG(binaryReader, false, sourceDataAction, cancellationToken);
+
+                            break;
+                        case (uint)Haukcode.PcapngUtils.PcapNG.BlockTypes.SectionHeaderBlock.MagicNumbers.Swapped:
+                            this.ReadPackets_PcapNG(binaryReader, true, sourceDataAction, cancellationToken);
+
+                            break;
+                        default:
+                            throw new ArgumentException(string.Format("[IReaderFactory.GetReader] file {0} is not PCAP/PCAPNG file", fileName));
+                    }
+                }
+            }
+        }
+
+        public void ReadPackets_Pcap(BinaryReader binaryReader, Func<string, Task> sourceDataAction, CancellationToken cancellationToken = default)
+        {
+            Action<Exception> ReThrowException = (exc) =>
+            {
+                ExceptionDispatchInfo.Capture(exc).Throw();
+            };
+
+            uint secs, usecs, caplen, len;
+            long position = 0;
+            byte[] data;
+            SectionHeader Header = SectionHeader.Parse(binaryReader);
+
+            while (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length && !cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    lock (syncRoot)
+                    {
+                        position = binaryReader.BaseStream.Position;
+                        secs = binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
+                        usecs = binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
+
+                        if (Header.NanoSecondResolution)
+                        {
+                            usecs = usecs / 1000;
+                        }
+
+                        caplen = binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
+                        len = binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
+
+                        data = binaryReader.ReadBytes((int)caplen);
+
+                        if (data.Length < caplen)
+                        {
+                            throw new EndOfStreamException("Unable to read beyond the end of the stream");
+                        }
+                    }
+
+                    PcapPacket packet = new PcapPacket((UInt64)secs, (UInt64)usecs, data, position);
+                    this.OnReadPacket(packet, sourceDataAction);
+                }
+                catch (Exception exc)
+                {
+                    ReThrowException(exc);
+                }
+            }
+        }
+
+        public void ReadPackets_PcapNG(BinaryReader binaryReader, bool reverseByteOrder, Func<string, Task> sourceDataAction, CancellationToken cancellationToken = default)
+        {
+            Action<Exception> ReThrowException = (exc) =>
+            {
+                ExceptionDispatchInfo.Capture(exc).Throw();
+            };
+
+            AbstractBlock block;
+            long prevPosition = 0;
+            binaryReader.BaseStream.Position = 0;
+
+            while (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length && !cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    lock (syncRoot)
+                    {
+                        prevPosition = binaryReader.BaseStream.Position;
+                        block = AbstractBlockFactory.ReadNextBlock(binaryReader, reverseByteOrder, ReThrowException);
+                    }
+
+                    if (block == null)
+                    {
+                        throw new Exception(string.Format("[ReadPackets] AbstractBlockFactory cannot read packet on position {0}", prevPosition));
+                    }
+
+                    switch (block.BlockType)
+                    {
+                        case BaseBlock.Types.EnhancedPacket:
+                            {
+                                EnchantedPacketBlock enchantedBlock = block as EnchantedPacketBlock;
+
+                                if (enchantedBlock == null)
+                                {
+                                    throw new Exception(string.Format("[ReadPackets] system cannot cast block to EnchantedPacketBlock. Block start on position: {0}.", prevPosition));
+                                }
+                                else
+                                {
+                                    this.OnReadPacket(enchantedBlock, sourceDataAction);
+                                }
+                            }
+                            break;
+                        //case BaseBlock.Types.Packet:
+                        //    {
+                        //        PacketBlock packetBlock = block as PacketBlock;
+
+                        //        if (packetBlock == null)
+                        //        {
+                        //            throw new Exception(string.Format("[ReadPackets] system cannot cast block to PacketBlock. Block start on position: {0}.", prevPosition));
+                        //        }
+                        //        else
+                        //        {
+                        //            this.OnReadPacket(packetBlock);
+                        //        }
+                        //    }
+                        //    break;
+                        //case BaseBlock.Types.SimplePacket:
+                        //    {
+                        //        SimplePacketBlock simpleBlock = block as SimplePacketBlock;
+
+                        //        if (simpleBlock == null)
+                        //        {
+                        //            throw new Exception(string.Format("[ReadPackets] system cannot cast block to SimplePacketBlock. Block start on position: {0}.", prevPosition));
+                        //        }
+                        //        else
+                        //        {
+                        //            this.OnReadPacket(simpleBlock);
+                        //        }
+                        //    }
+                        //    break;
+                        default:
+                            break;
+                    }
+                }
+                catch (Exception exc)
+                {
+                    ReThrowException(exc);
+
+                    lock (syncRoot)
+                    {
+                        if (prevPosition == binaryReader.BaseStream.Position)
+                            break;
+                    }
+
+                    continue;
+                }
+            }
+        }
+
+        private void OnReadPacket(IPacket packet, Func<string, Task> sourceDataAction)
+        {
+            if (packet == null)
+            {
+                return;
+            }
+
+            ////解析出基本包  
+            var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
+
+            var payloadPacket = ethernetPacket;
+
+            while (payloadPacket.HasPayloadPacket)
+            {
+                payloadPacket = payloadPacket.PayloadPacket;
+            }
+
+            var payloadData = payloadPacket.PayloadData;
+
+            try
+            {
+                var googleData = this.GetGoogleData(payloadData);
+
+                if (googleData != null)
+                {
+                    //var data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                    sourceDataAction.Invoke("");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(string.Format("Exception {0}", ex.Message));
+            }
+        }
+
+        private byte[] GetGoogleData(byte[] data)
+        {
+            if (data == null || data.Length < 82)
+            {
+                return null;
+            }
+
+            int packetType = data[0];
+            int messageType = data[59];
+            int requestType = data[82];
+
+            if (packetType == 3 && messageType == 7 && (requestType == 0 || requestType == 1))
+            {
+                byte[] length_osin_byte = data.Skip(87).Take(2).ToArray();
+                int length_osin = Byte2Int(length_osin_byte);
+
+                int dsp_begin = 89 + length_osin + 5;
+                int dsp_end = dsp_begin + 4;
+                byte[] length_dspm_byte = data.Skip(dsp_begin).Take(4).ToArray();
+                int length_dspm = Byte4Int(length_dspm_byte);
+
+                int dspapi_begin = 89 + length_osin;
+                int dspapi_end = dspapi_begin + length_dspm;
+
+                byte[] body = data.Skip(dspapi_end).ToArray();
+
+                return body;
+            }
+
+            return null;
+        }
+
+        //2位byte转为int
+        private int Byte2Int(byte[] b)
+        {
+            return ((b[0] & 0xff) << 8) | (b[1] & 0xff);
+        }
+
+        //4位byte转为int
+        private int Byte4Int(byte[] b)
+        {
+            return ((b[0] & 0xff) << 24) | ((b[1] & 0xff) << 16) | ((b[2] & 0xff) << 8) | (b[3] & 0xff);
         }
     }
 
     [Injection(InterfaceType = typeof(IResolveFileNamePrefixService), Scope = InjectionScope.Singleton)]
     public class ResolveFileNamePrefixService : IResolveFileNamePrefixService
     {
-        string IResolveFileNamePrefixService.Resolve(string fileName)
+        string IResolveFileNamePrefixService.Resolve(string fileName, out string dataformat)
         {
+            dataformat = string.Empty;
+
             if (string.IsNullOrEmpty(fileName))
             {
                 return string.Empty;
             }
 
             fileName = Path.GetFileNameWithoutExtension(fileName);
-            string prefix = fileName.Substring(0, fileName.IndexOf("_"));
+            // 命名规则：01_{historyid}_{newguid}
+            // 01为使用CaseHistory，需要通过historyid查询history，获取它的NetGatewayDataFormat属性，返回historyid和该属性
+            string[] fileName_Split = fileName.Split("_");
 
-            return prefix;
+            if (fileName_Split.Length == 3)
+            {
+                string type = fileName_Split[0];
+                string historyID = fileName_Split[1];
+                string newGuid = fileName_Split[2];
+
+                switch (type)
+                {
+                    case "01":
+                        dataformat = string.Empty;
+
+                        //var testCaseStore = DIContainerContainer.Get<ITestCaseStore>();
+                        //var testCaseRunner = await testCaseStore.QueryByID(testCase.ID);
+
+
+                        return historyID;
+
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return string.Empty;
         }
     }
 
