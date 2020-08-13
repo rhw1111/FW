@@ -195,6 +195,7 @@ CREATE TABLE `testcasehistory` (
   `id` char(36) NOT NULL,
   `caseid` char(36) NOT NULL,
   `summary` varchar(4000) NOT NULL DEFAULT '',
+  `netgatewaydataformat` varchar(150) NOT NULL DEFAULT '',
   `createtime` datetime NOT NULL,
   `modifytime` datetime NOT NULL,
   `sequence` bigint NOT NULL AUTO_INCREMENT,
