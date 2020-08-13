@@ -366,9 +366,9 @@ namespace FW.TestPlatform.Main
         public const string TokenReplyMsg = "TokenReplyMsg";
         public const string TokenRequestMsg = "TokenRequestMsg";
         public const string EmptyMsg = "EmptyMsg";
-        public const string Standard = "Standard";
-        public const string Header = "Header";
-        public const string User = "User";
+        //public const string Standard = "Standard";
+        //public const string Header = "Header";
+        //public const string User = "User";
     }
 
 }
