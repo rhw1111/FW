@@ -984,7 +984,7 @@ namespace FW.TestPlatform.Main.NetGateway
 
                         if (testCaseHistory.Result != null)
                         {
-                            dataformat = testCaseHistory.Result.ID.ToString();
+                            dataformat = testCaseHistory.Result.NetGatewayDataFormat;
                         }
 
                         return historyID.ToString();
