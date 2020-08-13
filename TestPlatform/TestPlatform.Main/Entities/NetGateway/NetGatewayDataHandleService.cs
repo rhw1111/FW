@@ -173,7 +173,7 @@ namespace FW.TestPlatform.Main.NetGateway
                                 //    stream.Close();
                                 //}
 
-                                //using (var reader = IReaderFactory.GetReader("E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\7fc391a7-dba0-11ea-b236-00ffb1d16cf9_20200729102649.cap"))
+                                //using (var reader = IReaderFactory.GetReader("E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\7fc391a7-dba0-11ea-b236-00ffb1d16cf9_20200729102651.cap"))
                                 //{
                                 //    reader.OnReadPacketEvent += (context, packet) =>
                                 //    {

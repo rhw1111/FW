@@ -303,7 +303,7 @@ namespace TestPlatform.Test
         //[Test]
         public async Task TestCap()
         {
-            string fileName = "E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\7fc391a7-dba0-11ea-b236-00ffb1d16cf9_20200729102649.cap";
+            string fileName = "E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\7fc391a7-dba0-11ea-b236-00ffb1d16cf9_20200729102651.cap";
             //this.OpenPcapORPcapNFFile(fileName);
 
             using (var stream = File.OpenRead(fileName))
