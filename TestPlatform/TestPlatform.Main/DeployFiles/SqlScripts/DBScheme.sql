@@ -65,7 +65,7 @@ REPLACE INTO `systemconfiguration` (`id`, `name`, `content`, `createtime`, `modi
 	('d4fdc4e2-4efd-4a1c-8372-5a6eca74e381', 'TestPlatform.CaseService_CrosOrigin', '["http://52.188.14.158"]', '2020-06-27 13:23:45', '2020-06-27 13:23:45', 6),
 	('d2be1a01-bcd9-11ea-813c-025041000001', 'Tcp_TestMonitorAddress', '"http://52.188.14.158:3000/d/kr5bLGMMz/test-case-monitor?orgId=1"', now(), now(), 7),
 	('1316b30b-bcdb-11ea-813c-025041000001', 'Http_TestMonitorAddress', '"http://52.188.14.158:3000/d/kr5bLGMMz/test-case-monitor?orgId=1"', now(), now(), 8),
-	('2316b30b-bcdb-11ea-813c-025041000001', 'Tcp_TestHistoryMonitorAddress', '"http://52.188.14.158:3000/d/VQG1ohSGz/test-case-history-monitor?orgId=1"', now(), now(), 9);
+	('2316b30b-bcdb-11ea-813c-025041000001', 'TestHistoryMonitorAddress', '"http://52.188.14.158:3000/d/VQG1ohSGz/test-case-history-monitor?orgId=1"', now(), now(), 9);
 /*!40000 ALTER TABLE `systemconfiguration` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `influxdbendpoint`;
@@ -215,3 +215,80 @@ CREATE TABLE `scripttemplate` (
   KEY `name` (`name`),
   KEY `createtime` (`createtime`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+
+
+
+
+
+
+
+-- 导出  表 tpconfig.scheduleaction 结构
+CREATE TABLE IF NOT EXISTS `scheduleaction` (
+  `id` char(36) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `triggercondition` varchar(200) NOT NULL,
+  `groupid` char(36) NOT NULL,
+  `configuration` mediumtext NOT NULL,
+  `mode` int NOT NULL,
+  `scheduleactionservicefactorytype` varchar(200) DEFAULT NULL,
+  `scheduleactionservicefactorytypeusedi` bit(1) DEFAULT NULL,
+  `scheduleactionserviceweburl` varchar(200) DEFAULT NULL,
+  `websignature` varchar(200) DEFAULT NULL,
+  `status` int NOT NULL,
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+-- 正在导出表  tpconfig.scheduleaction 的数据：~0 rows (大约)
+/*!40000 ALTER TABLE `scheduleaction` DISABLE KEYS */;
+REPLACE INTO `scheduleaction` (`id`, `name`, `triggercondition`, `groupid`, `configuration`, `mode`, `scheduleactionservicefactorytype`, `scheduleactionservicefactorytypeusedi`, `scheduleactionserviceweburl`, `websignature`, `status`, `createtime`, `modifytime`, `sequence`) VALUES
+	('482a79ff-d089-4c20-9311-c2c579965bd9', 'NetGatewayFactory', '0/10 * * * * ?', '25329e82-fa23-4530-892e-d74c4df08f02', '', 0, 'FW.TestPlatform.Main.Schedule.Actions.ScheduleActionServiceForNetGatewayFactory, TestPlatform.Main', b'1', NULL, NULL, 1, '2020-07-29 04:08:20', '2020-07-29 04:08:20', 1);
+/*!40000 ALTER TABLE `scheduleaction` ENABLE KEYS */;
+
+-- 导出  表 tpconfig.scheduleactiongroup 结构
+CREATE TABLE IF NOT EXISTS `scheduleactiongroup` (
+  `id` char(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `uselog` bit(1) NOT NULL,
+  `executeactioninittype` varchar(150) NOT NULL,
+  `executeactioninitconfiguration` mediumtext NOT NULL,
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+-- 正在导出表  tpconfig.scheduleactiongroup 的数据：~0 rows (大约)
+/*!40000 ALTER TABLE `scheduleactiongroup` DISABLE KEYS */;
+REPLACE INTO `scheduleactiongroup` (`id`, `name`, `uselog`, `executeactioninittype`, `executeactioninitconfiguration`, `createtime`, `modifytime`, `sequence`) VALUES
+	('25329e82-fa23-4530-892e-d74c4df08f02', 'G1', b'0', 'Default', '{"EnvironmentClaimGeneratorName":"Default","ClaimContextGeneratorName":"Default"}', '2020-07-29 02:41:40', '2020-07-29 02:41:40', 1);
+/*!40000 ALTER TABLE `scheduleactiongroup` ENABLE KEYS */;
+
+-- 导出  表 tpconfig.schedulehostconfiguration 结构
+CREATE TABLE IF NOT EXISTS `schedulehostconfiguration` (
+  `id` char(36) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `schedulegroupname` varchar(150) NOT NULL,
+  `environmentclaimgeneratorname` varchar(150) NOT NULL,
+  `claimcontextgeneratorname` varchar(150) NOT NULL,
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+-- 正在导出表  tpconfig.schedulehostconfiguration 的数据：~0 rows (大约)
+/*!40000 ALTER TABLE `schedulehostconfiguration` DISABLE KEYS */;
+REPLACE INTO `schedulehostconfiguration` (`id`, `name`, `schedulegroupname`, `environmentclaimgeneratorname`, `claimcontextgeneratorname`, `createtime`, `modifytime`, `sequence`) VALUES
+	('725f3681-da0a-435b-8010-daa2113db2cb', 'TestPlatform_NetGatewayFactory', 'G1', 'Default', 'Default', '2020-07-29 02:13:41', '2020-07-29 02:13:41', 1);
+/*!40000 ALTER TABLE `schedulehostconfiguration` ENABLE KEYS */;
+
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

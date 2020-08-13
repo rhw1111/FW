@@ -1,0 +1,16 @@
+﻿version: "3.7"
+services:
+
+  netway:
+    environment:
+        appname:TestPlatform_NetGatewayFactory
+    build:
+        context: DockerFiles
+        dockerfile: Dockerfile-NetGateway
+    restart: always
+    ulimits:
+        nproc: 65535
+        nofile:
+            soft: 65535
+            hard: 65535
+

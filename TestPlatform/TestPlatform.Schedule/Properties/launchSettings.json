@@ -3,7 +3,7 @@
     "Dev": {
       "commandName": "Project",
       "environmentVariables": {
-        "appname": "TestPlatform_Schedule",
+        "appname": "TestPlatform_NetGatewayFactory",
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "http://localhost:8080/"

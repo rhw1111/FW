@@ -29,6 +29,7 @@ using Haukcode.PcapngUtils;
 using Haukcode.PcapngUtils.Common;
 using PacketDotNet;
 using FW.TestPlatform.Main.NetGateway;
+using Haukcode.PcapngUtils.PcapNG;
 
 namespace TestPlatform.Test
 {
@@ -299,10 +300,35 @@ namespace TestPlatform.Test
         //    Assert.Pass();
         //}
 
-        [Test]
+        //[Test]
         public async Task TestCap()
         {
-            this.OpenPcapORPcapNFFile("E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\7fc391a7-dba0-11ea-b236-00ffb1d16cf9_20200729102649.cap");
+            string fileName = "E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\7fc391a7-dba0-11ea-b236-00ffb1d16cf9_20200729102649.cap";
+            //this.OpenPcapORPcapNFFile(fileName);
+
+            using (var stream = File.OpenRead(fileName))
+            {
+                using (PcapNGReader reader = new PcapNGReader(stream, false))
+                {
+                    reader.OnReadPacketEvent += (context, packet) =>
+                    {
+                        IPacket ipacket = packet;
+
+                        //解析出基本包  
+                        var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
+
+                        var payloadPacket = ethernetPacket;
+
+                        while (payloadPacket.HasPayloadPacket)
+                        {
+                            payloadPacket = payloadPacket.PayloadPacket;
+                        }
+
+                        var payloadData = payloadPacket.PayloadData;
+                    };
+                    reader.ReadPackets(default);
+                }
+            }
         }
 
         public void OpenPcapORPcapNFFile(string fileName, CancellationToken token = default)
@@ -372,13 +398,13 @@ namespace TestPlatform.Test
             }
         }
 
-        //[Test]
+        [Test]
         public async Task TestNetGateway()
         {
             var netGatewayDataHandleService = DIContainerContainer.Get<INetGatewayDataHandleService>();
 
-            await netGatewayDataHandleService.Execute();
+            var netGatewayDataHandleResult = await netGatewayDataHandleService.Execute();
+            //await netGatewayDataHandleResult.Stop();
         }
-
     }
 }

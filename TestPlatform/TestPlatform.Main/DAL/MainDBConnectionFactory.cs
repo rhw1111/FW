@@ -31,7 +31,7 @@ namespace FW.TestPlatform.Main.DAL
 
         public string CreateAllForCommandLine()
         {
-            return _systemConfigurationService.GetConnectionString("commandlineall");
+            return CreateAllForLocalCommonLog();
         }
 
         public string CreateAllForContext()
@@ -66,11 +66,7 @@ namespace FW.TestPlatform.Main.DAL
 
         public string CreateReadForCommandLine()
         {
-            if (DBAllScope.IsAll())
-            {
-                return CreateAllForLocalCommonLog();
-            }
-            return _systemConfigurationService.GetConnectionString("commandlineread");
+            return CreateReadForLocalCommonLog();
         }
 
         public string CreateReadForContext()
@@ -84,7 +80,7 @@ namespace FW.TestPlatform.Main.DAL
             {
                 return CreateAllForLocalCommonLog();
             }
-            return _systemConfigurationService.GetConnectionString("confifurationread");
+            return _systemConfigurationService.GetConnectionString("configurationread");
         }
 
         public string CreateReadForMain()

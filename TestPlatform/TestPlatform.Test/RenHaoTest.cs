@@ -32,6 +32,7 @@ using MSLibrary.Schedule.DAL;
 using MSLibrary.Template;
 using MSLibrary.MySqlStore.Schedule.DAL;
 using Ctrade.Message;
+using MSLibrary.Thread;
 
 namespace TestPlatform.Test
 {
@@ -211,8 +212,45 @@ namespace TestPlatform.Test
         [Test]
         public async Task TestCap()
         {
+            using (var reader = Haukcode.PcapngUtils.IReaderFactory.GetReader(@"D:\1.cap"))
+            {
+                reader.OnReadPacketEvent += (c, p) =>
+                {
+                    var pp = p;
+                };
+                reader.OnExceptionEvent += (o, e) =>
+                  {
+                      var ex = e;
+                  };
+            }
 
-                
+
+            List<string> names = new List<string>();
+            names.Add("");
+            await ParallelHelper.ForEach(names, 10,
+
+                async(name)=>
+                {
+                    using (var reader = Haukcode.PcapngUtils.IReaderFactory.GetReader(@"D:\1.cap"))
+                    {
+                        reader.OnReadPacketEvent += (c, p) =>
+                          {
+                              var pp = p;
+                          };
+                    }
+
+                    var dda = 1;
+                }
+
+                );
+
+
+            Task tt = new Task(async()=>
+            {
+                var aa = 1;
+            });
+            tt.Start();
+            await tt;
             await using (var stream=File.OpenRead(@"D:\1.cap"))
             {
                 PacketCaptureReader reader = new PacketCaptureReader(stream);
@@ -236,7 +274,7 @@ namespace TestPlatform.Test
         [Test]
         public async Task TestSchedule()
         {
-            var n=typeof(FW.TestPlatform.Main.Schedule.Actions.ScheduleActionServiceForTestFactory).AssemblyQualifiedName;
+            var n=typeof(FW.TestPlatform.Main.Schedule.Actions.ScheduleActionServiceForNetGatewayFactory).AssemblyQualifiedName;
             var id=Guid.NewGuid();
             var testDataSourceStore = DIContainerContainer.Get<IScheduleActionGroupStore>();
             var result=await testDataSourceStore.QueryByPage("", 1, 1);

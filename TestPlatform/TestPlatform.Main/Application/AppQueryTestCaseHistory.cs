@@ -9,6 +9,7 @@ using FW.TestPlatform.Main.DTOModel;
 using FW.TestPlatform.Main.Entities;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.Serializer;
+using FW.TestPlatform.Main.Configuration;
 
 namespace FW.TestPlatform.Main.Application
 {
@@ -16,9 +17,11 @@ namespace FW.TestPlatform.Main.Application
     public class AppQueryTestCaseHistory : IAppQueryTestCaseHistory
     {
         private readonly ITestCaseRepository _testCaseRepository;
-        public AppQueryTestCaseHistory(ITestCaseRepository testCaseRepository)
+        private readonly ISystemConfigurationService _systemConfigurationService;
+        public AppQueryTestCaseHistory(ITestCaseRepository testCaseRepository, ISystemConfigurationService systemConfigurationService)
         {
             _testCaseRepository = testCaseRepository;
+            _systemConfigurationService = systemConfigurationService;
         }
         public async Task<QueryResult<TestCaseHistoryListViewData>> Do(Guid caseId, int page, int pageSize, CancellationToken cancellationToken = default)
         {
@@ -38,12 +41,14 @@ namespace FW.TestPlatform.Main.Application
             var result = await queryResult.GetHistories(caseId, page, pageSize, cancellationToken);
             if(result != null && result.Results != null && result.Results.Count > 0)
             {
+                var monitorAddress = await _systemConfigurationService.GetCaseHistoryMonitorAddressAsync(cancellationToken);
                 foreach (TestCaseHistory history in result.Results)
                 {           
                     histories.Results.Add(new TestCaseHistoryListViewData()
                     {
                         ID = history.ID,
                         CaseID = history.CaseID,
+                        MonitorUrl = $"{monitorAddress}&var-HistoryCaseID={history.ID.ToString().ToUrlEncode()}",
                         CreateTime = history.CreateTime.ToCurrentUserTimeZone()
                     });
                 }
