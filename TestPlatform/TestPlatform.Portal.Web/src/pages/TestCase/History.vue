@@ -28,6 +28,12 @@
           <q-td :props="props">
             <q-btn class="btn"
                    color="primary"
+                   style="margin-right:20px;"
+                   label="性 能 监 测"
+                   :disable="isNoRun!=1?false:true"
+                   @click="lookMonitorUrl(props)" />
+            <q-btn class="btn"
+                   color="primary"
                    label="查 看"
                    :disable="isNoRun!=1?false:true"
                    @click="getHistoryDetail(props)" />
@@ -300,32 +306,16 @@ export default {
         this.$q.loading.hide()
         this.HistoryCompareLogFlag = true;
       })
-      // getHistoryDetail(this.HistorySelected, 0)
-      // function getHistoryDetail (value, num) {
-      //   console.log(num)
-      //   if (num != _this.HistorySelected.length) {
-      //     let para = {
-      //       caseId: _this.$route.query.id,
-      //       historyId: value[num].id
-      //     }
-      //     Apis.getHistoryDetail(para).then((res) => {
-      //       console.log(res)
-      //       _this.HistoryCompareLogList.push(JSON.parse(res.data.summary));
-      //       _this.HistoryCompareLogList[num].createTime = res.data.createTime;
-      //       getHistoryDetail(_this.HistorySelected, num + 1)
-      //     })
-      //   } else {
-      //     console.log(_this.HistoryCompareLogList)
-      //     _this.$q.loading.hide()
-      //     _this.HistoryCompareLogFlag = true;
-      //   }
-      // }
     },
     //关闭比较日志
     cancelHistoryCompare () {
       this.HistoryCompareLogFlag = false;
       this.HistoryCompareLogList = [];
-    }
+    },
+    //------------------------------性能检测----------------------------
+    lookMonitorUrl (value) {
+      window.open(value.row.monitorUrl);
+    },
   }
 }
 </script>
