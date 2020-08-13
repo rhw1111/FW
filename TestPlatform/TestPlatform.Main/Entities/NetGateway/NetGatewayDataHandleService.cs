@@ -19,6 +19,8 @@ using Haukcode.PcapngUtils.PcapNG.BlockTypes;
 using System.Runtime.ExceptionServices;
 using Haukcode.PcapngUtils.Pcap;
 using Haukcode.PcapngUtils.Extensions;
+using FW.TestPlatform.Main.Entities.DAL;
+using Ctrade.Message;
 
 namespace FW.TestPlatform.Main.NetGateway
 {
@@ -598,19 +600,19 @@ namespace FW.TestPlatform.Main.NetGateway
         /// <returns></returns>
         Task IGetSourceDataFromFileService.Get(string fileName, string dataformat, Func<string, Task> sourceDataAction, CancellationToken cancellationToken)
         {
-            if (!File.Exists(fileName))
+            if (!File.Exists(fileName) || string.IsNullOrEmpty(dataformat))
             {
                 return Task.CompletedTask;
             }
 
-            this.OpenPcapORPcapNFFile(fileName, sourceDataAction, cancellationToken);
+            this.OpenPcapORPcapNFFile(fileName, dataformat, sourceDataAction, cancellationToken);
 
             return Task.CompletedTask;
         }
 
         private object syncRoot = new object();
 
-        public void OpenPcapORPcapNFFile(string fileName, Func<string, Task> sourceDataAction, CancellationToken cancellationToken = default)
+        public void OpenPcapORPcapNFFile(string fileName, string dataformat, Func<string, Task> sourceDataAction, CancellationToken cancellationToken = default)
         {
             using (var stream = File.OpenRead(fileName))
             //using (var stream = new FileStream(fileName, FileMode.Open))
@@ -635,15 +637,15 @@ namespace FW.TestPlatform.Main.NetGateway
                         case (uint)Haukcode.PcapngUtils.Pcap.SectionHeader.MagicNumbers.microsecondSwapped:
                         case (uint)Haukcode.PcapngUtils.Pcap.SectionHeader.MagicNumbers.nanosecondSwapped:
                         case (uint)Haukcode.PcapngUtils.Pcap.SectionHeader.MagicNumbers.nanosecondIdentical:
-                            this.ReadPackets_Pcap(binaryReader, sourceDataAction, cancellationToken);
+                            this.ReadPackets_Pcap(binaryReader, dataformat, sourceDataAction, cancellationToken);
 
                             break;
                         case (uint)Haukcode.PcapngUtils.PcapNG.BlockTypes.SectionHeaderBlock.MagicNumbers.Identical:
-                            this.ReadPackets_PcapNG(binaryReader, false, sourceDataAction, cancellationToken);
+                            this.ReadPackets_PcapNG(binaryReader, false, dataformat, sourceDataAction, cancellationToken);
 
                             break;
                         case (uint)Haukcode.PcapngUtils.PcapNG.BlockTypes.SectionHeaderBlock.MagicNumbers.Swapped:
-                            this.ReadPackets_PcapNG(binaryReader, true, sourceDataAction, cancellationToken);
+                            this.ReadPackets_PcapNG(binaryReader, true, dataformat, sourceDataAction, cancellationToken);
 
                             break;
                         default:
@@ -653,7 +655,7 @@ namespace FW.TestPlatform.Main.NetGateway
             }
         }
 
-        public void ReadPackets_Pcap(BinaryReader binaryReader, Func<string, Task> sourceDataAction, CancellationToken cancellationToken = default)
+        public void ReadPackets_Pcap(BinaryReader binaryReader, string dataformat, Func<string, Task> sourceDataAction, CancellationToken cancellationToken = default)
         {
             Action<Exception> ReThrowException = (exc) =>
             {
@@ -692,7 +694,7 @@ namespace FW.TestPlatform.Main.NetGateway
                     }
 
                     PcapPacket packet = new PcapPacket((UInt64)secs, (UInt64)usecs, data, position);
-                    this.OnReadPacket(packet, sourceDataAction);
+                    this.OnReadPacket(packet, dataformat, sourceDataAction);
                 }
                 catch (Exception exc)
                 {
@@ -701,7 +703,7 @@ namespace FW.TestPlatform.Main.NetGateway
             }
         }
 
-        public void ReadPackets_PcapNG(BinaryReader binaryReader, bool reverseByteOrder, Func<string, Task> sourceDataAction, CancellationToken cancellationToken = default)
+        public void ReadPackets_PcapNG(BinaryReader binaryReader, bool reverseByteOrder, string dataformat, Func<string, Task> sourceDataAction, CancellationToken cancellationToken = default)
         {
             Action<Exception> ReThrowException = (exc) =>
             {
@@ -739,7 +741,7 @@ namespace FW.TestPlatform.Main.NetGateway
                                 }
                                 else
                                 {
-                                    this.OnReadPacket(enchantedBlock, sourceDataAction);
+                                    this.OnReadPacket(enchantedBlock, dataformat, sourceDataAction);
                                 }
                             }
                             break;
@@ -790,7 +792,7 @@ namespace FW.TestPlatform.Main.NetGateway
             }
         }
 
-        private void OnReadPacket(IPacket packet, Func<string, Task> sourceDataAction)
+        private void OnReadPacket(IPacket packet, string dataformat, Func<string, Task> sourceDataAction)
         {
             if (packet == null)
             {
@@ -815,8 +817,86 @@ namespace FW.TestPlatform.Main.NetGateway
 
                 if (googleData != null)
                 {
-                    //var data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
-                    sourceDataAction.Invoke("");
+                    object data = string.Empty;
+
+                    switch (dataformat)
+                    {
+                        case NetGatewayDataFormatTypes.APICreditUpdateReplyMsg:
+                            data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APICreditUpdateRequestMsg:
+                            data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.ApiListMarketDataAck:
+                            data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.ApiMarketData:
+                            data = ApiMarketData.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.ApiMarketDataRequest:
+                            data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg:
+                            data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg:
+                            data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg:
+                            data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg:
+                            data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOrderCancelReplyMsg:
+                            data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOrderCancelRequestMsg:
+                            data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg:
+                            data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg:
+                            data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg:
+                            data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.TokenReplyMsg:
+                            data = TokenReplyMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.TokenRequestMsg:
+                            data = TokenRequestMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.EmptyMsg:
+                            data = EmptyMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (!string.IsNullOrEmpty(data.ToString()))
+                    {
+                        sourceDataAction.Invoke(data.ToString());
+                    }
                 }
             }
             catch (Exception ex)
@@ -883,26 +963,31 @@ namespace FW.TestPlatform.Main.NetGateway
             }
 
             fileName = Path.GetFileNameWithoutExtension(fileName);
-            // 命名规则：01_{historyid}_{newguid}
+            // 命名规则：01_{caseid}_{historyid}_{newguid}
             // 01为使用CaseHistory，需要通过historyid查询history，获取它的NetGatewayDataFormat属性，返回historyid和该属性
             string[] fileName_Split = fileName.Split("_");
 
-            if (fileName_Split.Length == 3)
+            if (fileName_Split.Length == 4)
             {
                 string type = fileName_Split[0];
-                string historyID = fileName_Split[1];
-                string newGuid = fileName_Split[2];
+                Guid caseID = new Guid(fileName_Split[1]);
+                Guid historyID = new Guid(fileName_Split[2]);
+                string newGuid = fileName_Split[3];
 
                 switch (type)
                 {
                     case "01":
                         dataformat = string.Empty;
 
-                        //var testCaseStore = DIContainerContainer.Get<ITestCaseStore>();
-                        //var testCaseRunner = await testCaseStore.QueryByID(testCase.ID);
+                        var testCaseHistoryStore = DIContainerContainer.Get<ITestCaseHistoryStore>();
+                        var testCaseHistory = testCaseHistoryStore.QueryByCase(caseID, historyID);
 
+                        if (testCaseHistory.Result != null)
+                        {
+                            dataformat = testCaseHistory.Result.ID.ToString();
+                        }
 
-                        return historyID;
+                        return historyID.ToString();
 
                         break;
                     default:

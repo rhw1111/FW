@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+package ctrade.message;
+
+import "standard.proto";
+import "Header.proto";
+
+option java_package ="cn.com.cfets.data.ctrade.message";
+option java_outer_classname ="ApiMarketDataProbuf";
+
+option (serviceID) = "CTRADE-API-MARKETDATA";
+// option (methodName) = "ApiMarketData";      
+
+// Market date of price level
+message ApiMarketDataLevel {
+    required int32 md_entry_type = 1; // trade size, 0-bid; 1-offer
+    required int32 md_price_level = 2; // price level, such as 1, 2, 3, 4, 5
+    required string md_entry_px = 3; // the price in the current price level
+    required string trade_volume = 4; // total volume of all orders in the current price level
+    required string md_entry_size = 5; // tradable volume for the user who are pushed in the current price level
+};
+
+// Market data body
+message ApiMarketDataBody {
+    optional string md_req_id = 1; // request id which is from subscribe request
+    required string md_entry_date = 2; // the date of the current market
+    required string md_entry_time = 3; // the time of the current market
+    required string symbol = 4 [default = "USD.CNY"]; // currency pair name
+    required string settl_type = 5; // contract name
+    required int32 md_book_type = 6; // market data type, 1-best market data; 2-price level market data; 105-public best market data;
+    repeated ApiMarketDataLevel market_data_levels = 7; // price level market data
+};
+
+// API market data message
+message ApiMarketData
+{
+    optional Header header = 1;
+    repeated ApiMarketDataBody body = 2;
+};

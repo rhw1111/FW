@@ -1,0 +1,40 @@
+syntax = "proto2";
+
+package ctrade.message;
+
+import "standard.proto";
+import "Header.proto";
+import "User.proto";
+
+option java_package ="cn.com.cfets.data.msg";
+option java_outer_classname ="APIOrderCancelRequestMsgProbuf";
+
+//option (serviceID) = "CTRADE-ORDER-DATA";
+//option (methodName) = "APIOrderCancelRequestMsg";      
+
+//cancle order message
+message APIOrderCancelRequest
+{
+	required string order_req_id = 1; 		// order operation seqno
+    required int32 order_cancel_type = 2 ;  // order cancle type
+    optional string order_seq_num = 3 ; 	// order submit seqno
+    optional string order_ID = 4 ; 			// cancle order id
+	
+    required User user = 100;
+};
+
+message APIOrderCancelRequestMsg
+{
+	optional Header header = 1;
+	optional APIOrderCancelRequest body = 2;
+};
+
+
+
+
+
+
+
+
+
+

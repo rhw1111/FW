@@ -363,7 +363,7 @@ namespace TestPlatform.Test
 
             try
             {
-                //var data = APIOrderCancelReplyMsg.Parser.ParseFrom(payloadData);
+                var data = APIOrderCancelReplyMsg.Parser.ParseFrom(payloadData);
             }
             catch (Exception ex)
             {

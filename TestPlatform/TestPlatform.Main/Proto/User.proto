@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package ctrade.message;
+
+import "standard.proto";
+
+option java_package ="cn.com.cfets.data.ctrade.message";
+option java_outer_classname ="UserProbuf";
+
+
+message User 
+{
+	optional int64 request_id = 4;    //可以不传
+	optional int64 user_index = 5;			//用户索引
+};
