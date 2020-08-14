@@ -21,6 +21,7 @@ using Haukcode.PcapngUtils.Pcap;
 using Haukcode.PcapngUtils.Extensions;
 using FW.TestPlatform.Main.Entities.DAL;
 using Ctrade.Message;
+using FW.TestPlatform.Main.Configuration;
 
 namespace FW.TestPlatform.Main.NetGateway
 {
@@ -532,11 +533,12 @@ namespace FW.TestPlatform.Main.NetGateway
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<string> INetGatewayDataHandleConfigurationService.GetDataFileFolderPath(CancellationToken cancellationToken)
+        async Task<string> INetGatewayDataHandleConfigurationService.GetDataFileFolderPath(CancellationToken cancellationToken)
         {
-            string path = @"E:\Documents\Visual Studio Code\TestPython\pcapreader\cap";
+            var systemConfigurationService = DIContainerContainer.Get<ISystemConfigurationService>();
+            var netGatewayDataFolder = await systemConfigurationService.GetNetGatewayDataFolderAsync();
 
-            return Task.FromResult(path);
+            return netGatewayDataFolder;
         }
     }
 
