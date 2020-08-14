@@ -31,7 +31,7 @@ namespace FW.TestPlatform.Main.DAL
 
         public string CreateAllForCommandLine()
         {
-            return CreateAllForLocalCommonLog();
+            return CreateAllForMain();
         }
 
         public string CreateAllForContext()
@@ -66,7 +66,7 @@ namespace FW.TestPlatform.Main.DAL
 
         public string CreateReadForCommandLine()
         {
-            return CreateReadForLocalCommonLog();
+            return CreateReadForMain();
         }
 
         public string CreateReadForContext()

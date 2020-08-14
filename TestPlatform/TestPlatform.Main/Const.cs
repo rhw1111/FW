@@ -72,6 +72,18 @@ namespace FW.TestPlatform.Main
         /// 测试历史记录监控地址
         /// </summary>
         public const string TestCaseHistoryMonitorAddress = "TestHistoryMonitorAddress";
+        /// <summary>
+        /// 网关数据文件夹地址
+        /// </summary>
+        public const string NetGatewayDataFolder = "NetGatewayDataFolder";
+        /// <summary>
+        /// 网关数据临时文件夹地址
+        /// </summary>
+        public const string NetGatewayDataTempFolder = "NetGatewayDataTempFolder";
+        /// <summary>
+        /// 网关数据文件的SSHEndpoint
+        /// </summary>
+        public const string NetGatewayDataSSHEndpoint = "NetGatewayDataSSHEndpoint";
     }
 
     /// <summary>

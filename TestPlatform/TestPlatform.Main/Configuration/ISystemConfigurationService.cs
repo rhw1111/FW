@@ -62,5 +62,29 @@ namespace FW.TestPlatform.Main.Configuration
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<string> GetCaseHistoryMonitorAddressAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 获取网关数据指定的临时路径
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        string GetNetGatewayDataTempFolder(CancellationToken cancellationToken = default);
+        Task<string> GetNetGatewayDataTempFolderAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 获取网关数据指定的路径
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        string GetNetGatewayDataFolder(CancellationToken cancellationToken = default);
+        Task<string> GetNetGatewayDataFolderAsync(CancellationToken cancellationToken = default);
+        /// <summary>
+        /// 获取网关数据服务器的地址
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        string GetNetGatewayDataSSHEndpoint(CancellationToken cancellationToken = default);
+        Task<string> GetNetGatewayDataSSHEndpointAsync(CancellationToken cancellationToken = default);
+
     }
 }
