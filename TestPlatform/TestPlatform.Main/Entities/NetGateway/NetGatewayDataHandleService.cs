@@ -803,6 +803,8 @@ namespace FW.TestPlatform.Main.NetGateway
 
             try
             {
+                DateTime timestamp = ConvertToDateTime(packet.Seconds.ToString(), packet.Microseconds.ToString());
+
                 ////解析出基本包  
                 var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
 
@@ -903,7 +905,7 @@ namespace FW.TestPlatform.Main.NetGateway
 
                     if (!string.IsNullOrEmpty(data.ToString()))
                     {
-                        sourceDataAction.Invoke(string.Format("{0}|{1}|{2}|{3}", requestType, string.Empty, string.Empty, string.Empty, data.ToString())); ;
+                        sourceDataAction.Invoke(string.Format("{0}|{1}|{2}|{3}", requestType, string.Empty, timestamp.ToOADate().ToString(), string.Empty, data.ToString())); ;
                     }
                 }
             }
@@ -957,6 +959,31 @@ namespace FW.TestPlatform.Main.NetGateway
         private int Byte4Int(byte[] b)
         {
             return ((b[0] & 0xff) << 24) | ((b[1] & 0xff) << 16) | ((b[2] & 0xff) << 8) | (b[3] & 0xff);
+        }
+
+        /// <summary>
+        /// Unix时间戳转DateTime
+        /// </summary>
+        /// <param name="timestamp">时间戳</param>
+        /// <returns></returns>
+        public static DateTime ConvertToDateTime(string timestamp, string timestampMicroseconds)
+        {
+            DateTime time = DateTime.MinValue;
+            DateTime startTime = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+
+            if (timestamp.Length == 10)        //精确到秒
+            {
+                time = startTime.AddSeconds(double.Parse(timestamp));
+            }
+            else if (timestamp.Length == 13)   //精确到毫秒
+            {
+                time = startTime.AddMilliseconds(double.Parse(timestamp));
+            }
+
+            double microseconds = double.Parse(timestampMicroseconds) / 1000000000;
+            time = time.AddSeconds(microseconds);
+
+            return time;
         }
     }
 
@@ -1026,7 +1053,8 @@ namespace FW.TestPlatform.Main.NetGateway
                 NetData netData = new NetData();
                 netData.Type = sourceData_split[0] == "0" ? NetDataType.Request : NetDataType.Response;
                 netData.ID = prefix;
-                netData.CreateTime = DateTime.Now;
+                //netData.CreateTime = DateTime.Now;
+                netData.CreateTime = DateTime.FromOADate(double.Parse(sourceData_split[2]));
                 netData.RunDuration = null;
 
                 return Task.FromResult(netData);

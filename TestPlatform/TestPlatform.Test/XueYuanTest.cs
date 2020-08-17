@@ -316,14 +316,8 @@ namespace TestPlatform.Test
                     {
                         try
                         {
-                            //long l = DateTime.Now.ToBinary();
-                            //double d = DateTime.Now.ToOADate();
-
-                            //Console.WriteLine(string.Format("Packet received {0}.{1}", packet.Seconds, packet.Microseconds));
-                            //double timestamp = Convert.ToDouble(string.Format("{0}.{1}", packet.Seconds, packet.Microseconds));
-                            //DateTime origintime = Convert.ToDateTime(timestamp);
-
-                            //DateTime origintime = DateTime.FromOADate(timestamp);
+                            DateTime timestamp = ConvertToDateTime(packet.Seconds.ToString(), packet.Microseconds.ToString());
+                            double d = timestamp.ToOADate();
 
                             IPacket ipacket = packet;
 
@@ -615,6 +609,31 @@ namespace TestPlatform.Test
         private int Byte4Int(byte[] b)
         {
             return ((b[0] & 0xff) << 24) | ((b[1] & 0xff) << 16) | ((b[2] & 0xff) << 8) | (b[3] & 0xff);
+        }
+
+        /// <summary>
+        /// Unix时间戳转DateTime
+        /// </summary>
+        /// <param name="timestamp">时间戳</param>
+        /// <returns></returns>
+        public static DateTime ConvertToDateTime(string timestamp, string timestampMicroseconds)
+        {
+            DateTime time = DateTime.MinValue;
+            DateTime startTime = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+
+            if (timestamp.Length == 10)        //精确到秒
+            {
+                time = startTime.AddSeconds(double.Parse(timestamp));
+            }
+            else if (timestamp.Length == 13)   //精确到毫秒
+            {
+                time = startTime.AddMilliseconds(double.Parse(timestamp));
+            }
+
+            double microseconds = double.Parse(timestampMicroseconds) / 1000000000;
+            time = time.AddSeconds(microseconds);
+
+            return time;
         }
 
         /// <summary>  
