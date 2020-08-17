@@ -301,11 +301,12 @@ namespace TestPlatform.Test
         //    Assert.Pass();
         //}
 
-        //[Test]
+        [Test]
         public async Task TestCap()
         {
-            string fileName = "E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\7fc391a7-dba0-11ea-b236-00ffb1d16cf9_20200729102651.cap";
+            string fileName = "E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\01_ce514456-8da9-432f-8999-1010fa94a83a_7fc391a7-dba0-11ea-b236-00ffb1d16cf9_20200729102651.cap";
             //this.OpenPcapORPcapNFFile(fileName);
+            string dataformat = "";
 
             using (var stream = File.OpenRead(fileName))
             {
@@ -313,19 +314,127 @@ namespace TestPlatform.Test
                 {
                     reader.OnReadPacketEvent += (context, packet) =>
                     {
-                        IPacket ipacket = packet;
-
-                        //解析出基本包  
-                        var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
-
-                        var payloadPacket = ethernetPacket;
-
-                        while (payloadPacket.HasPayloadPacket)
+                        try
                         {
-                            payloadPacket = payloadPacket.PayloadPacket;
-                        }
+                            //long l = DateTime.Now.ToBinary();
+                            //double d = DateTime.Now.ToOADate();
 
-                        var payloadData = payloadPacket.PayloadData;
+                            //Console.WriteLine(string.Format("Packet received {0}.{1}", packet.Seconds, packet.Microseconds));
+                            //double timestamp = Convert.ToDouble(string.Format("{0}.{1}", packet.Seconds, packet.Microseconds));
+                            //DateTime origintime = Convert.ToDateTime(timestamp);
+
+                            //DateTime origintime = DateTime.FromOADate(timestamp);
+
+                            IPacket ipacket = packet;
+
+                            //解析出基本包  
+                            var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
+
+                            if (ethernetPacket == null)
+                            {
+                                return;
+                            }
+
+                            var payloadPacket = ethernetPacket;
+
+                            while (payloadPacket.HasPayloadPacket)
+                            {
+                                payloadPacket = payloadPacket.PayloadPacket;
+                            }
+
+                            var payloadData = payloadPacket.PayloadData;
+
+                            var requestType = 0;
+                            var googleData = this.GetGoogleData(payloadData, out requestType);
+
+                            if (googleData != null)
+                            {
+                                object data = string.Empty;
+
+                                switch (dataformat)
+                                {
+                                    case NetGatewayDataFormatTypes.APICreditUpdateReplyMsg:
+                                        data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.APICreditUpdateRequestMsg:
+                                        data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.ApiListMarketDataAck:
+                                        data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.ApiMarketData:
+                                        data = ApiMarketData.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.ApiMarketDataRequest:
+                                        data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg:
+                                        data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg:
+                                        data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg:
+                                        data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg:
+                                        data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.APIOrderCancelReplyMsg:
+                                        data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.APIOrderCancelRequestMsg:
+                                        data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg:
+                                        data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg:
+                                        data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg:
+                                        data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.TokenReplyMsg:
+                                        data = TokenReplyMsg.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.TokenRequestMsg:
+                                        data = TokenRequestMsg.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    case NetGatewayDataFormatTypes.EmptyMsg:
+                                        data = EmptyMsg.Parser.ParseFrom(googleData);
+
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                if (!string.IsNullOrEmpty(data.ToString()))
+                                {
+                                    //sourceDataAction.Invoke(string.Format("{0}|{1}|{2}|{3}", requestType, string.Empty, string.Empty, string.Empty, data.ToString())); ;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception(string.Format("GoogleData Error, Exception: {0}", ex.Message));
+                        }
                     };
                     reader.ReadPackets(default);
                 }
@@ -344,31 +453,168 @@ namespace TestPlatform.Test
 
         void reader_OnReadPacketEvent(object context, IPacket packet)
         {
-            Console.WriteLine(string.Format("Packet received {0}.{1}", packet.Seconds, packet.Microseconds));
-
-            ////解析出基本包  
-            var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
-            string ret = "";
-            PrintPacket(ref ret, ethernetPacket);
-            Console.WriteLine(string.Format("PayloadData {0}", ret));
-
-            var payloadPacket = ethernetPacket;
-
-            while (payloadPacket.HasPayloadPacket)
-            {
-                payloadPacket = payloadPacket.PayloadPacket;
-            }
-
-            var payloadData = payloadPacket.PayloadData;
-
             try
             {
-                var data = APIOrderCancelReplyMsg.Parser.ParseFrom(payloadData);
+                Console.WriteLine(string.Format("Packet received {0}.{1}", packet.Seconds, packet.Microseconds));
+                string dataformat = "";
+
+                ////解析出基本包  
+                var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
+                string ret = "";
+                PrintPacket(ref ret, ethernetPacket);
+                Console.WriteLine(string.Format("PayloadData {0}", ret));
+
+                if (ethernetPacket == null)
+                {
+                    return;
+                }
+
+                var payloadPacket = ethernetPacket;
+
+                while (payloadPacket.HasPayloadPacket)
+                {
+                    payloadPacket = payloadPacket.PayloadPacket;
+                }
+
+                var payloadData = payloadPacket.PayloadData;
+
+                var requestType = 0;
+                var googleData = this.GetGoogleData(payloadData, out requestType);
+
+                if (googleData != null)
+                {
+                    object data = string.Empty;
+
+                    switch (dataformat)
+                    {
+                        case NetGatewayDataFormatTypes.APICreditUpdateReplyMsg:
+                            data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APICreditUpdateRequestMsg:
+                            data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.ApiListMarketDataAck:
+                            data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.ApiMarketData:
+                            data = ApiMarketData.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.ApiMarketDataRequest:
+                            data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg:
+                            data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg:
+                            data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg:
+                            data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg:
+                            data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOrderCancelReplyMsg:
+                            data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOrderCancelRequestMsg:
+                            data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg:
+                            data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg:
+                            data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg:
+                            data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.TokenReplyMsg:
+                            data = TokenReplyMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.TokenRequestMsg:
+                            data = TokenRequestMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        case NetGatewayDataFormatTypes.EmptyMsg:
+                            data = EmptyMsg.Parser.ParseFrom(googleData);
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (!string.IsNullOrEmpty(data.ToString()))
+                    {
+                        //sourceDataAction.Invoke(string.Format("{0}|{1}|{2}|{3}", requestType, string.Empty, string.Empty, string.Empty, data.ToString())); ;
+                    }
+                }
             }
             catch (Exception ex)
             {
-
+                throw new Exception(string.Format("GoogleData Error, Exception: {0}", ex.Message));
             }
+        }
+
+        private byte[] GetGoogleData(byte[] data, out int requestType)
+        {
+            requestType = 0;
+
+            if (data == null || data.Length < 82)
+            {
+                return null;
+            }
+
+            int packetType = data[0];
+            int messageType = data[59];
+            requestType = data[82];
+
+            if (packetType == 3 && messageType == 7 && (requestType == 0 || requestType == 1))
+            {
+                byte[] length_osin_byte = data.Skip(87).Take(2).ToArray();
+                int length_osin = Byte2Int(length_osin_byte);
+
+                int dsp_begin = 89 + length_osin + 5;
+                int dsp_end = dsp_begin + 4;
+                byte[] length_dspm_byte = data.Skip(dsp_begin).Take(4).ToArray();
+                int length_dspm = Byte4Int(length_dspm_byte);
+
+                int dspapi_begin = 89 + length_osin;
+                int dspapi_end = dspapi_begin + length_dspm;
+
+                byte[] body = data.Skip(dspapi_end).ToArray();
+
+                return body;
+            }
+
+            return null;
+        }
+
+        //2位byte转为int
+        private int Byte2Int(byte[] b)
+        {
+            return ((b[0] & 0xff) << 8) | (b[1] & 0xff);
+        }
+
+        //4位byte转为int
+        private int Byte4Int(byte[] b)
+        {
+            return ((b[0] & 0xff) << 24) | ((b[1] & 0xff) << 16) | ((b[2] & 0xff) << 8) | (b[3] & 0xff);
         }
 
         /// <summary>  
@@ -399,7 +645,7 @@ namespace TestPlatform.Test
             }
         }
 
-        [Test]
+        //[Test]
         public async Task TestNetGateway()
         {
             var netGatewayDataHandleService = DIContainerContainer.Get<INetGatewayDataHandleService>();

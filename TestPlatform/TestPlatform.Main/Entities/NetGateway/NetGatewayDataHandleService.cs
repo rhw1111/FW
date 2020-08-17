@@ -391,7 +391,7 @@ namespace FW.TestPlatform.Main.NetGateway
                             break;
                         }
 
-                        await Task.Delay(10000);
+                        //await Task.Delay(10000);
                     }
                     catch (Exception ex)
                     {
@@ -801,21 +801,27 @@ namespace FW.TestPlatform.Main.NetGateway
                 return;
             }
 
-            ////解析出基本包  
-            var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
-
-            var payloadPacket = ethernetPacket;
-
-            while (payloadPacket.HasPayloadPacket)
-            {
-                payloadPacket = payloadPacket.PayloadPacket;
-            }
-
-            var payloadData = payloadPacket.PayloadData;
-
             try
             {
-                var googleData = this.GetGoogleData(payloadData);
+                ////解析出基本包  
+                var ethernetPacket = PacketDotNet.Packet.ParsePacket(PacketDotNet.LinkLayers.Ethernet, packet.Data);
+
+                if (ethernetPacket == null)
+                {
+                    return;
+                }
+
+                var payloadPacket = ethernetPacket;
+
+                while (payloadPacket.HasPayloadPacket)
+                {
+                    payloadPacket = payloadPacket.PayloadPacket;
+                }
+
+                var payloadData = payloadPacket.PayloadData;
+
+                var requestType = 0;
+                var googleData = this.GetGoogleData(payloadData, out requestType);
 
                 if (googleData != null)
                 {
@@ -897,18 +903,20 @@ namespace FW.TestPlatform.Main.NetGateway
 
                     if (!string.IsNullOrEmpty(data.ToString()))
                     {
-                        sourceDataAction.Invoke(data.ToString());
+                        sourceDataAction.Invoke(string.Format("{0}|{1}|{2}|{3}", requestType, string.Empty, string.Empty, string.Empty, data.ToString())); ;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(string.Format("Exception {0}", ex.Message));
+                throw new Exception(string.Format("GoogleData Error, Exception: {0}", ex.Message));
             }
         }
 
-        private byte[] GetGoogleData(byte[] data)
+        private byte[] GetGoogleData(byte[] data, out int requestType)
         {
+            requestType = 0;
+
             if (data == null || data.Length < 82)
             {
                 return null;
@@ -916,7 +924,7 @@ namespace FW.TestPlatform.Main.NetGateway
 
             int packetType = data[0];
             int messageType = data[59];
-            int requestType = data[82];
+            requestType = data[82];
 
             if (packetType == 3 && messageType == 7 && (requestType == 0 || requestType == 1))
             {
@@ -1006,13 +1014,25 @@ namespace FW.TestPlatform.Main.NetGateway
     {
         Task<NetData> IConvertNetDataFromSourceService.Convert(string prefix, string sourceData, CancellationToken cancellationToken)
         {
-            NetData netData = new NetData();
-            netData.Type = NetDataType.Request;
-            netData.ID = prefix;
-            netData.CreateTime = DateTime.Now;
-            netData.RunDuration = null;
+            if (string.IsNullOrEmpty(sourceData))
+            {
+                return null;
+            }
 
-            return Task.FromResult(netData);
+            string[] sourceData_split = sourceData.Split("|");
+
+            if (sourceData_split.Length == 4)
+            {
+                NetData netData = new NetData();
+                netData.Type = sourceData_split[0] == "0" ? NetDataType.Request : NetDataType.Response;
+                netData.ID = prefix;
+                netData.CreateTime = DateTime.Now;
+                netData.RunDuration = null;
+
+                return Task.FromResult(netData);
+            }
+
+            return null;
         }
     }
 
