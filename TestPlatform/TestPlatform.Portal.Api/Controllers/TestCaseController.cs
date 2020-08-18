@@ -40,10 +40,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppDeleteHistories _appDeleteHistories;
         private readonly IAppQueryTestCaseStatus _appQueryTestCaseStatus;
         private readonly IAppQueryHistoriesByIds _appQueryHistoriesByIds;
+        private readonly IAppTransferNetGatewayDataFile _appTransferNetGatewayDataFile;
         public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQuerySingleTestCase appQuerySingleTestCase, IAppUpdateTestCase appUpdateTestCase,
             IAppDeleteTestCase appDeleteTestCase, IAppRunTestCase appRunTestCase, IAppStopTestCase appStopTestCase, IAppCheckTestCaseStatus appCheckTestCaseStatus, IAppAddSlaveHost appAddSlaveHost,
             IAppQueryMasterLog appQueryMasterLog, IAppQuerySlaveLog appQuerySlaveLog, IAppQuerySlaveHost appQuerySlaveHost, IAppQueryTestCaseHistory appQueryTestCaseHistory, IAppQuerySingleTestCaseHistory appQuerySingleTestCaseHistory, IAppUpdateSlaveHost appUpdateSlaveHost,
-            IAppDeleteTestCaseHistory appDeleteTestCaseHistory, IAppDeleteSlaveHost appDeleteSlaveHost, IAppDeleteHistories appDeleteHistories, IAppDeleteSlaveHosts appDeleteSlaveHosts, IAppQueryTestCaseStatus appQueryTestCaseStatus, IAppQueryHistoriesByIds appQueryHistoriesByIds)
+            IAppDeleteTestCaseHistory appDeleteTestCaseHistory, IAppDeleteSlaveHost appDeleteSlaveHost, IAppDeleteHistories appDeleteHistories, IAppDeleteSlaveHosts appDeleteSlaveHosts, IAppQueryTestCaseStatus appQueryTestCaseStatus, IAppQueryHistoriesByIds appQueryHistoriesByIds,
+            IAppTransferNetGatewayDataFile appTransferNetGatewayDataFile)
         {
             _appQueryTestCase = appQueryTestCase;
             _appAddTestCase = appAddTestCase;
@@ -66,6 +68,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _appDeleteSlaveHosts = appDeleteSlaveHosts;
             _appQueryTestCaseStatus = appQueryTestCaseStatus;
             _appQueryHistoriesByIds = appQueryHistoriesByIds;
+            _appTransferNetGatewayDataFile = appTransferNetGatewayDataFile;
         }
         //查询增加修改执行TestCase
         [HttpGet("querybypage")]
@@ -211,6 +214,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         public async Task DeleteMultipleHistories(MultipleDeleteModel model)
         {
             await _appDeleteHistories.Do(model.CaseID, model.IDS);
+        }
+
+        [HttpPost("transfernetgatewaydatafile")]
+        public async Task TransferNetGatewayDataFile(Guid caseId, Guid historyId)
+        {
+            await _appTransferNetGatewayDataFile.Do(caseId, historyId);
         }
     }
 }

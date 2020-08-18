@@ -192,5 +192,29 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
             return result;
         }
+
+        public async Task UpdateNetGatewayDataFormat(TestCaseHistory source, CancellationToken cancellationToken = default)
+        {
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    source.ModifyTime = DateTime.UtcNow;
+                    dbContext.TestCaseHistories.Attach(source);
+
+                    var entry = dbContext.Entry(source);
+                    foreach (var item in entry.Properties)
+                    {
+                        if (item.Metadata.Name == "ModifyTime" || item.Metadata.Name == "NetGatewayDataFormat")
+                            entry.Property(item.Metadata.Name).IsModified = true;
+                    }
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
+        }
     }
 }
