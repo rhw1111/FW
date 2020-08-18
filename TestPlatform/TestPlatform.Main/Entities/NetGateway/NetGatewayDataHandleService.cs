@@ -607,7 +607,8 @@ namespace FW.TestPlatform.Main.NetGateway
                 return Task.CompletedTask;
             }
 
-            this.OpenPcapORPcapNFFile(fileName, dataformat, sourceDataAction, cancellationToken);
+            //this.OpenPcapORPcapNFFile(fileName, dataformat, sourceDataAction, cancellationToken);
+            this.OpenPcapORPcapNFFile2(fileName, dataformat, sourceDataAction, cancellationToken);
 
             return Task.CompletedTask;
         }
@@ -976,10 +977,12 @@ namespace FW.TestPlatform.Main.NetGateway
                 ExceptionDispatchInfo.Capture(exc).Throw();
             };
 
+            binaryReader.BaseStream.Position = 0;
+            SectionHeader Header = SectionHeader.Parse(binaryReader);
+
             uint secs, usecs, caplen, len;
             long position = 0;
             byte[] data;
-            SectionHeader Header = SectionHeader.Parse(binaryReader);
 
             while (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length && !cancellationToken.IsCancellationRequested)
             {
