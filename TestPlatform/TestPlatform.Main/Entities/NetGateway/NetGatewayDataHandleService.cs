@@ -607,8 +607,8 @@ namespace FW.TestPlatform.Main.NetGateway
                 return Task.CompletedTask;
             }
 
-            //this.OpenPcapORPcapNFFile(fileName, dataformat, sourceDataAction, cancellationToken);
-            this.OpenPcapORPcapNFFile2(fileName, dataformat, sourceDataAction, cancellationToken);
+            this.OpenPcapORPcapNFFile(fileName, dataformat, sourceDataAction, cancellationToken);
+            //this.OpenPcapORPcapNFFile2(fileName, dataformat, sourceDataAction, cancellationToken);
 
             return Task.CompletedTask;
         }
@@ -680,75 +680,93 @@ namespace FW.TestPlatform.Main.NetGateway
                             if (googleData != null)
                             {
                                 object data = string.Empty;
+                                string id = string.Empty;
 
                                 switch (dataformat)
                                 {
                                     case NetGatewayDataFormatTypes.APICreditUpdateReplyMsg:
                                         data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.APICreditUpdateReplyMsg)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.APICreditUpdateRequestMsg:
                                         data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.APICreditUpdateRequestMsg)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.ApiListMarketDataAck:
                                         data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.ApiListMarketDataAck)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.ApiMarketData:
                                         data = ApiMarketData.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.ApiMarketData)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.ApiMarketDataRequest:
                                         data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.ApiMarketDataRequest)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg:
                                         data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.APIOcoOrderCancelReplyMsg)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg:
                                         data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.APIOcoOrderCancelRequestMsg)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg:
                                         data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.APIOcoOrderSumitReplyMsg)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg:
                                         data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.APIOcoOrderSumitRequestMsg)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.APIOrderCancelReplyMsg:
                                         data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.APIOrderCancelReplyMsg)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.APIOrderCancelRequestMsg:
                                         data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.APIOrderCancelRequestMsg)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg:
                                         data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.APIOrderSubmitReplyMsg)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg:
                                         data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.APIOrderSubmitRequestMsg)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg:
                                         data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.BridgeOrderSubmitRequestMsg)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.TokenReplyMsg:
                                         data = TokenReplyMsg.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.TokenReplyMsg)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.TokenRequestMsg:
                                         data = TokenRequestMsg.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.TokenRequestMsg)data).Header.MsgCd.ToString();
 
                                         break;
                                     case NetGatewayDataFormatTypes.EmptyMsg:
                                         data = EmptyMsg.Parser.ParseFrom(googleData);
+                                        id = ((Ctrade.Message.EmptyMsg)data).Header.MsgCd.ToString();
 
                                         break;
                                     default:
@@ -757,13 +775,13 @@ namespace FW.TestPlatform.Main.NetGateway
 
                                 if (!string.IsNullOrEmpty(data.ToString()))
                                 {
-                                    sourceDataAction.Invoke(string.Format("{0}|{1}|{2}|{3}", requestType, string.Empty, timestamp.ToOADate().ToString(), string.Empty, data.ToString())); ;
+                                    sourceDataAction.Invoke(string.Format("{0}|{1}|{2}|{3}", requestType, id, timestamp.ToOADate().ToString(), string.Empty, data.ToString())); ;
                                 }
                             }
                         }
                         catch (Exception ex)
                         {
-                            throw new Exception(string.Format("GoogleData Error, Exception: {0}. {1}", ex.Message, ex.StackTrace));
+                            //throw new Exception(string.Format("GoogleData Error, Exception: {0}. {1}", ex.Message, ex.StackTrace));
                         }
                     }
                     catch (Exception ex)
@@ -1359,7 +1377,7 @@ namespace FW.TestPlatform.Main.NetGateway
             // 01为使用CaseHistory，需要通过historyid查询history，获取它的NetGatewayDataFormat属性，返回historyid和该属性
             string[] fileName_Split = fileName.Split("_");
 
-            if (fileName_Split.Length == 4)
+            if (fileName_Split.Length >= 4)
             {
                 string type = fileName_Split[0];
                 Guid caseID = new Guid(fileName_Split[1]);

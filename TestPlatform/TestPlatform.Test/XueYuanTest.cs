@@ -917,13 +917,17 @@ namespace TestPlatform.Test
             ////await netGatewayDataHandleResult.Stop();
 
             //string fileName = "E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\01_ce514456-8da9-432f-8999-1010fa94a83a_7fc391a7-dba0-11ea-b236-00ffb1d16cf9_20200729102651.cap";
-            string fileName = "E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\01_ce514456-8da9-432f-8999-1010fa94a83a_7fc391a7-dba0-11ea-b236-00ffb1d16cf9_230.3.33.20.cap";
-            string dataformat = "TokenRequestMsg";
+            //string fileName = "E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\01_ce514456-8da9-432f-8999-1010fa94a83a_7fc391a7-dba0-11ea-b236-00ffb1d16cf9_230.3.33.20.cap";
+            string dataformat = "EmptyMsg";
 
-            var getSourceDataFromFileService = DIContainerContainer.Get<IGetSourceDataFromFileService>();
+            string[] fileNames = Directory.GetFiles(@"E:\Documents\MyProjects\GitHub\xueyuangithub\FW\Document\cap\test");
 
-            await getSourceDataFromFileService.Get(fileName, dataformat, async (sourceData) => { });
+            foreach (string fileName in fileNames)
+            {
+                var getSourceDataFromFileService = DIContainerContainer.Get<IGetSourceDataFromFileService>();
+
+                await getSourceDataFromFileService.Get(fileName, dataformat, async (sourceData) => { });
+            }
         }
-
     }
 }
