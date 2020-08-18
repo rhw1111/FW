@@ -301,6 +301,9 @@ namespace TestPlatform.Test
         //    Assert.Pass();
         //}
 
+        private List<string> sourceAddressList = new List<string>();
+        private List<string> destinationAddressList = new List<string>();
+
         [Test]
         public async Task TestCap()
         {
@@ -330,10 +333,40 @@ namespace TestPlatform.Test
                             }
 
                             var payloadPacket = ethernetPacket;
+                            bool isSourceAddress = false;
+                            bool isDestinationAddress = false;
 
                             while (payloadPacket.HasPayloadPacket)
                             {
                                 payloadPacket = payloadPacket.PayloadPacket;
+
+                                if (payloadPacket.GetType() == typeof(PacketDotNet.IPv4Packet))
+                                {
+                                    var ipv4Packet = (PacketDotNet.IPv4Packet)payloadPacket;
+
+                                    if (sourceAddressList.Count == 0)
+                                    {
+                                        isSourceAddress = true;
+                                    }
+                                    else if (sourceAddressList.Contains(ipv4Packet.SourceAddress.ToString()))
+                                    {
+                                        isSourceAddress = true;
+                                    }
+
+                                    if (destinationAddressList.Count == 0)
+                                    {
+                                        isDestinationAddress = true;
+                                    }
+                                    else if (destinationAddressList.Contains(ipv4Packet.DestinationAddress.ToString()))
+                                    {
+                                        isDestinationAddress = true;
+                                    }
+                                }
+                            }
+
+                            if (!isSourceAddress || !isDestinationAddress)
+                            {
+                                return;
                             }
 
                             var payloadData = payloadPacket.PayloadData;
