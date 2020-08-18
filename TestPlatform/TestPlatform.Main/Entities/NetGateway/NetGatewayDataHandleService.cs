@@ -391,7 +391,7 @@ namespace FW.TestPlatform.Main.NetGateway
                             break;
                         }
 
-                        //await Task.Delay(10000);
+                        await Task.Delay(10000);
                     }
                     catch (Exception ex)
                     {
