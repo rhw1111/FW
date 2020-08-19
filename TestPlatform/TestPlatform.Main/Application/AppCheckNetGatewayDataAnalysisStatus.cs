@@ -19,7 +19,7 @@ namespace FW.TestPlatform.Main.Application
         {
             _testCaseRepository = testCaseRepository;
         }
-        public async Task Do(Guid caseId, Guid historyId, CancellationToken cancellationToken = default)
+        public async Task<NetGatewayDataFileStatus> Do(Guid caseId, Guid historyId, CancellationToken cancellationToken = default)
         {
             var testCase = await _testCaseRepository.QueryByID(caseId, cancellationToken);
             if (testCase == null)
@@ -33,7 +33,11 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
             }
-            await testCase.CheckNetGatewayDataAnalysisStatus(historyId, cancellationToken);
+            string rel = await testCase.CheckNetGatewayDataAnalysisStatus(historyId, cancellationToken);
+            if (rel == string.Empty)
+                return NetGatewayDataFileStatus.NoFileUnfinished;
+            else
+                return NetGatewayDataFileStatus.HasFileUnfinished;
         }
     }
 }

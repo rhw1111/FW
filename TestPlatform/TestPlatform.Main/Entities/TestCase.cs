@@ -547,21 +547,8 @@ namespace FW.TestPlatform.Main.Entities
         }
 
         public async Task UpdateNetGatewayDataFormat(TestCase tCase, TestCaseHistory tHistory, CancellationToken cancellationToken = default)
-        {
-            TestCaseHistory? history = await _testCaseHistoryStore.QueryByCase(tCase.ID, tHistory.ID, cancellationToken);
-            if (history == null)
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TestPlatformTextCodes.NotFoundTestCaseHistoryByID,
-                    DefaultFormatting = "找不到测试历史Id为{0}并且测试用例Id为{1}的历史",
-                    ReplaceParameters = new List<object>() { tCase.ID.ToString(), tHistory.ID.ToString() }
-                };
-
-                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseHistoryById, fragment, 1, 0);
-            }
-            history.NetGatewayDataFormat = tHistory.NetGatewayDataFormat;
-            await _testCaseHistoryStore.UpdateNetGatewayDataFormat(history, cancellationToken);
+        { 
+            await _testCaseHistoryStore.UpdateNetGatewayDataFormat(tHistory, cancellationToken);
         }
 
         public async Task DeleteSlaveHost(TestCase tCase, Guid slaveHostID, CancellationToken cancellationToken = default)

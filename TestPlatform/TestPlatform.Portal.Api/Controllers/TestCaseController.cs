@@ -43,11 +43,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppTransferNetGatewayDataFile _appTransferNetGatewayDataFile;
         private readonly IAppUpdateNetGatewayDataFormat _appUpdateNetGatewayDataFormat;
         private readonly IAppCheckNetGatewayDataAnalysisStatus _appCheckNetGatewayDataAnalysisStatus;
+        private readonly IAppGetNetGatewayDataFormatTypes _appGetNetGatewayDataFormatTypes;
         public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQuerySingleTestCase appQuerySingleTestCase, IAppUpdateTestCase appUpdateTestCase,
             IAppDeleteTestCase appDeleteTestCase, IAppRunTestCase appRunTestCase, IAppStopTestCase appStopTestCase, IAppCheckTestCaseStatus appCheckTestCaseStatus, IAppAddSlaveHost appAddSlaveHost,
             IAppQueryMasterLog appQueryMasterLog, IAppQuerySlaveLog appQuerySlaveLog, IAppQuerySlaveHost appQuerySlaveHost, IAppQueryTestCaseHistory appQueryTestCaseHistory, IAppQuerySingleTestCaseHistory appQuerySingleTestCaseHistory, IAppUpdateSlaveHost appUpdateSlaveHost,
             IAppDeleteTestCaseHistory appDeleteTestCaseHistory, IAppDeleteSlaveHost appDeleteSlaveHost, IAppDeleteHistories appDeleteHistories, IAppDeleteSlaveHosts appDeleteSlaveHosts, IAppQueryTestCaseStatus appQueryTestCaseStatus, IAppQueryHistoriesByIds appQueryHistoriesByIds,
-            IAppTransferNetGatewayDataFile appTransferNetGatewayDataFile, IAppUpdateNetGatewayDataFormat appUpdateNetGatewayDataFormat, IAppCheckNetGatewayDataAnalysisStatus appCheckNetGatewayDataAnalysisStatus)
+            IAppTransferNetGatewayDataFile appTransferNetGatewayDataFile, IAppUpdateNetGatewayDataFormat appUpdateNetGatewayDataFormat, IAppCheckNetGatewayDataAnalysisStatus appCheckNetGatewayDataAnalysisStatus, IAppGetNetGatewayDataFormatTypes appGetNetGatewayDataFormatTypes)
         {
             _appQueryTestCase = appQueryTestCase;
             _appAddTestCase = appAddTestCase;
@@ -73,6 +74,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _appTransferNetGatewayDataFile = appTransferNetGatewayDataFile;
             _appUpdateNetGatewayDataFormat = appUpdateNetGatewayDataFormat;
             _appCheckNetGatewayDataAnalysisStatus = appCheckNetGatewayDataAnalysisStatus;
+            _appGetNetGatewayDataFormatTypes = appGetNetGatewayDataFormatTypes;
         }
         //查询增加修改执行TestCase
         [HttpGet("querybypage")]
@@ -220,22 +222,28 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             await _appDeleteHistories.Do(model.CaseID, model.IDS);
         }
 
-        [HttpPost("transfernetgatewaydatafile")]
+        [HttpGet("transfernetgatewaydatafile")]
         public async Task TransferNetGatewayDataFile(Guid caseId, Guid historyId)
         {
             await _appTransferNetGatewayDataFile.Do(caseId, historyId);
         }
 
-        [HttpPost("checkdataanalysisstatus")]
-        public async Task CheckNetGatewayDataAnalysisStatus(Guid caseId, Guid historyId)
+        [HttpGet("checkdataanalysisstatus")]
+        public async Task<NetGatewayDataFileStatus> CheckNetGatewayDataAnalysisStatus(Guid caseId, Guid historyId)
         {
-            await _appCheckNetGatewayDataAnalysisStatus.Do(caseId, historyId);
+            return await _appCheckNetGatewayDataAnalysisStatus.Do(caseId, historyId);
         }
 
         [HttpPost("updatenetgatewaydataformat")]
         public async Task UpdateNetGatewayDataFormat(TestCaseHistoryUpdateData data)
         {
             await _appUpdateNetGatewayDataFormat.Do(data);
+        }
+
+        [HttpGet("getnetgatewaydataformattypes")]
+        public List<string> GetNetGatewayDataFormatTypes()
+        {
+            return _appGetNetGatewayDataFormatTypes.Do();
         }
     }
 }

@@ -28,5 +28,19 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<string>(nameof(Summary), value);
             }
         }
+        /// <summary>
+        /// 网关数据格式
+        /// </summary>
+        public string NetGatewayDataFormat
+        {
+            get
+            {
+                return GetAttribute<string>(nameof(NetGatewayDataFormat));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(NetGatewayDataFormat), value);
+            }
+        }
     }
 }

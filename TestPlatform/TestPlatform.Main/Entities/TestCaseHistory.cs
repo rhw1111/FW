@@ -88,7 +88,7 @@ namespace FW.TestPlatform.Main.Entities
         }
 
         /// <summary>
-        /// 格式
+        /// 网关数据格式
         /// </summary>
         public string NetGatewayDataFormat
         {
