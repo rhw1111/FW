@@ -209,7 +209,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                     {
                         if (!item.IsDirectory && !item.IsSymbolicLink)
                         {
-                            string fileFullName = $"{path}{string.Format("/{0}_{1}_{2}.cap", caseId, historyId, Guid.NewGuid())}";
+                            string fileFullName = $"{path}{string.Format("/01_{0}_{1}_{2}.cap", caseId, historyId, Guid.NewGuid())}";
                             item.MoveTo(fileFullName);
                         }
                     }
