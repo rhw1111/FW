@@ -1,5 +1,5 @@
 <template>
-  <div class="col-xs-12 col-sm-5 col-xl-5">
+  <div class="col-xs-12 col-sm-6 col-xl-6">
     <!-- 历史记录列表 -->
     <q-list bordered>
       <q-table title="历史记录列表"
@@ -28,7 +28,19 @@
           <q-td :props="props">
             <q-btn class="btn"
                    color="primary"
-                   style="margin-right:20px;"
+                   style="margin-right:15px;"
+                   label="转移文件"
+                   :disable="isNoRun!=1?false:true"
+                   @click="TransferFile(props)" />
+            <q-btn class="btn"
+                   color="primary"
+                   style="margin-right:15px;"
+                   label="查看日志分析状态"
+                   :disable="isNoRun!=1?false:true"
+                   @click="ViewFileStatus(props)" />
+            <q-btn class="btn"
+                   color="primary"
+                   style="margin-right:15px;"
                    label="性 能 监 测"
                    :disable="isNoRun!=1?false:true"
                    @click="lookMonitorUrl(props)" />
@@ -60,17 +72,29 @@
         <q-separator />
         <div class="new_input">
           <div class="row input_row">
-            <q-input v-model="createTime"
-                     :dense="false"
-                     class="col">
+            <q-input class="col-7"
+                     v-model="createTime"
+                     readonly
+                     :dense="false">
               <template v-slot:before>
                 <span style="font-size:14px">创建时间:</span>
               </template>
             </q-input>
+            <q-select class="col-5"
+                      v-model="GatewayDataFormat"
+                      :options="GatewayDataFormatList"
+                      :dense="false">
+              <template v-slot:before>
+                <span style="font-size:14px">网关数据格式:</span>
+              </template>
+              <template v-slot:prepend>
+              </template>
+            </q-select>
           </div>
           <div class="row input_row">
             <q-input v-model="summary"
                      :dense="false"
+                     readonly
                      class="col"
                      type="textarea"
                      outlined>
@@ -87,6 +111,10 @@
                  label="关闭"
                  color="primary"
                  @click="lookHistoryDetailFlag = false" />
+          <q-btn flat
+                 label="保存"
+                 color="primary"
+                 @click="UpdateGatewayDataFormat" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -150,9 +178,6 @@ export default {
         rowsNumber: 1     //总页数
       },
 
-      createTime: '',   //历史记录创建时间
-      summary: '',       //历史记录总结 
-
       HistoryCompareLogList: [],//比较日志列表
       HistoryCompareColumns: [
         {
@@ -174,7 +199,14 @@ export default {
         { name: 'MaxDuration', label: '最大响应时间（微秒）', align: 'left', field: 'MaxDuration', sortable: true },
         { name: 'MinDurartion', label: '最小响应时间（微秒）', align: 'left', field: 'MinDurartion', sortable: true },
         { name: 'AvgDuration', label: '平均响应时间（微秒）', align: 'left', field: 'AvgDuration', sortable: true },
-      ]
+      ],
+
+      HistoryDetailData: {},//历史记录详情数据
+
+      createTime: '',   //历史记录创建时间
+      summary: '',       //历史记录总结 
+      GatewayDataFormat: '',//历史记录网关数据格式
+      GatewayDataFormatList: [],//历史记录网关数据格式列表
     }
   },
   methods: {
@@ -196,6 +228,7 @@ export default {
     },
     //获得历史记录详情
     getHistoryDetail (value) {
+
       this.$q.loading.show()
       let para = {
         caseId: this.$route.query.id,
@@ -203,11 +236,18 @@ export default {
       }
       Apis.getHistoryDetail(para).then((res) => {
         console.log(res)
+        this.HistoryDetailData = res.data;
         this.createTime = res.data.createTime;
         this.summary = JSON.stringify(JSON.parse(res.data.summary), null, 2);
-        this.$q.loading.hide();
-        this.lookHistoryDetailFlag = true;
+        this.GatewayDataFormat = res.data.netGatewayDataFormat;
+        Apis.getHistoryGatewayDataFormatList().then((success) => {
+          console.log(success)
+          this.GatewayDataFormatList = success.data;
+          this.$q.loading.hide();
+          this.lookHistoryDetailFlag = true;
+        })
       })
+
     },
     //删除历史记录
     deleteHistory () {
@@ -274,6 +314,34 @@ export default {
         }
       })
     },
+    //保存网关数据格式
+    UpdateGatewayDataFormat () {
+      if (this.GatewayDataFormat == '') {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '请选择网关数据格式',
+          color: 'red',
+        })
+        return;
+      }
+      let para = {
+        CaseID: this.HistoryDetailData.caseID,
+        ID: this.HistoryDetailData.id,
+        NetGatewayDataFormat: this.GatewayDataFormat
+      }
+      this.$q.loading.show()
+      Apis.postHistoryUpdateGatewayDataFormat(para).then((res) => {
+        console.log(res);
+        this.$q.loading.hide();
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '保存成功',
+          color: 'secondary',
+        })
+      })
+    },
     //------------------------------日志比较--------------------------
     //打开比较日志
     compareLog () {
@@ -312,9 +380,55 @@ export default {
       this.HistoryCompareLogFlag = false;
       this.HistoryCompareLogList = [];
     },
-    //------------------------------性能检测----------------------------
+    //------------------------------操作----------------------------
+    //性能监测
     lookMonitorUrl (value) {
       window.open(value.row.monitorUrl);
+    },
+    //转移文件
+    TransferFile (value) {
+      let para = {
+        caseId: value.row.caseID,
+        historyId: value.row.id
+      }
+      this.$q.loading.show()
+      Apis.getHistoryTransferFile(para).then((res) => {
+        console.log(res)
+        this.$q.loading.hide()
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '转移成功',
+          color: 'secondary',
+        })
+      })
+    },
+    //查看网关文件分析状态
+    ViewFileStatus (value) {
+      let para = {
+        caseId: value.row.caseID,
+        historyId: value.row.id
+      }
+      this.$q.loading.show()
+      Apis.getHistoryViewFileStatus(para).then((res) => {
+        console.log(res)
+        this.$q.loading.hide()
+        if (res.data) {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '没有文件解析',
+            color: 'secondary',
+          })
+        } else {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '有文件未解析',
+            color: 'red',
+          })
+        }
+      })
     },
   }
 }
