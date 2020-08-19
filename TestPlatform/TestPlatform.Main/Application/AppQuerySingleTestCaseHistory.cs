@@ -43,6 +43,7 @@ namespace FW.TestPlatform.Main.Application
                 viewHistory.CaseID = history.CaseID;
                 viewHistory.Summary = history.Summary;
                 viewHistory.CreateTime = history.CreateTime.ToCurrentUserTimeZone();
+                viewHistory.NetGatewayDataFormat = history.NetGatewayDataFormat == null ? "" : history.NetGatewayDataFormat;
             }
 
             return viewHistory;

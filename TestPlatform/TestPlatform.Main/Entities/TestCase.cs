@@ -13,6 +13,8 @@ using FW.TestPlatform.Main.DTOModel;
 using MSLibrary.Serializer;
 using FW.TestPlatform.Main.Configuration;
 using System.Linq;
+using MSLibrary.CommandLine.SSH.DAL;
+using MSLibrary.CommandLine.SSH;
 
 namespace FW.TestPlatform.Main.Entities
 {
@@ -300,6 +302,19 @@ namespace FW.TestPlatform.Main.Entities
         {
             await _imp.UpdateSlaveHost(this, slaveHost, cancellationToken);
         }
+        public async Task UpdateNetGatewayDataFormat(TestCaseHistory history, CancellationToken cancellationToken = default)
+        {
+            await _imp.UpdateNetGatewayDataFormat(this, history, cancellationToken);
+        }
+        public async Task TransferNetGatewayDataFile(Guid historyId, CancellationToken cancellationToken = default)
+        {
+            await _imp.TransferNetGatewayDataFile(this, historyId, cancellationToken);
+        }
+
+        public async Task<string> CheckNetGatewayDataAnalysisStatus(Guid historyId, CancellationToken cancellationToken = default)
+        {
+            return await _imp.CheckNetGatewayDataAnalysisStatus(this, historyId, cancellationToken);
+        }
         public async Task<TestCaseSlaveHost?> GetSlaveHost(Guid slaveHostId, CancellationToken cancellationToken = default)
         {
             return await _imp.GetSlaveHost(this, slaveHostId, cancellationToken);
@@ -344,6 +359,9 @@ namespace FW.TestPlatform.Main.Entities
         Task AddSlaveHost(TestCase tCase,TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default);
         Task DeleteSlaveHost(TestCase tCase,Guid slaveHostID, CancellationToken cancellationToken = default);
         Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default);
+        Task UpdateNetGatewayDataFormat(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default);
+        Task TransferNetGatewayDataFile(TestCase tCase, Guid historyId, CancellationToken cancellationToken = default);
+        Task<string> CheckNetGatewayDataAnalysisStatus(TestCase tCase, Guid historyId, CancellationToken cancellationToken = default);
         IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default);
         Task<TestCaseSlaveHost?> GetSlaveHost(TestCase tCase,Guid slaveHostID, CancellationToken cancellationToken = default);
         Task AddHistory(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default);
@@ -372,14 +390,16 @@ namespace FW.TestPlatform.Main.Entities
         private ITestHostRepository _testHostRepository;
         private ITestCaseHistoryStore _testCaseHistoryStore;
         private ISystemConfigurationService _systemConfigurationService;
+        private ISSHEndpointStore _sSHEndpointStore;
 
-        public TestCaseIMP(ITestCaseStore testCaseStore, ITestCaseSlaveHostStore testCaseSlaveHostStore, ITestHostRepository testHostRepository, ITestCaseHistoryStore testCaseHistoryStore, ISystemConfigurationService systemConfigurationService)
+        public TestCaseIMP(ITestCaseStore testCaseStore, ITestCaseSlaveHostStore testCaseSlaveHostStore, ITestHostRepository testHostRepository, ITestCaseHistoryStore testCaseHistoryStore, ISystemConfigurationService systemConfigurationService, ISSHEndpointStore sSHEndpointStore)
         {
             _testCaseStore = testCaseStore;
             _testCaseSlaveHostStore = testCaseSlaveHostStore;
             _testHostRepository = testHostRepository;
             _testCaseHistoryStore = testCaseHistoryStore;
             _systemConfigurationService = systemConfigurationService;
+            _sSHEndpointStore = sSHEndpointStore;
         }
 
         public async Task Add(TestCase tCase, CancellationToken cancellationToken = default)
@@ -524,6 +544,11 @@ namespace FW.TestPlatform.Main.Entities
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseHistoryById, fragment, 1, 0);
             }
             await _testCaseHistoryStore.Delete(historyID, cancellationToken);
+        }
+
+        public async Task UpdateNetGatewayDataFormat(TestCase tCase, TestCaseHistory tHistory, CancellationToken cancellationToken = default)
+        { 
+            await _testCaseHistoryStore.UpdateNetGatewayDataFormat(tHistory, cancellationToken);
         }
 
         public async Task DeleteSlaveHost(TestCase tCase, Guid slaveHostID, CancellationToken cancellationToken = default)
@@ -880,6 +905,71 @@ namespace FW.TestPlatform.Main.Entities
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseHistoryById, fragment, 1, 0);
             }
             return histories;
+        }
+
+        public async Task TransferNetGatewayDataFile(TestCase tCase, Guid historyId, CancellationToken cancellationToken = default)
+        {
+            TestCaseHistory? history = await _testCaseHistoryStore.QueryByCase(tCase.ID, historyId, cancellationToken);
+            if (history == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestCaseHistoryByID,
+                    DefaultFormatting = "找不到测试历史Id为{0}并且测试用例Id为{1}的历史",
+                    ReplaceParameters = new List<object>() { tCase.ID.ToString(), historyId.ToString() }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseHistoryById, fragment, 1, 0);
+            }
+            string sshEndpointName = await _systemConfigurationService.GetNetGatewayDataSSHEndpointAsync(cancellationToken);
+            SSHEndpoint? sshEndpoint = await _sSHEndpointStore.QueryByName(sshEndpointName, cancellationToken);
+            if (sshEndpoint == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundSSHEndPointByName,
+                    DefaultFormatting = "找不到名称为{0}的SSH终结点",
+                    ReplaceParameters = new List<object>() { sshEndpointName }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSSHEndPointByName, fragment, 1, 0);
+            }
+            string tempPath = await _systemConfigurationService.GetNetGatewayDataTempFolderAsync(cancellationToken);
+            string path = await _systemConfigurationService.GetNetGatewayDataFolderAsync(cancellationToken);
+            await sshEndpoint.TransferNetGatewayDataFile(tCase.ID, historyId, tempPath, path, 30, cancellationToken);
+        }
+
+        public async Task<string> CheckNetGatewayDataAnalysisStatus(TestCase tCase, Guid historyId, CancellationToken cancellationToken = default)
+        {
+            TestCaseHistory? history = await _testCaseHistoryStore.QueryByCase(tCase.ID, historyId, cancellationToken);
+            if (history == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundTestCaseHistoryByID,
+                    DefaultFormatting = "找不到测试历史Id为{0}并且测试用例Id为{1}的历史",
+                    ReplaceParameters = new List<object>() { tCase.ID.ToString(), historyId.ToString() }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseHistoryById, fragment, 1, 0);
+            }
+            string sshEndpointName = await _systemConfigurationService.GetNetGatewayDataSSHEndpointAsync(cancellationToken);
+            SSHEndpoint? sshEndpoint = await _sSHEndpointStore.QueryByName(sshEndpointName, cancellationToken);
+            if (sshEndpoint == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundSSHEndPointByName,
+                    DefaultFormatting = "找不到名称为{0}的SSH终结点",
+                    ReplaceParameters = new List<object>() { sshEndpointName }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSSHEndPointByName, fragment, 1, 0);
+            }
+            string path = await _systemConfigurationService.GetNetGatewayDataFolderAsync(cancellationToken);
+            string command = string.Format("find {0} -type f -iname \"*{1}*\"", path, historyId);
+            string rel = await sshEndpoint.ExecuteCommand(command, 30, cancellationToken);
+            return rel;
         }
 
         private ITestCaseHandleService getHandleService(string engineType)

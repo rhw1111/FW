@@ -87,6 +87,21 @@ namespace FW.TestPlatform.Main.Entities
             }
         }
 
+        /// <summary>
+        /// 网关数据格式
+        /// </summary>
+        public string NetGatewayDataFormat
+        {
+            get
+            {
+                return GetAttribute<string>(nameof(NetGatewayDataFormat));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(NetGatewayDataFormat), value);
+            }
+        }
+
 
         /// <summary>
         /// 创建时间

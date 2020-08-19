@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+package ctrade.message;
+
+import "standard.proto";
+import "Header.proto";
+
+option java_package ="cn.com.cfets.data.ctrade.message";
+option java_outer_classname ="ApiListMarketDataAckProbuf";
+
+option (serviceID) = "CTRADE-API-MARKETDATA-ACK";
+// option (methodName) = "ApiListMarketDataAck"; 
+
+message ApiListMarketDataAckBody {
+    required string						operate_seq_num				= 1;	// 中心操作标识
+	required string						md_req_id					= 2;	// 订阅请求ID
+	required int32						subscription_request_type	= 3;	// 订阅标识  1-订阅   2-取消订阅
+	required int32						md_book_type				= 4;	// 行情类型  1-最优价行情  2-市场深度行情  105-全市场最优价行情
+	required string						transact_time				= 5;	// 时间戳 YYYYMMDD-HH:MM:SS或YYYYMMDD-HH:MM:SS.sss
+    required string						symbol						= 6;	// 货币对
+	required string						market_indicator			= 7;	// 11-外汇掉期
+	required int32						subscription_status			= 8;	// 订阅状态    0-成功    1-失败
+	optional string						text						= 9;	// 如果订阅失败，需要传输失败原因：1-Token认证不一致请重新登录  2-本方机构ID填写有误  3-本方用户ID填写有误  4-市场不存在  5-订阅要素填写有误  6-指令无效  7-指令发送频率过高  99-其他
+};
+
+message ApiListMarketDataAck {
+	optional Header						header						= 1;
+	optional ApiListMarketDataAckBody	body						= 2;
+};

@@ -1,0 +1,43 @@
+syntax = "proto2";
+
+package ctrade.message;
+
+import "standard.proto";
+import "Header.proto";
+import "User.proto";
+
+option java_package ="cn.com.cfets.data.ctrade.message";
+option java_outer_classname ="APIOrderSubmitReplyMsgProbuf";
+
+option (serviceID) = "CTRADE-ORDER-DATA-SUBMIT-REPLY";
+//option (methodName) = "APIOrderSubmitReplyMsg";      
+
+// 订单提交反馈
+message APIOrderSubmitReply
+{
+	required string ExecAckStatus = 1; ///处理结果
+    optional string OrderID = 2; ///订单编号
+    required string Order_req_id = 3; /// 订单操作参考序号
+    required string exec_org_id = 4; ///执行方机构ID
+	required string exec_user_id = 5; ///执行方用户ID
+    optional string tran_time = 6;///激活时间
+    optional string Text = 7; ///失败原因
+	
+    required User user = 100;
+};
+
+message APIOrderSubmitReplyMsg
+{
+	optional Header header = 1;	//TODO 待确定
+	optional APIOrderSubmitReply body = 2;
+};
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,36 @@
+syntax = "proto2";
+
+package ctrade.message;
+
+import "standard.proto";
+import "Header.proto";
+import "User.proto";
+
+option java_package ="cn.com.cfets.data.msg";
+option java_outer_classname ="APIOcoOrderCancelReplyMsgProbuf";
+
+//option (serviceID) = "CTRADE-ORDER-DATA";
+//option (methodName) = "APIOrderCancelReplyMsg";      
+
+// 订单撤销反馈
+message APIOcoOrderCancelReply
+{
+    //required string order_req_id = 1; /// 订单操作参考序号
+    //required int32 order_cancel_type = 2 ; /// 订单撤销标识
+   // optional string order_seq_num = 3; /// 待撤销订单操作序列号
+    optional string order_ID = 1; /// 订单编号
+    required string exec_org_id = 2; ///执行方机构ID
+    required string exec_user_id = 3; ///执行方用户ID
+    required string exec_ack_status = 4; ///处理结果
+    //required int32 err_code = 5;
+    //required string err_msg = 6;
+    optional string text = 7; ///失败原因
+
+    required User user = 100;
+};
+
+message APIOcoOrderCancelReplyMsg
+{
+	optional Header header = 1;
+	optional APIOcoOrderCancelReply body = 2;
+};

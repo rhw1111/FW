@@ -1,0 +1,52 @@
+syntax = "proto2";
+
+package ctrade.message;
+
+import "standard.proto";
+import "Header.proto";
+import "User.proto";
+
+option java_package ="cn.com.cfets.data.ctrade.message";
+option java_outer_classname ="APIOcoOrderSumitRequestMsgProbuf";
+
+option (serviceID) = "CTRADE-ORDER-DATA-SUBMIT";
+//option (methodName) = "APIOcoOrderSumitRequestMsg";  
+
+message APIOcoSingleOrderMsg
+{
+    //required string order_req_id = 1; /// 订单操作参考序号
+
+
+    required string symbol = 1 [default = "USD.CNY"]; /// 货币对
+    required string instrument = 2; ///合约品种
+    required int32 deal_dir = 3; ///交易方向
+    required string order_type = 4; ///订单类型
+    //optional string expire_time = 8; ///有效时间
+    required int64 price = 5; ///价格
+    required int64 order_qty = 6; ///报价量
+	
+    //optional User user = 100;
+};
+
+// OCO订单提交(ME)
+message APIOcoOrderSumitRequest
+{
+	required int32 mkt = 1;						// 市场标识
+	//required int32 expire_tp = 2;				// 到期时间类型
+	//required int32 expire_min = 3;				// 订单有效时长
+	required string expire_tm = 2;				// 订单到期时间
+	//required int32 is_exec = 5;					// 是否强制执行
+
+        required string market_indicator = 3 [default = "11"]; /// 金融工具
+        required string inst_scope_security_type = 4 [default = "FXSWAP"];  /// 金融工具
+	required string order_req_id = 5;
+	repeated APIOcoSingleOrderMsg orders = 98;
+	
+	optional User usr = 100;
+};
+
+message APIOcoOrderSumitRequestMsg
+{
+	optional Header header = 1;	//TODO 待确定
+	optional APIOcoOrderSumitRequest body = 2;
+};

@@ -13,4 +13,13 @@ namespace FW.TestPlatform.Main
         Running=1,
         Stop=2
     }
+
+    /// <summary>
+    /// 网关文件分析状态
+    /// </summary>
+    public enum NetGatewayDataFileStatus
+    {
+        HasFileUnfinished = 0,
+        NoFileUnfinished = 1
+    }
 }

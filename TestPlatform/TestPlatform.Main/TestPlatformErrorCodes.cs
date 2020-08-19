@@ -153,6 +153,10 @@ namespace FW.TestPlatform.Main
         /// <summary>
         /// 找不到指定路径的从主机日志文件
         /// </summary>
-        NotFoundLogFileByPath = 325710221
+        NotFoundLogFileByPath = 325710221,
+        /// <summary>
+        /// 找不到指定名称的SSHEndPoint
+        /// </summary>
+        NotFoundSSHEndPointByName = 325710222
     }
 }
