@@ -41,11 +41,13 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppQueryTestCaseStatus _appQueryTestCaseStatus;
         private readonly IAppQueryHistoriesByIds _appQueryHistoriesByIds;
         private readonly IAppTransferNetGatewayDataFile _appTransferNetGatewayDataFile;
+        private readonly IAppUpdateNetGatewayDataFormat _appUpdateNetGatewayDataFormat;
+        private readonly IAppCheckNetGatewayDataAnalysisStatus _appCheckNetGatewayDataAnalysisStatus;
         public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQuerySingleTestCase appQuerySingleTestCase, IAppUpdateTestCase appUpdateTestCase,
             IAppDeleteTestCase appDeleteTestCase, IAppRunTestCase appRunTestCase, IAppStopTestCase appStopTestCase, IAppCheckTestCaseStatus appCheckTestCaseStatus, IAppAddSlaveHost appAddSlaveHost,
             IAppQueryMasterLog appQueryMasterLog, IAppQuerySlaveLog appQuerySlaveLog, IAppQuerySlaveHost appQuerySlaveHost, IAppQueryTestCaseHistory appQueryTestCaseHistory, IAppQuerySingleTestCaseHistory appQuerySingleTestCaseHistory, IAppUpdateSlaveHost appUpdateSlaveHost,
             IAppDeleteTestCaseHistory appDeleteTestCaseHistory, IAppDeleteSlaveHost appDeleteSlaveHost, IAppDeleteHistories appDeleteHistories, IAppDeleteSlaveHosts appDeleteSlaveHosts, IAppQueryTestCaseStatus appQueryTestCaseStatus, IAppQueryHistoriesByIds appQueryHistoriesByIds,
-            IAppTransferNetGatewayDataFile appTransferNetGatewayDataFile)
+            IAppTransferNetGatewayDataFile appTransferNetGatewayDataFile, IAppUpdateNetGatewayDataFormat appUpdateNetGatewayDataFormat, IAppCheckNetGatewayDataAnalysisStatus appCheckNetGatewayDataAnalysisStatus)
         {
             _appQueryTestCase = appQueryTestCase;
             _appAddTestCase = appAddTestCase;
@@ -69,6 +71,8 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _appQueryTestCaseStatus = appQueryTestCaseStatus;
             _appQueryHistoriesByIds = appQueryHistoriesByIds;
             _appTransferNetGatewayDataFile = appTransferNetGatewayDataFile;
+            _appUpdateNetGatewayDataFormat = appUpdateNetGatewayDataFormat;
+            _appCheckNetGatewayDataAnalysisStatus = appCheckNetGatewayDataAnalysisStatus;
         }
         //查询增加修改执行TestCase
         [HttpGet("querybypage")]
@@ -220,6 +224,18 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         public async Task TransferNetGatewayDataFile(Guid caseId, Guid historyId)
         {
             await _appTransferNetGatewayDataFile.Do(caseId, historyId);
+        }
+
+        [HttpPost("checkdataanalysisstatus")]
+        public async Task CheckNetGatewayDataAnalysisStatus(Guid caseId, Guid historyId)
+        {
+            await _appCheckNetGatewayDataAnalysisStatus.Do(caseId, historyId);
+        }
+
+        [HttpPost("updatenetgatewaydataformat")]
+        public async Task UpdateNetGatewayDataFormat(TestCaseHistoryUpdateData data)
+        {
+            await _appUpdateNetGatewayDataFormat.Do(data);
         }
     }
 }
