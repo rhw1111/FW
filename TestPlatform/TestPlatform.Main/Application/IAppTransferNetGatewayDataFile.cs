@@ -10,6 +10,6 @@ namespace FW.TestPlatform.Main.Application
 {
     public interface IAppTransferNetGatewayDataFile
     {
-        Task Do(Guid caseId, Guid historyId, CancellationToken cancellationToken = default);
+        Task<int> Do(Guid caseId, Guid historyId, CancellationToken cancellationToken = default);
     }
 }
