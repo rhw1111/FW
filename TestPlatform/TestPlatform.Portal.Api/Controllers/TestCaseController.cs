@@ -223,9 +223,9 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         }
 
         [HttpGet("transfernetgatewaydatafile")]
-        public async Task TransferNetGatewayDataFile(Guid caseId, Guid historyId)
+        public async Task<int> TransferNetGatewayDataFile(Guid caseId, Guid historyId)
         {
-            await _appTransferNetGatewayDataFile.Do(caseId, historyId);
+            return await _appTransferNetGatewayDataFile.Do(caseId, historyId);
         }
 
         [HttpGet("checkdataanalysisstatus")]

@@ -195,8 +195,9 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             });
         }
 
-        public async Task TransferFile(string configuration, Func<string, Task<string>> fileNameGenerateAction, string fromPath, string toPath, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
+        public async Task<int> TransferFile(string configuration, Func<string, Task<string>> fileNameGenerateAction, string fromPath, string toPath, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
+            int fileCount = 0;
             await exceptionHandle(async () =>
             {
                 var configurationObj = getConfiguration(configuration);
@@ -212,11 +213,13 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                             var newFileName = await fileNameGenerateAction(item.FullName);
                             string fileFullName = $"{toPath}{Path.DirectorySeparatorChar}{newFileName}";
                             item.MoveTo(fileFullName);
+                            fileCount++;
                         }
                     }
                     client.Disconnect();
                 }
             });
+            return fileCount;
         }
         private async Task exceptionHandle(Func<Task> action)
         {
