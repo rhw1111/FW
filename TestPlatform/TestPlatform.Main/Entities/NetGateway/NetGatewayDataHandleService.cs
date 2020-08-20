@@ -23,6 +23,7 @@ using FW.TestPlatform.Main.Entities.DAL;
 using Ctrade.Message;
 using FW.TestPlatform.Main.Configuration;
 using MSLibrary.Configuration;
+using FW.TestPlatform.Main.Entities;
 
 namespace FW.TestPlatform.Main.NetGateway
 {
@@ -115,9 +116,21 @@ namespace FW.TestPlatform.Main.NetGateway
                             async (fileName) =>
                             {
                                 LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames _resolveFileNamePrefixService.");
+                                                                
+                                var testCaseHistory = await _resolveFileNamePrefixService.Resolve(fileName);
 
                                 string dataformat = string.Empty;
-                                var prefix = _resolveFileNamePrefixService.Resolve(fileName, out dataformat);
+                                var prefix = string.Empty;
+
+                                if (testCaseHistory != null)
+                                {
+                                    dataformat = testCaseHistory.NetGatewayDataFormat;
+                                    prefix = testCaseHistory.ID.ToString().ToLower();
+                                }
+                                else
+                                {
+                                    return;
+                                }
 
                                 if (!datas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? containerDatas))
                                 {
@@ -299,8 +312,20 @@ namespace FW.TestPlatform.Main.NetGateway
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
                             {
+                                var testCaseHistory = await _resolveFileNamePrefixService.Resolve(fileName);
+
                                 string dataformat = string.Empty;
-                                var prefix = _resolveFileNamePrefixService.Resolve(fileName, out dataformat);
+                                var prefix = string.Empty;
+
+                                if (testCaseHistory != null)
+                                {
+                                    dataformat = testCaseHistory.NetGatewayDataFormat;
+                                    prefix = testCaseHistory.ID.ToString().ToLower();
+                                }
+                                else
+                                {
+                                    return;
+                                }
 
                                 if (!datas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? containerDatas))
                                 {
@@ -1387,13 +1412,11 @@ namespace FW.TestPlatform.Main.NetGateway
     [Injection(InterfaceType = typeof(IResolveFileNamePrefixService), Scope = InjectionScope.Singleton)]
     public class ResolveFileNamePrefixService : IResolveFileNamePrefixService
     {
-        string IResolveFileNamePrefixService.Resolve(string fileName, out string dataformat)
+        async Task<TestCaseHistory?> IResolveFileNamePrefixService.Resolve(string fileName)
         {
-            dataformat = string.Empty;
-
             if (string.IsNullOrEmpty(fileName))
             {
-                return string.Empty;
+                return null;
             }
 
             fileName = Path.GetFileNameWithoutExtension(fileName);
@@ -1411,17 +1434,10 @@ namespace FW.TestPlatform.Main.NetGateway
                 switch (type)
                 {
                     case "01":
-                        dataformat = string.Empty;
-
                         var testCaseHistoryStore = DIContainerContainer.Get<ITestCaseHistoryStore>();
-                        var testCaseHistory = testCaseHistoryStore.QueryByCase(caseID, historyID);
+                        var testCaseHistory = await testCaseHistoryStore.QueryByCase(caseID, historyID);
 
-                        if (testCaseHistory.Result != null)
-                        {
-                            dataformat = testCaseHistory.Result.NetGatewayDataFormat;
-                        }
-
-                        return historyID.ToString();
+                        return testCaseHistory;
 
                         break;
                     default:
@@ -1429,7 +1445,7 @@ namespace FW.TestPlatform.Main.NetGateway
                 }
             }
 
-            return string.Empty;
+            return null;
         }
     }
 

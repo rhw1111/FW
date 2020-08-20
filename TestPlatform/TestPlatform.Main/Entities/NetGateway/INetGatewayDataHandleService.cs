@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using FW.TestPlatform.Main.Entities;
 
 namespace FW.TestPlatform.Main.NetGateway
 {
@@ -73,7 +74,7 @@ namespace FW.TestPlatform.Main.NetGateway
     /// </summary>
     public interface IResolveFileNamePrefixService
     {
-        string Resolve(string fileName, out string dataformat);
+        Task<TestCaseHistory?> Resolve(string fileName);
     }
 
     /// <summary>
