@@ -11,12 +11,12 @@ using FW.TestPlatform.Main.Entities;
 
 namespace FW.TestPlatform.Main.Collections.TreeEntityValueServices
 {
-    [Injection(InterfaceType = typeof(TreeEntityValueServicesForTestCase), Scope = InjectionScope.Singleton)]
-    public class TreeEntityValueServicesForTestCase : ITreeEntityValueService
+    [Injection(InterfaceType = typeof(TreeEntityValueServiceForTestCase), Scope = InjectionScope.Singleton)]
+    public class TreeEntityValueServiceForTestCase : ITreeEntityValueService
     {
         private readonly ITestCaseRepository _testCaseRepository;
 
-        public TreeEntityValueServicesForTestCase(ITestCaseRepository testCaseRepository)
+        public TreeEntityValueServiceForTestCase(ITestCaseRepository testCaseRepository)
         {
             _testCaseRepository = testCaseRepository;
         }

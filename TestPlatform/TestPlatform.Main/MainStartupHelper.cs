@@ -20,6 +20,8 @@ using MSLibrary.Context.HttpClaimGeneratorServices;
 using MSLibrary.Context.ClaimContextGeneratorServices;
 using MSLibrary.Transaction;
 using MSLibrary.Template;
+using MSLibrary.Collections;
+using MSLibrary.Collections.TreeEntityValueServices;
 using MSLibrary.Xrm;
 using MSLibrary.Xrm.Token;
 using MSLibrary.Xrm.Message;
@@ -120,6 +122,7 @@ using MSLibrary.CommandLine.SSH.SSHEndpointServices;
 using FW.TestPlatform.Main.Code.GenerateVarSettingServices;
 using FW.TestPlatform.Main.Code.GenerateFuncInvokeServices;
 using FW.TestPlatform.Main.Code.GenerateVarInvokeServices;
+using FW.TestPlatform.Main.Collections.TreeEntityValueServices;
 
 namespace FW.TestPlatform.Main
 {
@@ -262,6 +265,9 @@ namespace FW.TestPlatform.Main
 
             ScheduleActionGroupIMP.ScheduleActionInitGeneratorServiceFactories[ScheduleActionInitTypes.Default] = DIContainerContainer.Get<ScheduleActionInitGeneratorForDefaultFactory>();
 
+            TreeEntityIMP.ValueServices[TreeEntityValueServiceTypes.Folder]= DIContainerContainer.Get<TreeEntityValueServiceForFolderFactory>();
+            TreeEntityIMP.ValueServices[TreeEntityValueServiceTypes.TestCase] = DIContainerContainer.Get<TreeEntityValueServiceForTestCaseFactory>();
+            TreeEntityIMP.ValueServices[TreeEntityValueServiceTypes.TestDataSource] = DIContainerContainer.Get<TreeEntityValueServiceForTestDataSourceFactory>();
 
             var applicationConfiguration = ConfigurationContainer.Get<ApplicationConfiguration>(ConfigurationNames.Application);
 
