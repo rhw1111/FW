@@ -27,9 +27,9 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
 
             builder.Property((entity) => entity.OwnerID).IsRequired().HasColumnType("char(36)");
             builder.HasOne((entity) => entity.Owner).WithMany().HasForeignKey(entity => entity.OwnerID);
-            var ownerProperty = builder.Property((entity) => entity.Owner).Metadata;
-            ownerProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
-            ownerProperty.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            //var ownerProperty = builder.Property((entity) => entity.Owner).Metadata;
+            //ownerProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+            //ownerProperty.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
 
             builder.Property((entity) => entity.TestCaseHistoryID).HasColumnType("char(36)");
