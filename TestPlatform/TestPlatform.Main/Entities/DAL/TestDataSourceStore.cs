@@ -233,7 +233,12 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         foreach (var item in entry.Properties)
                         {
                             if(item.Metadata.Name != "ID")
-                                entry.Property(item.Metadata.Name).IsModified = true;
+                            {
+                                if (source.Attributes.ContainsKey(item.Metadata.Name))
+                                {
+                                    entry.Property(item.Metadata.Name).IsModified = true;
+                                }
+                            }
                         }
                         await dbContext.SaveChangesAsync(cancellationToken);
                     }

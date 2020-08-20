@@ -74,5 +74,22 @@ namespace IdentityCenter.Main.IdentityServer
                           select item).FirstOrDefault();
             return result;
         }
+
+        public async Task<IList<ApiResourceData>> QueryByScopeEnabled(IList<string> scopeNames, CancellationToken cancellationToken = default)
+        {
+            var resourceList = await _kvcacheVisitor.Get(
+                async (k) =>
+                {
+                    return await _apiResourceDataRepository.QueryAllEnabled(cancellationToken);
+                },
+                "All"
+                );
+
+            var result = (from item in resourceList
+                          where item.Scopes.Any((scope)=> scopeNames.Contains(scope))
+                          select item).ToList();
+            return result;
+
+        }
     }
 }

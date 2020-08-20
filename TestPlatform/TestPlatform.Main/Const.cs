@@ -383,4 +383,14 @@ namespace FW.TestPlatform.Main
         //public const string User = "User";
     }
 
+    /// <summary>
+    /// 树状实体数据服务类型集合
+    /// </summary>
+    public static class TreeEntityValueServiceTypes
+    {
+        public const int Folder = 1;
+        public const int TestCase = 2;
+        public const int TestDataSource = 3;
+    }
+
 }

@@ -295,7 +295,7 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
                         if (await reader.ReadAsync())
                         {
                             result.TotalCount = reader.GetInt32(0);
-
+                            result.CurrentPage = page;
                             if (await reader.NextResultAsync())
                             {
                                 while (await reader.ReadAsync())

@@ -7,13 +7,15 @@ using MSLibrary.Context.DAL;
 using MSLibrary.StreamingDB.DAL;
 using MSLibrary.CommandLine.SSH.DAL;
 using MSLibrary.Schedule.DAL;
+using MSLibrary.Collections.DAL;
 
 namespace FW.TestPlatform.Main.DAL
 {
     /// <summary>
     /// 主连接字符串工厂
     /// </summary>
-    public interface IMainDBConnectionFactory : ISystemConfigurationConnectionFactory, ICommonLogConnectionFactory, IContextConnectionFactory, IStreamingDBConnectionFactory, ICommandLineConnectionFactory,IScheduleConnectionFactory
+    public interface IMainDBConnectionFactory : ISystemConfigurationConnectionFactory, ICommonLogConnectionFactory, IContextConnectionFactory, IStreamingDBConnectionFactory, 
+        ICommandLineConnectionFactory,IScheduleConnectionFactory,ICollectionConnectionFactory
     {
         /// <summary>
         /// 创建主读写连接字符串

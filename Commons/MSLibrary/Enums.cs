@@ -1333,6 +1333,27 @@ namespace MSLibrary
         /// Azure复制Blob出错
         /// </summary>
         AzureCopyBlobError = 314728501,
+        /// <summary>
+        /// 已经存在指定名称的树状实体记录
+        /// </summary>
+        ExistSameNameTreeEntity= 314728601,
+        /// <summary>
+        /// 找不到指定Id的树状实体记录
+        /// </summary>
+        NotFoundTreeEntityByID= 314728602,
+        /// <summary>
+        /// 树状实体记录下存在子记录
+        /// </summary>
+        TreeEntityHasChildren= 314728603,
+        /// <summary>
+        /// 找不到指定类型的树状实体数据服务
+        /// </summary>
+        NotFoundTreeEntityValueServiceByType = 314728604,
+        /// <summary>
+        /// 树状实体的类型无法作为父记录
+        /// </summary>
+        TreeEntityParentTypeError= 314728605,
+
     }
 
     /// <summary>

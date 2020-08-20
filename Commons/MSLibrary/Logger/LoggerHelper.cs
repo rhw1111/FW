@@ -56,8 +56,9 @@ namespace MSLibrary.Logger
         public static void LogError(string categoryName, string message)
         {
             var logger = GetLogger(categoryName);
-            logger.LogError(message);
-          
+
+            logger.Log(LogLevel.Error, new EventId(), message, new Exception(message), (obj, ex) => { return message; });
+            //logger.LogError(message);        
         }
 
         /// <summary>

@@ -865,21 +865,10 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
                     Transaction = sqlTran
                 })
                 {
-                    var parameter = new MySqlParameter("@page", MySqlDbType.Int32)
-                    {
-                        Value = page
-                    };
-                    command.Parameters.Add(parameter);
 
-                    parameter = new MySqlParameter("@pagesize", MySqlDbType.Int32)
+                    var parameter = new MySqlParameter("@name", MySqlDbType.VarChar, 200)
                     {
-                        Value = pageSize
-                    };
-                    command.Parameters.Add(parameter);
-
-                    parameter = new MySqlParameter("@name", MySqlDbType.VarChar, 200)
-                    {
-                        Value = $"{name.ToSqlLike()}%"
+                        Value = $"{name.ToMySqlLike()}%"
                     };
                     command.Parameters.Add(parameter);
                     command.Prepare();

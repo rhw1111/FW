@@ -67,6 +67,19 @@ namespace IdentityCenter.Main.IdentityServer
             }
         }
 
+        public bool ShowInDiscoveryDocument
+        {
+            get
+            {
+
+                return GetAttribute<bool>(nameof(ShowInDiscoveryDocument));
+            }
+            set
+            {
+                SetAttribute<bool>(nameof(ShowInDiscoveryDocument), value);
+            }
+        }
+
         public string Description
         {
             get
