@@ -22,6 +22,7 @@ using Haukcode.PcapngUtils.Extensions;
 using FW.TestPlatform.Main.Entities.DAL;
 using Ctrade.Message;
 using FW.TestPlatform.Main.Configuration;
+using MSLibrary.Configuration;
 
 namespace FW.TestPlatform.Main.NetGateway
 {
@@ -52,6 +53,9 @@ namespace FW.TestPlatform.Main.NetGateway
 
         public async Task<INetGatewayDataHandleResult> Execute(CancellationToken cancellationToken = default)
         {
+            var applicationConfiguration = ConfigurationContainer.Get<ApplicationConfiguration>(ConfigurationNames.Application);
+            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} Execute has been called.");
+
             List<Task> waitTasks = new List<Task>();
             Task resultTask = new Task(async () =>
             {
@@ -83,8 +87,12 @@ namespace FW.TestPlatform.Main.NetGateway
 
             var t2 = Task.Run(async () =>
             {
+                LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run.");
+
                 while (true)
                 {
+                    LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run while (true).");
+
                     try
                     {
                         if (netGatewayDataHandleResult.IsStop)
@@ -101,9 +109,13 @@ namespace FW.TestPlatform.Main.NetGateway
                                         orderby item.Value.CreateTime
                                         select item.Value.FileName).Take(_maxFileCount).ToList();
 
+                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames.");
+
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
                             {
+                                LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames _resolveFileNamePrefixService.");
+
                                 string dataformat = string.Empty;
                                 var prefix = _resolveFileNamePrefixService.Resolve(fileName, out dataformat);
 
@@ -181,9 +193,13 @@ namespace FW.TestPlatform.Main.NetGateway
                                 //    stream.Close();
                                 //}
 
+                                LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames _getSourceDataFromFileService.");
+
                                 await _getSourceDataFromFileService.Get(fileName, dataformat,
                                     async (sourceData) =>
                                     {
+                                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames _convertNetDataFromSourceService.");
+
                                         var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
 
                                         if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
@@ -240,6 +256,8 @@ namespace FW.TestPlatform.Main.NetGateway
                             }
                         );
 
+                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 处理单独的响应数据.");
+
                         //处理单独的响应数据
                         foreach (var item in singleResponseDatas)
                         {
@@ -274,6 +292,8 @@ namespace FW.TestPlatform.Main.NetGateway
 
                             }
                         }
+
+                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 计算.");
 
                         //计算
                         await ParallelHelper.ForEach(fileNames, 10,
@@ -375,6 +395,8 @@ namespace FW.TestPlatform.Main.NetGateway
                             }
                         );
 
+                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 删除用过的文件.");
+
                         //删除用过的文件
                         foreach (var item in fileNames)
                         {
@@ -390,6 +412,8 @@ namespace FW.TestPlatform.Main.NetGateway
                         {
                             break;
                         }
+
+                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run Task.Delay(10000).");
 
                         await Task.Delay(10000);
                     }
