@@ -10,9 +10,9 @@ namespace FW.TestPlatform.Main.Collections.TreeEntityValueServices
     [Injection(InterfaceType = typeof(TreeEntityValueServiceForTestDataSourceFactory), Scope = InjectionScope.Singleton)]
     public class TreeEntityValueServiceForTestDataSourceFactory : IFactory<ITreeEntityValueService>
     {
-        private readonly ITreeEntityValueService _treeEntityValueService;
+        private readonly TreeEntityValueServiceForTestDataSource _treeEntityValueService;
 
-        public TreeEntityValueServiceForTestDataSourceFactory(ITreeEntityValueService treeEntityValueService)
+        public TreeEntityValueServiceForTestDataSourceFactory(TreeEntityValueServiceForTestDataSource treeEntityValueService)
         {
             _treeEntityValueService = treeEntityValueService;
         }
