@@ -87,7 +87,7 @@ namespace MSLibrary.MessageQueue.DAL
                     {
                         parameter = new SqlParameter("@queuegroupname", SqlDbType.VarChar, 150)
                         {
-                            Value = listener.Name
+                            Value = listener.QueueGroupName
                         };
                     }
                     else
@@ -243,7 +243,7 @@ namespace MSLibrary.MessageQueue.DAL
                     };
                     commond.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@typeid", SqlDbType.UniqueIdentifier)
+                    parameter = new SqlParameter("@messagetypeid", SqlDbType.UniqueIdentifier)
                     {
                         Value = typeId
                     };

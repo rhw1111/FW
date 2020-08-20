@@ -54,16 +54,42 @@ namespace IdentityCenter.Main.IdentityServer
 
         }
 
-        public List<string> ApiSecrets
+        public List<SecretData>? ApiSecrets
         {
             get
             {
 
-                return GetAttribute<List<string>>(nameof(ApiSecrets));
+                return GetAttribute<List<SecretData>?>(nameof(ApiSecrets));
             }
             set
             {
-                SetAttribute<List<string>>(nameof(ApiSecrets), value);
+                SetAttribute<List<SecretData>?>(nameof(ApiSecrets), value);
+            }
+        }
+
+        public List<string>? Scopes
+        {
+            get
+            {
+
+                return GetAttribute<List<string>?>(nameof(Scopes));
+            }
+            set
+            {
+                SetAttribute<List<string>?>(nameof(Scopes), value);
+            }
+        }
+
+        public List<string>? AllowedAccessTokenSigningAlgorithms
+        {
+            get
+            {
+
+                return GetAttribute<List<string>?>(nameof(AllowedAccessTokenSigningAlgorithms));
+            }
+            set
+            {
+                SetAttribute<List<string>?>(nameof(AllowedAccessTokenSigningAlgorithms), value);
             }
         }
 
@@ -86,12 +112,15 @@ namespace IdentityCenter.Main.IdentityServer
         {
             return await Task.FromResult(new ApiResource(data.Name, data.DisplayName, data.UserClaims)
             {
-                ApiSecrets = (from t in data.ApiSecrets
-                              select new Secret(t)).ToList(),
+                ApiSecrets = data.ApiSecrets==null?new List<Secret>():(from t in data.ApiSecrets
+                              select new Secret(t.Value, t.Description, t.Expiration) { Type = t.Type }).ToList(),
                 Description = data.Description,
                 Enabled = data.Enabled,
                 Properties = data.Properties,
-                UserClaims = data.UserClaims
+                AllowedAccessTokenSigningAlgorithms = data.AllowedAccessTokenSigningAlgorithms,
+                ShowInDiscoveryDocument = data.ShowInDiscoveryDocument,
+                Scopes = data.Scopes??new List<string>()
+
             });
         }
     }

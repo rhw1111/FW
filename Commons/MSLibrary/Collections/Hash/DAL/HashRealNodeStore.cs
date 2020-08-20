@@ -386,7 +386,7 @@ namespace MSLibrary.Collections.Hash.DAL
                                                   join HashGroupStrategy as s 
                                                   on g.strategyid=s.id           
                                                   where n.[groupid]=@groupid
-                                                  order by nsequence
+                                                  order by n.sequence
 		                                          offset (@pagesize * (@currentpage - 1)) rows 
 		                                          fetch next @pagesize rows only;", StoreHelper.GetHashRealNodeSelectFields("n"), StoreHelper.GetHashGroupSelectFields("g"), StoreHelper.GetHashGroupStrategySelectFields("s"))
                 })
@@ -476,7 +476,7 @@ namespace MSLibrary.Collections.Hash.DAL
                                                   join HashGroupStrategy as s 
                                                   on g.strategyid=s.id           
                                                   where n.[groupid]=@groupid
-                                                  order by nsequence
+                                                  order by n.sequence
 		                                           offset (@skipNum) rows 
 		                                          fetch next (@takeNum) rows only;", StoreHelper.GetHashRealNodeSelectFields("n"), StoreHelper.GetHashGroupSelectFields("g"), StoreHelper.GetHashGroupStrategySelectFields("s"))
                 })

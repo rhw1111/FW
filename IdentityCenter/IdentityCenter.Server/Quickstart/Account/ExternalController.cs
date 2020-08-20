@@ -114,14 +114,32 @@ namespace IdentityServer4.Quickstart.UI
             // this allows us to collect any additonal claims or properties
             // for the specific prtotocols used and store them in the local auth cookie.
             // this is typically used to store data needed for signout from those protocols.
-            var additionalLocalClaims = new List<Claim>();
+            var additionalLocalClaims = new List<Claim>()
+            {
+                new Claim("name",user.Username)
+            };
             var localSignInProps = new AuthenticationProperties();
             ProcessLoginCallbackForOidc(result, additionalLocalClaims, localSignInProps);
             ProcessLoginCallbackForWsFed(result, additionalLocalClaims, localSignInProps);
             ProcessLoginCallbackForSaml2p(result, additionalLocalClaims, localSignInProps);
 
+            ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(
+        new List<ClaimsIdentity>()
+        {
+                            new ClaimsIdentity(
+                                new List<Claim>()
+                                {
+                                    new Claim("name",user.Username)
+                                },
+                                "user"
+                                )
+
+        }
+);
+
+
             // issue authentication cookie for user
-            await HttpContext.SignInAsync(user.SubjectId, user.Username, provider, localSignInProps, additionalLocalClaims.ToArray());
+            await HttpContext.SignInAsync(user.SubjectId, claimsPrincipal, localSignInProps);
 
             // delete temporary cookie used during external authentication
             await HttpContext.SignOutAsync(IdentityServer4.IdentityServerConstants.ExternalCookieAuthenticationScheme);
@@ -131,11 +149,11 @@ namespace IdentityServer4.Quickstart.UI
 
             // check if external login is in the context of an OIDC request
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-            await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.SubjectId, user.Username, true, context?.ClientId));
+            await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.SubjectId, user.Username, true, context?.Client.ClientId));
 
             if (context != null)
             {
-                if (await _clientStore.IsPkceClientAsync(context.ClientId))
+                if (await _clientStore.IsPkceClientAsync(context.Client.ClientId))
                 {
                     // if the client is PKCE then we assume it's native, so this change in how to
                     // return the response is for better UX for the end user.

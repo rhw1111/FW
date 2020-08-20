@@ -16,7 +16,6 @@ namespace IdentityCenter.Main.DAL.EntityTypeConfigurations
 
             builder.Property((entity) => entity.Required).IsRequired().HasColumnName("required").HasColumnType("bit");
             builder.Property((entity) => entity.Emphasize).IsRequired().HasColumnName("emphasize").HasColumnType("bit");
-            builder.Property((entity) => entity.ShowInDiscoveryDocument).IsRequired().HasColumnName("showIndiscoverydocument").HasColumnType("bit");
         }
     }
 }

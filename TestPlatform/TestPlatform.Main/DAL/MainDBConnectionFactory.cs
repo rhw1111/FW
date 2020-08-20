@@ -10,6 +10,7 @@ using MSLibrary.StreamingDB.DAL;
 using FW.TestPlatform.Main.Configuration;
 using MSLibrary.CommandLine.SSH.DAL;
 using MSLibrary.Schedule.DAL;
+using MSLibrary.Collections.DAL;
 
 namespace FW.TestPlatform.Main.DAL
 { 
@@ -20,6 +21,7 @@ namespace FW.TestPlatform.Main.DAL
     [Injection(InterfaceType = typeof(IStreamingDBConnectionFactory), Scope = InjectionScope.Singleton)]
     [Injection(InterfaceType = typeof(ICommandLineConnectionFactory), Scope = InjectionScope.Singleton)]
     [Injection(InterfaceType = typeof(IScheduleConnectionFactory), Scope = InjectionScope.Singleton)]
+    [Injection(InterfaceType = typeof(ICollectionConnectionFactory), Scope = InjectionScope.Singleton)]
     public class MainDBConnectionFactory : IMainDBConnectionFactory
     {
         private readonly ISystemConfigurationService _systemConfigurationService;
@@ -27,6 +29,11 @@ namespace FW.TestPlatform.Main.DAL
         public MainDBConnectionFactory(ISystemConfigurationService systemConfigurationService)
         {
             _systemConfigurationService = systemConfigurationService;
+        }
+
+        public string CreateAllForCollection()
+        {
+            return CreateAllForMain();
         }
 
         public string CreateAllForCommandLine()
@@ -62,6 +69,11 @@ namespace FW.TestPlatform.Main.DAL
         public string CreateAllForSystemConfiguration()
         {
             return CreateAllForLocalCommonLog();
+        }
+
+        public string CreateReadForCollection()
+        {
+            return CreateReadForMain();
         }
 
         public string CreateReadForCommandLine()

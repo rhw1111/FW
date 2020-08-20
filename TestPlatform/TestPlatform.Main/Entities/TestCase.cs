@@ -234,10 +234,6 @@ namespace FW.TestPlatform.Main.Entities
             await _imp.Add(this,cancellationToken);
         }
 
-        public async Task Add()
-        {
-            await _imp.Add(this);
-        }
 
         public async Task AddHistory(TestCaseHistory history, CancellationToken cancellationToken = default)
         {
@@ -249,18 +245,10 @@ namespace FW.TestPlatform.Main.Entities
             await _imp.Update(this, cancellationToken);
         }
 
-        public async Task Update()
-        {
-            await _imp.Update(this);
-        }
 
         public async Task Delete(CancellationToken cancellationToken = default)
         {
             await _imp.Delete(this, cancellationToken);
-        }
-        public async Task Delete()
-        {
-            await _imp.Delete(this);
         }
 
         //public async Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default)

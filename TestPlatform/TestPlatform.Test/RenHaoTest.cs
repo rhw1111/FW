@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using MSLibrary;
 using MSLibrary.Transaction;
 using MSLibrary.DI;
@@ -33,6 +34,7 @@ using MSLibrary.Template;
 using MSLibrary.MySqlStore.Schedule.DAL;
 using Ctrade.Message;
 using MSLibrary.Thread;
+using MSLibrary.Serializer;
 
 namespace TestPlatform.Test
 {
@@ -199,6 +201,7 @@ namespace TestPlatform.Test
         [Test]
         public async Task TestDict()
         {
+           var a=JsonSerializerHelper.Serializer<JObject>(null);
             Dictionary<string, Item> dict = new Dictionary<string, Item>();
 
             for(var index=0;index<=10000000; index++)
