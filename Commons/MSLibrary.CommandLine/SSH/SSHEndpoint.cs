@@ -200,9 +200,9 @@ namespace MSLibrary.CommandLine.SSH
             await _imp.ExecuteCommand(this, action, timeoutSeconds, cancellationToken);
         }
 
-        public async Task TransferNetGatewayDataFile(Guid caseId, Guid historyId, string tempPath, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
+        public async Task TransferFile(Func<string, Task<string>> fileNameGenerateAction, string fromPath, string toPath, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
-            await _imp.TransferNetGatewayDataFile(this, caseId, historyId, tempPath, path, timeoutSeconds, cancellationToken);
+            await _imp.TransferFile(this, fileNameGenerateAction, fromPath,toPath, timeoutSeconds, cancellationToken);
         }
 
         public async Task<bool> ExistsFile(string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
@@ -237,7 +237,7 @@ namespace MSLibrary.CommandLine.SSH
 
         Task ExecuteCommand(SSHEndpoint endpoint, Func<ISSHEndpointCommandService, Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
 
-        Task TransferNetGatewayDataFile(SSHEndpoint endpoint, Guid caseId, Guid historyId, string tempPath, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
+        Task TransferFile(SSHEndpoint endpoint, Func<string, Task<string>> fileNameGenerateAction, string fromPath, string toPath, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
 
         Task Add(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
         Task Delete(SSHEndpoint sshEndPoint, CancellationToken cancellationToken = default);
@@ -257,7 +257,7 @@ namespace MSLibrary.CommandLine.SSH
 
         Task UploadFile(string configuration, Func<ISSHEndpointUploadFileService,Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
         Task ExecuteCommand(string configuration, Func<ISSHEndpointCommandService,Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
-        Task TransferNetGatewayDataFile(string configuration, Guid caseId, Guid historyId, string tempPath, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
+        Task TransferFile(string configuration, Func<string,Task<string>> fileNameGenerateAction, string fromPath, string toPath, int timeoutSeconds = -1, CancellationToken cancellationToken = default);
         Task<bool> ExistsFile(string configuration, string path,int timeoutSeconds = -1, CancellationToken cancellationToken = default);
     }
 
@@ -336,10 +336,10 @@ namespace MSLibrary.CommandLine.SSH
             await service.ExecuteCommand(await getContent(endpoint.Configuration), action,timeoutSeconds, cancellationToken);
         }
 
-        public async Task TransferNetGatewayDataFile(SSHEndpoint endpoint, Guid caseId, Guid historyId, string tempPath, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
+        public async Task TransferFile(SSHEndpoint endpoint, Func<string, Task<string>> fileNameGenerateAction, string fromPath, string toPath, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
             var service = getService(endpoint.Type);
-            await service.TransferNetGatewayDataFile(await getContent(endpoint.Configuration),caseId, historyId, tempPath, path, timeoutSeconds, cancellationToken);
+            await service.TransferFile(await getContent(endpoint.Configuration), fileNameGenerateAction, fromPath, toPath, timeoutSeconds, cancellationToken);
         }
         private async Task<string> getContent(string content)
         {

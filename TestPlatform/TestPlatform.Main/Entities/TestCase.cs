@@ -924,7 +924,10 @@ namespace FW.TestPlatform.Main.Entities
             }
             string tempPath = await _systemConfigurationService.GetNetGatewayDataTempFolderAsync(cancellationToken);
             string path = await _systemConfigurationService.GetNetGatewayDataFolderAsync(cancellationToken);
-            await sshEndpoint.TransferNetGatewayDataFile(tCase.ID, historyId, tempPath, path, 30, cancellationToken);
+            await sshEndpoint.TransferFile(async(oldFileName)=>
+            {
+                return await Task.FromResult($"01_{tCase.ID.ToString()}_{historyId.ToString()}_{Guid.NewGuid().ToString()}.cap");
+            }, tempPath, path, 30, cancellationToken);
         }
 
         public async Task<string> CheckNetGatewayDataAnalysisStatus(TestCase tCase, Guid historyId, CancellationToken cancellationToken = default)
