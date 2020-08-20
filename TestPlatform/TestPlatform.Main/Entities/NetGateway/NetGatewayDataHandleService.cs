@@ -1373,7 +1373,7 @@ namespace FW.TestPlatform.Main.NetGateway
             }
 
             fileName = Path.GetFileNameWithoutExtension(fileName);
-            // 命名规则：01_{caseid}_{historyid}_{newguid}
+            // 命名规则：01_{caseid}_{historyid}_{newguid}.cap
             // 01为使用CaseHistory，需要通过historyid查询history，获取它的NetGatewayDataFormat属性，返回historyid和该属性
             string[] fileName_Split = fileName.Split("_");
 
