@@ -230,6 +230,12 @@ namespace FW.TestPlatform.Main
         /// </summary>
         public const string NotFoundSSHEndPointByID = "NotFoundSSHEndPointByID";
         /// <summary>
+        /// 找不到指定名称的SSH终结点
+        /// 格式为“找不到名称为{0}的SSH终结点”
+        /// {0}：名称
+        /// </summary>
+        public const string NotFoundSSHEndPointByName = "NotFoundSSHEndPointByName";
+        /// <summary>
         /// 指定地址的主机不能被删除
         /// 格式为“地址为{0}的主机正在被其它的测试用例使用，不能被删除”
         /// {0}：地址

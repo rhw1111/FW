@@ -1,0 +1,46 @@
+syntax = "proto2";
+
+package ctrade.message;
+
+import "standard.proto";
+import "Header.proto";
+import "User.proto";
+
+option java_package ="cn.com.cfets.data.ctrade.message";
+option java_outer_classname ="APIOrderSubmitRequestMsgProbuf";
+
+option (serviceID) = "CTRADE-ORDER-DATA-SUBMIT";
+//option (methodName) = "APIOrderSubmitRequestMsg";      
+
+//订单提交请求
+message APIOrderSubmitRequest
+{
+	required string Order_req_id = 1; /// 订单操作参考序号
+    required string MarketIndicator = 2 [default = "11"]; /// 金融工具
+    optional string inst_scope_security_type = 3 [default = "FXSWAP"];  /// 金融工具
+	required string symbol = 4 [default = "USD.CNY"]; /// 货币对
+    required string instrument = 5; ///合约品种
+    required int32 dealDir = 6; ///交易方向
+    required string orderType = 7; ///订单类型
+    optional string expire_time = 8; ///有效时间
+    required int64 price = 9; ///价格
+    required int64 OrderQty = 10; ///报价量
+	
+    optional User user = 100;
+};
+
+message APIOrderSubmitRequestMsg
+{
+	optional Header header = 1;	//TODO 待确定
+	optional APIOrderSubmitRequest body = 2;
+};
+
+
+
+
+
+
+
+
+
+

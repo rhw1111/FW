@@ -1,0 +1,60 @@
+syntax = "proto2";
+
+package ctrade.message;
+
+import "standard.proto";
+import "Header.proto";
+import "User.proto";
+
+option java_package ="cn.com.cfets.data.ctrade.message";
+option java_outer_classname ="APICreditUpadateRequestMsgProbuf";
+
+option (serviceID) = "CTRADE-ORDER-DATA-SUBMIT";
+//option (methodName) = "CreditUpdateRequestMsg";  
+
+message SettleLimit {
+	optional string settle_limit_amount = 1; /// 清算限额  11244 SettlLimitAmount
+        optional string settle_type = 2;                        /// 清算日期限 63 SettlType 
+        optional string settle_limit_ccy_amount = 3; /// 清算限额（百万人民币）
+        optional string settle_utilization_amount = 4; /// 已占用清算限额
+        optional string settle_current_amount = 5;     /// 当前可用额度
+};
+
+	
+message CreditLimit {
+        required string opponent_org_id = 1; /// 对手方机构ID
+	optional int32 has_relation = 2; /// 授信关系 1672 PartyDetailStatus
+	optional string risk_limit_amount = 3; /// 初始交易限额（百万） 1531 RiskLimitAmount
+	optional string risk_term = 4; /// 最长交易期限 10847 RiskTerm
+	
+	repeated SettleLimit settle_limits = 5; /// 清算限额Groups
+	
+	optional string opponent_org_cn_nm  = 6; /// 对手方中文简称
+	optional string opponent_org_en_nm  = 7; /// 对手方英文简称
+	optional string risk_limit_ccy_amount = 8; /// 初始交易限额（百万人民币）
+	optional string risk_limit_utilization_amount = 9; /// 已占用清算限额
+	optional string risk_limit_current_amount = 10;     /// 当前可用额度
+	optional int32 b_clrng_amt_f = 11;	 /// 清算限额设置
+
+};
+	
+// 授信修改
+message APICreditUpdateRequest {
+	required string risk_limit_req_id = 1;
+	required int32 market_indicator = 2 [default = 11]; /// 市场标识
+	optional string inst_scope_security_type = 3 [default = "FXSWAP"]; 
+	required int32 risk_limit_update_method =  4;
+	
+	repeated CreditLimit credits = 5;
+	
+	required string tran_time = 6;
+	required User user = 100;
+
+};
+
+message APICreditUpdateRequestMsg
+{
+	optional Header header = 1;	//TODO 待确定
+	optional APICreditUpdateRequest body = 2;
+};
+

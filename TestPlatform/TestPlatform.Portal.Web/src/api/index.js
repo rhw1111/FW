@@ -366,6 +366,40 @@ export const postSelectedHistories = payload =>
     payload
   })
 
+//历史记录列表转移文件
+export const getHistoryTransferFile = payload =>
+  action({
+    apiName: 'getHistoryTransferFile',
+    payload
+  })
+
+//历史记录查看网关文件分析状态
+export const getHistoryViewFileStatus = payload =>
+  action({
+    apiName: 'getHistoryViewFileStatus',
+    payload
+  })
+
+//获取网关数据格式列表
+export const getHistoryGatewayDataFormatList = payload =>
+  action({
+    apiName: 'getHistoryGatewayDataFormatList',
+    payload
+  })
+
+
+
+//保存网关数据格式
+export const postHistoryUpdateGatewayDataFormat = payload =>
+  action({
+    apiName: 'postHistoryUpdateGatewayDataFormat',
+    payload
+  })
+
+
+
+
+
 
 
 

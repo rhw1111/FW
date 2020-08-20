@@ -46,6 +46,14 @@ const apiConstants = {
 
   getTestCaseStatus: 'api/testcase/querytestcasestatus',//查看当前TestCase状态
 
+  getHistoryTransferFile: 'api/testcase/transfernetgatewaydatafile',//历史记录列表转移文件
+
+  getHistoryViewFileStatus: 'api/testcase/checkdataanalysisstatus',//历史记录查看网关文件分析状态
+
+  getHistoryGatewayDataFormatList: 'api/testcase/getnetgatewaydataformattypes',//获取网关数据格式列表
+
+  postHistoryUpdateGatewayDataFormat: 'api/testcase/updatenetgatewaydataformat',//保存网关数据格式
+
   // ---------------------------------------- TestDataSource -------------------------------------------------------
   getTestDataSource: 'api/testdatasource/querybypage',//获得TestDataSource
 

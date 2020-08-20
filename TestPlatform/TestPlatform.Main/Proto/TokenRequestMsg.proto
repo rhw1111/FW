@@ -1,0 +1,32 @@
+syntax = "proto2";
+
+//package msg;
+package ctrade.message;
+
+import "standard.proto";
+import "Header.proto";
+import "User.proto";
+
+option java_package ="cn.com.cfets.data.msg";
+option java_outer_classname ="TokenRequestMsgProbuf";
+
+option (serviceID) = "CTRADE-ORDER-DATA";
+option (methodName) = "TokenRequestMsg"; 
+
+/// Token申请
+message TokenRequest {
+	required string user_name = 1; /// 用户名
+	required int32 request_type =2;  /// 100-Token申请
+	required string request_id = 3;   /// IH用于分配登录消息
+	required string user_status = 4; /// 登录状态
+	required string login_certificate = 5;
+	required string login_type = 6;	///登录类型 1-GW_QUOTE 2-GW_DEAL 3-GW_CRDT
+	
+	required User user = 100;
+};
+
+message TokenRequestMsg {
+	optional Header header = 1;
+	optional TokenRequest body = 2;
+};
+

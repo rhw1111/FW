@@ -1,5 +1,5 @@
 <template>
-  <div class="col-xs-12 col-sm-7 col-xl-7">
+  <div class="col-xs-12 col-sm-6 col-xl-6">
     <!-- SlaveHost选择Host -->
     <lookUp :masterHostList="masterHostList"
             :masterSelectIndex='SlaveHostHostIndex'

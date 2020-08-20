@@ -164,5 +164,72 @@ namespace FW.TestPlatform.Main.Configuration
         {
             return await Task.FromResult(GetTestCaseHistoryMonitorAddress(cancellationToken));
         }
+
+        public string GetNetGatewayDataTempFolder(CancellationToken cancellationToken = default)
+        {
+            var systemConfigurationRepositoryCacheProxy = DIContainerContainer.Get<ISystemConfigurationRepositoryCacheProxy>();
+            var appConfiguration = systemConfigurationRepositoryCacheProxy.QueryByName(SystemConfigurationItemNames.NetGatewayDataTempFolder);
+            if (appConfiguration == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.NotFoundSystemConfigurationByName,
+                    DefaultFormatting = "找不到名称为{0}的系统配置",
+                    ReplaceParameters = new List<object>() { SystemConfigurationItemNames.NetGatewayDataTempFolder }
+                };
+
+                throw new UtilityException((int)Errors.NotFoundSystemConfigurationByName, fragment, 1, 0);
+            }
+
+            return appConfiguration.GetConfigurationValue<string>();
+        }
+        public async Task<string> GetNetGatewayDataTempFolderAsync(CancellationToken cancellationToken = default)
+        {
+            return await Task.FromResult(GetNetGatewayDataTempFolder(cancellationToken));
+        }
+        public string GetNetGatewayDataFolder(CancellationToken cancellationToken = default)
+        {
+            var systemConfigurationRepositoryCacheProxy = DIContainerContainer.Get<ISystemConfigurationRepositoryCacheProxy>();
+            var appConfiguration = systemConfigurationRepositoryCacheProxy.QueryByName(SystemConfigurationItemNames.NetGatewayDataFolder);
+            if (appConfiguration == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.NotFoundSystemConfigurationByName,
+                    DefaultFormatting = "找不到名称为{0}的系统配置",
+                    ReplaceParameters = new List<object>() { SystemConfigurationItemNames.NetGatewayDataFolder }
+                };
+
+                throw new UtilityException((int)Errors.NotFoundSystemConfigurationByName, fragment, 1, 0);
+            }
+
+            return appConfiguration.GetConfigurationValue<string>();
+        }
+        public async Task<string> GetNetGatewayDataFolderAsync(CancellationToken cancellationToken = default)
+        {
+            return await Task.FromResult(GetNetGatewayDataFolder(cancellationToken));
+        }
+        public string GetNetGatewayDataSSHEndpoint(CancellationToken cancellationToken = default)
+        {
+            var systemConfigurationRepositoryCacheProxy = DIContainerContainer.Get<ISystemConfigurationRepositoryCacheProxy>();
+            var appConfiguration = systemConfigurationRepositoryCacheProxy.QueryByName(SystemConfigurationItemNames.NetGatewayDataSSHEndpoint);
+            if (appConfiguration == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.NotFoundSystemConfigurationByName,
+                    DefaultFormatting = "找不到名称为{0}的系统配置",
+                    ReplaceParameters = new List<object>() { SystemConfigurationItemNames.NetGatewayDataSSHEndpoint }
+                };
+
+                throw new UtilityException((int)Errors.NotFoundSystemConfigurationByName, fragment, 1, 0);
+            }
+
+            return appConfiguration.GetConfigurationValue<string>();
+        }
+        public async Task<string> GetNetGatewayDataSSHEndpointAsync(CancellationToken cancellationToken = default)
+        {
+            return await Task.FromResult(GetNetGatewayDataSSHEndpoint(cancellationToken));
+        }
     }
 }

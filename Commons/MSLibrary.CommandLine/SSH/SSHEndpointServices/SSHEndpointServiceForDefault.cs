@@ -195,6 +195,28 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             });
         }
 
+        public async Task TransferNetGatewayDataFile(string configuration, Guid caseId, Guid historyId, string tempPath, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
+        {
+            await exceptionHandle(async () =>
+            {
+                var configurationObj = getConfiguration(configuration);
+                using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
+                {
+                    client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    client.Connect();
+                    var list = await client.ListDirectoryAsync(tempPath);
+                    foreach (var item in list)
+                    {
+                        if (!item.IsDirectory && !item.IsSymbolicLink)
+                        {
+                            string fileFullName = $"{path}{string.Format("/01_{0}_{1}_{2}.cap", caseId, historyId, Guid.NewGuid())}";
+                            item.MoveTo(fileFullName);
+                        }
+                    }
+                    client.Disconnect();
+                }
+            });
+        }
         private async Task exceptionHandle(Func<Task> action)
         {
             try

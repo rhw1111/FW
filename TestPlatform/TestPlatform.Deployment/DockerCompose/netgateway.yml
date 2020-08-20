@@ -3,7 +3,7 @@ services:
 
   netway:
     environment:
-        appname:TestPlatform_NetGatewayFactory
+        appname: 'TestPlatform_NetGatewayFactory'
     build:
         context: DockerFiles
         dockerfile: Dockerfile-NetGateway

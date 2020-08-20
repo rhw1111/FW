@@ -1,0 +1,45 @@
+syntax = "proto2";
+
+package ctrade.message;
+
+import "standard.proto";
+import "Header.proto";
+
+option java_package ="cn.com.cfets.data.ctrade.message";
+option java_outer_classname ="BidgeOrderSubmitRequestMsgProbuf";
+
+option (serviceID) = "CTRADE-ORDER-DATA-SUBMIT";
+//option (methodName) = "BridgeOrderSubmitRequestMsg";      
+
+//订单提交请求
+message BridgeOrderSubmitRequest
+{
+	required int32 entyIdxNo = 1;
+    required int32 ordrSide = 2;
+    required int64 prdctId = 3;
+	required int32 ordrOrgId = 4;//桥机会对应实单提单机构
+    required int32 brdgOrgId = 5;//搭桥机构
+    required int32 brdgOrgDefltDealerId = 6; //桥机构默认交易员
+    required int32 bridgeFee = 7;
+    required int32 prdctSet = 8;
+    required int64 brdgPrc = 9;
+    required int64 brdgAmnt = 10;
+    required int64 ordrBkSlot = 11;
+
+};
+
+message BridgeOrderSubmitRequestMsg
+{
+	optional Header header = 1;	
+	optional BridgeOrderSubmitRequest body = 2;
+};
+
+
+
+
+
+
+
+
+
+

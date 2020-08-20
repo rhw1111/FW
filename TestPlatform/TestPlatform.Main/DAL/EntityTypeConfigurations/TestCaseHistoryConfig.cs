@@ -13,6 +13,7 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
         public void Configure(EntityTypeBuilder<TestCaseHistory> builder)
         {
             builder.ToTable("testcasehistory").HasKey((entity) => entity.ID);
+            builder.Property((entity) => entity.NetGatewayDataFormat).IsRequired().HasColumnType("varchar(150)");
             builder.Property((entity) => entity.Summary).IsRequired().HasColumnType("varchar(4000)");
             builder.Property((entity) => entity.CaseID).IsRequired().HasColumnType("char(36)");
             builder.HasOne((entity) => entity.Case).WithMany().HasForeignKey(entity => entity.CaseID);

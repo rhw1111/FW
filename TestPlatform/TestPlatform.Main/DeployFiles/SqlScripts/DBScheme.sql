@@ -65,7 +65,10 @@ REPLACE INTO `systemconfiguration` (`id`, `name`, `content`, `createtime`, `modi
 	('d4fdc4e2-4efd-4a1c-8372-5a6eca74e381', 'TestPlatform.CaseService_CrosOrigin', '["http://52.188.14.158"]', '2020-06-27 13:23:45', '2020-06-27 13:23:45', 6),
 	('d2be1a01-bcd9-11ea-813c-025041000001', 'Tcp_TestMonitorAddress', '"http://52.188.14.158:3000/d/kr5bLGMMz/test-case-monitor?orgId=1"', now(), now(), 7),
 	('1316b30b-bcdb-11ea-813c-025041000001', 'Http_TestMonitorAddress', '"http://52.188.14.158:3000/d/kr5bLGMMz/test-case-monitor?orgId=1"', now(), now(), 8),
-	('2316b30b-bcdb-11ea-813c-025041000001', 'TestHistoryMonitorAddress', '"http://52.188.14.158:3000/d/VQG1ohSGz/test-case-history-monitor?orgId=1"', now(), now(), 9);
+	('2316b30b-bcdb-11ea-813c-025041000001', 'TestHistoryMonitorAddress', '"http://52.188.14.158:3000/d/VQG1ohSGz/test-case-history-monitor?orgId=1"', now(), now(), 9),
+	('a41d654c-ddf6-11ea-8205-025041000001', 'NetGatewayDataFolder', '"D:\NetGatewayData"', now(), now(), 10),
+	('b191b7a1-ddf6-11ea-8205-025041000001', 'NetGatewayDataTempFolder', '"D:\NetGatewayDataTemp"', now(), now(), 11),
+	('b9c6b7e8-ddf6-11ea-8205-025041000001', 'NetGatewayDataSSHEndpoint', '"NetGatewayData"', now(), now(), 12);
 /*!40000 ALTER TABLE `systemconfiguration` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `influxdbendpoint`;
@@ -195,6 +198,7 @@ CREATE TABLE `testcasehistory` (
   `id` char(36) NOT NULL,
   `caseid` char(36) NOT NULL,
   `summary` varchar(4000) NOT NULL DEFAULT '',
+  `netgatewaydataformat` varchar(150) NOT NULL DEFAULT '',
   `createtime` datetime NOT NULL,
   `modifytime` datetime NOT NULL,
   `sequence` bigint NOT NULL AUTO_INCREMENT,
