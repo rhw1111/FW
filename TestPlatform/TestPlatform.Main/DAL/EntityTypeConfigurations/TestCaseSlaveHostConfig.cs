@@ -18,9 +18,6 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
             builder.Property((entity) => entity.TestCaseID).IsRequired().HasColumnType("char(36)");
             builder.HasOne((entity) => entity.TestCase).WithMany().HasForeignKey(entity => entity.TestCaseID);
 
-            var caseProperty = builder.Property((entity) => entity.TestCase).Metadata;
-            caseProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
-            caseProperty.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
 
             builder.Property((entity) => entity.SlaveName).IsRequired().HasColumnType("varchar(150)");

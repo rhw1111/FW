@@ -42,6 +42,7 @@ namespace FW.TestPlatform.Main.Collections.TreeEntityValueServices
             var testCase = await _testCaseRepository.QueryByID(testId, cancellationToken);
             if (testCase != null)
             {
+                //testCase.Attributes.Clear();
                 testCase.Name = name;
                 await testCase.Update(cancellationToken);
             }

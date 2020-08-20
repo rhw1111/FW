@@ -42,6 +42,7 @@ namespace FW.TestPlatform.Main.Collections.TreeEntityValueServices
             var source = await _testDataSourceRepository.QueryByID(sourceId, cancellationToken);
             if (source != null)
             {
+                //source.Attributes.Clear();
                 source.Name = name;
                 await source.Update(cancellationToken);
             }

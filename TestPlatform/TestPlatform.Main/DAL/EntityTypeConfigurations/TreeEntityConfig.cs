@@ -20,9 +20,7 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
 
             builder.Property((entity) => entity.ParentID).HasColumnType("char(36)");
             builder.HasOne((entity) => entity.Parent).WithMany().HasForeignKey(entity => entity.ParentID);
-            var parentProperty = builder.Property((entity) => entity.Parent).Metadata;
-            parentProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
-            parentProperty.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+
 
             builder.Property((entity) => entity.CreateTime).IsRequired().HasColumnName("createtime").HasColumnType("datetime").Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             builder.Property((entity) => entity.ModifyTime).IsRequired().HasColumnName("modifytime").HasColumnType("datetime");

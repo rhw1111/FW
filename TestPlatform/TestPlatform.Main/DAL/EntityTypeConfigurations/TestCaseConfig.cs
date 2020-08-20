@@ -22,9 +22,7 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
 
             builder.Property((entity) => entity.MasterHostID).IsRequired().HasColumnType("char(36)");
             builder.HasOne((entity) => entity.MasterHost).WithMany().HasForeignKey(entity => entity.MasterHostID);
-            var masterHostProperty = builder.Property((entity) => entity.MasterHost).Metadata;
-            masterHostProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
-            masterHostProperty.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+
 
 
             builder.Property((entity) => entity.OwnerID).IsRequired().HasColumnType("char(36)");

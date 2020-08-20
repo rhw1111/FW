@@ -18,9 +18,6 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
             builder.Property((entity) => entity.CaseID).IsRequired().HasColumnType("char(36)");
             builder.HasOne((entity) => entity.Case).WithMany().HasForeignKey(entity => entity.CaseID);
 
-            var caseProperty = builder.Property((entity) => entity.Case).Metadata;
-            caseProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
-            caseProperty.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
             builder.Property((entity) => entity.CreateTime).HasColumnType("datetime").Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             builder.Property((entity) => entity.ModifyTime).HasColumnType("datetime");
