@@ -195,7 +195,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             });
         }
 
-        public async Task TransferNetGatewayDataFile(string configuration, Guid caseId, Guid historyId, string tempPath, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
+        public async Task TransferFile(string configuration, Func<string, Task<string>> fileNameGenerateAction, string fromPath, string toPath, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
             await exceptionHandle(async () =>
             {
@@ -204,12 +204,13 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                 {
                     client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
                     client.Connect();
-                    var list = await client.ListDirectoryAsync(tempPath);
+                    var list = await client.ListDirectoryAsync(fromPath);
                     foreach (var item in list)
                     {
                         if (!item.IsDirectory && !item.IsSymbolicLink)
                         {
-                            string fileFullName = $"{path}{string.Format("/01_{0}_{1}_{2}.cap", caseId, historyId, Guid.NewGuid())}";
+                            var newFileName = await fileNameGenerateAction(item.FullName);
+                            string fileFullName = $"{toPath}{Path.DirectorySeparatorChar}{newFileName}";
                             item.MoveTo(fileFullName);
                         }
                     }

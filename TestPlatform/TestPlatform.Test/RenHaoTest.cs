@@ -201,6 +201,26 @@ namespace TestPlatform.Test
         [Test]
         public async Task TestDict()
         {
+            List<Task> waitTasks = new List<Task>();
+            Task resultTask = new Task(async () =>
+            {
+                foreach (var item in waitTasks)
+                {
+                    await item;
+                }
+            });
+
+            var t = Task.Run(async () =>
+              {
+                  while(true)
+                  {
+                      var cc = 1;
+                      await Task.Delay(1000);
+                  }
+              });
+
+            await t;
+                 
            var a=JsonSerializerHelper.Serializer<JObject>(null);
             Dictionary<string, Item> dict = new Dictionary<string, Item>();
 
