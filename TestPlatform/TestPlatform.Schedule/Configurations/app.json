@@ -7,7 +7,7 @@
   },
   "ApplicationName": "{appname}",
   "DISetting": {
-    "SearchAssemblyNames": [ "MSLibrary", "MSLibrary.CommandLine", "MSLibrary.MySqlStore", "TestPlatform.Main", "TestPlatform.Schedule" ]
+    "SearchAssemblyNames": [ "MSLibrary", "MSLibrary.CommandLine", "MSLibrary.MySqlStore", "MSLibrary.StreamingDB", "TestPlatform.Main", "TestPlatform.Schedule" ]
   },
   "Debug": true,
   "ThreadPoolSetting": {
