@@ -55,7 +55,7 @@ namespace FW.TestPlatform.Main.NetGateway
         public async Task<INetGatewayDataHandleResult> Execute(CancellationToken cancellationToken = default)
         {
             var applicationConfiguration = ConfigurationContainer.Get<ApplicationConfiguration>(ConfigurationNames.Application);
-            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} Execute has been called.");
+            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} Execute has been called.");
 
             List<Task> waitTasks = new List<Task>();
             Task resultTask = new Task(async () =>
@@ -88,11 +88,11 @@ namespace FW.TestPlatform.Main.NetGateway
 
             var t2 = Task.Run(async () =>
             {
-                LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run.");
+                LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run.");
 
                 while (true)
                 {
-                    LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run while (true).");
+                    LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run while (true).");
 
                     try
                     {
@@ -112,11 +112,11 @@ namespace FW.TestPlatform.Main.NetGateway
 
                         if (fileNames.Count > 0)
                         {
-                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames. 找到{fileNames.Count}个文件：{string.Join(", ", fileNames)}.");
+                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames. 找到{fileNames.Count}个文件：{string.Join(", ", fileNames)}.");
                         }
                         else
                         {
-                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames. 找到{fileNames.Count}个文件.");
+                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames. 找到{fileNames.Count}个文件.");
                         }
 
                         await ParallelHelper.ForEach(fileNames, 10,
@@ -210,7 +210,7 @@ namespace FW.TestPlatform.Main.NetGateway
 
                         if (fileNames.Count > 0)
                         {
-                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 处理单独的响应数据.");
+                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run 处理单独的响应数据.");
                         }
 
                         //处理单独的响应数据
@@ -250,7 +250,7 @@ namespace FW.TestPlatform.Main.NetGateway
 
                         if (fileNames.Count > 0)
                         {
-                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 计算.");
+                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run 计算.");
                         }
 
                         //计算
@@ -373,7 +373,7 @@ namespace FW.TestPlatform.Main.NetGateway
                         //删除用过的文件
                         foreach (var item in fileNames)
                         {
-                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 删除用过的文件，{item}.");
+                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run 删除用过的文件，{item}.");
 
                             File.Delete(item);
 
@@ -388,7 +388,7 @@ namespace FW.TestPlatform.Main.NetGateway
                             break;
                         }
 
-                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run Task.Delay(10000).");
+                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run Task.Delay(10000).");
 
                         await Task.Delay(10000);
                     }
