@@ -373,6 +373,11 @@ namespace FW.TestPlatform.Main.NetGateway
                                                 orderby item.Value.Response!.CreateTime descending
                                                 select item.Value.Response!.CreateTime).FirstOrDefault();
 
+                                if (calculateResponseDatas.Count() == 0)
+                                {
+                                    return;
+                                }
+
                                 var avgResponse = calculateResponseDatas.Average();
                                 var maxResponse = calculateResponseDatas.Max();
                                 var minResponse = calculateResponseDatas.Min();
