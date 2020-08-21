@@ -458,7 +458,7 @@ namespace FW.TestPlatform.Main.NetGateway
                                 do
                                 {
                                     old_length = fileInfo.Length;
-                                    Thread.Sleep(1000);
+                                    Thread.Sleep(2000);
 
                                 } while (old_length != fileInfo.Length);
 
