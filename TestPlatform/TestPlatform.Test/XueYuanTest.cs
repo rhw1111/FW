@@ -911,23 +911,23 @@ namespace TestPlatform.Test
         [Test]
         public async Task TestNetGateway()
         {
-            var netGatewayDataHandleService = DIContainerContainer.Get<INetGatewayDataHandleService>();
+            //var netGatewayDataHandleService = DIContainerContainer.Get<INetGatewayDataHandleService>();
 
-            var netGatewayDataHandleResult = await netGatewayDataHandleService.Execute();
+            //var netGatewayDataHandleResult = await netGatewayDataHandleService.Execute();
             //await netGatewayDataHandleResult.Stop();
 
             ////string fileName = "E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\01_ce514456-8da9-432f-8999-1010fa94a83a_7fc391a7-dba0-11ea-b236-00ffb1d16cf9_20200729102651.cap";
             ////string fileName = "E:\\Documents\\Visual Studio Code\\TestPython\\pcapreader\\cap\\01_ce514456-8da9-432f-8999-1010fa94a83a_7fc391a7-dba0-11ea-b236-00ffb1d16cf9_230.3.33.20.cap";
-            //string dataformat = "EmptyMsg";
+            string dataformat = "TokenRequestMsg";
 
-            //string[] fileNames = Directory.GetFiles(@"E:\Documents\MyProjects\GitHub\xueyuangithub\FW\Document\cap\test");
+            string[] fileNames = Directory.GetFiles(@"E:\Documents\MyProjects\GitHub\xueyuangithub\FW\Document\cap\test");
 
-            //foreach (string fileName in fileNames)
-            //{
-            //    var getSourceDataFromFileService = DIContainerContainer.Get<IGetSourceDataFromFileService>();
+            foreach (string fileName in fileNames)
+            {
+                var getSourceDataFromFileService = DIContainerContainer.Get<IGetSourceDataFromFileService>();
 
-            //    await getSourceDataFromFileService.Get(fileName, dataformat, async (sourceData) => { });
-            //}
+                await getSourceDataFromFileService.Get(fileName, dataformat, async (sourceData) => { });
+            }
         }
     }
 }

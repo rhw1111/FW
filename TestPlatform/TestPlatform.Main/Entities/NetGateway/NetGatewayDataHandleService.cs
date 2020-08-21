@@ -110,13 +110,18 @@ namespace FW.TestPlatform.Main.NetGateway
                                         orderby item.Value.CreateTime
                                         select item.Value.FileName).Take(_maxFileCount).ToList();
 
-                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames.");
+                        if (fileNames.Count > 0)
+                        {
+                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames. 找到{fileNames.Count}个文件：{string.Join(", ", fileNames)}.");
+                        }
+                        else
+                        {
+                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames. 找到{fileNames.Count}个文件.");
+                        }
 
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
                             {
-                                LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames _resolveFileNamePrefixService.");
-                                                                
                                 var testCaseHistory = await _resolveFileNamePrefixService.Resolve(fileName);
 
                                 string dataformat = string.Empty;
@@ -144,75 +149,9 @@ namespace FW.TestPlatform.Main.NetGateway
                                     }
                                 }
 
-                                //await using (var stream = File.OpenRead(fileName))
-                                //{
-                                //    await _getSourceDataFromStreamService.Get(stream,
-                                //        async (sourceData) =>
-                                //        {
-                                //            var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
-
-                                //            if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
-                                //            {
-                                //                lock (containerDatas)
-                                //                {
-                                //                    if (!containerDatas.TryGetValue(data.ID, out containerData))
-                                //                    {
-                                //                        if (data.Type == NetDataType.Request)
-                                //                        {
-                                //                            containerData = new DataContainer()
-                                //                            {
-                                //                                FileName = fileName
-                                //                            };
-                                //                            containerDatas[data.ID] = containerData;
-                                //                        }
-                                //                        else
-                                //                        {
-                                //                            if (!singleResponseDatas.TryGetValue(prefix, out List<DataContainer>? singleDatas))
-                                //                            {
-                                //                                lock (singleResponseDatas)
-                                //                                {
-                                //                                    if (!singleResponseDatas.TryGetValue(prefix, out singleDatas))
-                                //                                    {
-                                //                                        singleDatas = new List<DataContainer>();
-                                //                                        singleResponseDatas[prefix] = singleDatas;
-                                //                                    }
-                                //                                }
-                                //                            }
-
-                                //                            lock (singleDatas)
-                                //                            {
-                                //                                singleDatas.Add(new DataContainer() { FileName = fileName, Response = data });
-                                //                            }
-                                //                        }
-                                //                    }
-                                //                }
-                                //            }
-
-                                //            if (containerData != null)
-                                //            {
-                                //                if (data.Type == NetDataType.Request)
-                                //                {
-                                //                    containerData.Request = data;
-                                //                }
-                                //                else
-                                //                {
-                                //                    containerData.Response = data;
-                                //                }
-                                //            }
-                                //        },
-                                //        cancellationToken
-                                //    );
-
-                                //    stream.Close();
-                                //}
-
-                                LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames _getSourceDataFromFileService.");
-
                                 await _getSourceDataFromFileService.Get(fileName, dataformat,
                                     async (sourceData) =>
                                     {
-                                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames _convertNetDataFromSourceService.");
-
                                         var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
 
                                         if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
@@ -269,7 +208,10 @@ namespace FW.TestPlatform.Main.NetGateway
                             }
                         );
 
-                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 处理单独的响应数据.");
+                        if (fileNames.Count > 0)
+                        {
+                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 处理单独的响应数据.");
+                        }
 
                         //处理单独的响应数据
                         foreach (var item in singleResponseDatas)
@@ -306,7 +248,10 @@ namespace FW.TestPlatform.Main.NetGateway
                             }
                         }
 
-                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 计算.");
+                        if (fileNames.Count > 0)
+                        {
+                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 计算.");
+                        }
 
                         //计算
                         await ParallelHelper.ForEach(fileNames, 10,
@@ -373,6 +318,11 @@ namespace FW.TestPlatform.Main.NetGateway
                                                 orderby item.Value.Response!.CreateTime descending
                                                 select item.Value.Response!.CreateTime).FirstOrDefault();
 
+                                if (calculateResponseDatas.Count() == 0)
+                                {
+                                    return;
+                                }
+
                                 var avgResponse = calculateResponseDatas.Average();
                                 var maxResponse = calculateResponseDatas.Max();
                                 var minResponse = calculateResponseDatas.Min();
@@ -420,11 +370,11 @@ namespace FW.TestPlatform.Main.NetGateway
                             }
                         );
 
-                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 删除用过的文件.");
-
                         //删除用过的文件
                         foreach (var item in fileNames)
                         {
+                            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 删除用过的文件，{item}.");
+
                             File.Delete(item);
 
                             lock (completedFiles)
@@ -508,7 +458,7 @@ namespace FW.TestPlatform.Main.NetGateway
                                 do
                                 {
                                     old_length = fileInfo.Length;
-                                    Thread.Sleep(3000);
+                                    Thread.Sleep(500);
 
                                 } while (old_length != fileInfo.Length);
 
@@ -1466,7 +1416,6 @@ namespace FW.TestPlatform.Main.NetGateway
                 NetData netData = new NetData();
                 netData.Type = sourceData_split[0] == "0" ? NetDataType.Request : NetDataType.Response;
                 netData.ID = prefix;
-                //netData.CreateTime = DateTime.Now;
                 netData.CreateTime = DateTime.FromOADate(double.Parse(sourceData_split[2]));
                 netData.RunDuration = null;
 
