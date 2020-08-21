@@ -8,7 +8,7 @@ using IdentityServer4.Stores;
 
 namespace IdentityCenter.Main.IdentityServer
 {
-    public class MainPersistedGrantService : IPersistedGrantService
+    /*public class MainPersistedGrantService : IPersistedGrantService
     {
         private readonly IIdentityConsentRepository _identityConsentRepository;
         private readonly IUserConsentStore _userConsentStore;
@@ -39,4 +39,5 @@ namespace IdentityCenter.Main.IdentityServer
             await _userConsentStore.RemoveUserConsentAsync(subjectId, clientId);
         }
     }
+    */
 }

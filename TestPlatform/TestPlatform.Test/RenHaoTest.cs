@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using MSLibrary;
 using MSLibrary.Transaction;
 using MSLibrary.DI;
@@ -33,6 +34,7 @@ using MSLibrary.Template;
 using MSLibrary.MySqlStore.Schedule.DAL;
 using Ctrade.Message;
 using MSLibrary.Thread;
+using MSLibrary.Serializer;
 
 namespace TestPlatform.Test
 {
@@ -199,6 +201,27 @@ namespace TestPlatform.Test
         [Test]
         public async Task TestDict()
         {
+            List<Task> waitTasks = new List<Task>();
+            Task resultTask = new Task(async () =>
+            {
+                foreach (var item in waitTasks)
+                {
+                    await item;
+                }
+            });
+
+            var t = Task.Run(async () =>
+              {
+                  while(true)
+                  {
+                      var cc = 1;
+                      await Task.Delay(1000);
+                  }
+              });
+
+            await t;
+                 
+           var a=JsonSerializerHelper.Serializer<JObject>(null);
             Dictionary<string, Item> dict = new Dictionary<string, Item>();
 
             for(var index=0;index<=10000000; index++)

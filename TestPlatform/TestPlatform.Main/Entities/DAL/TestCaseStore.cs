@@ -290,16 +290,20 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
-                    Guid mHostGuid = source.MasterHostID;
+                   
                     source.ModifyTime = DateTime.UtcNow;
                     dbContext.TestCases.Attach(source);
-
                     var entry = dbContext.Entry(source);
-                    source.MasterHostID = mHostGuid;
+
                     foreach (var item in entry.Properties)
                     {
-                        if(item.Metadata.Name != "ID")
-                            entry.Property(item.Metadata.Name).IsModified = true;
+                        if (item.Metadata.Name != "ID" && item.Metadata.Name != "Status" && item.Metadata.Name != "TestCaseHistoryID")
+                        {
+                            if (source.Attributes.ContainsKey(item.Metadata.Name))
+                            {
+                                entry.Property(item.Metadata.Name).IsModified = true;
+                            }
+                        }
                     }
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }
@@ -308,33 +312,113 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
         public async Task UpdateStatus(Guid id, TestCaseStatus status, CancellationToken cancellationToken = default)
         {
-            TestCase? testCase = await QueryByID(id);
-            if(testCase != null)
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
             {
-                testCase.Status = status;
-                await Update(testCase,cancellationToken);
-            }            
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    var updateCase = new TestCase()
+                    {
+                        ID = id,
+                        Status = status,
+                        ModifyTime = DateTime.UtcNow
+                    };
+
+                    dbContext.TestCases.Attach(updateCase);
+                    var entry = dbContext.Entry(updateCase);
+
+                    foreach (var item in entry.Properties)
+                    {
+                        if (item.Metadata.Name != "ID")
+                        {
+                            if (updateCase.Attributes.ContainsKey(item.Metadata.Name))
+                            {
+                                entry.Property(item.Metadata.Name).IsModified = true;
+                            }
+                        }
+                    }
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });          
         }
 
         public async Task UpdateHistoryId(Guid id, Guid historyId, CancellationToken cancellationToken = default)
         {
-            TestCase? testCase = await QueryByID(id);
-            if (testCase != null)
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
             {
-                testCase.TestCaseHistoryID = historyId;
-                await Update(testCase,cancellationToken);
-            }
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    var updateCase = new TestCase()
+                    {
+                        ID = id,
+                        TestCaseHistoryID = historyId,
+                        ModifyTime = DateTime.UtcNow
+                    };
+
+                    dbContext.TestCases.Attach(updateCase);
+                    var entry = dbContext.Entry(updateCase);
+
+                    foreach (var item in entry.Properties)
+                    {
+                        if (item.Metadata.Name != "ID")
+                        {
+                            if (updateCase.Attributes.ContainsKey(item.Metadata.Name))
+                            {
+                                entry.Property(item.Metadata.Name).IsModified = true;
+                            }
+                        }
+                    }
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
+
         }
 
         public async Task UpdateHistoryIdAndStatus(Guid id, Guid historyId, TestCaseStatus status, CancellationToken cancellationToken = default)
         {
-            TestCase? testCase = await QueryByID(id);
-            if (testCase != null)
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _mainDBConnectionFactory.CreateAllForMain(), async (conn, transaction) =>
             {
-                testCase.TestCaseHistoryID = historyId;
-                testCase.Status = status;
-                await Update(testCase,cancellationToken);
-            }
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    var updateCase = new TestCase()
+                    {
+                        ID = id,
+                        TestCaseHistoryID = historyId,
+                        Status=status,
+                        ModifyTime = DateTime.UtcNow
+                    };
+
+                    dbContext.TestCases.Attach(updateCase);
+                    var entry = dbContext.Entry(updateCase);
+
+                    foreach (var item in entry.Properties)
+                    {
+                        if (item.Metadata.Name != "ID")
+                        {
+                            if (updateCase.Attributes.ContainsKey(item.Metadata.Name))
+                            {
+                                entry.Property(item.Metadata.Name).IsModified = true;
+                            }
+                        }
+                    }
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
+
         }
         public async Task<List<TestCase>> QueryCountNolockByStatus(TestCaseStatus status, IList<Guid> hostIds, CancellationToken cancellationToken = default)
         {

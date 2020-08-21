@@ -22,6 +22,8 @@ using Haukcode.PcapngUtils.Extensions;
 using FW.TestPlatform.Main.Entities.DAL;
 using Ctrade.Message;
 using FW.TestPlatform.Main.Configuration;
+using MSLibrary.Configuration;
+using FW.TestPlatform.Main.Entities;
 
 namespace FW.TestPlatform.Main.NetGateway
 {
@@ -52,6 +54,9 @@ namespace FW.TestPlatform.Main.NetGateway
 
         public async Task<INetGatewayDataHandleResult> Execute(CancellationToken cancellationToken = default)
         {
+            var applicationConfiguration = ConfigurationContainer.Get<ApplicationConfiguration>(ConfigurationNames.Application);
+            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} Execute has been called.");
+
             List<Task> waitTasks = new List<Task>();
             Task resultTask = new Task(async () =>
             {
@@ -83,8 +88,12 @@ namespace FW.TestPlatform.Main.NetGateway
 
             var t2 = Task.Run(async () =>
             {
+                LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run.");
+
                 while (true)
                 {
+                    LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run while (true).");
+
                     try
                     {
                         if (netGatewayDataHandleResult.IsStop)
@@ -101,11 +110,27 @@ namespace FW.TestPlatform.Main.NetGateway
                                         orderby item.Value.CreateTime
                                         select item.Value.FileName).Take(_maxFileCount).ToList();
 
+                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames.");
+
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
                             {
+                                LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames _resolveFileNamePrefixService.");
+                                                                
+                                var testCaseHistory = await _resolveFileNamePrefixService.Resolve(fileName);
+
                                 string dataformat = string.Empty;
-                                var prefix = _resolveFileNamePrefixService.Resolve(fileName, out dataformat);
+                                var prefix = string.Empty;
+
+                                if (testCaseHistory != null)
+                                {
+                                    dataformat = testCaseHistory.NetGatewayDataFormat;
+                                    prefix = testCaseHistory.ID.ToString().ToLower();
+                                }
+                                else
+                                {
+                                    return;
+                                }
 
                                 if (!datas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? containerDatas))
                                 {
@@ -181,9 +206,13 @@ namespace FW.TestPlatform.Main.NetGateway
                                 //    stream.Close();
                                 //}
 
+                                LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames _getSourceDataFromFileService.");
+
                                 await _getSourceDataFromFileService.Get(fileName, dataformat,
                                     async (sourceData) =>
                                     {
+                                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames _convertNetDataFromSourceService.");
+
                                         var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
 
                                         if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
@@ -240,6 +269,8 @@ namespace FW.TestPlatform.Main.NetGateway
                             }
                         );
 
+                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 处理单独的响应数据.");
+
                         //处理单独的响应数据
                         foreach (var item in singleResponseDatas)
                         {
@@ -275,12 +306,26 @@ namespace FW.TestPlatform.Main.NetGateway
                             }
                         }
 
+                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 计算.");
+
                         //计算
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
                             {
+                                var testCaseHistory = await _resolveFileNamePrefixService.Resolve(fileName);
+
                                 string dataformat = string.Empty;
-                                var prefix = _resolveFileNamePrefixService.Resolve(fileName, out dataformat);
+                                var prefix = string.Empty;
+
+                                if (testCaseHistory != null)
+                                {
+                                    dataformat = testCaseHistory.NetGatewayDataFormat;
+                                    prefix = testCaseHistory.ID.ToString().ToLower();
+                                }
+                                else
+                                {
+                                    return;
+                                }
 
                                 if (!datas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? containerDatas))
                                 {
@@ -375,6 +420,8 @@ namespace FW.TestPlatform.Main.NetGateway
                             }
                         );
 
+                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run 删除用过的文件.");
+
                         //删除用过的文件
                         foreach (var item in fileNames)
                         {
@@ -390,6 +437,8 @@ namespace FW.TestPlatform.Main.NetGateway
                         {
                             break;
                         }
+
+                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"{nameof(NetGatewayDataHandleService)} t2 Task.Run Task.Delay(10000).");
 
                         await Task.Delay(10000);
                     }
@@ -1363,17 +1412,15 @@ namespace FW.TestPlatform.Main.NetGateway
     [Injection(InterfaceType = typeof(IResolveFileNamePrefixService), Scope = InjectionScope.Singleton)]
     public class ResolveFileNamePrefixService : IResolveFileNamePrefixService
     {
-        string IResolveFileNamePrefixService.Resolve(string fileName, out string dataformat)
+        async Task<TestCaseHistory?> IResolveFileNamePrefixService.Resolve(string fileName)
         {
-            dataformat = string.Empty;
-
             if (string.IsNullOrEmpty(fileName))
             {
-                return string.Empty;
+                return null;
             }
 
             fileName = Path.GetFileNameWithoutExtension(fileName);
-            // 命名规则：01_{caseid}_{historyid}_{newguid}
+            // 命名规则：01_{caseid}_{historyid}_{newguid}.cap
             // 01为使用CaseHistory，需要通过historyid查询history，获取它的NetGatewayDataFormat属性，返回historyid和该属性
             string[] fileName_Split = fileName.Split("_");
 
@@ -1387,17 +1434,10 @@ namespace FW.TestPlatform.Main.NetGateway
                 switch (type)
                 {
                     case "01":
-                        dataformat = string.Empty;
-
                         var testCaseHistoryStore = DIContainerContainer.Get<ITestCaseHistoryStore>();
-                        var testCaseHistory = testCaseHistoryStore.QueryByCase(caseID, historyID);
+                        var testCaseHistory = await testCaseHistoryStore.QueryByCase(caseID, historyID);
 
-                        if (testCaseHistory.Result != null)
-                        {
-                            dataformat = testCaseHistory.Result.NetGatewayDataFormat;
-                        }
-
-                        return historyID.ToString();
+                        return testCaseHistory;
 
                         break;
                     default:
@@ -1405,7 +1445,7 @@ namespace FW.TestPlatform.Main.NetGateway
                 }
             }
 
-            return string.Empty;
+            return null;
         }
     }
 

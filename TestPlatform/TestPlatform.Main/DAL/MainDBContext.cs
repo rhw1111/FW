@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using MSLibrary.CommandLine.SSH;
+using MSLibrary.Collections;
 using FW.TestPlatform.Main.Entities;
 using FW.TestPlatform.Main.DAL.EntityTypeConfigurations;
 
@@ -14,6 +15,7 @@ namespace FW.TestPlatform.Main.DAL
         {
         }
 
+        public DbSet<TreeEntity> TreeEntities { get; set; } = null!;
         /// <summary>
         /// SSH终结点
         /// </summary>

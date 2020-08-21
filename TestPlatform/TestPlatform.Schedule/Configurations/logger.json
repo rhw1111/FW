@@ -11,6 +11,7 @@
     {
       "Type": "Console",
       "LogLevels": {
+        "TestPlatform_NetGatewayFactory": "1",
         "TestPlatform.Portal.Api": "4",
         "DIWrapper": "2",
         "HttpRequest": "4",

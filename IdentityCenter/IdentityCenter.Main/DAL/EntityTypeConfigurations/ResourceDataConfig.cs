@@ -18,15 +18,17 @@ namespace IdentityCenter.Main.DAL.EntityTypeConfigurations
             builder.HasDiscriminator<string>("resource_type")
             .HasValue<ResourceData>("0")
             .HasValue<IdentityResourceData>("1")
-            .HasValue<ApiResourceData>("2");
+            .HasValue<ApiResourceData>("2")
+            .HasValue<ApiScopeData>("3");
 
-           
             builder.Property<string>("resource_type").HasColumnName("resource_type").HasColumnType("varchar(10)");
 
             builder.Property((entity) => entity.ID).IsRequired().HasColumnName("id").HasColumnType("uniqueidentifier");
             builder.Property((entity) => entity.Name).IsRequired().HasColumnName("name").HasColumnType("varchar(150)");
             builder.Property((entity) => entity.DisplayName).HasColumnName("displayname").HasColumnType("nvarchar(250)");
             builder.Property((entity) => entity.Description).HasColumnName("description").HasColumnType("nvarchar(250)");
+            builder.Property((entity) => entity.ShowInDiscoveryDocument).HasColumnName("showindiscoverydocument").HasColumnType("bit");
+
             builder.Property((entity) => entity.Enabled).IsRequired().HasColumnName("enabled").HasColumnType("bit");
 
             builder.Property((entity) => entity.Properties).IsRequired().HasColumnName("properties").HasColumnType("varchar(2000)")

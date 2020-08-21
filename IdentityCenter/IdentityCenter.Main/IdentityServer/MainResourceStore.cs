@@ -21,46 +21,58 @@ namespace IdentityCenter.Main.IdentityServer
     {
         private readonly IIdentityResourceDataRepositoryCacheProxy _identityResourceDataRepositoryCacheProxy;
         private readonly IApiResourceDataRepositoryCacheProxy _apiResourceDataRepositoryCacheProxy;
+        private readonly IApiScopeDataRepositoryCacheProxy _apiScopeDataRepositoryCacheProxy;
 
-        public MainResourceStore(IIdentityResourceDataRepositoryCacheProxy identityResourceDataRepositoryCacheProxy, IApiResourceDataRepositoryCacheProxy apiResourceDataRepositoryCacheProxy)
+        public MainResourceStore(IIdentityResourceDataRepositoryCacheProxy identityResourceDataRepositoryCacheProxy, IApiResourceDataRepositoryCacheProxy apiResourceDataRepositoryCacheProxy, IApiScopeDataRepositoryCacheProxy apiScopeDataRepositoryCacheProxy)
         {
             _identityResourceDataRepositoryCacheProxy = identityResourceDataRepositoryCacheProxy;
             _apiResourceDataRepositoryCacheProxy = apiResourceDataRepositoryCacheProxy;
+            _apiScopeDataRepositoryCacheProxy = apiScopeDataRepositoryCacheProxy;
         }
 
-        public async Task<ApiResource> FindApiResourceAsync(string name)
-        {
-            var resource = await _apiResourceDataRepositoryCacheProxy.QueryEnabled(name);
-            if (resource==null)
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = IdentityCenterTextCodes.NotFoundApiResourceByName,
-                    DefaultFormatting = "找不到名称为{0}的Api资源",
-                    ReplaceParameters = new List<object>() { name }
-                };
 
-                throw new UtilityException((int)IdentityCenterErrorCodes.NotFoundApiResourceByName, fragment, 1, 0);
+        public async Task<IEnumerable<ApiResource>> FindApiResourcesByNameAsync(IEnumerable<string> apiResourceNames)
+        {
+            List<ApiResource> result = new List<ApiResource>();
+
+            var resources = await _apiResourceDataRepositoryCacheProxy.QueryEnabled(apiResourceNames.ToList());
+
+            foreach(var item in resources)
+            {
+                result.Add(await item.GenerateApiResource());
             }
 
-            return await resource.GenerateApiResource();
-
+            return result;
         }
 
-        public async Task<IEnumerable<ApiResource>> FindApiResourcesByScopeAsync(IEnumerable<string> scopeNames)
+        public async Task<IEnumerable<ApiResource>> FindApiResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
         {
-            var resources = await _apiResourceDataRepositoryCacheProxy.QueryEnabled(scopeNames.ToList());
+            var resources = await _apiResourceDataRepositoryCacheProxy.QueryByScopeEnabled(scopeNames.ToList());
 
             List<ApiResource> apis = new List<ApiResource>();
 
-            foreach(var item in resources)
+            foreach (var item in resources)
             {
                 apis.Add(await item.GenerateApiResource());
             }
             return apis;
         }
 
-        public async Task<IEnumerable<IdentityResource>> FindIdentityResourcesByScopeAsync(IEnumerable<string> scopeNames)
+        public async Task<IEnumerable<ApiScope>> FindApiScopesByNameAsync(IEnumerable<string> scopeNames)
+        {
+            var scopes = await _apiScopeDataRepositoryCacheProxy.QueryEnabled(scopeNames.ToList());
+
+            List<ApiScope> apis = new List<ApiScope>();
+
+            foreach (var item in scopes)
+            {
+                apis.Add(await item.GenerateApiScope());
+            }
+            return apis;
+        }
+
+
+        public async Task<IEnumerable<IdentityResource>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
         {
             var resources = await _identityResourceDataRepositoryCacheProxy.QueryEnabled(scopeNames.ToList());
             List<IdentityResource> identitys = new List<IdentityResource>();
@@ -76,11 +88,20 @@ namespace IdentityCenter.Main.IdentityServer
         public async Task<Resources> GetAllResourcesAsync()
         {
             var apiResources = await _apiResourceDataRepositoryCacheProxy.QueryAllEnabled();
+            var scopes = await _apiScopeDataRepositoryCacheProxy.QueryAllEnabled();
             List<ApiResource> apis = new List<ApiResource>();
+            List<ApiScope> apiScopes = new List<ApiScope>();
+
 
             foreach (var item in apiResources)
             {
                 apis.Add(await item.GenerateApiResource());
+            
+            }
+
+            foreach(var item in scopes)
+            {
+                apiScopes.Add(await item.GenerateApiScope());
             }
 
             var identityResources = await _identityResourceDataRepositoryCacheProxy.QueryAllEnabled();
@@ -92,7 +113,7 @@ namespace IdentityCenter.Main.IdentityServer
 
 
 
-            Resources resources = new Resources(identitys, apis);
+            Resources resources = new Resources(identitys, apis, apiScopes);
 
             return resources;
 

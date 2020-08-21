@@ -56,7 +56,7 @@ namespace IdentityCenter.Server
             services.AddTransient<IAuthorizationCodeStore, MainAuthorizationCodeStore>();
             services.AddTransient<IRefreshTokenStore, MainRefreshTokenStore>();
             services.AddTransient<IUserConsentStore, MainUserConsentStore>();
-            services.AddTransient<IPersistedGrantService, MainPersistedGrantService>();
+            //services.AddTransient<IPersistedGrantService, MainPersistedGrantService>();
             services.AddTransient<IProfileService, MainProfileService>();
             services.AddTransient<IResourceOwnerPasswordValidator, MainResourceOwnerPasswordValidator>();
 

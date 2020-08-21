@@ -2701,6 +2701,38 @@ namespace MSLibrary
         /// {0}：应用名称
         /// </summary>
         public const string NotFoundScheduleHostConfigurationByName = "NotFoundScheduleHostConfigurationByName";
+        /// <summary>
+        /// 已经存在指定名称的树状实体记录
+        /// 格式为“已经存在名称为{0}的树状实体记录”
+        /// {0}:名称
+        /// </summary>
+        public const string ExistSameNameTreeEntity = "ExistSameNameTreeEntity";
+        /// <summary>
+        /// 找不到指定Id的树状实体记录
+        /// 格式为“找不到Id为{0}的树状实体记录”
+        /// {0}:id
+        /// </summary>
+        public const string NotFoundTreeEntityByID = "NotFoundTreeEntityByID";
+        /// <summary>
+        /// 树状实体记录下存在子记录
+        /// 格式为“id为{0}的树状实体记录下存在子记录”
+        /// {0}:id
+        /// </summary>
+        public const string TreeEntityHasChildren = "TreeEntityHasChildren";
+        /// <summary>
+        /// 找不到指定类型的树状实体数据服务
+        /// 格式为“找不到类型为{0}的树状实体数据服务，发生位置：{1}”
+        /// {0}：类型
+        /// {1}：发生位置
+        /// </summary>
+        public const string NotFoundTreeEntityValueServiceByType = "NotFoundTreeEntityValueServiceByType";
+        /// <summary>
+        /// 树状实体的类型无法作为父记录
+        /// 格式为“树状实体{0}的类型无法作为父记录，要求的类型为{1}”
+        /// {0}：记录ID
+        /// {1}：父记录的类型
+        /// </summary>
+        public const string TreeEntityParentTypeError = "TreeEntityParentTypeError";
     }
 
 

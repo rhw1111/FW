@@ -236,10 +236,6 @@ namespace FW.TestPlatform.Main.Entities
             await _imp.Add(this,cancellationToken);
         }
 
-        public async Task Add()
-        {
-            await _imp.Add(this);
-        }
 
         public async Task AddHistory(TestCaseHistory history, CancellationToken cancellationToken = default)
         {
@@ -251,18 +247,10 @@ namespace FW.TestPlatform.Main.Entities
             await _imp.Update(this, cancellationToken);
         }
 
-        public async Task Update()
-        {
-            await _imp.Update(this);
-        }
 
         public async Task Delete(CancellationToken cancellationToken = default)
         {
             await _imp.Delete(this, cancellationToken);
-        }
-        public async Task Delete()
-        {
-            await _imp.Delete(this);
         }
 
         //public async Task DeleteMultiple(List<TestCase> list, CancellationToken cancellationToken = default)
@@ -306,9 +294,9 @@ namespace FW.TestPlatform.Main.Entities
         {
             await _imp.UpdateNetGatewayDataFormat(this, history, cancellationToken);
         }
-        public async Task TransferNetGatewayDataFile(Guid historyId, CancellationToken cancellationToken = default)
+        public async Task<int> TransferNetGatewayDataFile(Guid historyId, CancellationToken cancellationToken = default)
         {
-            await _imp.TransferNetGatewayDataFile(this, historyId, cancellationToken);
+            return await _imp.TransferNetGatewayDataFile(this, historyId, cancellationToken);
         }
 
         public async Task<string> CheckNetGatewayDataAnalysisStatus(Guid historyId, CancellationToken cancellationToken = default)
@@ -360,7 +348,7 @@ namespace FW.TestPlatform.Main.Entities
         Task DeleteSlaveHost(TestCase tCase,Guid slaveHostID, CancellationToken cancellationToken = default);
         Task UpdateSlaveHost(TestCase tCase, TestCaseSlaveHost slaveHost, CancellationToken cancellationToken = default);
         Task UpdateNetGatewayDataFormat(TestCase tCase, TestCaseHistory history, CancellationToken cancellationToken = default);
-        Task TransferNetGatewayDataFile(TestCase tCase, Guid historyId, CancellationToken cancellationToken = default);
+        Task<int> TransferNetGatewayDataFile(TestCase tCase, Guid historyId, CancellationToken cancellationToken = default);
         Task<string> CheckNetGatewayDataAnalysisStatus(TestCase tCase, Guid historyId, CancellationToken cancellationToken = default);
         IAsyncEnumerable<TestCaseSlaveHost> GetAllSlaveHosts(TestCase tCase, CancellationToken cancellationToken = default);
         Task<TestCaseSlaveHost?> GetSlaveHost(TestCase tCase,Guid slaveHostID, CancellationToken cancellationToken = default);
@@ -907,7 +895,7 @@ namespace FW.TestPlatform.Main.Entities
             return histories;
         }
 
-        public async Task TransferNetGatewayDataFile(TestCase tCase, Guid historyId, CancellationToken cancellationToken = default)
+        public async Task<int> TransferNetGatewayDataFile(TestCase tCase, Guid historyId, CancellationToken cancellationToken = default)
         {
             TestCaseHistory? history = await _testCaseHistoryStore.QueryByCase(tCase.ID, historyId, cancellationToken);
             if (history == null)
@@ -936,7 +924,10 @@ namespace FW.TestPlatform.Main.Entities
             }
             string tempPath = await _systemConfigurationService.GetNetGatewayDataTempFolderAsync(cancellationToken);
             string path = await _systemConfigurationService.GetNetGatewayDataFolderAsync(cancellationToken);
-            await sshEndpoint.TransferNetGatewayDataFile(tCase.ID, historyId, tempPath, path, 30, cancellationToken);
+            return await sshEndpoint.TransferFile(async(oldFileName)=>
+            {
+                return await Task.FromResult($"01_{tCase.ID.ToString()}_{historyId.ToString()}_{Guid.NewGuid().ToString()}.cap");
+            }, tempPath, path, 30, cancellationToken);
         }
 
         public async Task<string> CheckNetGatewayDataAnalysisStatus(TestCase tCase, Guid historyId, CancellationToken cancellationToken = default)

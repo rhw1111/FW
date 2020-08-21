@@ -14,8 +14,4 @@
     <ProjectReference Include="..\MSLibrary\MSLibrary.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="MessageQueue\" />
-  </ItemGroup>
-
 </Project>
