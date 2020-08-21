@@ -47,6 +47,7 @@ import {
   QTabPanels,
   QTabPanel,
   QTab,
+  QTree,
   // 事件
   Ripple,
   ClosePopup,
@@ -97,7 +98,8 @@ Vue.use(Quasar, {
     QSplitter,
     QTabPanel,
     QTabPanels,
-    QTab
+    QTab,
+    QTree
   },
   directives: {
     Ripple,

@@ -29,19 +29,19 @@
             <q-btn class="btn"
                    color="primary"
                    style="margin-right:15px;"
-                   label="转移文件"
+                   label="日志分析"
                    :disable="isNoRun!=1?false:true"
                    @click="TransferFile(props)" />
             <q-btn class="btn"
                    color="primary"
                    style="margin-right:15px;"
-                   label="查看日志分析状态"
+                   label="日志分析状态"
                    :disable="isNoRun!=1?false:true"
                    @click="ViewFileStatus(props)" />
             <q-btn class="btn"
                    color="primary"
                    style="margin-right:15px;"
-                   label="性 能 监 测"
+                   label="日 志 监 测"
                    :disable="isNoRun!=1?false:true"
                    @click="lookMonitorUrl(props)" />
             <q-btn class="btn"
@@ -381,29 +381,67 @@ export default {
       this.HistoryCompareLogList = [];
     },
     //------------------------------操作----------------------------
-    //性能监测
+    //日志监测
     lookMonitorUrl (value) {
       window.open(value.row.monitorUrl);
     },
-    //转移文件
+    //日志分析
     TransferFile (value) {
+      this.$q.loading.show()
       let para = {
-        caseId: value.row.caseID,
+        caseId: this.$route.query.id,
         historyId: value.row.id
       }
-      this.$q.loading.show()
-      Apis.getHistoryTransferFile(para).then((res) => {
+      Apis.getHistoryDetail(para).then((res) => {
         console.log(res)
-        this.$q.loading.hide()
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '转移成功',
-          color: 'secondary',
-        })
+        if (res.data.netGatewayDataFormat) {
+          Apis.getHistoryTransferFile(para).then((res) => {
+            console.log(res)
+            if (res.data === 0) {
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: '没有文件需要分析 ',
+                color: 'secondary',
+              });
+              this.$q.loading.hide();
+            } else {
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: `还有${res.data}个文件需要分析`,
+                color: 'secondary',
+              });
+              this.$q.loading.hide();
+            }
+          })
+        } else {
+          this.$q.loading.hide();
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '当前历史记录网关数据格式为空，请点击当前历史记录的查看按钮选择网关数据格式.',
+            color: 'red',
+          });
+        }
       })
+      // let para = {
+      //   caseId: value.row.caseID,
+      //   historyId: value.row.id
+      // }
+      // this.$q.loading.show()
+      // Apis.getHistoryTransferFile(para).then((res) => {
+      //   console.log(res)
+      //   this.$q.loading.hide();
+      //   this.$q.notify({
+      //     position: 'top',
+      //     message: '提示',
+      //     caption: '转移成功',
+      //     color: 'secondary',
+      //   });
+      // })
     },
-    //查看网关文件分析状态
+    //日志分析状态
     ViewFileStatus (value) {
       let para = {
         caseId: value.row.caseID,
@@ -417,7 +455,7 @@ export default {
           this.$q.notify({
             position: 'top',
             message: '提示',
-            caption: '没有文件解析',
+            caption: '不存在需要解析的文件',
             color: 'secondary',
           })
         } else {
@@ -425,7 +463,7 @@ export default {
             position: 'top',
             message: '提示',
             caption: '有文件未解析',
-            color: 'red',
+            color: 'secondary',
           })
         }
       })
