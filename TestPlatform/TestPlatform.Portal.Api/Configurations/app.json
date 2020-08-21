@@ -1,9 +1,9 @@
 {
   "Connections": {
-    "mainall": "Server=172.17.0.1;Port=3306;Database=tpmain;Uid=root;Pwd=123456;",
-    "mainread": "Server=172.17.0.1;Port=3306;Database=tpmain;Uid=root;Pwd=123456;",
-    "configurationall": "Server=172.17.0.1;Port=3306;Database=tpconfig;Uid=root;Pwd=123456;",
-    "configurationread": "Server=172.17.0.1;Port=3306;Database=tpconfig;Uid=root;Pwd=123456;"
+    "mainall": "Server=10.0.0.5;Port=3306;Database=tpmain;Uid=root;Pwd=123456;",
+    "mainread": "Server=10.0.0.5;Port=3306;Database=tpmain;Uid=root;Pwd=123456;",
+    "configurationall": "Server=10.0.0.5;Port=3306;Database=tpconfig;Uid=root;Pwd=123456;",
+    "configurationread": "Server=10.0.0.5;Port=3306;Database=tpconfig;Uid=root;Pwd=123456;"
   },
   "ApplicationName": "TestPlatform.Portal.Api",
   "DISetting": {
