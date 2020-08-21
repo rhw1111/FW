@@ -1471,7 +1471,6 @@ namespace FW.TestPlatform.Main.NetGateway
                 NetData netData = new NetData();
                 netData.Type = sourceData_split[0] == "0" ? NetDataType.Request : NetDataType.Response;
                 netData.ID = prefix;
-                //netData.CreateTime = DateTime.Now;
                 netData.CreateTime = DateTime.FromOADate(double.Parse(sourceData_split[2]));
                 netData.RunDuration = null;
 
