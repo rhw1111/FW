@@ -205,7 +205,8 @@ export default {
         this.getDataSourceName();
 
         for (let i = 0; i < res.data.results.length; i++) {
-          this.simple[0].children.push(res.data.results[i])
+          //this.simple[0].children.push(res.data.results[i])
+          this.simple[0].children.push({ label: res.data.results[i].name })
         }
         console.log(this.simple)
       })
