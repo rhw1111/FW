@@ -28,24 +28,6 @@
           <q-td :props="props">
             <q-btn class="btn"
                    color="primary"
-                   style="margin-right:15px;"
-                   label="日志分析"
-                   :disable="isNoRun!=1?false:true"
-                   @click="TransferFile(props)" />
-            <q-btn class="btn"
-                   color="primary"
-                   style="margin-right:15px;"
-                   label="日志分析状态"
-                   :disable="isNoRun!=1?false:true"
-                   @click="ViewFileStatus(props)" />
-            <q-btn class="btn"
-                   color="primary"
-                   style="margin-right:15px;"
-                   label="日 志 监 测"
-                   :disable="isNoRun!=1?false:true"
-                   @click="lookMonitorUrl(props)" />
-            <q-btn class="btn"
-                   color="primary"
                    label="查 看"
                    :disable="isNoRun!=1?false:true"
                    @click="getHistoryDetail(props)" />
@@ -65,8 +47,26 @@
     <q-dialog v-model="lookHistoryDetailFlag"
               persistent>
       <q-card style="width: 100%; max-width: 60vw;">
-        <q-card-section>
-          <div class="text-h6">历史记录</div>
+        <q-card-section class="row">
+          <div class="text-h6 col-5">历史记录</div>
+          <q-btn class="col-2"
+                 color="primary"
+                 style="margin-right:15px;"
+                 label="日 志 分 析"
+                 :disable="isNoRun!=1?false:true"
+                 @click="TransferFile" />
+          <q-btn class="col-2"
+                 color="primary"
+                 style="margin-right:15px;"
+                 label="日 志 分 析 状 态"
+                 :disable="isNoRun!=1?false:true"
+                 @click="ViewFileStatus" />
+          <q-btn class="col-2"
+                 color="primary"
+                 style="margin-right:15px;"
+                 label="日 志 监 测"
+                 :disable="isNoRun!=1?false:true"
+                 @click="lookMonitorUrl" />
         </q-card-section>
 
         <q-separator />
@@ -382,15 +382,15 @@ export default {
     },
     //------------------------------操作----------------------------
     //日志监测
-    lookMonitorUrl (value) {
-      window.open(value.row.monitorUrl);
+    lookMonitorUrl () {
+      window.open(this.HistoryDetailData.monitorUrl);
     },
     //日志分析
-    TransferFile (value) {
+    TransferFile () {
       this.$q.loading.show()
       let para = {
-        caseId: this.$route.query.id,
-        historyId: value.row.id
+        caseId: this.HistoryDetailData.caseID,
+        historyId: this.HistoryDetailData.id
       }
       Apis.getHistoryDetail(para).then((res) => {
         console.log(res)
@@ -420,32 +420,17 @@ export default {
           this.$q.notify({
             position: 'top',
             message: '提示',
-            caption: '当前历史记录网关数据格式为空，请点击当前历史记录的查看按钮选择网关数据格式.',
+            caption: '当前历史记录网关数据格式为空，请选择网关数据格式并保存。',
             color: 'red',
           });
         }
       })
-      // let para = {
-      //   caseId: value.row.caseID,
-      //   historyId: value.row.id
-      // }
-      // this.$q.loading.show()
-      // Apis.getHistoryTransferFile(para).then((res) => {
-      //   console.log(res)
-      //   this.$q.loading.hide();
-      //   this.$q.notify({
-      //     position: 'top',
-      //     message: '提示',
-      //     caption: '转移成功',
-      //     color: 'secondary',
-      //   });
-      // })
     },
     //日志分析状态
-    ViewFileStatus (value) {
+    ViewFileStatus () {
       let para = {
-        caseId: value.row.caseID,
-        historyId: value.row.id
+        caseId: this.HistoryDetailData.caseID,
+        historyId: this.HistoryDetailData.id
       }
       this.$q.loading.show()
       Apis.getHistoryViewFileStatus(para).then((res) => {
