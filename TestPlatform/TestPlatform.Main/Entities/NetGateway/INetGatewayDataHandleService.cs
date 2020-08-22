@@ -83,7 +83,7 @@ namespace FW.TestPlatform.Main.NetGateway
     /// </summary>
     public interface IConvertNetDataFromSourceService
     {
-        Task<NetData> Convert(string prefix,string sourceData, CancellationToken cancellationToken = default);
+        Task<NetData?> Convert(string prefix,string sourceData, CancellationToken cancellationToken = default);
     }
 
     /// <summary>
