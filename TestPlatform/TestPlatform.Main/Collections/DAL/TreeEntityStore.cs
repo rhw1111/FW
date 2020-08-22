@@ -85,9 +85,12 @@ namespace FW.TestPlatform.Main.Collections.DAL
                     var entry = dbContext.Entry(entity);
                     foreach (var item in entry.Properties)
                     {
-                        if (item.Metadata.Name != "ID")
+                        if (item.Metadata.Name != "ID" && item.Metadata.Name != "Parent")
                         {
-                            entry.Property(item.Metadata.Name).IsModified = true;
+                            if (entity.Attributes.ContainsKey(item.Metadata.Name))
+                            {
+                                entry.Property(item.Metadata.Name).IsModified = true;
+                            }
                         }
                     }
                     await dbContext.SaveChangesAsync(cancellationToken);
