@@ -422,59 +422,69 @@ namespace FW.TestPlatform.Main.NetGateway
                             break;
                         }
 
-                        var fileNames = Directory.GetFiles(folderName);
-
-                        List<FileDataInfo> fileDatas = new List<FileDataInfo>();
-
-                        foreach (var item in fileNames)
-                        {
-                            var fileInfo = new FileInfo(item);
-                            fileDatas.Add(new FileDataInfo() { CreateTime = fileInfo.CreationTimeUtc, FileName = fileInfo.FullName });
-                        }
-
-                        fileDatas = fileDatas.OrderBy((f) => f.CreateTime).ToList();
-
-                        List<string> deleteFileNames = new List<string>();
-
-                        foreach (var item in completedFileNames)
-                        {
-                            if (!fileNames.Contains(item.Key))
-                            {
-                                deleteFileNames.Add(item.Key);
-                            }
-                        }
-
-                        foreach (var item in deleteFileNames)
-                        {
-                            completedFileNames.Remove(item);
-                        }
-
+                        int repeat = 3;
                         List<FileDataInfo> currentCompleteFileDataInfos = new List<FileDataInfo>();
-                        foreach (var item in fileDatas)
+
+
+                        for (var index = 0; index <= repeat - 1; index++)
                         {
-                            if (!completedFileNames.ContainsKey(item.FileName))
+
+                            var fileNames = Directory.GetFiles(folderName);
+
+                            List<FileDataInfo> fileDatas = new List<FileDataInfo>();
+
+                            foreach (var item in fileNames)
                             {
-                                FileInfo fileInfo = new FileInfo(item.FileName);
-
-                                long old_length;
-
-                                do
-                                {
-                                    old_length = fileInfo.Length;
-                                    Thread.Sleep(2000);
-
-                                } while (old_length != fileInfo.Length);
-
-                                currentCompleteFileDataInfos.Add(new FileDataInfo() { FileName = fileInfo.FullName, CreateTime = fileInfo.CreationTimeUtc });
-                                //completedAction(new FileDataInfo() { FileName = fileInfo.FullName, CreateTime = fileInfo.CreationTimeUtc });
-                                //completedFileNames[item.FileName] = item.FileName;
+                                var fileInfo = new FileInfo(item);
+                                fileDatas.Add(new FileDataInfo() { CreateTime = fileInfo.CreationTimeUtc, FileName = fileInfo.FullName });
                             }
+
+                            fileDatas = fileDatas.OrderBy((f) => f.CreateTime).ToList();
+
+                            List<string> deleteFileNames = new List<string>();
+
+                            foreach (var item in completedFileNames)
+                            {
+                                if (!fileNames.Contains(item.Key))
+                                {
+                                    deleteFileNames.Add(item.Key);
+                                }
+                            }
+
+                            foreach (var item in deleteFileNames)
+                            {
+                                completedFileNames.Remove(item);
+                            }
+
+                            foreach (var item in fileDatas)
+                            {
+                                if (!completedFileNames.ContainsKey(item.FileName))
+                                {
+                                    FileInfo fileInfo = new FileInfo(item.FileName);
+
+                                    long old_length;
+
+                                    do
+                                    {
+                                        old_length = fileInfo.Length;
+                                        Thread.Sleep(2000);
+
+                                    } while (old_length != fileInfo.Length);
+
+                                    currentCompleteFileDataInfos.Add(new FileDataInfo() { FileName = fileInfo.FullName, CreateTime = fileInfo.CreationTimeUtc });
+                                    //completedAction(new FileDataInfo() { FileName = fileInfo.FullName, CreateTime = fileInfo.CreationTimeUtc });
+                                    completedFileNames[item.FileName] = item.FileName;
+                                }
+                            }
+
+                            await Task.Delay(3000);
                         }
+
 
                         foreach(var item in currentCompleteFileDataInfos)
                         {
                             completedAction(item);
-                            completedFileNames[item.FileName] = item.FileName;
+                            //completedFileNames[item.FileName] = item.FileName;
                         }
 
                         if (result.IsStop)
@@ -482,12 +492,12 @@ namespace FW.TestPlatform.Main.NetGateway
                             break;
                         }
 
-                        await Task.Delay(10000);
+                        await Task.Delay(3000);
                     }
                     catch(Exception ex)
                     {
                         LoggerHelper.LogError(LoggerCategoryName, ex.ToStackTraceString());
-                        await Task.Delay(10000);
+                        await Task.Delay(3000);
                     }
 
                 }
@@ -1404,7 +1414,6 @@ namespace FW.TestPlatform.Main.NetGateway
 
                         return testCaseHistory;
 
-                        break;
                     default:
                         break;
                 }
