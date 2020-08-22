@@ -28,24 +28,6 @@
           <q-td :props="props">
             <q-btn class="btn"
                    color="primary"
-                   style="margin-right:15px;"
-                   label="转移文件"
-                   :disable="isNoRun!=1?false:true"
-                   @click="TransferFile(props)" />
-            <q-btn class="btn"
-                   color="primary"
-                   style="margin-right:15px;"
-                   label="查看日志分析状态"
-                   :disable="isNoRun!=1?false:true"
-                   @click="ViewFileStatus(props)" />
-            <q-btn class="btn"
-                   color="primary"
-                   style="margin-right:15px;"
-                   label="性 能 监 测"
-                   :disable="isNoRun!=1?false:true"
-                   @click="lookMonitorUrl(props)" />
-            <q-btn class="btn"
-                   color="primary"
                    label="查 看"
                    :disable="isNoRun!=1?false:true"
                    @click="getHistoryDetail(props)" />
@@ -65,8 +47,26 @@
     <q-dialog v-model="lookHistoryDetailFlag"
               persistent>
       <q-card style="width: 100%; max-width: 60vw;">
-        <q-card-section>
-          <div class="text-h6">历史记录</div>
+        <q-card-section class="row">
+          <div class="text-h6 col-5">历史记录</div>
+          <q-btn class="col-2"
+                 color="primary"
+                 style="margin-right:15px;"
+                 label="日 志 分 析"
+                 :disable="isNoRun!=1?false:true"
+                 @click="TransferFile" />
+          <q-btn class="col-2"
+                 color="primary"
+                 style="margin-right:15px;"
+                 label="日 志 分 析 状 态"
+                 :disable="isNoRun!=1?false:true"
+                 @click="ViewFileStatus" />
+          <q-btn class="col-2"
+                 color="primary"
+                 style="margin-right:15px;"
+                 label="日 志 监 测"
+                 :disable="isNoRun!=1?false:true"
+                 @click="lookMonitorUrl" />
         </q-card-section>
 
         <q-separator />
@@ -381,33 +381,56 @@ export default {
       this.HistoryCompareLogList = [];
     },
     //------------------------------操作----------------------------
-    //性能监测
-    lookMonitorUrl (value) {
-      window.open(value.row.monitorUrl);
+    //日志监测
+    lookMonitorUrl () {
+      window.open(this.HistoryDetailData.monitorUrl);
     },
-    //转移文件
-    TransferFile (value) {
-      let para = {
-        caseId: value.row.caseID,
-        historyId: value.row.id
-      }
+    //日志分析
+    TransferFile () {
       this.$q.loading.show()
-      Apis.getHistoryTransferFile(para).then((res) => {
+      let para = {
+        caseId: this.HistoryDetailData.caseID,
+        historyId: this.HistoryDetailData.id
+      }
+      Apis.getHistoryDetail(para).then((res) => {
         console.log(res)
-        this.$q.loading.hide()
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '转移成功',
-          color: 'secondary',
-        })
+        if (res.data.netGatewayDataFormat) {
+          Apis.getHistoryTransferFile(para).then((res) => {
+            console.log(res)
+            if (res.data === 0) {
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: '没有文件需要分析 ',
+                color: 'secondary',
+              });
+              this.$q.loading.hide();
+            } else {
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: `还有${res.data}个文件需要分析`,
+                color: 'secondary',
+              });
+              this.$q.loading.hide();
+            }
+          })
+        } else {
+          this.$q.loading.hide();
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '当前历史记录网关数据格式为空，请选择网关数据格式并保存。',
+            color: 'red',
+          });
+        }
       })
     },
-    //查看网关文件分析状态
-    ViewFileStatus (value) {
+    //日志分析状态
+    ViewFileStatus () {
       let para = {
-        caseId: value.row.caseID,
-        historyId: value.row.id
+        caseId: this.HistoryDetailData.caseID,
+        historyId: this.HistoryDetailData.id
       }
       this.$q.loading.show()
       Apis.getHistoryViewFileStatus(para).then((res) => {
@@ -417,7 +440,7 @@ export default {
           this.$q.notify({
             position: 'top',
             message: '提示',
-            caption: '没有文件解析',
+            caption: '不存在需要解析的文件',
             color: 'secondary',
           })
         } else {
@@ -425,7 +448,7 @@ export default {
             position: 'top',
             message: '提示',
             caption: '有文件未解析',
-            color: 'red',
+            color: 'secondary',
           })
         }
       })

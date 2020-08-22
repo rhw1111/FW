@@ -958,7 +958,7 @@ namespace FW.TestPlatform.Main.Entities
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSSHEndPointByName, fragment, 1, 0);
             }
             string path = await _systemConfigurationService.GetNetGatewayDataFolderAsync(cancellationToken);
-            string command = string.Format("find {0} -type f -iname \"*{1}*\"", path, historyId);
+            string command = string.Format("find {0} -type f -iname \"01_{1}_{2}*\"", path, tCase.ID, historyId);
             string rel = await sshEndpoint.ExecuteCommand(command, 30, cancellationToken);
             return rel;
         }
