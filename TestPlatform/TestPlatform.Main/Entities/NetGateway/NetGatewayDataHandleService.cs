@@ -474,6 +474,11 @@ namespace FW.TestPlatform.Main.NetGateway
                                     currentCompleteFileDataInfos[fileInfo.FullName]=new FileDataInfo() { FileName = fileInfo.FullName, CreateTime = fileInfo.CreationTimeUtc };
                                     //completedAction(new FileDataInfo() { FileName = fileInfo.FullName, CreateTime = fileInfo.CreationTimeUtc });
                                     completedFileNames[item.FileName] = item.FileName;
+                                    if (currentCompleteFileDataInfos.Count>=10)
+                                    {
+                                        completedAction(currentCompleteFileDataInfos);
+                                        currentCompleteFileDataInfos.Clear();
+                                    }
                                 }
                             }
 
