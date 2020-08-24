@@ -8,6 +8,10 @@ set content = '"E:\\\\Documents\\\\Visual Studio Code\\\\TestPython\\\\pcapreade
 where id = 'a41d654c-ddf6-11ea-8205-025041000001'
 
 update tpconfig.systemconfiguration
+set content = '"D:\\\\Test"'
+where id = 'a41d654c-ddf6-11ea-8205-025041000001'
+
+update tpconfig.systemconfiguration
 set content = '"E:\\\\Documents\\\\Visual Studio Code\\\\TestPython\\\\pcapreader\\\\cap\\\\temp"'
 where id = 'b191b7a1-ddf6-11ea-8205-025041000001'
 

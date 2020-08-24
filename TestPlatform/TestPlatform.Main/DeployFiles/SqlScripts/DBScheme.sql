@@ -159,6 +159,14 @@ CREATE TABLE `sshendpoint` (
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
+REPLACE INTO `sshendpoint` (`id`, `type`, `name`, `configuration`, `createtime`, `modifytime`) VALUES
+('55b81537-e5b4-11ea-8205-025041000001', 'Default', 'NetGatewayDataSSHEndpoint', '{
+    "Address": "10.0.0.5",
+    "Port": "22",
+    "UserName": "TPUser",
+    "Password": "Password01asd!"
+}', now(), now())
+
 DROP TABLE IF EXISTS `testcase`;
 CREATE TABLE `testcase` (
   `id` char(36) NOT NULL,

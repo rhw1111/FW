@@ -21,10 +21,24 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Level.py" />
     <Compile Include="Score.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="TemplateScript\test-template-http.py" />
+    <Compile Include="TemplateScript\test-template-locust.py" />
     <Compile Include="TestPlatform.LocustScript.py" />
+    <Compile Include="TestScript\HttpClient.py" />
+    <Compile Include="TestScript\TcpSocketClient-locust.py" />
+    <Compile Include="TestScript\TcpSocketClient.py" />
+    <Compile Include="TestScript\TcpSocketServer.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="requirements.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="TestScript\" />
+    <Folder Include="TemplateScript\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
