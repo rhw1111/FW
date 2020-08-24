@@ -172,7 +172,6 @@ CREATE TABLE `testcase` (
   `id` char(36) NOT NULL,
   `masterhostid` char(36) NOT NULL,
   `ownerid` char(36) NOT NULL,
-  `testcasehistoryid` char(36) DEFAULT NULL,
   `enginetype` varchar(150) NOT NULL DEFAULT '',
   `name` varchar(150) NOT NULL DEFAULT '',
   `configuration` mediumtext NOT NULL,
@@ -206,7 +205,6 @@ CREATE TABLE `testcasehistory` (
   `id` char(36) NOT NULL,
   `caseid` char(36) NOT NULL,
   `summary` varchar(4000) NOT NULL DEFAULT '',
-  `netgatewaydataformat` varchar(150) NOT NULL DEFAULT '',
   `createtime` datetime NOT NULL,
   `modifytime` datetime NOT NULL,
   `sequence` bigint NOT NULL AUTO_INCREMENT,
@@ -307,3 +305,4 @@ REPLACE INTO `schedulehostconfiguration` (`id`, `name`, `schedulegroupname`, `en
 
 /*!ALTER TABLE testcasehistory*/
 ALTER TABLE `testcasehistory` ADD COLUMN `netgatewaydataformat` varchar(150) NOT NULL DEFAULT '';
+ALTER TABLE `testcase` ADD COLUMN `testcasehistoryid` char(36) DEFAULT NULL;
