@@ -48,23 +48,23 @@
               persistent>
       <q-card style="width: 100%; max-width: 60vw;">
         <q-card-section class="row">
-          <div class="text-h6 col-5">历史记录</div>
+          <div class="text-h6 col-6">历史记录</div>
           <q-btn class="col-2"
+                 flat
                  color="primary"
-                 style="margin-right:15px;"
-                 label="日 志 分 析"
+                 label="日志分析"
                  :disable="isNoRun!=1?false:true"
                  @click="TransferFile" />
           <q-btn class="col-2"
+                 flat
                  color="primary"
-                 style="margin-right:15px;"
-                 label="日 志 分 析 状 态"
+                 label="日志分析状态"
                  :disable="isNoRun!=1?false:true"
                  @click="ViewFileStatus" />
           <q-btn class="col-2"
+                 flat
                  color="primary"
-                 style="margin-right:15px;"
-                 label="日 志 监 测"
+                 label="日志监测"
                  :disable="isNoRun!=1?false:true"
                  @click="lookMonitorUrl" />
         </q-card-section>
