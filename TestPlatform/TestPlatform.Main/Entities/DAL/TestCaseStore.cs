@@ -297,7 +297,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
                     foreach (var item in entry.Properties)
                     {
-                        if (item.Metadata.Name != "ID" && item.Metadata.Name != "Status" && item.Metadata.Name != "TestCaseHistoryID")
+                        if (item.Metadata.Name != "ID" && item.Metadata.Name != "Status" && item.Metadata.Name != "TestCaseHistoryID" && item.Metadata.Name!= "MasterHost")
                         {
                             if (source.Attributes.ContainsKey(item.Metadata.Name))
                             {

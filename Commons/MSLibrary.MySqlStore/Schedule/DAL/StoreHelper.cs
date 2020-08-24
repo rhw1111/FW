@@ -66,24 +66,24 @@ namespace MSLibrary.MySqlStore.Schedule.DAL
             action.Name = reader[string.Format("{0}name", prefix)].ToString();
             action.TriggerCondition = reader[string.Format("{0}triggercondition", prefix)].ToString();
             action.Configuration = reader[string.Format("{0}configuration", prefix)].ToString();
-            action.Mode = (int)reader[string.Format("{0}Mode", prefix)];
-            if (reader[string.Format("{0}ScheduleActionServiceFactoryType", prefix)] != DBNull.Value)
+            action.Mode = (int)reader[string.Format("{0}mode", prefix)];
+            if (reader[string.Format("{0}scheduleactionservicefactorytype", prefix)] != DBNull.Value)
             {
-                action.ScheduleActionServiceFactoryType = reader[string.Format("{0}ScheduleActionServiceFactoryType", prefix)].ToString();
+                action.ScheduleActionServiceFactoryType = reader[string.Format("{0}scheduleactionservicefactorytype", prefix)].ToString();
             }
-            if (reader[string.Format("{0}ScheduleActionServiceFactoryTypeUseDI", prefix)] != DBNull.Value)
+            if (reader[string.Format("{0}scheduleactionservicefactorytypeusedi", prefix)] != DBNull.Value)
             {
                 action.ScheduleActionServiceFactoryTypeUseDI = Convert.ToBoolean(reader[string.Format("{0}ScheduleActionServiceFactoryTypeUseDI", prefix)]);
             }
-            if (reader[string.Format("{0}ScheduleActionServiceWebUrl", prefix)] != DBNull.Value)
+            if (reader[string.Format("{0}scheduleactionserviceweburl", prefix)] != DBNull.Value)
             {
-                action.ScheduleActionServiceWebUrl = reader[string.Format("{0}ScheduleActionServiceWebUrl", prefix)].ToString();
+                action.ScheduleActionServiceWebUrl = reader[string.Format("{0}scheduleactionserviceweburl", prefix)].ToString();
             }
-            if (reader[string.Format("{0}WebSignature", prefix)] != DBNull.Value)
+            if (reader[string.Format("{0}websignature", prefix)] != DBNull.Value)
             {
-                action.WebSignature = reader[string.Format("{0}WebSignature", prefix)].ToString();
+                action.WebSignature = reader[string.Format("{0}websignature", prefix)].ToString();
             }
-            action.Status = (int)reader[string.Format("{0}Status", prefix)];
+            action.Status = (int)reader[string.Format("{0}status", prefix)];
             action.CreateTime = (DateTime)reader[string.Format("{0}createtime", prefix)];
             action.ModifyTime = (DateTime)reader[string.Format("{0}modifytime", prefix)];
         }

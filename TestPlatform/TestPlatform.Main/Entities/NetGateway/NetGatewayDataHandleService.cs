@@ -153,53 +153,55 @@ namespace FW.TestPlatform.Main.NetGateway
                                     async (sourceData) =>
                                     {
                                         var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
-
-                                        if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
+                                        if (data != null)
                                         {
-                                            lock (containerDatas)
+                                            if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
                                             {
-                                                if (!containerDatas.TryGetValue(data.ID, out containerData))
+                                                lock (containerDatas)
                                                 {
-                                                    if (data.Type == NetDataType.Request)
+                                                    if (!containerDatas.TryGetValue(data.ID, out containerData))
                                                     {
-                                                        containerData = new DataContainer()
+                                                        if (data.Type == NetDataType.Request)
                                                         {
-                                                            FileName = fileName
-                                                        };
-                                                        containerDatas[data.ID] = containerData;
-                                                    }
-                                                    else
-                                                    {
-                                                        if (!singleResponseDatas.TryGetValue(prefix, out List<DataContainer>? singleDatas))
-                                                        {
-                                                            lock (singleResponseDatas)
+                                                            containerData = new DataContainer()
                                                             {
-                                                                if (!singleResponseDatas.TryGetValue(prefix, out singleDatas))
+                                                                FileName = fileName
+                                                            };
+                                                            containerDatas[data.ID] = containerData;
+                                                        }
+                                                        else
+                                                        {
+                                                            if (!singleResponseDatas.TryGetValue(prefix, out List<DataContainer>? singleDatas))
+                                                            {
+                                                                lock (singleResponseDatas)
                                                                 {
-                                                                    singleDatas = new List<DataContainer>();
-                                                                    singleResponseDatas[prefix] = singleDatas;
+                                                                    if (!singleResponseDatas.TryGetValue(prefix, out singleDatas))
+                                                                    {
+                                                                        singleDatas = new List<DataContainer>();
+                                                                        singleResponseDatas[prefix] = singleDatas;
+                                                                    }
                                                                 }
                                                             }
-                                                        }
 
-                                                        lock (singleDatas)
-                                                        {
-                                                            singleDatas.Add(new DataContainer() { FileName = fileName, Response = data });
+                                                            lock (singleDatas)
+                                                            {
+                                                                singleDatas.Add(new DataContainer() { FileName = fileName, Response = data });
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
-                                        }
 
-                                        if (containerData != null)
-                                        {
-                                            if (data.Type == NetDataType.Request)
+                                            if (containerData != null)
                                             {
-                                                containerData.Request = data;
-                                            }
-                                            else
-                                            {
-                                                containerData.Response = data;
+                                                if (data.Type == NetDataType.Request)
+                                                {
+                                                    containerData.Request = data;
+                                                }
+                                                else
+                                                {
+                                                    containerData.Response = data;
+                                                }
                                             }
                                         }
                                     },
@@ -420,51 +422,69 @@ namespace FW.TestPlatform.Main.NetGateway
                             break;
                         }
 
-                        var fileNames = Directory.GetFiles(folderName);
+                        int repeat = 3;
+                        List<FileDataInfo> currentCompleteFileDataInfos = new List<FileDataInfo>();
 
-                        List<FileDataInfo> fileDatas = new List<FileDataInfo>();
 
-                        foreach (var item in fileNames)
+                        for (var index = 0; index <= repeat - 1; index++)
                         {
-                            var fileInfo = new FileInfo(item);
-                            fileDatas.Add(new FileDataInfo() { CreateTime = fileInfo.CreationTimeUtc, FileName = fileInfo.FullName });
-                        }
 
-                        fileDatas = fileDatas.OrderBy((f) => f.CreateTime).ToList();
+                            var fileNames = Directory.GetFiles(folderName);
 
-                        List<string> deleteFileNames = new List<string>();
+                            List<FileDataInfo> fileDatas = new List<FileDataInfo>();
 
-                        foreach (var item in completedFileNames)
-                        {
-                            if (!fileNames.Contains(item.Key))
+                            foreach (var item in fileNames)
                             {
-                                deleteFileNames.Add(item.Key);
+                                var fileInfo = new FileInfo(item);
+                                fileDatas.Add(new FileDataInfo() { CreateTime = fileInfo.CreationTimeUtc, FileName = fileInfo.FullName });
                             }
-                        }
 
-                        foreach (var item in deleteFileNames)
-                        {
-                            completedFileNames.Remove(item);
-                        }
+                            fileDatas = fileDatas.OrderBy((f) => f.CreateTime).ToList();
 
-                        foreach (var item in fileDatas)
-                        {
-                            if (!completedFileNames.ContainsKey(item.FileName))
+                            List<string> deleteFileNames = new List<string>();
+
+                            foreach (var item in completedFileNames)
                             {
-                                FileInfo fileInfo = new FileInfo(item.FileName);
-
-                                long old_length;
-
-                                do
+                                if (!fileNames.Contains(item.Key))
                                 {
-                                    old_length = fileInfo.Length;
-                                    Thread.Sleep(500);
-
-                                } while (old_length != fileInfo.Length);
-
-                                completedAction(new FileDataInfo() { FileName = fileInfo.FullName, CreateTime = fileInfo.CreationTimeUtc });
-                                completedFileNames[item.FileName] = item.FileName;
+                                    deleteFileNames.Add(item.Key);
+                                }
                             }
+
+                            foreach (var item in deleteFileNames)
+                            {
+                                completedFileNames.Remove(item);
+                            }
+
+                            foreach (var item in fileDatas)
+                            {
+                                if (!completedFileNames.ContainsKey(item.FileName))
+                                {
+                                    FileInfo fileInfo = new FileInfo(item.FileName);
+
+                                    long old_length;
+
+                                    do
+                                    {
+                                        old_length = fileInfo.Length;
+                                        Thread.Sleep(2000);
+
+                                    } while (old_length != fileInfo.Length);
+
+                                    currentCompleteFileDataInfos.Add(new FileDataInfo() { FileName = fileInfo.FullName, CreateTime = fileInfo.CreationTimeUtc });
+                                    //completedAction(new FileDataInfo() { FileName = fileInfo.FullName, CreateTime = fileInfo.CreationTimeUtc });
+                                    completedFileNames[item.FileName] = item.FileName;
+                                }
+                            }
+
+                            await Task.Delay(3000);
+                        }
+
+
+                        foreach(var item in currentCompleteFileDataInfos)
+                        {
+                            completedAction(item);
+                            //completedFileNames[item.FileName] = item.FileName;
                         }
 
                         if (result.IsStop)
@@ -472,12 +492,12 @@ namespace FW.TestPlatform.Main.NetGateway
                             break;
                         }
 
-                        await Task.Delay(10000);
+                        await Task.Delay(3000);
                     }
                     catch(Exception ex)
                     {
                         LoggerHelper.LogError(LoggerCategoryName, ex.ToStackTraceString());
-                        await Task.Delay(10000);
+                        await Task.Delay(3000);
                     }
 
                 }
@@ -577,8 +597,12 @@ namespace FW.TestPlatform.Main.NetGateway
                     }
 
                     var payloadData = payloadPacket.PayloadData;
+                    var strData = payloadData.ToString();
+                    if (strData != null)
+                    {
+                        sourceDataAction.Invoke(strData);
+                    }
 
-                    sourceDataAction.Invoke(payloadData.ToString());
                 };
                 reader.ReadPackets(cancellationToken);
             }
@@ -1287,7 +1311,7 @@ namespace FW.TestPlatform.Main.NetGateway
             }
         }
 
-        private byte[] GetGoogleData(byte[] data, out int requestType)
+        private byte[]? GetGoogleData(byte[] data, out int requestType)
         {
             requestType = 0;
 
@@ -1341,7 +1365,8 @@ namespace FW.TestPlatform.Main.NetGateway
         public static DateTime ConvertToDateTime(string timestamp, string timestampMicroseconds)
         {
             DateTime time = DateTime.MinValue;
-            DateTime startTime = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+        
+            DateTime startTime =new DateTime(1970, 1, 1).ToLocalTime();
 
             if (timestamp.Length == 10)        //精确到秒
             {
@@ -1389,7 +1414,6 @@ namespace FW.TestPlatform.Main.NetGateway
 
                         return testCaseHistory;
 
-                        break;
                     default:
                         break;
                 }
@@ -1402,11 +1426,11 @@ namespace FW.TestPlatform.Main.NetGateway
     [Injection(InterfaceType = typeof(IConvertNetDataFromSourceService), Scope = InjectionScope.Singleton)]
     public class ConvertNetDataFromSourceService : IConvertNetDataFromSourceService
     {
-        Task<NetData> IConvertNetDataFromSourceService.Convert(string prefix, string sourceData, CancellationToken cancellationToken)
+        public async Task<NetData?> Convert(string prefix, string sourceData, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(sourceData))
             {
-                return null;
+                return await Task.FromResult<NetData?>(null);
             }
 
             string[] sourceData_split = sourceData.Split("|");
@@ -1419,10 +1443,10 @@ namespace FW.TestPlatform.Main.NetGateway
                 netData.CreateTime = DateTime.FromOADate(double.Parse(sourceData_split[2]));
                 netData.RunDuration = null;
 
-                return Task.FromResult(netData);
+                return await Task.FromResult(netData);
             }
 
-            return null;
+            return await Task.FromResult<NetData?>(null);
         }
     }
 
