@@ -281,6 +281,7 @@ namespace FW.TestPlatform.Main
 
             TestCaseIMP.HandleServiceFactories[EngineTypes.Http] = DIContainerContainer.Get<TestCaseHandleServiceForHttpFactory>();
             TestCaseIMP.HandleServiceFactories[EngineTypes.Tcp] = DIContainerContainer.Get<TestCaseHandleServiceForTcpFactory>();
+            TestCaseIMP.HandleServiceFactories[EngineTypes.WebSocket] = DIContainerContainer.Get<TestCaseHandleServiceForWebSocketFactory>();
 
             TestCaseHandleServiceForTcp.AdditionFuncNames = new List<string> { 
                 AdditionFuncNames.NameOnceJsonData, 
@@ -302,7 +303,8 @@ namespace FW.TestPlatform.Main
                 AdditionFuncNames.DateTimeFormate,
                 AdditionFuncNames.DateTimeAdd,
                 AdditionFuncNames.HttpGetWithConnect,
-                AdditionFuncNames.HttpPostWithConnect };
+                AdditionFuncNames.HttpPostWithConnect,
+                AdditionFuncNames.WebSocketWithConnect };
 
             TestCaseHandleServiceForHttp.AdditionFuncNames = new List<string> {
                 AdditionFuncNames.NameOnceJsonData,
@@ -324,7 +326,8 @@ namespace FW.TestPlatform.Main
                 AdditionFuncNames.DateTimeFormate,
                 AdditionFuncNames.DateTimeAdd,
                 AdditionFuncNames.HttpGetWithConnect,
-                AdditionFuncNames.HttpPostWithConnect };
+                AdditionFuncNames.HttpPostWithConnect,
+                AdditionFuncNames.WebSocketWithConnect };
 
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.NameOnceJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustNameOnceJsonDataFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.TcpRR}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustTcpRRFactory>();
@@ -346,6 +349,7 @@ namespace FW.TestPlatform.Main
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.DateTimeAdd}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustDateTimeAddFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.HttpGetWithConnect}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustHttpGetWithConnectFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.HttpPostWithConnect}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustHttpPostWithConnectFactory>();
+            GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.WebSocketWithConnect}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustWebSocketWithConnectFactory>();
 
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.AdditionFunc] = DIContainerContainer.Get<LabelParameterHandlerForAdditionFuncFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.DataVarDeclareInit] = DIContainerContainer.Get<LabelParameterHandlerForDataVarDeclareInitFactory>();
@@ -388,6 +392,7 @@ namespace FW.TestPlatform.Main
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.DateTimeFormate] = DIContainerContainer.Get<LabelParameterHandlerForFireEventRequestFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.DateTimeAdd] = DIContainerContainer.Get<LabelParameterHandlerForFireEventRequestFactory>();
             LabelParameterIMP.HandlerFactories[LabelParameterTypes.UserName] = DIContainerContainer.Get<LabelParameterHandlerForUserNameFactory>();
+            LabelParameterIMP.HandlerFactories[LabelParameterTypes.WebSocketWithConnectInvoke] = DIContainerContainer.Get<LabelParameterHandlerForWebSocketWithConnectInvokeFactory>();
 
             GetSeparatorServiceSelector.GetSeparatorServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSeparatorServiceForLocustFactory>();
             GetSpaceServiceSelector.GetSpaceServiceFactories[RuntimeEngineTypes.Locust] = DIContainerContainer.Get<GetSpaceServiceForLocustFactory>();
