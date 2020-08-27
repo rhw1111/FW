@@ -27,11 +27,14 @@
     </Compile>
     <Compile Include="TemplateScript\test-template-http.py" />
     <Compile Include="TemplateScript\test-template-locust.py" />
+    <Compile Include="TemplateScript\test-template-websocket.py" />
     <Compile Include="TestPlatform.LocustScript.py" />
     <Compile Include="TestScript\HttpClient.py" />
     <Compile Include="TestScript\TcpSocketClient-locust.py" />
     <Compile Include="TestScript\TcpSocketClient.py" />
     <Compile Include="TestScript\TcpSocketServer.py" />
+    <Compile Include="TestScript\WebSocketClient.py" />
+    <Compile Include="TestScript\WebSocketServer.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="requirements.txt" />
