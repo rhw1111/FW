@@ -21,6 +21,8 @@
                        label="测试数据源" />
           <q-route-tab to="/MasterHost"
                        label="主机" />
+          <q-route-tab to="/Directory"
+                       label="目录" />
         </q-tabs>
       </q-header>
 

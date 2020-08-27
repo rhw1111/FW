@@ -31,6 +31,7 @@ namespace FW.TestPlatform.Main
     {
         public const string LocustTcp = "LocustTcp";
         public const string LocustHttp = "LocustHttp";
+        public const string LocustWebSocket = "LocustWebSocket";
     }
 
     /// <summary>
@@ -187,6 +188,7 @@ namespace FW.TestPlatform.Main
     {
         public const string Http = "Http";
         public const string Tcp = "Tcp";
+        public const string WebSocket = "WebSocket";
     }
 
     /// <summary>
@@ -279,6 +281,7 @@ namespace FW.TestPlatform.Main
         public const string DateTimeFormate = "datetimeformate";
         public const string DateTimeAdd = "datetimeadd";
         public const string UserName = "username";
+        public const string WebSocketWithConnectInvoke = "websocketwithconnectinvoke";
     }
 
     public static class LabelTypes
@@ -330,6 +333,7 @@ namespace FW.TestPlatform.Main
         public const string DateTimeAdd = "DateTimeAdd";
         public const string HttpGetWithConnect = "HttpGetWithConnect";
         public const string HttpPostWithConnect = "HttpPostWithConnect";
+        public const string WebSocketWithConnect = "WebSocketWithConnect";
     }
 
     /// <summary>

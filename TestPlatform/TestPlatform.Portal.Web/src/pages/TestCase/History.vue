@@ -401,7 +401,7 @@ export default {
               this.$q.notify({
                 position: 'top',
                 message: '提示',
-                caption: '没有文件需要分析 ',
+                caption: '没有需要分析的日志 ',
                 color: 'secondary',
               });
               this.$q.loading.hide();
@@ -409,7 +409,7 @@ export default {
               this.$q.notify({
                 position: 'top',
                 message: '提示',
-                caption: `还有${res.data}个文件需要分析`,
+                caption: `有${res.data}个文件开始分析`,
                 color: 'secondary',
               });
               this.$q.loading.hide();
@@ -440,14 +440,14 @@ export default {
           this.$q.notify({
             position: 'top',
             message: '提示',
-            caption: '不存在需要解析的文件',
+            caption: '没有文件需要分析',
             color: 'secondary',
           })
         } else {
           this.$q.notify({
             position: 'top',
             message: '提示',
-            caption: '有文件未解析',
+            caption: `还有文件需要分析`,
             color: 'secondary',
           })
         }

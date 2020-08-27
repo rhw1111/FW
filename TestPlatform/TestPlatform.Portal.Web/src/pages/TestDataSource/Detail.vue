@@ -3,6 +3,11 @@
     <div class="detail_header">
       <q-btn class="btn"
              color="primary"
+             label="返 回 目 录"
+             v-if="$route.name=='DirectoryTestDataSourceDetail'"
+             @click="returnDirectory" />
+      <q-btn class="btn"
+             color="primary"
              label="保 存"
              @click="putTestDataSource" />
       <q-btn class="btn"
@@ -31,6 +36,21 @@
             <template v-slot:prepend>
             </template>
           </q-select>
+          <q-input :dense="false"
+                   class="col"
+                   readonly
+                   placeholder="点击右侧加号选择文件目录">
+            <template v-slot:before>
+              <span style="font-size:14px">文件目录:</span>
+            </template>
+            <template v-slot:append>
+              <q-btn round
+                     dense
+                     flat
+                     icon="add"
+                     @click="ChangeFileDirectoryFlag = true;" />
+            </template>
+          </q-input>
         </div>
 
         <div class="row input_row">
@@ -47,15 +67,49 @@
         </div>
       </div>
     </div>
+    <!-- 更改文件目录 -->
+    <q-dialog v-model="ChangeFileDirectoryFlag"
+              persistent>
+      <q-card style="width: 100%;">
+        <q-card-section>
+          <div class="text-h6">选择文件目录</div>
+        </q-card-section>
+
+        <q-separator />
+
+        <TreeEntity />
+
+        <q-separator />
+
+        <q-card-actions align="right">
+          <q-btn flat
+                 label="取消"
+                 color="primary"
+                 @click="ChangeFileDirectoryFlag = false;" />
+          <q-btn flat
+                 label="确定"
+                 color="primary"
+                 @click="ChangeFileDirectoryFlag = false;" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script>
 import * as Apis from "@/api/index"
+import TreeEntity from "@/components/TreeEntity.vue"
 export default {
   name: 'TestCaseDetail',
+  components: {
+    TreeEntity
+  },
   data () {
     return {
+
+      // -------- 更改文件目录 -------
+      ChangeFileDirectoryFlag: false,//更改文件目录Flag
+
       TestDataSourceDetail: '',//详情数据
 
       Id: '',
@@ -185,6 +239,13 @@ export default {
         }
       }
     },
+    // -------------------- 目录 ----------------------
+    //返回目录
+    returnDirectory () {
+      this.$router.push({
+        path: '/Directory'
+      })
+    }
   }
 }
 </script>
