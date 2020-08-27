@@ -4,6 +4,11 @@
     <div class="detail_header">
       <q-btn class="btn"
              color="primary"
+             label="返 回 目 录"
+             v-if="$route.name=='DirectoryTestCaseDetail'"
+             @click="returnDirectory" />
+      <q-btn class="btn"
+             color="primary"
              label="保 存"
              :disable="isNoRun!=1?false:true"
              @click="putTestCase" />
@@ -226,10 +231,6 @@ export default {
         }
       })
     },
-
-
-
-
     //保存更新TestCase
     putTestCase () {
       if (!this.$refs.CSTestCase.newCreate()) { return; }
@@ -246,7 +247,6 @@ export default {
         })
         this.getTestCaseDetail();
       })
-
     },
     //删除当条TestCase
     deleteTestCase () {
@@ -272,9 +272,6 @@ export default {
       }).onCancel(() => {
       })
     },
-
-
-
     //运行
     run () {
       this.$q.loading.show()
@@ -323,11 +320,6 @@ export default {
         this.$q.loading.hide()
         this.lookMasterLogFlag = true;
         this.lookMasterLogText = res.data;
-        // this.$q.dialog({
-        //   title: '提示',
-        //   message: res.data,
-        //   style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
-        // })
       })
     },
 
@@ -345,7 +337,6 @@ export default {
       this.CopyTestCaseFixed = false;
       this.CopyTestCaseName = '';
       this.CopyTestCaseSlaveFlag = '否'
-
     },
     //复制创建TestCase创建
     CopyTestCaseCreate () {
@@ -432,6 +423,13 @@ export default {
 
 
     },
+    // -------------------- 目录 ----------------------
+    //返回目录
+    returnDirectory () {
+      this.$router.push({
+        path: '/Directory'
+      })
+    }
   }
 }
 </script>

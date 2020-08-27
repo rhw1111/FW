@@ -52,34 +52,6 @@
         </template>
       </q-table>
 
-      <!-- <q-splitter v-model="splitterModel"
-                  style="height: 400px">
-
-        <template v-slot:before>
-          <div class="q-pa-md">
-            <q-tree :nodes="simple"
-                    node-key="label"
-                    selected-color="primary"
-                    :selected.sync="selectedf"
-                    default-expand-all
-                    @update:selected="getNodeByKey" />
-          </div>
-        </template>
-
-        <template v-slot:after>
-          <q-tab-panels v-model="selectedf"
-                        animated
-                        transition-prev="jump-up"
-                        transition-next="jump-up">
-            <q-tab-panel name="Relax Hotel">
-              <div class="text-h4 q-mb-md">Welcome</div>
-              <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio iure quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-              <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio iure quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-            </q-tab-panel>
-          </q-tab-panels>
-        </template>
-      </q-splitter> -->
-
     </div>
 
     <!-- 新增TestCase框 -->
@@ -152,21 +124,6 @@ export default {
       },
       dismiss: null,
 
-
-
-
-      splitterModel: 15,
-      selectedf: '',
-      simple: [
-        {
-          label: '测试用例',
-          children: [
-          ]
-        }
-      ]
-
-
-
     }
   },
   mounted () {
@@ -203,12 +160,6 @@ export default {
         this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
         //this.getMasterHostList();
         this.getDataSourceName();
-
-        for (let i = 0; i < res.data.results.length; i++) {
-          //this.simple[0].children.push(res.data.results[i])
-          this.simple[0].children.push({ label: res.data.results[i].name })
-        }
-        console.log(this.simple)
       })
     },
     //获得数据源名称
