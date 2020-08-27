@@ -329,6 +329,29 @@ namespace FW.TestPlatform.Main
                 AdditionFuncNames.HttpPostWithConnect,
                 AdditionFuncNames.WebSocketWithConnect };
 
+            TestCaseHandleServiceForWebSocket.AdditionFuncNames = new List<string> {
+                AdditionFuncNames.NameOnceJsonData,
+                AdditionFuncNames.TcpRR,
+                AdditionFuncNames.TcpRRWithConnect,
+                AdditionFuncNames.GetJsonRowData,
+                AdditionFuncNames.GetNameSerialNo,
+                AdditionFuncNames.NumberFill,
+                AdditionFuncNames.IntRange,
+                AdditionFuncNames.DecimalRange,
+                AdditionFuncNames.RanJsonData,
+                AdditionFuncNames.DesSecurity,
+                AdditionFuncNames.FilterJsonData,
+                AdditionFuncNames.CalcCheckSum,
+                AdditionFuncNames.GetJsonData,
+                AdditionFuncNames.SplitJsonData,
+                AdditionFuncNames.Print,
+                AdditionFuncNames.FireEventRequest,
+                AdditionFuncNames.DateTimeFormate,
+                AdditionFuncNames.DateTimeAdd,
+                AdditionFuncNames.HttpGetWithConnect,
+                AdditionFuncNames.HttpPostWithConnect,
+                AdditionFuncNames.WebSocketWithConnect };
+
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.NameOnceJsonData}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustNameOnceJsonDataFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.TcpRR}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustTcpRRFactory>();
             GenerateAdditionFuncServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{AdditionFuncNames.TcpRRWithConnect}"] = DIContainerContainer.Get<GenerateAdditionFuncServiceForLocustTcpRRWithConnectFactory>();
