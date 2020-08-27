@@ -318,5 +318,5 @@ CREATE TABLE IF NOT EXISTS `treeentity` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 /*!ALTER TABLE testcasehistory*/
-ALTER TABLE `testcasehistory` ADD COLUMN `netgatewaydataformat` varchar(150) NOT NULL DEFAULT '';
+ALTER TABLE `testcasehistory` ADD COLUMN `netgatewaydataformat` varchar(150) DEFAULT '';
 ALTER TABLE `testcase` ADD COLUMN `testcasehistoryid` char(36) DEFAULT NULL;

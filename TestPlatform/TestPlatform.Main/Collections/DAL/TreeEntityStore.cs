@@ -29,44 +29,257 @@ namespace FW.TestPlatform.Main.Collections.DAL
         }
 
 
-        public Task Add(TreeEntity entity, CancellationToken cancellationToken = default)
+        public async Task Add(TreeEntity entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _collectionConnectionFactory.CreateAllForCollection(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    entity.ModifyTime = DateTime.UtcNow;
+                    entity.CreateTime = DateTime.UtcNow;
+                    if (entity.ID == Guid.Empty)
+                    {
+                        entity.ID = Guid.NewGuid();
+                    }
+                    await dbContext.TreeEntities.AddAsync(entity, cancellationToken);
+                    var result = await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
         }
 
-        public Task Delete(Guid id, CancellationToken cancellationToken = default)
+        public async Task Delete(Guid id, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _collectionConnectionFactory.CreateAllForCollection(), async (conn, transaction) =>
+            {
+                await using(var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if(transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    var deleteObj = new TreeEntity() { ID = id};
+                    dbContext.TreeEntities.Attach(deleteObj);
+                    dbContext.TreeEntities.Remove(deleteObj);
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
         }
 
-        public Task<QueryResult<TreeEntity>> Query(string? matchName,int? type, int page, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<QueryResult<TreeEntity>> Query(string? matchName,int? type, int page, int pageSize, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            QueryResult<TreeEntity> result = new QueryResult<TreeEntity>()
+            {
+                CurrentPage = page
+            };
+
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _collectionConnectionFactory.CreateAllForCollection(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    var strLike = $"%{matchName.ToSqlLike()}%";
+                    var count = 0;
+                    if (type == null)
+                    {
+                        count = await (from item in dbContext.TreeEntities
+                                       where EF.Functions.Like(item.Name, strLike)
+                                       select item.ID).CountAsync();
+                    }
+                    else
+                    {
+                        count = await (from item in dbContext.TreeEntities
+                                       where EF.Functions.Like(item.Name, strLike) && item.Type == type
+                                       select item.ID).CountAsync();
+                    }
+                    result.TotalCount = count;
+
+                    var items = (from item in dbContext.TreeEntities
+                                 where EF.Functions.Like(item.Name, strLike)
+                                 select item);
+                    if(type != null)
+                    {
+                        items = (from item in items
+                                 where item.Type ==  type
+                               select item);
+                    }
+                    items = (from item in items
+                             orderby item.CreateTime descending
+                             select item).Skip((page - 1) * pageSize).Take(pageSize);
+
+                    var datas = await (from item in dbContext.TreeEntities
+                                       join idItem in items.Select(item => item.ID).ToList()
+                                  on item.ID equals idItem
+                                       orderby EF.Property<long>(item, "Sequence") descending
+                                       select item).ToListAsync();
+
+                    result.Results.AddRange(datas);
+                }
+            });
+
+            return result;
         }
 
-        public Task<TreeEntity?> QueryByID(Guid id, CancellationToken cancellationToken = default)
+        public async Task<TreeEntity?> QueryByID(Guid id, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            TreeEntity? result = null;
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _collectionConnectionFactory.CreateReadForCollection(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    result = await (from item in dbContext.TreeEntities
+                                    where item.ID == id
+                                    select item).FirstOrDefaultAsync();
+                }
+            });
+
+            return result;
         }
 
-        public Task<TreeEntity?> QueryByName(string name, CancellationToken cancellationToken = default)
+        public async Task<TreeEntity?> QueryByName(string name, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            TreeEntity? result = null;
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _collectionConnectionFactory.CreateAllForCollection(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+
+                    result = await (from item in dbContext.TreeEntities
+                                    where item.Name == name
+                                    select item).FirstOrDefaultAsync();
+                }
+            });
+
+            return result;
         }
 
-        public Task<Guid?> QueryByNameNoLock(string name, CancellationToken cancellationToken = default)
+        public async Task<Guid?> QueryByNameNoLock(string name, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            Guid? result = null;
+            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.RequiresNew, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted, Timeout = new TimeSpan(0, 0, 30) }))
+            {
+                await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _collectionConnectionFactory.CreateAllForCollection(), async (conn, transaction) =>
+                {
+                    await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                    {
+                        if (transaction != null)
+                        {
+                            await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                        }
+
+                        var testCase = await (from item in dbContext.TreeEntities
+                                              where item.Name == name
+                                              orderby EF.Property<long>(item, "Sequence") descending
+                                              select item).FirstOrDefaultAsync();
+                        if (testCase != null)
+                            result = testCase.ID;
+                    }
+                });
+
+                scope.Complete();
+            }
+            return result;
         }
 
-        public Task<QueryResult<TreeEntity>> QueryChildren(Guid? partentID, string? matchName,int? type, int page, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<QueryResult<TreeEntity>> QueryChildren(Guid? parentID, string? matchName,int? type, int page, int pageSize, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            QueryResult<TreeEntity> result = new QueryResult<TreeEntity>()
+            {
+                CurrentPage = page
+            };
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _collectionConnectionFactory.CreateAllForCollection(), async (conn, transaction) => { 
+                await using(var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    var strLike = $"%{matchName.ToSqlLike()}%";
+                    var count = 0;
+                    if (type == null)
+                        type = -1;
+                    if (type == null)
+                    {
+                        count = await (from item in dbContext.TreeEntities
+                                       where EF.Functions.Like(item.Name, strLike)
+                                       select item.ID).CountAsync();
+                    }
+                    else
+                    {
+                        count = await (from item in dbContext.TreeEntities
+                                       where EF.Functions.Like(item.Name, strLike) && item.Type == type
+                                       select item.ID).CountAsync();
+                    }
+                    result.TotalCount = count;
+
+                    var items = (from item in dbContext.TreeEntities
+                                 where EF.Functions.Like(item.Name, strLike) && item.ParentID == parentID
+                                 select item);
+                    if (type != null)
+                    {
+                        items = (from item in items
+                                 where item.Type == type
+                                 select item);
+                    }
+                    items = (from item in items
+                             orderby item.CreateTime descending
+                             select item).Skip((page - 1) * pageSize).Take(pageSize);
+
+                    var datas = await (from item in dbContext.TreeEntities
+                                       join idItem in items.Select(item => item.ID).ToList()
+                                  on item.ID equals idItem
+                                       orderby EF.Property<long>(item, "Sequence") descending
+                                       select item).ToListAsync();
+
+                    result.Results.AddRange(datas);
+                }
+            });
+            return result;
         }
 
-        public Task<Guid?> QueryFirstChildren(Guid partentID, CancellationToken cancellationToken = default)
+        public async Task<Guid?> QueryFirstChildren(Guid parentID, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            Guid? result = null;
+            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.RequiresNew, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted, Timeout = new TimeSpan(0, 0, 30) }))
+            {
+                await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _collectionConnectionFactory.CreateAllForCollection(), async (conn, transaction) =>
+                {
+                    await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                    {
+                        if (transaction != null)
+                        {
+                            await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                        }
+
+                        var testCase = await (from item in dbContext.TreeEntities
+                                              where item.ParentID == parentID
+                                              orderby EF.Property<long>(item, "Sequence") descending
+                                              select item).FirstOrDefaultAsync();
+                        if (testCase != null)
+                            result = testCase.ID;
+                    }
+                });
+
+                scope.Complete();
+            }
+            return result;
         }
 
         public async Task Update(TreeEntity entity, CancellationToken cancellationToken = default)
@@ -98,14 +311,70 @@ namespace FW.TestPlatform.Main.Collections.DAL
             });
         }
 
-        public Task UpdateName(Guid id, string name, CancellationToken cancellationToken = default)
+        public async Task UpdateName(Guid id, string name, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _collectionConnectionFactory.CreateAllForCollection(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    TreeEntity entity = new TreeEntity
+                    {
+                        ID = id,
+                        Name = name,
+                        ModifyTime = DateTime.UtcNow
+                    };
+                    dbContext.TreeEntities.Attach(entity);
+                    var entry = dbContext.Entry(entity);
+                    foreach (var item in entry.Properties)
+                    {
+                        if (item.Metadata.Name != "ID" && item.Metadata.Name != "Parent")
+                        {
+                            if (entity.Attributes.ContainsKey(item.Metadata.Name))
+                            {
+                                entry.Property(item.Metadata.Name).IsModified = true;
+                            }
+                        }
+                    }
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
         }
 
-        public Task UpdateParent(Guid id, Guid? parentID, CancellationToken cancellationToken = default)
+        public async Task UpdateParent(Guid id, Guid? parentID, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, false, false, _collectionConnectionFactory.CreateAllForCollection(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    TreeEntity entity = new TreeEntity
+                    {
+                        ID = id,
+                        ParentID = parentID,
+                        ModifyTime = DateTime.UtcNow
+                    };
+                    dbContext.TreeEntities.Attach(entity);
+                    var entry = dbContext.Entry(entity);
+                    foreach (var item in entry.Properties)
+                    {
+                        if (item.Metadata.Name != "ID" && item.Metadata.Name != "Parent")
+                        {
+                            if (entity.Attributes.ContainsKey(item.Metadata.Name))
+                            {
+                                entry.Property(item.Metadata.Name).IsModified = true;
+                            }
+                        }
+                    }
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            });
         }
     }
 }
