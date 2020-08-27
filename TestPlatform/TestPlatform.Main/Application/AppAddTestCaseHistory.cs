@@ -52,7 +52,7 @@ namespace FW.TestPlatform.Main.Application
             history.CaseID = model.CaseID;
             history.ID = (Guid)testCase.TestCaseHistoryID;               
             history.Summary = JsonSerializerHelper.Serializer(model);
-
+            history.NetGatewayDataFormat = string.Empty;
             await testCase.AddHistory(history);
         }
     }

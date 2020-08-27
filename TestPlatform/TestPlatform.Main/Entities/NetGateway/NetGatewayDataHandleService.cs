@@ -76,11 +76,11 @@ namespace FW.TestPlatform.Main.NetGateway
 
             Dictionary<string,string> completedFileNames = new Dictionary<string, string>();
 
-            var t1 = listenFileCompleted(netGatewayDataHandleResult, folderPath, completedFileNames, (info) =>
+            var t1 = listenFileCompleted(netGatewayDataHandleResult, folderPath, completedFileNames, (infos) =>
             {
                 lock (completedFiles)
                 {
-                    completedFiles[info.FileName] = info;
+                    completedFiles.Merge(infos);
                 }
             });
 
@@ -409,7 +409,7 @@ namespace FW.TestPlatform.Main.NetGateway
             return netGatewayDataHandleResult;
         }
 
-        private Task listenFileCompleted(NetGatewayDataHandleResultDefault result, string folderName, Dictionary<string, string> completedFileNames, Action<FileDataInfo> completedAction)
+        private Task listenFileCompleted(NetGatewayDataHandleResultDefault result, string folderName, Dictionary<string, string> completedFileNames, Action<Dictionary<string,FileDataInfo>> completedAction)
         {
             return Task.Run(async () =>
             {
@@ -423,7 +423,7 @@ namespace FW.TestPlatform.Main.NetGateway
                         }
 
                         int repeat = 3;
-                        List<FileDataInfo> currentCompleteFileDataInfos = new List<FileDataInfo>();
+                        Dictionary<string,FileDataInfo> currentCompleteFileDataInfos = new Dictionary<string,FileDataInfo>();
 
 
                         for (var index = 0; index <= repeat - 1; index++)
@@ -467,37 +467,42 @@ namespace FW.TestPlatform.Main.NetGateway
                                     do
                                     {
                                         old_length = fileInfo.Length;
-                                        Thread.Sleep(2000);
+                                        await Task.Delay(1000);
 
                                     } while (old_length != fileInfo.Length);
 
-                                    currentCompleteFileDataInfos.Add(new FileDataInfo() { FileName = fileInfo.FullName, CreateTime = fileInfo.CreationTimeUtc });
+                                    currentCompleteFileDataInfos[fileInfo.FullName]=new FileDataInfo() { FileName = fileInfo.FullName, CreateTime = fileInfo.CreationTimeUtc };
                                     //completedAction(new FileDataInfo() { FileName = fileInfo.FullName, CreateTime = fileInfo.CreationTimeUtc });
                                     completedFileNames[item.FileName] = item.FileName;
+                                    if (currentCompleteFileDataInfos.Count>=10)
+                                    {
+                                        completedAction(currentCompleteFileDataInfos);
+                                        currentCompleteFileDataInfos.Clear();
+                                    }
                                 }
                             }
 
-                            await Task.Delay(3000);
+                            await Task.Delay(1000);
                         }
 
 
-                        foreach(var item in currentCompleteFileDataInfos)
-                        {
-                            completedAction(item);
+                        //foreach(var item in currentCompleteFileDataInfos)
+                        //{
+                            completedAction(currentCompleteFileDataInfos);
                             //completedFileNames[item.FileName] = item.FileName;
-                        }
+                        //}
 
                         if (result.IsStop)
                         {
                             break;
                         }
 
-                        await Task.Delay(3000);
+                        await Task.Delay(1000);
                     }
                     catch(Exception ex)
                     {
                         LoggerHelper.LogError(LoggerCategoryName, ex.ToStackTraceString());
-                        await Task.Delay(3000);
+                        await Task.Delay(1000);
                     }
 
                 }
