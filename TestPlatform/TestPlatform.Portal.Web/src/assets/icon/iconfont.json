@@ -6,6 +6,62 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "1340377",
+      "name": "文件夹",
+      "font_class": "wenjianjia2",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    },
+    {
+      "icon_id": "3745216",
+      "name": "文件夹",
+      "font_class": "tubiaozhizuomoban",
+      "unicode": "e611",
+      "unicode_decimal": 58897
+    },
+    {
+      "icon_id": "3860883",
+      "name": "文件夹",
+      "font_class": "wenjianjia3",
+      "unicode": "e691",
+      "unicode_decimal": 59025
+    },
+    {
+      "icon_id": "3872819",
+      "name": "21-文件",
+      "font_class": "-wenjian",
+      "unicode": "e84b",
+      "unicode_decimal": 59467
+    },
+    {
+      "icon_id": "4503760",
+      "name": "文件",
+      "font_class": "noun__cc",
+      "unicode": "e610",
+      "unicode_decimal": 58896
+    },
+    {
+      "icon_id": "5716588",
+      "name": "数据文件",
+      "font_class": "shujuwenjian",
+      "unicode": "e67c",
+      "unicode_decimal": 59004
+    },
+    {
+      "icon_id": "7459722",
+      "name": "文件夹",
+      "font_class": "weibiaoti-_huabanfuben",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "14386921",
+      "name": "测试",
+      "font_class": "ceshi",
+      "unicode": "e640",
+      "unicode_decimal": 58944
+    },
+    {
       "icon_id": "2124802",
       "name": "数据源",
       "font_class": "shujuyuan",

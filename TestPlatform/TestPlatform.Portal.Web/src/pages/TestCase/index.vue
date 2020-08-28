@@ -3,54 +3,68 @@
     <!-- TestCase列表 -->
     <div class="q-pa-md">
 
-      <q-table title="测试用例列表"
-               :data="TestCaseList"
-               :columns="columns"
-               row-key="id"
-               selection="multiple"
-               :selected.sync="selected"
-               :rows-per-page-options=[0]
-               table-style="max-height: 500px"
-               no-data-label="暂无数据更新">
+      <transition name="TreeEntity-slid">
+        <TreeEntity v-show="expanded"
+                    style="max-width:20%;height:600px;overflow:auto;float:left;" />
+      </transition>
 
-        <template v-slot:top-right>
-          <q-btn class="btn"
-                 color="primary"
-                 label="运 行"
-                 @click="runTestCase" />
-          <q-btn class="btn"
-                 color="primary"
-                 label="新 增"
-                 @click="openCrateTestCase" />
-        </template>
-        <template v-slot:bottom
-                  class="row">
-          <q-pagination v-model="pagination.page"
-                        :max="pagination.rowsNumber"
-                        :input="true"
-                        class="col offset-md-10"
-                        @input="nextPage">
-          </q-pagination>
-        </template>
-        <template v-slot:body-cell-id="props">
-          <q-td class=""
-                :props="props">
+      <div>
+        <q-btn color="grey"
+               flat
+               dense
+               style="width:2%;height:600px;float:left;"
+               :icon="expanded ? 'keyboard_arrow_left' : 'keyboard_arrow_right'"
+               @click="expanded = !expanded" />
+
+        <q-table title="测试用例列表"
+                 :data="TestCaseList"
+                 :columns="columns"
+                 row-key="id"
+                 selection="multiple"
+                 :selected.sync="selected"
+                 :rows-per-page-options=[0]
+                 table-style="max-height: 500px;"
+                 no-data-label="暂无数据更新">
+
+          <template v-slot:top-right>
             <q-btn class="btn"
                    color="primary"
-                   v-show="props.row.status=='正在运行'"
-                   label="查看主机日志"
-                   @click="lookMasterLog(props)" />
+                   label="运 行"
+                   @click="runTestCase" />
             <q-btn class="btn"
                    color="primary"
-                   label="更 新"
-                   @click="toDetail(props)" />
-            <q-btn class="btn"
-                   style="background: #FF0000; color: white"
-                   label="删 除"
-                   @click="deleteTestCase(props)" />
-          </q-td>
-        </template>
-      </q-table>
+                   label="新 增"
+                   @click="openCrateTestCase" />
+          </template>
+          <template v-slot:bottom
+                    class="row">
+            <q-pagination v-model="pagination.page"
+                          :max="pagination.rowsNumber"
+                          :input="true"
+                          class="col offset-md-10"
+                          @input="nextPage">
+            </q-pagination>
+          </template>
+          <template v-slot:body-cell-id="props">
+            <q-td class=""
+                  :props="props">
+              <q-btn class="btn"
+                     color="primary"
+                     v-show="props.row.status=='正在运行'"
+                     label="查看主机日志"
+                     @click="lookMasterLog(props)" />
+              <q-btn class="btn"
+                     color="primary"
+                     label="更 新"
+                     @click="toDetail(props)" />
+              <q-btn class="btn"
+                     style="background: #FF0000; color: white"
+                     label="删 除"
+                     @click="deleteTestCase(props)" />
+            </q-td>
+          </template>
+        </q-table>
+      </div>
 
     </div>
 
@@ -89,10 +103,12 @@
 <script>
 import * as Apis from "@/api/index"
 import CreateShowTestCase from './component/CreateShowTestCase.vue'
+import TreeEntity from "@/components/TreeEntity.vue"
 export default {
   name: 'TestCase',
   components: {
-    CreateShowTestCase
+    CreateShowTestCase,
+    TreeEntity
   },
   data () {
     return {
@@ -123,7 +139,7 @@ export default {
         rowsNumber: 1     //总页数
       },
       dismiss: null,
-
+      expanded: true,//目录展开收缩flag
     }
   },
   mounted () {
@@ -382,5 +398,14 @@ export default {
   .input_row {
     margin-bottom: 30px;
   }
+}
+.TreeEntity-slid-enter-active,
+.TreeEntity-slid-leave-active {
+  transition: all 0.3s;
+}
+.TreeEntity-slid-enter,
+.TreeEntity-slid-leave-active {
+  transform: translate3d(-3rem, 0, 0);
+  opacity: 0;
 }
 </style>
