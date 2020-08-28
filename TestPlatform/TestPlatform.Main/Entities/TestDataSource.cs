@@ -95,6 +95,22 @@ namespace FW.TestPlatform.Main.Entities
             }
         }
 
+        /// <summary>
+        /// 树结点Id
+        /// </summary>
+        public Guid TreeID
+        {
+            get
+            {
+
+                return GetAttribute<Guid>(nameof(TreeID));
+            }
+            set
+            {
+                SetAttribute<Guid>(nameof(TreeID), value);
+            }
+        }
+
 
         /// <summary>
         /// 创建时间

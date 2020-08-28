@@ -320,3 +320,6 @@ CREATE TABLE IF NOT EXISTS `treeentity` (
 /*!ALTER TABLE testcasehistory*/
 ALTER TABLE `testcasehistory` ADD COLUMN `netgatewaydataformat` varchar(150) DEFAULT '';
 ALTER TABLE `testcase` ADD COLUMN `testcasehistoryid` char(36) DEFAULT NULL;
+/*!ALTER TABLE testcase testdatasource 2020-08-27*/
+ALTER TABLE `testcase` ADD COLUMN `treeid` char(36) DEFAULT NULL;
+ALTER TABLE `testdatasource` ADD COLUMN `treeid` char(36) DEFAULT NULL;

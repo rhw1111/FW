@@ -195,6 +195,22 @@ namespace FW.TestPlatform.Main.Entities
         }
 
         /// <summary>
+        /// 树节点ID
+        /// </summary>
+        public Guid? TreeID
+        {
+            get
+            {
+
+                return GetAttribute<Guid?>(nameof(TreeID));
+            }
+            set
+            {
+                SetAttribute<Guid?>(nameof(TreeID), value);
+            }
+        }
+
+        /// <summary>
         /// 创建时间
         /// </summary>
         public DateTime CreateTime
