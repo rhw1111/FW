@@ -26,6 +26,22 @@ export default {
               Type: 0,
               Value: '',
               ParentID: null,
+              children: [
+                {
+                  ID: '001',
+                  label: '子文件夹1',
+                  Type: 0,
+                  Value: '',
+                  ParentID: 1
+                },
+                {
+                  ID: '001',
+                  label: '子文件夹2',
+                  Type: 0,
+                  Value: '',
+                  ParentID: 1
+                }
+              ]
             },
             {
               ID: '2',
@@ -33,6 +49,15 @@ export default {
               Type: 0,
               Value: '',
               ParentID: null,
+              children: [
+                {
+                  ID: '001',
+                  label: '子文件夹3',
+                  Type: 0,
+                  Value: '',
+                  ParentID: 1
+                }
+              ]
             },
             {
               ID: '3',
@@ -41,6 +66,7 @@ export default {
               Value: '',
               ParentID: null,
             },
+
           ]
         }
       ],

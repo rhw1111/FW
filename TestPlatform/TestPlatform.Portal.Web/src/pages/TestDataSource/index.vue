@@ -2,50 +2,62 @@
   <div class="TestDataSource">
     <!-- TestDataSource列表 -->
     <div class="q-pa-md">
-      <q-table title="测试数据源列表"
-               :data="TestDataSourceList"
-               :columns="columns"
-               selection="multiple"
-               :selected.sync="selected"
-               row-key="id"
-               :rows-per-page-options=[0]
-               table-style="max-height: 500px"
-               no-data-label="暂无数据更新">
+      <transition name="TreeEntity-slid">
+        <TreeEntity v-show="expanded"
+                    style="max-width:20%;height:600px;overflow:auto;float:left;" />
+      </transition>
+      <div>
+        <q-btn color="grey"
+               flat
+               dense
+               style="width:2%;height:600px;float:left;"
+               :icon="expanded ? 'keyboard_arrow_left' : 'keyboard_arrow_right'"
+               @click="expanded = !expanded" />
+        <q-table title="测试数据源列表"
+                 :data="TestDataSourceList"
+                 :columns="columns"
+                 selection="multiple"
+                 :selected.sync="selected"
+                 row-key="id"
+                 :rows-per-page-options=[0]
+                 table-style="max-height: 500px"
+                 no-data-label="暂无数据更新">
 
-        <template v-slot:top-right>
-          <q-btn class="btn"
-                 color="primary"
-                 label="新 增"
-                 @click="openCreate" />
-          <q-btn class="btn"
-                 style="background: #FF0000; color: white"
-                 label="删 除"
-                 @click="deleteTestDataSource" />
-        </template>
-
-        <template v-slot:body-cell-id="props">
-          <q-td class="text-left"
-                :props="props">
+          <template v-slot:top-right>
             <q-btn class="btn"
                    color="primary"
-                   label="更 新"
-                   @click="toDetail(props)" />
+                   label="新 增"
+                   @click="openCreate" />
             <q-btn class="btn"
-                   color="red"
+                   style="background: #FF0000; color: white"
                    label="删 除"
-                   @click="deleteTestDataSourceOne(props.row.id)" />
-          </q-td>
-        </template>
-        <template v-slot:bottom
-                  class="row">
-          <q-pagination v-model="pagination.page"
-                        :max="pagination.rowsNumber"
-                        :input="true"
-                        @input="switchPage"
-                        class="col offset-md-10">
-          </q-pagination>
-        </template>
-      </q-table>
+                   @click="deleteTestDataSource" />
+          </template>
+
+          <template v-slot:body-cell-id="props">
+            <q-td class="text-left"
+                  :props="props">
+              <q-btn class="btn"
+                     color="primary"
+                     label="更 新"
+                     @click="toDetail(props)" />
+              <q-btn class="btn"
+                     color="red"
+                     label="删 除"
+                     @click="deleteTestDataSourceOne(props.row.id)" />
+            </q-td>
+          </template>
+          <template v-slot:bottom
+                    class="row">
+            <q-pagination v-model="pagination.page"
+                          :max="pagination.rowsNumber"
+                          :input="true"
+                          @input="switchPage"
+                          class="col offset-md-10">
+            </q-pagination>
+          </template>
+        </q-table>
+      </div>
     </div>
     <!-- 新增TestDataSource框 -->
     <q-dialog v-model="createFixed"
@@ -167,8 +179,12 @@
 
 <script>
 import * as Apis from "@/api/index"
+import TreeEntity from "@/components/TreeEntity.vue"
 export default {
   name: 'TestDataSource',
+  components: {
+    TreeEntity
+  },
   data () {
     return {
       createFixed: false,  //新增Flag
@@ -199,6 +215,8 @@ export default {
         page: 1,          //页码
         rowsNumber: 1     //总页数
       },
+
+      expanded: true,//目录展开收缩flag
     }
   },
   mounted () {
@@ -526,5 +544,14 @@ export default {
   .q-dialog__inner--minimized > div {
     max-width: 700px;
   }
+}
+.TreeEntity-slid-enter-active,
+.TreeEntity-slid-leave-active {
+  transition: all 0.3s;
+}
+.TreeEntity-slid-enter,
+.TreeEntity-slid-leave-active {
+  transform: translate3d(-3rem, 0, 0);
+  opacity: 0;
 }
 </style>

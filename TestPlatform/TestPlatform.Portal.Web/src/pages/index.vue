@@ -15,14 +15,14 @@
         </q-toolbar>-->
 
         <q-tabs align="left">
+          <q-route-tab to="/Directory"
+                       label="目录管理" />
           <q-route-tab to="/TestCase"
                        label="测试用例" />
           <q-route-tab to="/TestDataSource"
                        label="测试数据源" />
           <q-route-tab to="/MasterHost"
                        label="主机" />
-          <q-route-tab to="/Directory"
-                       label="目录" />
         </q-tabs>
       </q-header>
 
