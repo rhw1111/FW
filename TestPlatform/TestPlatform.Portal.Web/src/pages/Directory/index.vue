@@ -10,7 +10,7 @@
                @click="prevLevel" />
         <q-btn class="btn"
                color="primary"
-               label="重命名"
+               label="目录重命名"
                @click="ModifyFolderName" />
         <q-btn class="btn"
                color="red"
@@ -23,7 +23,7 @@
                @click="ChangeFileDirectory" />
         <q-btn class="btn"
                color="primary"
-               label="新建文件夹"
+               label="新建目录"
                @click="newFolderCreate" />
         <q-btn class="btn"
                color="primary"
@@ -58,12 +58,13 @@
 
         <q-btn class="btn"
                color="primary"
-               label="搜索" />
+               label="搜索"
+               @click="searchFile" />
 
         <q-btn class="btn"
                color="primary"
                label="取消搜索"
-               @click="searchText='';FileType='';" />
+               @click="cancelSearch" />
       </div>
     </div>
     <!-- 目录 -->
@@ -85,14 +86,14 @@
                 v-show="value.Type==0">
             <svg class="icon iconfolder"
                  aria-hidden="true">
-              <use xlink:href="#icon-wenjianjia1"></use>
+              <use xlink:href="#icon-wenjianjia2"></use>
             </svg>
           </span>
           <span class="svg-container"
                 v-show="value.Type==1">
             <svg class="icon iconfolder"
                  aria-hidden="true">
-              <use xlink:href="#icon-lizi"></use>
+              <use xlink:href="#icon--wenjian"></use>
             </svg>
           </span>
           <span class="svg-container"
@@ -420,6 +421,64 @@ export default {
     //更改文件夹目录
     ChangeFileDirectory () {
       this.ChangeFileDirectoryFlag = true;
+    },
+    //------------------- 搜索 ---------------------
+    searchFile () {
+      if (this.searchText === '' && this.FileType === '') {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '搜索条件必须必须有一个',
+          color: 'red',
+        })
+      } else {
+        let searchIndex = -1;
+        if (this.FileType === '文件夹') { searchIndex = 0 } else if (this.FileType === '测试用例') { searchIndex = 1 } else if (this.FileType === '测试数据源') { searchIndex = 2 }
+        this.isRootFolderFlag = true;
+        let reg = new RegExp(this.searchText.trim(), 'i')
+        this.FolderList = [];
+        for (let i = 0; i < this.RootFolderList.length; i++) {
+          if (this.searchText.trim() != '' && this.FileType != '') {
+            if (this.RootFolderList[i].Name.match(reg) && this.RootFolderList[i].Type == searchIndex) {
+              this.FolderList.push(this.RootFolderList[i])
+            }
+          } else {
+            if (this.searchText.trim() != '') {
+              if (this.RootFolderList[i].Name.match(reg)) {
+                this.FolderList.push(this.RootFolderList[i])
+              }
+            } else {
+              if (this.RootFolderList[i].Type == searchIndex) {
+                this.FolderList.push(this.RootFolderList[i])
+              }
+            }
+          }
+        }
+
+        for (let i = 0; i < this.ChildFolderList.length; i++) {
+          if (this.searchText.trim() != '' && this.FileType != '') {
+            if (this.ChildFolderList[i].Name.match(reg) && this.ChildFolderList[i].Type == searchIndex) {
+              this.FolderList.push(this.ChildFolderList[i])
+            }
+          } else {
+            if (this.searchText.trim() != '') {
+              if (this.ChildFolderList[i].Name.match(reg)) {
+                this.FolderList.push(this.ChildFolderList[i])
+              }
+            } else {
+              if (this.ChildFolderList[i].Type == searchIndex) {
+                this.FolderList.push(this.ChildFolderList[i])
+              }
+            }
+          }
+        }
+
+      }
+    },
+    cancelSearch () {
+      this.searchText = ''; this.FileType = '';
+      this.isRootFolderFlag = false;
+      this.prevLevel();
     },
     //------------------- 新建文件夹 ---------------------
     newFolderCancel () {

@@ -95,6 +95,22 @@ namespace FW.TestPlatform.Main.Entities
             }
         }
 
+        /// <summary>
+        /// 树结点Id
+        /// </summary>
+        public Guid TreeID
+        {
+            get
+            {
+
+                return GetAttribute<Guid>(nameof(TreeID));
+            }
+            set
+            {
+                SetAttribute<Guid>(nameof(TreeID), value);
+            }
+        }
+
 
         /// <summary>
         /// 创建时间
@@ -186,38 +202,39 @@ namespace FW.TestPlatform.Main.Entities
 
         public async Task Add(TestDataSource source, CancellationToken cancellationToken = default)
         {
+            await _testDataSourceStore.Add(source, cancellationToken);
             //检查是否有名称重复的
-            var newId = await _testDataSourceStore.QueryByNameNoLock(source.Name, cancellationToken);
-            if (newId!=null)
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TestPlatformTextCodes.ExistTestDataSourceByName,
-                    DefaultFormatting = "已经存在名称为{0}的测试数据源",
-                    ReplaceParameters = new List<object>() { source.Name }
-                };
+            //var newId = await _testDataSourceStore.QueryByNameNoLock(source.Name, cancellationToken);
+            //if (newId!=null)
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TestPlatformTextCodes.ExistTestDataSourceByName,
+            //        DefaultFormatting = "已经存在名称为{0}的测试数据源",
+            //        ReplaceParameters = new List<object>() { source.Name }
+            //    };
 
-                throw new UtilityException((int)TestPlatformErrorCodes.ExistTestDataSourceByName, fragment, 1, 0);
+            //    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestDataSourceByName, fragment, 1, 0);
 
-            }
-            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
-            {
-                await _testDataSourceStore.Add(source, cancellationToken);
-                //检查是否有名称重复的
-                newId = await _testDataSourceStore.QueryByNameNoLock(source.Name, cancellationToken);
-                if (source.ID != newId)
-                {
-                    var fragment = new TextFragment()
-                    {
-                        Code = TestPlatformTextCodes.ExistTestDataSourceByName,
-                        DefaultFormatting = "已经存在名称为{0}的测试数据源",
-                        ReplaceParameters = new List<object>() { source.Name }
-                    };
+            //}
+            //await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
+            //{
+            //    await _testDataSourceStore.Add(source, cancellationToken);
+            //    检查是否有名称重复的
+            //    newId = await _testDataSourceStore.QueryByNameNoLock(source.Name, cancellationToken);
+            //    if (source.ID != newId)
+            //    {
+            //        var fragment = new TextFragment()
+            //        {
+            //            Code = TestPlatformTextCodes.ExistTestDataSourceByName,
+            //            DefaultFormatting = "已经存在名称为{0}的测试数据源",
+            //            ReplaceParameters = new List<object>() { source.Name }
+            //        };
 
-                    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestDataSourceByName, fragment, 1, 0);
-                }
-                scope.Complete();
-            }
+            //        throw new UtilityException((int)TestPlatformErrorCodes.ExistTestDataSourceByName, fragment, 1, 0);
+            //    }
+            //    scope.Complete();
+            //}
         }
 
         public async Task Delete(TestDataSource source, CancellationToken cancellationToken = default)

@@ -109,5 +109,19 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<Guid>(nameof(OwnerID), value);
             }
         }
+        /// <summary>
+        /// 父节点ID
+        /// </summary>
+        public Guid? ParentID
+        {
+            get
+            {
+                return GetAttribute<Guid?>(nameof(ParentID));
+            }
+            set
+            {
+                SetAttribute<Guid?>(nameof(ParentID), value);
+            }
+        }
     }
 }

@@ -10,8 +10,22 @@ namespace FW.TestPlatform.Main.DTOModel
     /// 测试数据源新建模型
     /// </summary>
     [DataContract]
-    public class TestDataSourceAddModel:ModelBase
+    public class TreeEntityViewModel : ModelBase
     {
+        /// <summary>
+        /// 父节点ID
+        /// </summary>
+        public Guid ID
+        {
+            get
+            {
+                return GetAttribute<Guid>(nameof(ID));
+            }
+            set
+            {
+                SetAttribute<Guid>(nameof(ID), value);
+            }
+        }
         /// <summary>
         /// 名称
         /// </summary>
@@ -30,36 +44,35 @@ namespace FW.TestPlatform.Main.DTOModel
         }
 
         /// <summary>
-        /// 类型
+        /// 值
         /// </summary>
         [DataMember]
-        public string Type
+        public string Value
         {
             get
             {
 
-                return GetAttribute<string>(nameof(Type));
+                return GetAttribute<string>(nameof(Value));
             }
             set
             {
-                SetAttribute<string>(nameof(Type), value);
+                SetAttribute<string>(nameof(Value), value);
             }
         }
 
         /// <summary>
-        /// 数据
+        /// 测试配置
         /// </summary>
         [DataMember]
-        public string Data
+        public int Type
         {
             get
             {
-
-                return GetAttribute<string>(nameof(Data));
+                return GetAttribute<int>(nameof(Type));
             }
             set
             {
-                SetAttribute<string>(nameof(Data), value);
+                SetAttribute<int>(nameof(Type), value);
             }
         }
         /// <summary>
@@ -74,6 +87,21 @@ namespace FW.TestPlatform.Main.DTOModel
             set
             {
                 SetAttribute<Guid?>(nameof(ParentID), value);
+            }
+        }
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        [DataMember]
+        public DateTime CreateTime
+        {
+            get
+            {
+                return GetAttribute<DateTime>(nameof(CreateTime));
+            }
+            set
+            {
+                SetAttribute<DateTime>(nameof(CreateTime), value);
             }
         }
     }
