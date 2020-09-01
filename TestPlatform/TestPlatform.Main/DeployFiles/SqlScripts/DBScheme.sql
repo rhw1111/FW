@@ -309,7 +309,7 @@ CREATE TABLE IF NOT EXISTS `treeentity` (
   `name` varchar(150) NOT NULL,
   `value` char(36) DEFAULT NULL,
   `type` int NOT NULL,
-  `parentid` char(36) NOT NULL
+  `parentid` char(36) DEFAULT NULL,
   `createtime` datetime NOT NULL,
   `modifytime` datetime NOT NULL,
   `sequence` bigint NOT NULL AUTO_INCREMENT,

@@ -30,10 +30,10 @@ namespace FW.TestPlatform.Main.Application
             {
                 TreeEntity treeEntity = new TreeEntity
                 {
-                    ParentID = model.ParentID,
-                    Value = null,
-                    Name = "C-" + model.Name,
                     ID = Guid.NewGuid(),
+                    ParentID = model.FolderID,
+                    Value = null,
+                    Name = model.Name,
                     Type = 0
                 };
                 await treeEntity.Add(cancellationToken);
@@ -42,6 +42,7 @@ namespace FW.TestPlatform.Main.Application
                 {
                     ID = treeEntity.ID,
                     Name = treeEntity.Name,
+                    Type = treeEntity.Type,
                     CreateTime = treeEntity.CreateTime.ToCurrentUserTimeZone()
                 };
             }

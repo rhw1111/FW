@@ -21,12 +21,14 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppQueryTreeEntityChildren _appQueryTreeEntityChildren;
         private readonly IAppQueryTreeEntities _appQueryTreeEntities;
         private readonly IAppGoBackPrevious _appGoBackPrevious;
+        private readonly IAppAddTreeEntity _appAddTreeEntity;
 
-        public TreeEntityController(IAppQueryTreeEntityChildren appQueryTreeEntityChildren, IAppQueryTreeEntities appQueryTreeEntities, IAppGoBackPrevious appGoBackPrevious)
+        public TreeEntityController(IAppQueryTreeEntityChildren appQueryTreeEntityChildren, IAppQueryTreeEntities appQueryTreeEntities, IAppGoBackPrevious appGoBackPrevious, IAppAddTreeEntity appAddTreeEntity)
         {
             _appQueryTreeEntityChildren = appQueryTreeEntityChildren;
             _appQueryTreeEntities = appQueryTreeEntities;
             _appGoBackPrevious = appGoBackPrevious;
+            _appAddTreeEntity = appAddTreeEntity;
         }
 
         [HttpGet("querybypage")]
@@ -61,6 +63,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
                 pageSize = _pageSize;
             }
             return await _appGoBackPrevious.Do(parentId, page, (int)pageSize);
+        }
+
+        [HttpPost("add")]
+        public async Task<TreeEntityViewModel> Add(TreeEntityAddModel model)
+        {
+            return await _appAddTreeEntity.Do(model);
         }
     }
 }

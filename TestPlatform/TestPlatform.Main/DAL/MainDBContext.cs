@@ -67,6 +67,7 @@ namespace FW.TestPlatform.Main.DAL
             modelBuilde.ApplyConfiguration<TestDataSource>(new TestDataSourceConfig());
             modelBuilde.ApplyConfiguration<TestHost>(new TestHostConfig());
             modelBuilde.ApplyConfiguration<User>(new UserConfig());
+            modelBuilde.ApplyConfiguration<TreeEntity>(new TreeEntityConfig());
         }
     }
 }

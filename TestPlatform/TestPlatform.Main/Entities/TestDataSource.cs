@@ -98,16 +98,16 @@ namespace FW.TestPlatform.Main.Entities
         /// <summary>
         /// 树结点Id
         /// </summary>
-        public Guid TreeID
+        public Guid? TreeID
         {
             get
             {
 
-                return GetAttribute<Guid>(nameof(TreeID));
+                return GetAttribute<Guid?>(nameof(TreeID));
             }
             set
             {
-                SetAttribute<Guid>(nameof(TreeID), value);
+                SetAttribute<Guid?>(nameof(TreeID), value);
             }
         }
 
