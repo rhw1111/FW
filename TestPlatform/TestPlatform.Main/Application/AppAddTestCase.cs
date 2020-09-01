@@ -39,7 +39,7 @@ namespace FW.TestPlatform.Main.Application
                 };
                 TreeEntity treeEntity = new TreeEntity
                 {
-                    ParentID = model.ParentID,
+                    ParentID = model.FolderID,
                     Value = source.ID.ToString(),
                     Name = "C-" + source.Name,
                     ID = Guid.NewGuid(),

@@ -289,13 +289,13 @@ namespace MSLibrary.Collections
                     throw new UtilityException((int)Errors.NotFoundTreeEntityByID, fragment, 1, 0);
                 }
 
-                if (parent.Type != 1)
+                if (parent.Type != 0)
                 {
                     var fragment = new TextFragment()
                     {
                         Code = TextCodes.TreeEntityParentTypeError,
                         DefaultFormatting = "树状实体{0}的类型无法作为父记录，要求的类型为{1}",
-                        ReplaceParameters = new List<object>() { entity.ParentID.ToString(), "1" }
+                        ReplaceParameters = new List<object>() { entity.ParentID.ToString(), "0" }
                     };
                     throw new UtilityException((int)Errors.TreeEntityParentTypeError, fragment, 1, 0);
                 }

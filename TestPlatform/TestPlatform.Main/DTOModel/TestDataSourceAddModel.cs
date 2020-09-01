@@ -65,15 +65,15 @@ namespace FW.TestPlatform.Main.DTOModel
         /// <summary>
         /// 父节点ID
         /// </summary>
-        public Guid? ParentID
+        public Guid? FolderID
         {
             get
             {
-                return GetAttribute<Guid?>(nameof(ParentID));
+                return GetAttribute<Guid?>(nameof(FolderID));
             }
             set
             {
-                SetAttribute<Guid?>(nameof(ParentID), value);
+                SetAttribute<Guid?>(nameof(FolderID), value);
             }
         }
     }

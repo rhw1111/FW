@@ -33,16 +33,16 @@ namespace FW.TestPlatform.Main.DTOModel
         /// 值
         /// </summary>
         [DataMember]
-        public string Value
+        public string? Value
         {
             get
             {
 
-                return GetAttribute<string>(nameof(Value));
+                return GetAttribute<string?>(nameof(Value));
             }
             set
             {
-                SetAttribute<string>(nameof(Value), value);
+                SetAttribute<string?>(nameof(Value), value);
             }
         }
 
@@ -64,15 +64,15 @@ namespace FW.TestPlatform.Main.DTOModel
         /// <summary>
         /// 父节点ID
         /// </summary>
-        public Guid? ParentID
+        public Guid? FolderID
         {
             get
             {
-                return GetAttribute<Guid?>(nameof(ParentID));
+                return GetAttribute<Guid?>(nameof(FolderID));
             }
             set
             {
-                SetAttribute<Guid?>(nameof(ParentID), value);
+                SetAttribute<Guid?>(nameof(FolderID), value);
             }
         }
     }

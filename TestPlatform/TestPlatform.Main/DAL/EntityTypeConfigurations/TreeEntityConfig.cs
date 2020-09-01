@@ -15,8 +15,8 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
             builder.ToTable("treeentity").HasKey((entity) => entity.ID);
             builder.Property((entity) => entity.ID).IsRequired().HasColumnName("id").HasColumnType("char(36)");
             builder.Property((entity) => entity.Name).IsRequired().HasColumnName("name").HasColumnType("varchar(150)");
-            builder.Property((entity) => entity.Type).IsRequired().HasColumnName("type").HasColumnType("varchar(150)");
-            builder.Property((entity) => entity.Value).IsRequired().HasColumnName("value").HasColumnType("mediumtext");
+            builder.Property((entity) => entity.Type).IsRequired().HasColumnName("type").HasColumnType("int");
+            builder.Property((entity) => entity.Value).HasColumnName("value").HasColumnType("mediumtext");
 
             builder.Property((entity) => entity.ParentID).HasColumnType("char(36)");
             builder.HasOne((entity) => entity.Parent).WithMany().HasForeignKey(entity => entity.ParentID);

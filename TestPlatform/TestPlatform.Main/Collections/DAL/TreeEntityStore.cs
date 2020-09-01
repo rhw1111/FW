@@ -110,12 +110,12 @@ namespace FW.TestPlatform.Main.Collections.DAL
                                  where item.Type ==  type
                                select item);
                     }
-                    items = (from item in items
+                    var ids = (from item in items
                              orderby item.CreateTime descending
-                             select item).Skip((page - 1) * pageSize).Take(pageSize);
+                             select item.ID).Skip((page - 1) * pageSize).Take(pageSize);
 
                     var datas = await (from item in dbContext.TreeEntities
-                                       join idItem in items.Select(item => item.ID).ToList()
+                                       join idItem in ids
                                   on item.ID equals idItem
                                        orderby EF.Property<long>(item, "Sequence") descending
                                        select item).ToListAsync();
@@ -182,7 +182,6 @@ namespace FW.TestPlatform.Main.Collections.DAL
                         {
                             await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                         }
-
                         var testCase = await (from item in dbContext.TreeEntities
                                               where item.Name == name
                                               orderby EF.Property<long>(item, "Sequence") descending
@@ -238,12 +237,12 @@ namespace FW.TestPlatform.Main.Collections.DAL
                                  where item.Type == type
                                  select item);
                     }
-                    items = (from item in items
+                    var ids = (from item in items
                              orderby item.CreateTime descending
-                             select item).Skip((page - 1) * pageSize).Take(pageSize);
+                             select item.ID).Skip((page - 1) * pageSize).Take(pageSize);
 
                     var datas = await (from item in dbContext.TreeEntities
-                                       join idItem in items.Select(item => item.ID).ToList()
+                                       join idItem in ids
                                   on item.ID equals idItem
                                        orderby EF.Property<long>(item, "Sequence") descending
                                        select item).ToListAsync();
