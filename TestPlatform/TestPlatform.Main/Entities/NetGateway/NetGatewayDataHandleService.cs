@@ -713,186 +713,186 @@ namespace FW.TestPlatform.Main.NetGateway
                                 data = EmptyMsg.Parser.ParseFrom(googleData);
                                 id = ((Ctrade.Message.EmptyMsg)data).Header.MsgCd.ToString();
 
-                                string strPayloadData = System.Text.Encoding.Default.GetString(payloadData);
+                                //string strPayloadData = System.Text.Encoding.Default.GetString(payloadData);
 
-                                if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APICreditUpdateReplyMsg) > -1)
-                                {
-                                    data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.APICreditUpdateReplyMsg)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APICreditUpdateRequestMsg) > -1)
-                                {
-                                    data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.APICreditUpdateRequestMsg)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.ApiListMarketDataAck) > -1)
-                                {
-                                    data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.ApiListMarketDataAck)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.ApiMarketData) > -1)
-                                {
-                                    data = ApiMarketData.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.ApiMarketData)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.ApiMarketDataRequest) > -1)
-                                {
-                                    data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.ApiMarketDataRequest)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg) > -1)
-                                {
-                                    data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.APIOcoOrderCancelReplyMsg)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg) > -1)
-                                {
-                                    data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.APIOcoOrderCancelRequestMsg)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg) > -1)
-                                {
-                                    data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.APIOcoOrderSumitReplyMsg)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg) > -1)
-                                {
-                                    data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.APIOcoOrderSumitRequestMsg)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOrderCancelReplyMsg) > -1)
-                                {
-                                    data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.APIOrderCancelReplyMsg)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOrderCancelRequestMsg) > -1)
-                                {
-                                    data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.APIOrderCancelRequestMsg)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg) > -1)
-                                {
-                                    data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.APIOrderSubmitReplyMsg)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg) > -1)
-                                {
-                                    data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.APIOrderSubmitRequestMsg)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg) > -1)
-                                {
-                                    data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.BridgeOrderSubmitRequestMsg)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.TokenReplyMsg) > -1)
-                                {
-                                    data = TokenReplyMsg.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.TokenReplyMsg)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.TokenRequestMsg) > -1)
-                                {
-                                    data = TokenRequestMsg.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.TokenRequestMsg)data).Header.MsgCd.ToString();
-                                }
-                                else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.EmptyMsg) > -1)
-                                {
-                                    data = EmptyMsg.Parser.ParseFrom(googleData);
-                                    id = ((Ctrade.Message.EmptyMsg)data).Header.MsgCd.ToString();
-                                }
-                                else
-                                {
-                                    switch (dataformat)
-                                    {
-                                        case NetGatewayDataFormatTypes.APICreditUpdateReplyMsg:
-                                            data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.APICreditUpdateReplyMsg)data).Header.MsgCd.ToString();
+                                //if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APICreditUpdateReplyMsg) > -1)
+                                //{
+                                //    data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.APICreditUpdateReplyMsg)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APICreditUpdateRequestMsg) > -1)
+                                //{
+                                //    data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.APICreditUpdateRequestMsg)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.ApiListMarketDataAck) > -1)
+                                //{
+                                //    data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.ApiListMarketDataAck)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.ApiMarketData) > -1)
+                                //{
+                                //    data = ApiMarketData.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.ApiMarketData)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.ApiMarketDataRequest) > -1)
+                                //{
+                                //    data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.ApiMarketDataRequest)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg) > -1)
+                                //{
+                                //    data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.APIOcoOrderCancelReplyMsg)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg) > -1)
+                                //{
+                                //    data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.APIOcoOrderCancelRequestMsg)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg) > -1)
+                                //{
+                                //    data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.APIOcoOrderSumitReplyMsg)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg) > -1)
+                                //{
+                                //    data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.APIOcoOrderSumitRequestMsg)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOrderCancelReplyMsg) > -1)
+                                //{
+                                //    data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.APIOrderCancelReplyMsg)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOrderCancelRequestMsg) > -1)
+                                //{
+                                //    data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.APIOrderCancelRequestMsg)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg) > -1)
+                                //{
+                                //    data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.APIOrderSubmitReplyMsg)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg) > -1)
+                                //{
+                                //    data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.APIOrderSubmitRequestMsg)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg) > -1)
+                                //{
+                                //    data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.BridgeOrderSubmitRequestMsg)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.TokenReplyMsg) > -1)
+                                //{
+                                //    data = TokenReplyMsg.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.TokenReplyMsg)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.TokenRequestMsg) > -1)
+                                //{
+                                //    data = TokenRequestMsg.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.TokenRequestMsg)data).Header.MsgCd.ToString();
+                                //}
+                                //else if (strPayloadData.IndexOf(NetGatewayDataFormatTypes.EmptyMsg) > -1)
+                                //{
+                                //    data = EmptyMsg.Parser.ParseFrom(googleData);
+                                //    id = ((Ctrade.Message.EmptyMsg)data).Header.MsgCd.ToString();
+                                //}
+                                //else
+                                //{
+                                //    switch (dataformat)
+                                //    {
+                                //        case NetGatewayDataFormatTypes.APICreditUpdateReplyMsg:
+                                //            data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.APICreditUpdateReplyMsg)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.APICreditUpdateRequestMsg:
-                                            data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.APICreditUpdateRequestMsg)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.APICreditUpdateRequestMsg:
+                                //            data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.APICreditUpdateRequestMsg)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.ApiListMarketDataAck:
-                                            data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.ApiListMarketDataAck)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.ApiListMarketDataAck:
+                                //            data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.ApiListMarketDataAck)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.ApiMarketData:
-                                            data = ApiMarketData.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.ApiMarketData)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.ApiMarketData:
+                                //            data = ApiMarketData.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.ApiMarketData)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.ApiMarketDataRequest:
-                                            data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.ApiMarketDataRequest)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.ApiMarketDataRequest:
+                                //            data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.ApiMarketDataRequest)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg:
-                                            data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.APIOcoOrderCancelReplyMsg)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg:
+                                //            data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.APIOcoOrderCancelReplyMsg)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg:
-                                            data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.APIOcoOrderCancelRequestMsg)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg:
+                                //            data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.APIOcoOrderCancelRequestMsg)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg:
-                                            data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.APIOcoOrderSumitReplyMsg)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg:
+                                //            data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.APIOcoOrderSumitReplyMsg)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg:
-                                            data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.APIOcoOrderSumitRequestMsg)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg:
+                                //            data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.APIOcoOrderSumitRequestMsg)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.APIOrderCancelReplyMsg:
-                                            data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.APIOrderCancelReplyMsg)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.APIOrderCancelReplyMsg:
+                                //            data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.APIOrderCancelReplyMsg)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.APIOrderCancelRequestMsg:
-                                            data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.APIOrderCancelRequestMsg)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.APIOrderCancelRequestMsg:
+                                //            data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.APIOrderCancelRequestMsg)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg:
-                                            data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.APIOrderSubmitReplyMsg)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg:
+                                //            data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.APIOrderSubmitReplyMsg)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg:
-                                            data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.APIOrderSubmitRequestMsg)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg:
+                                //            data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.APIOrderSubmitRequestMsg)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg:
-                                            data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.BridgeOrderSubmitRequestMsg)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg:
+                                //            data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.BridgeOrderSubmitRequestMsg)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.TokenReplyMsg:
-                                            data = TokenReplyMsg.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.TokenReplyMsg)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.TokenReplyMsg:
+                                //            data = TokenReplyMsg.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.TokenReplyMsg)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.TokenRequestMsg:
-                                            data = TokenRequestMsg.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.TokenRequestMsg)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.TokenRequestMsg:
+                                //            data = TokenRequestMsg.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.TokenRequestMsg)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        case NetGatewayDataFormatTypes.EmptyMsg:
-                                            data = EmptyMsg.Parser.ParseFrom(googleData);
-                                            id = ((Ctrade.Message.EmptyMsg)data).Header.MsgCd.ToString();
+                                //            break;
+                                //        case NetGatewayDataFormatTypes.EmptyMsg:
+                                //            data = EmptyMsg.Parser.ParseFrom(googleData);
+                                //            id = ((Ctrade.Message.EmptyMsg)data).Header.MsgCd.ToString();
 
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
+                                //            break;
+                                //        default:
+                                //            break;
+                                //    }
+                                //}
 
                                 if (!string.IsNullOrEmpty(data.ToString()))
                                 {
