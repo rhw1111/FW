@@ -44,13 +44,13 @@ namespace FW.TestPlatform.Main.Application
                 var monitorAddress = await _systemConfigurationService.GetCaseHistoryMonitorAddressAsync(cancellationToken);
                 foreach (TestCaseHistory history in result.Results)
                 {
-                    string from = ConvertDateTimeToInt(history.CreateTime.AddHours(-1)).ToString();
-                    string to = ConvertDateTimeToInt(history.CreateTime.AddHours(1)).ToString();
+                    //string from = ConvertDateTimeToInt(history.CreateTime.AddHours(-1)).ToString();
+                    //string to = ConvertDateTimeToInt(history.CreateTime.AddHours(1)).ToString();
                     histories.Results.Add(new TestCaseHistoryListViewData()
                     {
                         ID = history.ID,
                         CaseID = history.CaseID,
-                        MonitorUrl = $"{monitorAddress}&var-HistoryCaseID={history.ID.ToString().ToUrlEncode()}&from={from}&to={to}",
+                        //MonitorUrl = $"{monitorAddress}&var-HistoryCaseID={history.ID.ToString().ToUrlEncode()}&from={from}&to={to}",
                         CreateTime = history.CreateTime.ToCurrentUserTimeZone()
                     });
                 }
@@ -60,12 +60,12 @@ namespace FW.TestPlatform.Main.Application
             return histories;
         }
 
-        private long ConvertDateTimeToInt(DateTime time)
-        {
-            DateTime Time = (new System.DateTime(1970, 1, 1, 0, 0, 0, 0)).ToCurrentUserTimeZone();
-            long TimeStamp = (time.Ticks - Time.Ticks) / 10000;   //除10000调整为13位     
-            return TimeStamp;
-        }
+        //private long ConvertDateTimeToInt(DateTime time)
+        //{
+        //    DateTime Time = (new System.DateTime(1970, 1, 1, 0, 0, 0, 0)).ToCurrentUserTimeZone();
+        //    long TimeStamp = (time.Ticks - Time.Ticks) / 10000;   //除10000调整为13位     
+        //    return TimeStamp;
+        //}
 
     }
 }
