@@ -244,39 +244,40 @@ namespace FW.TestPlatform.Main.Entities
 
         public async Task Update(TestDataSource source, CancellationToken cancellationToken = default)
         {
-            //检查是否有名称重复的
-            var newId = await _testDataSourceStore.QueryByNameNoLock(source.Name, cancellationToken);
-            if (newId != null && source.ID != newId)
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TestPlatformTextCodes.ExistTestDataSourceByName,
-                    DefaultFormatting = "已经存在名称为{0}的测试数据源",
-                    ReplaceParameters = new List<object>() { source.Name }
-                };
+            await _testDataSourceStore.Update(source, cancellationToken);
+            ////检查是否有名称重复的
+            //var newId = await _testDataSourceStore.QueryByNameNoLock(source.Name, cancellationToken);
+            //if (newId != null && source.ID != newId)
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TestPlatformTextCodes.ExistTestDataSourceByName,
+            //        DefaultFormatting = "已经存在名称为{0}的测试数据源",
+            //        ReplaceParameters = new List<object>() { source.Name }
+            //    };
 
-                throw new UtilityException((int)TestPlatformErrorCodes.ExistTestDataSourceByName, fragment, 1, 0);
+            //    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestDataSourceByName, fragment, 1, 0);
 
-            }
+            //}
 
-            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
-            {
-                await _testDataSourceStore.Update(source, cancellationToken);
-                //检查是否有名称重复的
-                newId = await _testDataSourceStore.QueryByNameNoLock(source.Name, cancellationToken);
-                if (newId != null && source.ID != newId)
-                {
-                    var fragment = new TextFragment()
-                    {
-                        Code = TestPlatformTextCodes.ExistTestDataSourceByName,
-                        DefaultFormatting = "已经存在名称为{0}的测试数据源",
-                        ReplaceParameters = new List<object>() { source.Name }
-                    };
+            //await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
+            //{
+            //    await _testDataSourceStore.Update(source, cancellationToken);
+            //    //检查是否有名称重复的
+            //    newId = await _testDataSourceStore.QueryByNameNoLock(source.Name, cancellationToken);
+            //    if (newId != null && source.ID != newId)
+            //    {
+            //        var fragment = new TextFragment()
+            //        {
+            //            Code = TestPlatformTextCodes.ExistTestDataSourceByName,
+            //            DefaultFormatting = "已经存在名称为{0}的测试数据源",
+            //            ReplaceParameters = new List<object>() { source.Name }
+            //        };
 
-                    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestDataSourceByName, fragment, 1, 0);
-                }
-                scope.Complete();
-            }
+            //        throw new UtilityException((int)TestPlatformErrorCodes.ExistTestDataSourceByName, fragment, 1, 0);
+            //    }
+            //    scope.Complete();
+            //}
 
         }
        

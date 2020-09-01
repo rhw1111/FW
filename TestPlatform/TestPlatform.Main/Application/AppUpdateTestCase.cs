@@ -10,6 +10,9 @@ using FW.TestPlatform.Main.Entities;
 using FW.TestPlatform.Main.Configuration;
 using System.Linq;
 using MSLibrary.LanguageTranslate;
+using MSLibrary.Transaction;
+using MSLibrary.Collections;
+using Microsoft.AspNetCore.Http.Features.Authentication;
 
 namespace FW.TestPlatform.Main.Application
 {
@@ -17,9 +20,11 @@ namespace FW.TestPlatform.Main.Application
     public class AppUpdateTestCase : IAppUpdateTestCase
     {
         private readonly ITestCaseRepository _testCaseRepository;
-        public AppUpdateTestCase(ITestCaseRepository testCaseRepository)
+        private readonly ITreeEntityRepository _treeEntityRepository;
+        public AppUpdateTestCase(ITestCaseRepository testCaseRepository, ITreeEntityRepository treeEntityRepository)
         {
             _testCaseRepository = testCaseRepository;
+            _treeEntityRepository = treeEntityRepository;
         }
 
         public async Task<TestCaseViewData> Do(TestCaseUpdateModel model, CancellationToken cancellationToken = default)
@@ -36,13 +41,50 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
             }
-            source.Name = model.Name;
-            //queryResult.OwnerID = model.OwnerID;
-            source.EngineType = model.EngineType;
-            source.MasterHostID = model.MasterHostID;
-            source.Configuration = model.Configuration;
-            source.ModifyTime = DateTime.UtcNow;
-            await source.Update(cancellationToken);
+            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
+            {
+                TreeEntity? tEntity = null;
+                if (source.TreeID != null)
+                {
+                    tEntity = await _treeEntityRepository.QueryByID(source.TreeID.Value, cancellationToken);
+                    if (tEntity == null)
+                    {
+                        var fragment = new TextFragment()
+                        {
+                            Code = TestPlatformTextCodes.NotFoundTreeEntityByID,
+                            DefaultFormatting = "找不到ID为{0}的测试案例",
+                            ReplaceParameters = new List<object>() { source.TreeID.Value.ToString() }
+                        };
+
+                        throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTreeEntityByID, fragment, 1, 0);
+                    }
+                    if (model.Name != source.Name || (tEntity != null && model.FolderID != tEntity.ParentID))
+                    {
+                        await tEntity.Delete(cancellationToken);
+                    }
+                }
+                if(source.TreeID == null || model.Name != source.Name || (tEntity != null && model.FolderID != tEntity.ParentID))
+                {
+                    TreeEntity treeEntity = new TreeEntity
+                    {
+                        ParentID = model.FolderID,
+                        Value = source.ID.ToString(),
+                        Name = "C-" + source.Name,
+                        ID = Guid.NewGuid(),
+                        Type = TreeEntityValueServiceTypes.TestCase
+                    };
+                    await treeEntity.Add(cancellationToken);
+                    source.TreeID = treeEntity.ID;
+                }
+                source.Name = model.Name;
+                source.EngineType = model.EngineType;
+                source.MasterHostID = model.MasterHostID;
+                source.Configuration = model.Configuration;
+                source.ModifyTime = DateTime.UtcNow;
+                await source.Update(cancellationToken);
+
+                scope.Complete();
+            }
 
             return new TestCaseViewData()
             {
