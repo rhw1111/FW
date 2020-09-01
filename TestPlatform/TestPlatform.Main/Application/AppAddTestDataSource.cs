@@ -39,7 +39,7 @@ namespace FW.TestPlatform.Main.Application
                     Value = source.ID.ToString(),
                     Name = "DS-" + source.Name,
                     ID = Guid.NewGuid(),
-                    Type = 1
+                    Type = TreeEntityValueServiceTypes.TestDataSource
                 };
                 await treeEntity.Add(cancellationToken);
                 source.TreeID = treeEntity.ID;

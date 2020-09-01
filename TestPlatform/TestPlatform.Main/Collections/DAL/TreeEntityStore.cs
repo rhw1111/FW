@@ -101,18 +101,18 @@ namespace FW.TestPlatform.Main.Collections.DAL
                     }
                     result.TotalCount = count;
 
-                    var items = (from item in dbContext.TreeEntities
-                                 where EF.Functions.Like(item.Name, strLike)
-                                 select item);
-                    if(type != null)
-                    {
-                        items = (from item in items
-                                 where item.Type ==  type
-                               select item);
-                    }
-                    var ids = (from item in items
-                             orderby item.CreateTime descending
-                             select item.ID).Skip((page - 1) * pageSize).Take(pageSize);
+                    var ids = (from item in dbContext.TreeEntities
+                                 where EF.Functions.Like(item.Name, strLike) && (type == null || item.Type == type)
+                                 select item.ID).Skip((page - 1) * pageSize).Take(pageSize);
+                    //if(type != null)
+                    //{
+                    //    items = (from item in items
+                    //             where item.Type ==  type
+                    //           select item);
+                    //}
+                    //var ids = (from item in items
+                    //         orderby item.CreateTime descending
+                    //         select item.ID).Skip((page - 1) * pageSize).Take(pageSize);
 
                     var datas = await (from item in dbContext.TreeEntities
                                        join idItem in ids
@@ -147,7 +147,7 @@ namespace FW.TestPlatform.Main.Collections.DAL
             return result;
         }
 
-        public async Task<TreeEntity?> QueryByName(string name, CancellationToken cancellationToken = default)
+        public async Task<TreeEntity?> QueryByName(Guid? parentId, string name, CancellationToken cancellationToken = default)
         {
             TreeEntity? result = null;
             await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _collectionConnectionFactory.CreateAllForCollection(), async (conn, transaction) =>
@@ -161,7 +161,7 @@ namespace FW.TestPlatform.Main.Collections.DAL
 
 
                     result = await (from item in dbContext.TreeEntities
-                                    where item.Name == name
+                                    where item.Name == name && item.ParentID == parentId
                                     select item).FirstOrDefaultAsync();
                 }
             });
@@ -169,7 +169,7 @@ namespace FW.TestPlatform.Main.Collections.DAL
             return result;
         }
 
-        public async Task<Guid?> QueryByNameNoLock(string name, CancellationToken cancellationToken = default)
+        public async Task<Guid?> QueryByNameNoLock(Guid? parentId, string name, CancellationToken cancellationToken = default)
         {
             Guid? result = null;
             await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.RequiresNew, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted, Timeout = new TimeSpan(0, 0, 30) }))
@@ -183,7 +183,7 @@ namespace FW.TestPlatform.Main.Collections.DAL
                             await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                         }
                         var testCase = await (from item in dbContext.TreeEntities
-                                              where item.Name == name
+                                              where item.Name == name && item.ParentID == parentId
                                               orderby EF.Property<long>(item, "Sequence") descending
                                               select item).FirstOrDefaultAsync();
                         if (testCase != null)

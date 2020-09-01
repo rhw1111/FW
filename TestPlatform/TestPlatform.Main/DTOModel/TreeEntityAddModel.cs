@@ -30,38 +30,6 @@ namespace FW.TestPlatform.Main.DTOModel
         }
 
         /// <summary>
-        /// 值
-        /// </summary>
-        [DataMember]
-        public string? Value
-        {
-            get
-            {
-
-                return GetAttribute<string?>(nameof(Value));
-            }
-            set
-            {
-                SetAttribute<string?>(nameof(Value), value);
-            }
-        }
-
-        /// <summary>
-        /// 测试配置
-        /// </summary>
-        [DataMember]
-        public int Type
-        {
-            get
-            {
-                return GetAttribute<int>(nameof(Type));
-            }
-            set
-            {
-                SetAttribute<int>(nameof(Type), value);
-            }
-        }
-        /// <summary>
         /// 父节点ID
         /// </summary>
         public Guid? FolderID

@@ -18,8 +18,8 @@ namespace MSLibrary.Collections.DAL
 
         Task<QueryResult<TreeEntity>> Query(string? matchName,int? type, int page, int pageSize, CancellationToken cancellationToken = default);
         Task<TreeEntity?> QueryByID(Guid id, CancellationToken cancellationToken = default);
-        Task<TreeEntity?> QueryByName(string name, CancellationToken cancellationToken = default);
-        Task<Guid?> QueryByNameNoLock(string name, CancellationToken cancellationToken = default);
+        Task<TreeEntity?> QueryByName(Guid? parentId, string name, CancellationToken cancellationToken = default);
+        Task<Guid?> QueryByNameNoLock(Guid? parentId, string name, CancellationToken cancellationToken = default);
 
     }
 }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using MSLibrary.DI;
 using FW.TestPlatform.Main.Entities;
 using MSLibrary.Collections;
+using MSLibrary.LanguageTranslate;
 
 namespace FW.TestPlatform.Main.Application
 {
@@ -25,12 +26,25 @@ namespace FW.TestPlatform.Main.Application
         {
             QueryResult<TreeEntityViewModel> result = new QueryResult<TreeEntityViewModel>();
             QueryResult<TreeEntity> queryResult = new QueryResult<TreeEntity>();
-            if (parentId == null)
-                await _treeEntityRepository.QueryRoot(matchName, type, page, pageSize, cancellationToken);
-            else
-                await _treeEntityRepository.QueryChildren((Guid)parentId, matchName, type, page, pageSize, cancellationToken);
-            //var queryResult = await _treeEntityRepository.QueryChildren(matchName, type, page, pageSize, cancellationToken);
+            if (parentId != null)
+            {
+                TreeEntity? treeEntity = await _treeEntityRepository.QueryByID(parentId.Value, cancellationToken);
+                if (treeEntity == null)
+                {
+                    var fragment = new TextFragment()
+                    {
+                        Code = TestPlatformTextCodes.NotFoundTreeEntityByID,
+                        DefaultFormatting = "找不到ID为{0}的测试案例",
+                        ReplaceParameters = new List<object>() { parentId.Value.ToString() }
+                    };
 
+                    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTreeEntityByID, fragment, 1, 0);
+                }
+                queryResult = await treeEntity.GetChildren(matchName, type, page, pageSize, cancellationToken);
+            }
+            else
+                queryResult = await _treeEntityRepository.QueryRoot(matchName, type, page, pageSize, cancellationToken);
+            
             result.CurrentPage = queryResult.CurrentPage;
             result.TotalCount = queryResult.TotalCount;
 

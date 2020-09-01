@@ -763,37 +763,37 @@ namespace FW.TestPlatform.Main.Entities
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestHostByID, fragment, 1, 0);
             }
-            //检查是否有名称重复的
-            var newId = await _testCaseStore.QueryByNameNoLock(tCase.Name, cancellationToken);
-            if (newId != null && tCase.ID != newId)
-            {
-                var fragment = new TextFragment()
-                {
-                    Code = TestPlatformTextCodes.ExistTestCaseByName,
-                    DefaultFormatting = "已经存在名称为{0}的测试案例",
-                    ReplaceParameters = new List<object>() { tCase.Name }
-                };
+            ////检查是否有名称重复的
+            //var newId = await _testCaseStore.QueryByNameNoLock(tCase.Name, cancellationToken);
+            //if (newId != null && tCase.ID != newId)
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TestPlatformTextCodes.ExistTestCaseByName,
+            //        DefaultFormatting = "已经存在名称为{0}的测试案例",
+            //        ReplaceParameters = new List<object>() { tCase.Name }
+            //    };
 
-                throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseByName, fragment, 1, 0);
+            //    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseByName, fragment, 1, 0);
 
-            }
+            //}
 
             await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
             {
                 await _testCaseStore.Update(tCase, cancellationToken);
-                //检查是否有名称重复的
-                newId = await _testCaseStore.QueryByNameNoLock(tCase.Name, cancellationToken);
-                if (newId != null && tCase.ID != newId)
-                {
-                    var fragment = new TextFragment()
-                    {
-                        Code = TestPlatformTextCodes.ExistTestCaseByName,
-                        DefaultFormatting = "已经存在名称为{0}的测试数据源",
-                        ReplaceParameters = new List<object>() { tCase.Name }
-                    };
+                ////检查是否有名称重复的
+                //newId = await _testCaseStore.QueryByNameNoLock(tCase.Name, cancellationToken);
+                //if (newId != null && tCase.ID != newId)
+                //{
+                //    var fragment = new TextFragment()
+                //    {
+                //        Code = TestPlatformTextCodes.ExistTestCaseByName,
+                //        DefaultFormatting = "已经存在名称为{0}的测试数据源",
+                //        ReplaceParameters = new List<object>() { tCase.Name }
+                //    };
 
-                    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseByName, fragment, 1, 0);
-                }
+                //    throw new UtilityException((int)TestPlatformErrorCodes.ExistTestCaseByName, fragment, 1, 0);
+                //}
                 scope.Complete();
             }
         }

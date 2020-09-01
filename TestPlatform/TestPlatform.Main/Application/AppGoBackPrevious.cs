@@ -38,10 +38,24 @@ namespace FW.TestPlatform.Main.Application
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTreeEntityByID, fragment, 1, 0);
             }
             QueryResult<TreeEntity> queryResult = new QueryResult<TreeEntity>();
-            if (treeEntity.ParentID == null)
-                queryResult = await _treeEntityRepository.QueryRoot("", null, page, pageSize, cancellationToken);
+            if (treeEntity.ParentID != null)
+            {
+                TreeEntity? parentEntity = await _treeEntityRepository.QueryByID(treeEntity.ParentID.Value, cancellationToken);
+                if (parentEntity == null)
+                {
+                    var fragment = new TextFragment()
+                    {
+                        Code = TestPlatformTextCodes.NotFoundTreeEntityByID,
+                        DefaultFormatting = "找不到ID为{0}的测试案例",
+                        ReplaceParameters = new List<object>() { treeEntity.ParentID.Value.ToString() }
+                    };
+
+                    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTreeEntityByID, fragment, 1, 0);
+                }
+                queryResult = await treeEntity.GetChildren(string.Empty, null, page, pageSize, cancellationToken);
+            }
             else
-                queryResult = await _treeEntityRepository.QueryChildren((Guid)treeEntity.ParentID, "", null, page, pageSize, cancellationToken);
+                queryResult = await _treeEntityRepository.QueryRoot(string.Empty, null, page, pageSize, cancellationToken);
 
             result.CurrentPage = queryResult.CurrentPage;
             result.TotalCount = queryResult.TotalCount;
@@ -53,6 +67,8 @@ namespace FW.TestPlatform.Main.Application
                     {
                         ID = item.ID,
                         Name = item.Name,
+                        Type = item.Type,
+                        Value = item.Value,
                         CreateTime = item.CreateTime
                     }
                     );

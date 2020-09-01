@@ -32,9 +32,9 @@ namespace MSLibrary.Collections
             return await _treeEntityStore.QueryChildren(null,matchName, type, page, pageSize, cancellationToken);
         }
 
-        public async Task<QueryResult<TreeEntity>> QueryChildren(Guid parentId, string matchName, int? type, int page, int pageSize, CancellationToken cancellationToken = default)
-        {
-            return await _treeEntityStore.QueryChildren(parentId, matchName, type, page, pageSize, cancellationToken);
-        }
+        //public async Task<QueryResult<TreeEntity>> QueryChildren(Guid parentId, string matchName, int? type, int page, int pageSize, CancellationToken cancellationToken = default)
+        //{
+        //    return await _treeEntityStore.QueryChildren(parentId, matchName, type, page, pageSize, cancellationToken);
+        //}
     }
 }

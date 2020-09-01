@@ -34,7 +34,7 @@ namespace FW.TestPlatform.Main.Application
                     ParentID = model.FolderID,
                     Value = null,
                     Name = model.Name,
-                    Type = 0
+                    Type = TreeEntityValueServiceTypes.Folder
                 };
                 await treeEntity.Add(cancellationToken);
                 scope.Complete();
