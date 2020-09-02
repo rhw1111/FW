@@ -3,18 +3,18 @@
     <!-- TestCase列表 -->
     <div class="q-pa-md">
 
-      <transition name="TreeEntity-slid">
+      <!-- <transition name="TreeEntity-slid">
         <TreeEntity v-show="expanded"
                     style="max-width:20%;height:600px;overflow:auto;float:left;" />
-      </transition>
+      </transition> -->
 
       <div>
-        <q-btn color="grey"
+        <!-- <q-btn color="grey"
                flat
                dense
                style="width:2%;height:600px;float:left;"
                :icon="expanded ? 'keyboard_arrow_left' : 'keyboard_arrow_right'"
-               @click="expanded = !expanded" />
+               @click="expanded = !expanded" /> -->
 
         <q-table title="测试用例列表"
                  :data="TestCaseList"
