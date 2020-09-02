@@ -739,7 +739,8 @@ export default {
         Name: this.Name,
         Configuration: this.Configuration.trim(),
         EngineType: this.EngineType,
-        MasterHostID: this.MasterHostID
+        MasterHostID: this.MasterHostID,
+        FolderID: null,
       }
       console.log(para)
       if (this.Name && this.isJSON(this.Configuration) && this.EngineType && this.MasterHostID) {

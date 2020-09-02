@@ -95,5 +95,15 @@ const apiConstants = {
   deleteTestHost: 'api/testhost/delete',//单个删除TestHost
 
   deleteTestHostArr: 'api/testhost/deletemultiple',//批量删除TestHost 
+
+  // ---------------------------------------------- TreeEntity ---------------------------------------------------------
+
+  getTreeEntityList: 'api/treeentity/querybypage',//获得树结构根目录
+
+  getTreeEntityChildrenList: 'api/treeentity/querychildren',//获得树结构子级目录
+
+  getgobackpreviousTreeEntity: 'api/treeentity/gobackprevious',//回到上一级 
+
+  postCreateTreeEntity: 'api/treeentity/add',//创建目录
 }
 export default apiConstants

@@ -398,6 +398,36 @@ export const postHistoryUpdateGatewayDataFormat = payload =>
 
 
 
+// ------------------------------------------- TestHost ----------------------------------------------
+
+//获得树结构根目录
+export const getTreeEntityList = payload =>
+  action({
+    apiName: 'getTreeEntityList',
+    payload
+  })
+
+//获得树结构子级目录
+export const getTreeEntityChildrenList = payload =>
+  action({
+    apiName: 'getTreeEntityChildrenList',
+    payload
+  })
+
+//回到上一级
+export const getgobackpreviousTreeEntity = payload =>
+  action({
+    apiName: 'getgobackpreviousTreeEntity',
+    payload
+  })
+
+//创建目录
+export const postCreateTreeEntity = payload =>
+  action({
+    apiName: 'postCreateTreeEntity',
+    payload
+  })
+
 
 
 

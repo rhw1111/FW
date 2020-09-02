@@ -1,13 +1,13 @@
 <template>
   <div id="Directory">
     <!-- button -->
-    <div class="detail_header row">
+    <div class="detail_header row detail_fixed">
       <div class="col-7">
         <q-btn class="btn"
                color="primary"
                label="上一级"
                v-show="!isRootFolderFlag"
-               @click="prevLevel" />
+               @click="toPrevLevel" />
         <q-btn class="btn"
                color="primary"
                label="目录重命名"
@@ -18,8 +18,7 @@
                @click="DeleteFolder" />
         <q-btn class="btn"
                color="primary"
-               label="移动文件"
-               v-show="!isRootFolderFlag"
+               label="移动目录"
                @click="ChangeFileDirectory" />
         <q-btn class="btn"
                color="primary"
@@ -37,74 +36,87 @@
 
       <div class="col-5 row">
 
-        <q-input class="col-5"
-                 v-model="searchText"
-                 outlined
-                 placeholder="请输入文件名称"
-                 type="search"
-                 :dense='true'>
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
+        <div class="col-8 row">
+          <q-input class="col-8"
+                   v-model="searchText"
+                   outlined
+                   placeholder="请输入文件名称"
+                   type="search"
+                   :dense='true'>
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
 
-        <q-select class="col-3"
-                  v-model="FileType"
-                  style="margin:0 10px;"
-                  :options="['文件夹','测试用例','测试数据源']"
-                  label="类型"
-                  outlined
-                  :dense='true' />
+          <q-select class="col-3"
+                    v-model="FileType"
+                    style="margin-left:10px;"
+                    :options="['文件夹','测试用例','测试数据源']"
+                    label="类型"
+                    outlined
+                    :dense='true' />
+        </div>
 
-        <q-btn class="btn"
-               color="primary"
-               label="搜索"
-               @click="searchFile" />
+        <div class="col-4">
+          <q-btn class="btn"
+                 color="primary"
+                 label="搜索"
+                 @click="searchFile" />
 
-        <q-btn class="btn"
-               color="primary"
-               label="取消搜索"
-               @click="cancelSearch" />
+          <q-btn class="btn"
+                 color="primary"
+                 label="取消搜索"
+                 @click="cancelSearch" />
+        </div>
       </div>
     </div>
     <!-- 目录 -->
-    <div class="q-pa-md">
-      <div class="Rootfolder row">
-        <div class="Rootfolder_list"
-             v-for="(value ,index) in FolderList"
-             :key="index"
-             @dblclick="toNextLevel(value,index)"
-             tag="label">
+    <div class="folder">
+      <div class="q-pa-md">
+        <div class="Rootfolder row">
+          <div class="Rootfolder_list"
+               v-for="(value ,index) in FolderList"
+               :key="index"
+               @dblclick="toNextLevel(value,index)"
+               tag="label">
 
-          <q-checkbox v-model="selection"
-                      :val="value"
-                      :dense="true"
-                      label=""
-                      v-if="value.Type==0"
-                      class="checkbox" />
-          <span class="svg-container"
-                v-show="value.Type==0">
-            <svg class="icon iconfolder"
-                 aria-hidden="true">
-              <use xlink:href="#icon-wenjianjia2"></use>
-            </svg>
-          </span>
-          <span class="svg-container"
-                v-show="value.Type==1">
-            <svg class="icon iconfolder"
-                 aria-hidden="true">
-              <use xlink:href="#icon--wenjian"></use>
-            </svg>
-          </span>
-          <span class="svg-container"
-                v-show="value.Type==2">
-            <svg class="icon iconfolder"
-                 aria-hidden="true">
-              <use xlink:href="#icon-shujuyuan"></use>
-            </svg>
-          </span>
+            <q-checkbox v-model="selection"
+                        :val="value"
+                        :dense="true"
+                        label=""
+                        class="checkbox" />
+            <span class="svg-container"
+                  v-show="value.type==1">
+              <svg class="icon iconfolder"
+                   aria-hidden="true">
+                <use xlink:href="#icon-wenjianjia2"></use>
+              </svg>
+            </span>
+            <span class="svg-container"
+                  v-show="value.type==2">
+              <svg class="icon iconfolder"
+                   aria-hidden="true">
+                <use xlink:href="#icon--wenjian"></use>
+              </svg>
+            </span>
+            <span class="svg-container"
+                  v-show="value.type==3">
+              <svg class="icon iconfolder"
+                   aria-hidden="true">
+                <use xlink:href="#icon-shujuyuan"></use>
+              </svg>
+            </span>
 
-          <p>{{value.Name}}</p>
+            <p>{{value.name}}</p>
+          </div>
+        </div>
+        <div class="folderList_page">
+          <q-pagination v-model="folderPageCurrent"
+                        :max="folderPageMaxCurrent"
+                        style="float:right;margin-top:5px;margin-right:5%;"
+                        :input="true"
+                        @input="switchFolderPage">
+          </q-pagination>
         </div>
       </div>
     </div>
@@ -253,83 +265,15 @@ export default {
   },
   data () {
     return {
-      FolderList: [],
-      RootFolderList: [
-        {
-          ID: '1',
-          Name: '文件夹1',
-          Type: 0,
-          Value: '',
-          ParentID: null,
-        },
-        {
-          ID: '2',
-          Name: '文件夹2',
-          Type: 0,
-          Value: '',
-          ParentID: null,
-        },
-        {
-          ID: '3',
-          Name: '文件夹3',
-          Type: 0,
-          Value: '',
-          ParentID: null,
-        },
-        {
-          ID: '3a949390-4c40-4735-9ec8-a3e414a37406',
-          Name: 'JasonTest12',
-          Type: 1,
-          Value: '',
-          ParentID: null,
-        },
-        {
-          ID: 'f64823a1-3327-4a24-b49f-58a2e96ca400',
-          Name: 'JsonTest13',
-          Type: 1,
-          Value: '',
-          ParentID: null,
-        },
-        {
-          ID: '1039e6cd-d096-11ea-b225-00ffb1d16cf9',
-          Name: 'datasource_host',
-          Type: 2,
-          Value: '',
-          ParentID: null,
-        },
-      ],//根目录名称
-      ChildFolderList: [
-        {
-          ID: '001',
-          Name: '子文件夹1',
-          Type: 0,
-          Value: '',
-          ParentID: '1',
-        },
-        {
-          ID: '002',
-          Name: '子文件夹2',
-          Type: 0,
-          Value: '',
-          ParentID: '1',
-        },
-        {
-          ID: '003',
-          Name: '子文件夹3',
-          Type: 0,
-          Value: '',
-          ParentID: '2',
-        },
-      ],
+      FolderList: [],//目录列表
       isRootFolderFlag: true,//是否是根目录
       selection: [],
+      SelectFolder: '',//当前选择的目录
+      folderPageCurrent: 1,//文件目录页码
+      folderPageMaxCurrent: 1,//最大页码
       // -------- 搜索 -------
       searchText: '',//搜索内容
-      FileType: '',//文件类型
-      // -------- 新建文件夹 -------
-      createFolderFixed: false,
-      FolderName: '',//文件夹名称
-      SelectFolder: '',//进入到哪个文件夹
+      FileType: null,//文件类型
       // -------- 更改文件目录 -------
       ChangeFileDirectoryFlag: false,//更改文件目录Flag
       // -------- 新建测试用例 -------
@@ -345,44 +289,67 @@ export default {
     }
   },
   created () {
-    this.prevLevel();
-    this.getDataSourceName();
+    this.getTreeEntityList();
+    //this.getDataSourceName();
   },
   methods: {
-    toNextLevel (value, index) {
-      console.log(value, index)
-      if (value.Type == 0) {
-        this.FolderList = [];
-        this.isRootFolderFlag = false;
-        for (let i = 0; i < this.ChildFolderList.length; i++) {
-          if (this.ChildFolderList[i].ParentID === value.ID) {
-            this.FolderList.push(this.ChildFolderList[i])
-          }
-        }
-        this.SelectFolder = value;
-      } else if (value.Type == 1) {
-        this.$router.push({
-          path: '/Directory/TestCase/Detail',
-          query: {
-            id: value.ID
-          },
-        })
-      } else if (value.Type == 2) {
-        this.$router.push({
-          path: '/Directory/TestDataSource/Detail',
-          query: {
-            id: value.ID
-          },
-        })
+    //获得根目录
+    getTreeEntityList (Page) {
+      this.$q.loading.show();
+      let para = {
+        matchName: '',
+        page: Page ? Page : 1,
+        type: null,
+        pageSize: 100
       }
-    },
-    prevLevel () {
-      this.FolderList = [];
+      Apis.getTreeEntityList(para).then(res => {
+        console.log(res)
+        this.folderPageCurrent = Page ? Page : 1;
+        this.folderPageMaxCurrent = Math.ceil(res.data.totalCount / 100);
 
-      this.isRootFolderFlag = true;
-      for (let i = 0; i < this.RootFolderList.length; i++) {
-        this.FolderList.push(this.RootFolderList[i])
+        // for (let i = 0; i < 100; i++) {
+        //   this.FolderList.push({
+        //     createTime: "2020-09-01T12:57:41",
+        //     id: "0ad1fd7e-de4b-40ed-ab6e-18359a584059",
+        //     name: "目录2",
+        //     parentID: null,
+        //     type: 1,
+        //     value: null
+        //   })
+        // }
+        this.FolderList = res.data.results;
+        this.$q.loading.hide();
+      })
+    },
+    //上一级
+    toPrevLevel () {
+      let para = {
+        parentId: this.SelectFolder.id,
+        page: 1,
+        pageSize: 100
       }
+      Apis.getgobackpreviousTreeEntity(para).then(res => {
+        console.log(res)
+      })
+    },
+    //下一级
+    toNextLevel (value, index) {
+      let para = {
+        parentId: value.id,
+        matchName: '',
+        page: 1,
+        type: null,
+        pageSize: 100
+      }
+      this.$q.loading.show();
+      Apis.getTreeEntityChildrenList(para).then(res => {
+        console.log(res)
+        this.isRootFolderFlag = false;
+        this.SelectFolder = value;
+        this.FolderList = res.data.results;
+        this.$q.loading.hide();
+      })
+      console.log(value, index)
     },
     //删除文件夹
     DeleteFolder () {
@@ -390,13 +357,13 @@ export default {
         this.$q.notify({
           position: 'top',
           message: '提示',
-          caption: '请选择文件夹',
+          caption: '请选择目录',
           color: 'red',
         })
       } else {
         this.$q.dialog({
           title: '提示',
-          message: `您确定要删除当前选择的的文件夹吗`,
+          message: `您确定要删除当前选择的的目录吗`,
           persistent: true,
           ok: {
             push: true,
@@ -407,12 +374,6 @@ export default {
             label: '取消'
           },
         }).onOk(() => {
-          for (let i = 0; i < this.RootFolderList.length; i++) {
-            if (this.RootFolderList[i].ID == this.SelectFolder.ID) {
-              this.RootFolderList.splice(i, 1)
-            }
-          }
-          this.prevLevel();
         }).onCancel(() => {
         })
       }
@@ -422,73 +383,24 @@ export default {
     ChangeFileDirectory () {
       this.ChangeFileDirectoryFlag = true;
     },
+    //切换目录页码
+    switchFolderPage (value) {
+      console.log(value)
+      this.getTreeEntityList(value)
+    },
     //------------------- 搜索 ---------------------
     searchFile () {
-      if (this.searchText === '' && this.FileType === '') {
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '搜索条件必须必须有一个',
-          color: 'red',
-        })
-      } else {
-        let searchIndex = -1;
-        if (this.FileType === '文件夹') { searchIndex = 0 } else if (this.FileType === '测试用例') { searchIndex = 1 } else if (this.FileType === '测试数据源') { searchIndex = 2 }
-        this.isRootFolderFlag = true;
-        let reg = new RegExp(this.searchText.trim(), 'i')
-        this.FolderList = [];
-        for (let i = 0; i < this.RootFolderList.length; i++) {
-          if (this.searchText.trim() != '' && this.FileType != '') {
-            if (this.RootFolderList[i].Name.match(reg) && this.RootFolderList[i].Type == searchIndex) {
-              this.FolderList.push(this.RootFolderList[i])
-            }
-          } else {
-            if (this.searchText.trim() != '') {
-              if (this.RootFolderList[i].Name.match(reg)) {
-                this.FolderList.push(this.RootFolderList[i])
-              }
-            } else {
-              if (this.RootFolderList[i].Type == searchIndex) {
-                this.FolderList.push(this.RootFolderList[i])
-              }
-            }
-          }
-        }
-
-        for (let i = 0; i < this.ChildFolderList.length; i++) {
-          if (this.searchText.trim() != '' && this.FileType != '') {
-            if (this.ChildFolderList[i].Name.match(reg) && this.ChildFolderList[i].Type == searchIndex) {
-              this.FolderList.push(this.ChildFolderList[i])
-            }
-          } else {
-            if (this.searchText.trim() != '') {
-              if (this.ChildFolderList[i].Name.match(reg)) {
-                this.FolderList.push(this.ChildFolderList[i])
-              }
-            } else {
-              if (this.ChildFolderList[i].Type == searchIndex) {
-                this.FolderList.push(this.ChildFolderList[i])
-              }
-            }
-          }
-        }
-
-      }
+      this.getTreeEntityList();
     },
     cancelSearch () {
-      this.searchText = ''; this.FileType = '';
+      this.searchText = ''; this.FileType = null;
       this.isRootFolderFlag = false;
-      this.prevLevel();
     },
-    //------------------- 新建文件夹 ---------------------
-    newFolderCancel () {
-      this.FolderName = '';
-      this.createFolderFixed = false;
-    },
+    //------------------- 新建目录 ---------------------
     newFolderCreate () {
       this.$q.dialog({
-        title: '新建文件夹',
-        message: '文件夹名称',
+        title: '新建目录',
+        message: '目录名称',
         prompt: {
           model: '',
           type: 'text' // optional
@@ -503,9 +415,15 @@ export default {
           label: '取消'
         },
       }).onOk(data => {
-        console.log(data)
-      }).onCancel(() => {
-        // console.log('>>>> Cancel')
+        this.$q.loading.show();
+        let para = {
+          Name: data,
+          FolderID: this.SelectFolder ? this.SelectFolder.id : this.SelectFolder,
+        }
+        Apis.postCreateTreeEntity(para).then(res => {
+          console.log(res)
+          this.$q.loading.hide();
+        })
       })
     },
     //重命名
@@ -515,21 +433,21 @@ export default {
         this.$q.notify({
           position: 'top',
           message: '提示',
-          caption: '请选择文件夹',
+          caption: '请选择目录、测试用例、测试数据源',
           color: 'red',
         })
       } else if (this.selection.length > 1) {
         this.$q.notify({
           position: 'top',
           message: '提示',
-          caption: '只能选择一个文件夹',
+          caption: '只能选择一个文件进行修改（目录、测试用例、测试数据源）',
           color: 'red',
         })
       } else {
         console.log(this.selection)
         this.$q.dialog({
-          title: '重命名',
-          message: '文件夹名称',
+          title: '目录重命名',
+          message: '目录名称',
           prompt: {
             model: this.selection[0].Name,
             type: 'text' // optional
@@ -566,7 +484,21 @@ export default {
     },
     //新增弹窗创建按钮
     newCreate () {
-      this.newCancel();
+      if (!this.$refs.CSTestCase.newCreate()) { return; }
+      let para = this.$refs.CSTestCase.newCreate();
+      this.$q.loading.show()
+      Apis.postCreateTestCase(para).then((res) => {
+        console.log(res)
+        this.getTestCaseList();
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '创建成功',
+          color: 'secondary',
+        })
+        this.newCancel()
+        this.getTreeEntityList();
+      })
     },
     // ------------------- 新建测试数据源 ---------------------
     //新建TestDataSource
@@ -590,48 +522,69 @@ export default {
     padding: 10px 16px 5px;
     width: 100%;
     box-sizing: border-box;
+    border-bottom: 1px solid #ccc;
     background: #ffffff;
     .btn {
       margin-right: 10px;
       margin-bottom: 5px;
     }
   }
-  .Rootfolder {
-    width: 100%;
-    .Rootfolder_list {
-      position: relative;
-      width: 10%;
-      height: 80px;
-      margin: 10px 0px;
-      text-align: center;
-      box-sizing: border-box;
-      .checkbox {
-        position: absolute;
-        left: 10%;
-        top: 35%;
+  .detail_fixed {
+    position: fixed;
+    top: 48px;
+    left: 0;
+    z-index: 10;
+  }
+  .folder {
+    padding: 50px 0px;
+    box-sizing: border-box;
+    .Rootfolder {
+      width: 100%;
+      .Rootfolder_list {
+        position: relative;
+        width: 10%;
+        margin: 10px 0px;
+        text-align: center;
+        box-sizing: border-box;
+        .checkbox {
+          position: absolute;
+          left: 10%;
+          top: 35%;
+        }
+        p {
+          width: 70%;
+          margin: 0 auto;
+          word-wrap: break-word;
+        }
+        .iconfolder {
+          font-size: 50px;
+        }
       }
-      p {
-        width: 70%;
-        margin: 0 auto;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .iconfolder {
-        font-size: 50px;
+      .Rootfolder_list:hover {
+        position: relative;
+        width: 10%;
+        margin: 10px 0px;
+        text-align: center;
+        box-sizing: border-box;
+        background-color: rgba(204, 232, 255, 0.8);
+        .iconfolder {
+          font-size: 50px;
+        }
+        p {
+          width: 70%;
+          margin: 0 auto;
+        }
       }
     }
-    .Rootfolder_list:hover {
-      position: relative;
-      width: 10%;
-      height: 80px;
-      margin: 10px 0px;
-      text-align: center;
+    .folderList_page {
+      position: fixed;
+      bottom: 0%;
+      right: 0%;
+      width: 100%;
+      height: 50px;
+      border-top: 1px solid #ccc;
       box-sizing: border-box;
-      background-color: rgba(204, 232, 255, 0.8);
-      .iconfolder {
-        font-size: 50px;
-      }
+      background: white;
     }
   }
 }
