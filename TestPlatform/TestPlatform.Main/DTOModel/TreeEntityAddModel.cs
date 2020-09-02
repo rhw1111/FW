@@ -10,7 +10,7 @@ namespace FW.TestPlatform.Main.DTOModel
     /// 测试数据源新建模型
     /// </summary>
     [DataContract]
-    public class TestDataSourceAddModel:ModelBase
+    public class TreeEntityAddModel : ModelBase
     {
         /// <summary>
         /// 名称
@@ -29,39 +29,6 @@ namespace FW.TestPlatform.Main.DTOModel
             }
         }
 
-        /// <summary>
-        /// 类型
-        /// </summary>
-        [DataMember]
-        public string Type
-        {
-            get
-            {
-
-                return GetAttribute<string>(nameof(Type));
-            }
-            set
-            {
-                SetAttribute<string>(nameof(Type), value);
-            }
-        }
-
-        /// <summary>
-        /// 数据
-        /// </summary>
-        [DataMember]
-        public string Data
-        {
-            get
-            {
-
-                return GetAttribute<string>(nameof(Data));
-            }
-            set
-            {
-                SetAttribute<string>(nameof(Data), value);
-            }
-        }
         /// <summary>
         /// 父节点ID
         /// </summary>

@@ -8,6 +8,8 @@ using MSLibrary.DI;
 using FW.TestPlatform.Main.DTOModel;
 using FW.TestPlatform.Main.Entities;
 using MSLibrary.LanguageTranslate;
+using MSLibrary.Transaction;
+using MSLibrary.Collections;
 
 namespace FW.TestPlatform.Main.Application
 {
@@ -15,9 +17,11 @@ namespace FW.TestPlatform.Main.Application
     public class AppUpdateTestDataSource : IAppUpdateTestDataSource
     {
         private readonly ITestDataSourceRepository _testDataSourceRepository;
-        public AppUpdateTestDataSource(ITestDataSourceRepository testDataSourceRepository)
+        private readonly ITreeEntityRepository _treeEntityRepository;
+        public AppUpdateTestDataSource(ITestDataSourceRepository testDataSourceRepository, ITreeEntityRepository treeEntityRepository)
         {
             _testDataSourceRepository = testDataSourceRepository;
+            _treeEntityRepository = treeEntityRepository;
         }
         public async Task<TestDataSourceViewData> Do(TestDataSourceUpdateModel model, CancellationToken cancellationToken = default)
         {
@@ -33,11 +37,47 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseDataSourceByID, fragment, 1, 0);
             }
-            source.Type = model.Type;
-            source.Data = model.Data;
-            source.Name = model.Name;
-            source.ModifyTime = DateTime.UtcNow;
-            await source.Update(cancellationToken);
+            await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
+            {
+                TreeEntity? tEntity = null;
+                if (source.TreeID != null)
+                {
+                    tEntity = await _treeEntityRepository.QueryByID(source.TreeID.Value, cancellationToken);
+                    if (tEntity == null)
+                    {
+                        var fragment = new TextFragment()
+                        {
+                            Code = TestPlatformTextCodes.NotFoundTreeEntityByID,
+                            DefaultFormatting = "找不到ID为{0}的测试案例",
+                            ReplaceParameters = new List<object>() { source.TreeID.Value.ToString() }
+                        };
+
+                        throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTreeEntityByID, fragment, 1, 0);
+                    }
+                    if (model.Name != source.Name || (tEntity != null && model.FolderID != tEntity.ParentID))
+                    {
+                        await tEntity.Delete(cancellationToken);
+                    }
+                }
+                if (source.TreeID == null || model.Name != source.Name || (tEntity != null && model.FolderID != tEntity.ParentID))
+                {
+                    TreeEntity treeEntity = new TreeEntity
+                    {
+                        ParentID = model.FolderID,
+                        Value = source.ID.ToString(),
+                        Name = "DS-" + source.Name,
+                        ID = Guid.NewGuid(),
+                        Type = TreeEntityValueServiceTypes.TestCase
+                    };
+                    await treeEntity.Add(cancellationToken);
+                    source.TreeID = treeEntity.ID;
+                }
+                source.Type = model.Type;
+                source.Data = model.Data;
+                source.Name = model.Name;
+                source.ModifyTime = DateTime.UtcNow;
+                await source.Update(cancellationToken);
+            }
 
             TestDataSourceViewData result = new TestDataSourceViewData()
             {

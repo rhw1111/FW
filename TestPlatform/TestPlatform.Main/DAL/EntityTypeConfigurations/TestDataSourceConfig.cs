@@ -19,6 +19,7 @@ namespace FW.TestPlatform.Main.DAL.EntityTypeConfigurations
             builder.Property((entity) => entity.Data).IsRequired().HasColumnType("mediumtext");
             builder.Property((entity) => entity.CreateTime).HasColumnType("datetime").Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             builder.Property((entity) => entity.ModifyTime).HasColumnType("datetime");
+            builder.Property(entity => entity.TreeID).HasColumnType("char(36)");
             var sequenceProperty = builder.Property<long>("Sequence").HasColumnName("sequence").HasColumnType("bigint").Metadata;
             sequenceProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
             sequenceProperty.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);

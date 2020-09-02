@@ -222,6 +222,16 @@ namespace MSLibrary.Collections
         }
 
         /// <summary>
+        /// 获取唯一子节点
+        /// </summary>
+        /// <param name="name">节点名称</param>
+        /// <returns></returns>
+        public async Task<TreeEntity?> GetChildren(string name, CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetChildren(this, name, cancellationToken);
+        }
+
+        /// <summary>
         /// 检查是否存在子节点
         /// </summary>
         /// <param name="cancellationToken"></param>
@@ -250,6 +260,7 @@ namespace MSLibrary.Collections
         Task UpdateParent(TreeEntity entity,Guid? parentID, CancellationToken cancellationToken = default);
         Task Delete(TreeEntity entity, CancellationToken cancellationToken = default);
         Task<QueryResult<TreeEntity>> GetChildren(TreeEntity entity,string? matchName,int? type,int page,int pageSize, CancellationToken cancellationToken = default);
+        Task<TreeEntity?> GetChildren(TreeEntity entity, string name, CancellationToken cancellationToken = default);
         Task<bool> HasChildren(TreeEntity entity,CancellationToken cancellationToken = default);
         Task<JObject> GetFormatValue(TreeEntity entity, CancellationToken cancellationToken = default);
     }
@@ -295,13 +306,13 @@ namespace MSLibrary.Collections
                     {
                         Code = TextCodes.TreeEntityParentTypeError,
                         DefaultFormatting = "树状实体{0}的类型无法作为父记录，要求的类型为{1}",
-                        ReplaceParameters = new List<object>() { entity.ParentID.ToString(), "1" }
+                        ReplaceParameters = new List<object>() { entity.ParentID.ToString(), "0" }
                     };
                     throw new UtilityException((int)Errors.TreeEntityParentTypeError, fragment, 1, 0);
                 }
             }
 
-            await checkDuplicate(entity.ID,entity.Name,
+            await checkDuplicate(entity,
                 async () =>
                 {
                     await _treeEntityStore.Add(entity, cancellationToken);
@@ -335,6 +346,11 @@ namespace MSLibrary.Collections
         public async Task<QueryResult<TreeEntity>> GetChildren(TreeEntity entity, string? matchName,int? type, int page, int pageSize, CancellationToken cancellationToken = default)
         {
             return await _treeEntityStore.QueryChildren(entity.ID, matchName,type, page, pageSize, cancellationToken);
+        }
+
+        public async Task<TreeEntity?> GetChildren(TreeEntity entity, string name, CancellationToken cancellationToken = default)
+        {
+            return await _treeEntityStore.QueryByName(entity.ID, name, cancellationToken);
         }
 
         public async Task<JObject> GetFormatValue(TreeEntity entity, CancellationToken cancellationToken = default)
@@ -382,7 +398,7 @@ namespace MSLibrary.Collections
                 }
             }
 
-            await checkDuplicate(entity.ID, entity.Name,
+            await checkDuplicate(entity,
                 async () =>
                 {
                     await _treeEntityStore.Update(entity, cancellationToken);
@@ -412,7 +428,7 @@ namespace MSLibrary.Collections
                     {
                         Code = TextCodes.TreeEntityParentTypeError,
                         DefaultFormatting = "树状实体{0}的类型无法作为父记录，要求的类型为{1}",
-                        ReplaceParameters = new List<object>() { parentID.ToString(), "1" }
+                        ReplaceParameters = new List<object>() { parentID.ToString(), "0" }
                     };
                     throw new UtilityException((int)Errors.TreeEntityParentTypeError, fragment, 1, 0);
                 }
@@ -436,16 +452,16 @@ namespace MSLibrary.Collections
 
             return serviceFactory.Create();
         }
-        private async Task checkDuplicate(Guid id,string name,Func<Task> action, CancellationToken cancellationToken = default)
+        private async Task checkDuplicate(TreeEntity treeEntity,Func<Task> action, CancellationToken cancellationToken = default)
         {
-            var tree = await _treeEntityStore.QueryByName(name, cancellationToken);
-            if (tree != null && tree.ID!=id)
+            var tree = await _treeEntityStore.QueryByName(treeEntity.ParentID, treeEntity.Name, cancellationToken);
+            if (tree != null && tree.ID!=treeEntity.ID)
             {
                 var fragment = new TextFragment()
                 {
                     Code = TextCodes.ExistSameNameTreeEntity,
                     DefaultFormatting = "已经存在名称为{0}的树状实体记录",
-                    ReplaceParameters = new List<object>() { name }
+                    ReplaceParameters = new List<object>() { treeEntity.Name }
                 };
                 throw new UtilityException((int)Errors.ExistSameNameTreeEntity, fragment, 1, 0);
             }
@@ -455,14 +471,14 @@ namespace MSLibrary.Collections
 
                 await action();
 
-                var newId = await _treeEntityStore.QueryByNameNoLock(name, cancellationToken);
-                if (newId != id)
+                var newId = await _treeEntityStore.QueryByNameNoLock(treeEntity.ParentID, treeEntity.Name, cancellationToken);
+                if (newId != treeEntity.ID)
                 {
                     var fragment = new TextFragment()
                     {
                         Code = TextCodes.ExistSameNameTreeEntity,
                         DefaultFormatting = "已经存在名称为{0}的树状实体记录",
-                        ReplaceParameters = new List<object>() { name }
+                        ReplaceParameters = new List<object>() { treeEntity.Name }
                     };
                     throw new UtilityException((int)Errors.ExistSameNameTreeEntity, fragment, 1, 0);
                 }
@@ -473,7 +489,7 @@ namespace MSLibrary.Collections
         public async Task UpdateName(TreeEntity entity, string name, CancellationToken cancellationToken = default)
         {
             var valueService = getValueService(entity.Type);
-            await checkDuplicate(entity.ID, name,
+            await checkDuplicate(entity,
                 async () =>
                 {
                     await _treeEntityStore.UpdateName(entity.ID,name, cancellationToken);
