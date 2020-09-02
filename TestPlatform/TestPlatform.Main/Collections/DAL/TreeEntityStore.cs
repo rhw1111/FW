@@ -97,6 +97,7 @@ namespace FW.TestPlatform.Main.Collections.DAL
                     {
                         count = await (from item in dbContext.TreeEntities
                                        where EF.Functions.Like(item.Name, strLike) && item.Type == type
+                                       orderby item.CreateTime descending
                                        select item.ID).CountAsync();
                     }
                     result.TotalCount = count;
@@ -213,33 +214,23 @@ namespace FW.TestPlatform.Main.Collections.DAL
                     var strLike = $"%{matchName.ToSqlLike()}%";
                     var count = 0;
                     if (type == null)
-                        type = -1;
-                    if (type == null)
                     {
                         count = await (from item in dbContext.TreeEntities
-                                       where EF.Functions.Like(item.Name, strLike)
+                                       where EF.Functions.Like(item.Name, strLike) && item.ParentID == parentID
                                        select item.ID).CountAsync();
                     }
                     else
                     {
                         count = await (from item in dbContext.TreeEntities
-                                       where EF.Functions.Like(item.Name, strLike) && item.Type == type
+                                       where EF.Functions.Like(item.Name, strLike) && item.Type == type && item.ParentID == parentID
                                        select item.ID).CountAsync();
                     }
                     result.TotalCount = count;
 
-                    var items = (from item in dbContext.TreeEntities
-                                 where EF.Functions.Like(item.Name, strLike) && item.ParentID == parentID
-                                 select item);
-                    if (type != null)
-                    {
-                        items = (from item in items
-                                 where item.Type == type
-                                 select item);
-                    }
-                    var ids = (from item in items
-                             orderby item.CreateTime descending
-                             select item.ID).Skip((page - 1) * pageSize).Take(pageSize);
+                    var ids = (from item in dbContext.TreeEntities
+                               where EF.Functions.Like(item.Name, strLike) && (type == null || item.Type == type) && item.ParentID == parentID
+                               orderby item.CreateTime descending
+                               select item.ID).Skip((page - 1) * pageSize).Take(pageSize);
 
                     var datas = await (from item in dbContext.TreeEntities
                                        join idItem in ids

@@ -57,7 +57,8 @@ namespace FW.TestPlatform.Main.Application
                         Name = item.Name,
                         Type = item.Type,
                         Value = item.Value,
-                        CreateTime = item.CreateTime
+                        CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
+                        ParentID = item.ParentID
                     }
                     );
             }
