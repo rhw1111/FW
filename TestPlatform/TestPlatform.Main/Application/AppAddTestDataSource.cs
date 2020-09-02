@@ -51,6 +51,7 @@ namespace FW.TestPlatform.Main.Application
                     Type = source.Type,
                     Data = source.Data,
                     Name = source.Name,
+                    TreeID = source.TreeID,
                     CreateTime = source.CreateTime.ToCurrentUserTimeZone(),
                     ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
                 }; 

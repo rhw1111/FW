@@ -115,5 +115,21 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<DateTime>(nameof(ModifyTime), value);
             }
         }
+        /// <summary>
+        /// 树结点Id
+        /// </summary>
+        [DataMember]
+        public Guid? TreeID
+        {
+            get
+            {
+
+                return GetAttribute<Guid?>(nameof(TreeID));
+            }
+            set
+            {
+                SetAttribute<Guid?>(nameof(TreeID), value);
+            }
+        }
     }
 }

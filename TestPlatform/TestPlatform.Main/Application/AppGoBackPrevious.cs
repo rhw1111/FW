@@ -52,7 +52,7 @@ namespace FW.TestPlatform.Main.Application
 
                     throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTreeEntityByID, fragment, 1, 0);
                 }
-                queryResult = await treeEntity.GetChildren(string.Empty, null, page, pageSize, cancellationToken);
+                queryResult = await parentEntity.GetChildren(string.Empty, null, page, pageSize, cancellationToken);
             }
             else
                 queryResult = await _treeEntityRepository.QueryRoot(string.Empty, null, page, pageSize, cancellationToken);

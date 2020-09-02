@@ -57,6 +57,7 @@ namespace FW.TestPlatform.Main.Application
                     Name = source.Name,
                     Status = source.Status,
                     MasterHostID = source.MasterHostID,
+                    TreeID = source.TreeID,
                     CreateTime = source.CreateTime.ToCurrentUserTimeZone()
                 };
             }
