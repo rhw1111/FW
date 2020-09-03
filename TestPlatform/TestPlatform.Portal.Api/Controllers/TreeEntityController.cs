@@ -92,13 +92,13 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             await _appDeleteTreeEntity.Do(id);
         }
 
-        [HttpPut("UpdateParent")]
+        [HttpPut("updateparent")]
         public async Task UpdateParent(Guid id, Guid? parentId)
         {
             await _appUpdateTreeEntityParent.Do(id, parentId);
         }
 
-        [HttpPut("UpdateName")]
+        [HttpPut("updatename")]
         public async Task UpdateName(Guid id, string name)
         {
             await _appUpdateTreeEntityName.Do(id, name);

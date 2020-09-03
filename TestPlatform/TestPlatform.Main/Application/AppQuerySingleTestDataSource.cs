@@ -40,6 +40,7 @@ namespace FW.TestPlatform.Main.Application
                 Name = item.Name,
                 Type = item.Type,
                 Data = item.Data,
+                TreeID = item.TreeID,
                 CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
                 ModifyTime = item.ModifyTime.ToCurrentUserTimeZone()
             };
