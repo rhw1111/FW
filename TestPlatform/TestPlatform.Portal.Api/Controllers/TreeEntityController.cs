@@ -22,13 +22,22 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppQueryTreeEntities _appQueryTreeEntities;
         private readonly IAppGoBackPrevious _appGoBackPrevious;
         private readonly IAppAddTreeEntity _appAddTreeEntity;
+        private readonly IAppUpdateTreeEntityParent _appUpdateTreeEntityParent;
+        private readonly IAppUpdateTreeEntityName _appUpdateTreeEntityName;
+        private readonly IAppQueryChild _appQueryChild;
+        private readonly IAppDeleteTreeEntity _appDeleteTreeEntity;
 
-        public TreeEntityController(IAppQueryTreeEntityChildren appQueryTreeEntityChildren, IAppQueryTreeEntities appQueryTreeEntities, IAppGoBackPrevious appGoBackPrevious, IAppAddTreeEntity appAddTreeEntity)
+        public TreeEntityController(IAppQueryTreeEntityChildren appQueryTreeEntityChildren, IAppQueryTreeEntities appQueryTreeEntities, IAppGoBackPrevious appGoBackPrevious, IAppAddTreeEntity appAddTreeEntity,
+            IAppUpdateTreeEntityParent appUpdateTreeEntityParent, IAppUpdateTreeEntityName appUpdateTreeEntityName, IAppQueryChild appQueryChild, IAppDeleteTreeEntity appDeleteTreeEntity)
         {
             _appQueryTreeEntityChildren = appQueryTreeEntityChildren;
             _appQueryTreeEntities = appQueryTreeEntities;
             _appGoBackPrevious = appGoBackPrevious;
             _appAddTreeEntity = appAddTreeEntity;
+            _appUpdateTreeEntityParent = appUpdateTreeEntityParent;
+            _appUpdateTreeEntityName = appUpdateTreeEntityName;
+            _appQueryChild = appQueryChild;
+            _appDeleteTreeEntity = appDeleteTreeEntity;
         }
 
         [HttpGet("querybypage")]
@@ -69,6 +78,30 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         public async Task<TreeEntityViewModel> Add(TreeEntityAddModel model)
         {
             return await _appAddTreeEntity.Do(model);
+        }
+
+        [HttpGet("querychild")]
+        public async Task<TreeEntityViewModel?> QueryChild(Guid? parentId, string name)
+        {
+            return await _appQueryChild.Do(parentId, name);
+        }
+
+        [HttpDelete("delete")]
+        public async Task delete(Guid id)
+        {
+            await _appDeleteTreeEntity.Do(id);
+        }
+
+        [HttpPut("UpdateParent")]
+        public async Task UpdateParent(Guid id, Guid? parentId)
+        {
+            await _appUpdateTreeEntityParent.Do(id, parentId);
+        }
+
+        [HttpPut("UpdateName")]
+        public async Task UpdateName(Guid id, string name)
+        {
+            await _appUpdateTreeEntityName.Do(id, name);
         }
     }
 }
