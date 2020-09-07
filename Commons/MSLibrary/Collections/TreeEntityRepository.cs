@@ -36,5 +36,10 @@ namespace MSLibrary.Collections
         {
             return await _treeEntityStore.QueryByName(null, name, cancellationToken);
         }
+
+        public async Task<TreeEntity?> QueryWithParentByID(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _treeEntityStore.QueryWithParentByID(id, cancellationToken);
+        }
     }
 }

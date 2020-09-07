@@ -13,5 +13,6 @@ namespace MSLibrary.Collections
 
         Task<TreeEntity?> QueryByID(Guid id, CancellationToken cancellationToken = default);
         Task<TreeEntity?> QueryRootChild(string name, CancellationToken cancellationToken = default);
+        Task<TreeEntity?> QueryWithParentByID(Guid id, CancellationToken cancellationToken = default);
     }
 }
