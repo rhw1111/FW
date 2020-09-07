@@ -109,5 +109,19 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<Guid>(nameof(OwnerID), value);
             }
         }
+        /// <summary>
+        /// 父节点ID
+        /// </summary>
+        public Guid? FolderID
+        {
+            get
+            {
+                return GetAttribute<Guid?>(nameof(FolderID));
+            }
+            set
+            {
+                SetAttribute<Guid?>(nameof(FolderID), value);
+            }
+        }
     }
 }

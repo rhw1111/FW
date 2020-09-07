@@ -1,5 +1,31 @@
 <template>
   <div>
+    <!-- 更改文件目录 -->
+    <q-dialog v-model="ChangeFileDirectoryFlag"
+              persistent>
+      <q-card style="width: 100%;">
+        <q-card-section>
+          <div class="text-h6">选择文件目录</div>
+        </q-card-section>
+
+        <q-separator />
+
+        <TreeEntity />
+
+        <q-separator />
+
+        <q-card-actions align="right">
+          <q-btn flat
+                 label="取消"
+                 color="primary"
+                 @click="ChangeFileDirectoryFlag = false;" />
+          <q-btn flat
+                 label="确定"
+                 color="primary"
+                 @click="ChangeFileDirectoryFlag = false;" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <!--  主机选择框  -->
     <lookUp :masterHostList="masterHostList"
             :masterSelectIndex="masterHostIndex"
@@ -17,7 +43,7 @@
           </template>
         </q-input>
         <q-select v-model="EngineType"
-                  :options="['Http','Tcp']"
+                  :options="['Http','Tcp','WebSocket']"
                   class="col"
                   :dense="false">
           <template v-slot:before>
@@ -26,6 +52,10 @@
           <template v-slot:prepend>
           </template>
         </q-select>
+
+      </div>
+
+      <div class="row input_row">
 
         <q-input :dense="false"
                  class="col"
@@ -43,8 +73,24 @@
                    @click="masterHost" />
           </template>
         </q-input>
-
+        <q-input :dense="false"
+                 class="col"
+                 readonly
+                 placeholder="点击右侧加号选择文件目录"
+                 v-if="$route.name=='Directory' || $route.name=='DirectoryTestCaseDetail'">
+          <template v-slot:before>
+            <span style="font-size:14px">文件目录:</span>
+          </template>
+          <template v-slot:append>
+            <q-btn round
+                   dense
+                   flat
+                   icon="add"
+                   @click="ChangeFileDirectory" />
+          </template>
+        </q-input>
       </div>
+
       <span style="font-size:14px">参数配置:</span>
       <div class="row"
            style="margin-bottom:10px;">
@@ -468,16 +514,6 @@
           </q-card>
         </q-expansion-item>
       </q-list>
-      <!-- <div class="row">
-        <div class="col-2  offset-md-10">
-
-          <q-btn class="btn"
-                 color="primary"
-                 style="margin:10px 0 10px 20px;float:right"
-                 label="生 成"
-                 @click="CreateJson" />
-        </div>
-      </div> -->
 
       <q-list bordered>
         <q-expansion-item label="数据源"
@@ -512,17 +548,6 @@
         </q-expansion-item>
       </q-list>
 
-      <!-- <div class="row input_row">
-        <q-input v-model="Configuration"
-                 :dense="false"
-                 style="overflow:hidden"
-                 autogrow
-                 class="col-12"
-                 type="textarea"
-                 outlined>
-        </q-input>
-      </div> -->
-
     </div>
   </div>
 </template>
@@ -531,11 +556,13 @@
 import * as Apis from "@/api/index"
 import lookUp from "@/components/lookUp.vue"
 import Clipboard from 'clipboard';
+import TreeEntity from "@/components/TreeEntity.vue"
 export default {
   name: 'CreateShowTestCase',
   props: ['dataSourceName', 'detailData'],
   components: {
-    lookUp
+    lookUp,
+    TreeEntity
   },
   watch: {
     detailData (val) {
@@ -580,6 +607,11 @@ export default {
   },
   data () {
     return {
+
+
+      // -------- 更改文件目录 -------
+      ChangeFileDirectoryFlag: false,//更改文件目录Flag
+      ChangeFileDirectoryValue: '',
 
       HostFixed: false,     //主机flag
       masterHostSelect: '', //主机选择
@@ -707,7 +739,8 @@ export default {
         Name: this.Name,
         Configuration: this.Configuration.trim(),
         EngineType: this.EngineType,
-        MasterHostID: this.MasterHostID
+        MasterHostID: this.MasterHostID,
+        FolderID: null,
       }
       console.log(para)
       if (this.Name && this.isJSON(this.Configuration) && this.EngineType && this.MasterHostID) {
@@ -1055,7 +1088,14 @@ export default {
         this.paraConfig.StopInit.VarSettings[index] = this.paraConfig.StopInit.VarSettings.splice(index + 1, 1, this.paraConfig.StopInit.VarSettings[index])[0];
 
       }
-    }
+    },
+
+
+    //更改文件夹目录
+    ChangeFileDirectory () {
+      this.ChangeFileDirectoryFlag = true;
+    },
+
   }
 }
 </script>

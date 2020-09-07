@@ -42,16 +42,24 @@ namespace FW.TestPlatform.Main.Application
             var history = await queryResult.GetHistory(historyId, cancellationToken);
             if (history != null)
             {
+                string from = ConvertDateTimeToInt(history.CreateTime.ToCurrentUserTimeZone().AddHours(-1)).ToString();
+                string to = ConvertDateTimeToInt(history.CreateTime.ToCurrentUserTimeZone().AddHours(1)).ToString();
                 var monitorAddress = await _systemConfigurationService.GetCaseHistoryMonitorAddressAsync(cancellationToken);
                 viewHistory.ID = history.ID;
                 viewHistory.CaseID = history.CaseID;
                 viewHistory.Summary = history.Summary;
                 viewHistory.CreateTime = history.CreateTime.ToCurrentUserTimeZone();
                 viewHistory.NetGatewayDataFormat = history.NetGatewayDataFormat == null ? "" : history.NetGatewayDataFormat;
-                viewHistory.MonitorUrl = $"{monitorAddress}&var-HistoryCaseID={history.ID.ToString().ToUrlEncode()}";
+                viewHistory.MonitorUrl = $"{monitorAddress}&var-HistoryCaseID={history.ID.ToString().ToUrlEncode()}&from={from}&to={to}";
             }
 
             return viewHistory;
+        }
+        private long ConvertDateTimeToInt(DateTime time)
+        {
+            DateTime Time = (new System.DateTime(1970, 1, 1, 0, 0, 0, 0)).ToCurrentUserTimeZone();
+            long TimeStamp = (time.Ticks - Time.Ticks) / 10000;   //除10000调整为13位     
+            return TimeStamp;
         }
     }
 }

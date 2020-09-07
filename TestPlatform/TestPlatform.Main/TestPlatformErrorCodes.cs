@@ -157,6 +157,10 @@ namespace FW.TestPlatform.Main
         /// <summary>
         /// 找不到指定名称的SSHEndPoint
         /// </summary>
-        NotFoundSSHEndPointByName = 325710222
+        NotFoundSSHEndPointByName = 325710222,
+        /// <summary>
+        /// 找不到指定Id的测试案例
+        /// </summary>
+        NotFoundTreeEntityByID = 325710223
     }
 }

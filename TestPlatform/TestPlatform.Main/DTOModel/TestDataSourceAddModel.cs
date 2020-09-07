@@ -62,5 +62,19 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<string>(nameof(Data), value);
             }
         }
+        /// <summary>
+        /// 父节点ID
+        /// </summary>
+        public Guid? FolderID
+        {
+            get
+            {
+                return GetAttribute<Guid?>(nameof(FolderID));
+            }
+            set
+            {
+                SetAttribute<Guid?>(nameof(FolderID), value);
+            }
+        }
     }
 }

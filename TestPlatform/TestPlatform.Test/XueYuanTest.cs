@@ -263,6 +263,24 @@ namespace TestPlatform.Test
             Assert.Pass();
         }
 
+        [Test]
+        public async Task TestTestCaseWebSocketRun()
+        {
+            TestCase testCase = new TestCase()
+            {
+                ID = new Guid("82962da0-e83b-11ea-bf37-00ffb1d16cf9"),
+            };
+
+            var testCaseStore = DIContainerContainer.Get<ITestCaseStore>();
+            var testCaseRunner = await testCaseStore.QueryByID(testCase.ID);
+
+            if (testCaseRunner != null)
+            {
+                await testCaseRunner.Run();
+            }
+
+            Assert.Pass();
+        }
 
         //[Test]
         public async Task TestTestCaseStop()
@@ -908,7 +926,7 @@ namespace TestPlatform.Test
             }
         }
 
-        [Test]
+        //[Test]
         public async Task TestNetGateway()
         {
             //var netGatewayDataHandleService = DIContainerContainer.Get<INetGatewayDataHandleService>();

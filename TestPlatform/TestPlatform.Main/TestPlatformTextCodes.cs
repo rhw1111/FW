@@ -265,5 +265,11 @@ namespace FW.TestPlatform.Main
         /// {0}：日志文件路径
         /// </summary>
         public const string NotFoundLogFileByPath = "NotFoundLogFileByPath";
+        /// <summary>
+        /// 找不到指定Id的TreeEntity
+        /// 格式为“找不到Id为{0}的TreeEntity”
+        /// {0}：TreeEntity ID
+        /// </summary>
+        public const string NotFoundTreeEntityByID = "NotFoundTreeEntityByID";
     }
 }

@@ -86,7 +86,7 @@ CREATE TABLE `influxdbendpoint` (
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-REPLACE INTO `influxdbendpoint` (`id`, `name`, `address`, `isauth`, `username`, `password`, `createtime`, `modifytime`) VALUES ('c7a290e6-eddd-4126-abc9-5e129718e0fc', 'EndpointName', 'http://172.17.0.1:8086', b'0', 'admin', 'admin', UTC_TIMESTAMP(),UTC_TIMESTAMP());
+REPLACE INTO `influxdbendpoint` (`id`, `name`, `address`, `isauth`, `username`, `password`, `createtime`, `modifytime`) VALUES ('c7a290e6-eddd-4126-abc9-5e129718e0fc', 'EndpointName', 'http://10.0.0.5:8086', b'0', 'admin', 'admin', UTC_TIMESTAMP(),UTC_TIMESTAMP());
 
 -- 导出 tpmain 的数据库结构
 CREATE DATABASE IF NOT EXISTS `tpmain` /*!40100 DEFAULT CHARACTER SET utf8 */ /*!80016 DEFAULT ENCRYPTION='N' */;
@@ -172,7 +172,6 @@ CREATE TABLE `testcase` (
   `id` char(36) NOT NULL,
   `masterhostid` char(36) NOT NULL,
   `ownerid` char(36) NOT NULL,
-  `testcasehistoryid` char(36) DEFAULT NULL,
   `enginetype` varchar(150) NOT NULL DEFAULT '',
   `name` varchar(150) NOT NULL DEFAULT '',
   `configuration` mediumtext NOT NULL,
@@ -206,7 +205,6 @@ CREATE TABLE `testcasehistory` (
   `id` char(36) NOT NULL,
   `caseid` char(36) NOT NULL,
   `summary` varchar(4000) NOT NULL DEFAULT '',
-  `netgatewaydataformat` varchar(150) NOT NULL DEFAULT '',
   `createtime` datetime NOT NULL,
   `modifytime` datetime NOT NULL,
   `sequence` bigint NOT NULL AUTO_INCREMENT,
@@ -304,3 +302,24 @@ REPLACE INTO `schedulehostconfiguration` (`id`, `name`, `schedulegroupname`, `en
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+
+-- 导出  表 tpmain.treeentiry 结构
+CREATE TABLE IF NOT EXISTS `treeentity` (
+  `id` char(36) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `value` mediumtext DEFAULT NULL,
+  `type` int NOT NULL,
+  `parentid` char(36) DEFAULT NULL,
+  `createtime` datetime NOT NULL,
+  `modifytime` datetime NOT NULL,
+  `sequence` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+/*!ALTER TABLE testcasehistory*/
+ALTER TABLE `testcasehistory` ADD COLUMN `netgatewaydataformat` varchar(150) DEFAULT '';
+ALTER TABLE `testcase` ADD COLUMN `testcasehistoryid` char(36) DEFAULT NULL;
+/*!ALTER TABLE testcase testdatasource 2020-08-27*/
+ALTER TABLE `testcase` ADD COLUMN `treeid` char(36) DEFAULT NULL;
+ALTER TABLE `testdatasource` ADD COLUMN `treeid` char(36) DEFAULT NULL;

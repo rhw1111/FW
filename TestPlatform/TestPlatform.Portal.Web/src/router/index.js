@@ -43,6 +43,25 @@ export default new Router({
           name: 'MasterHost',
           component: () => import('@/pages/MasterHost/index.vue'),
         },
+        // ---------------------------------------------- 目录 ------------------------------------------------
+        //根目录
+        {
+          path: '/Directory',
+          name: 'Directory',
+          component: () => import('@/pages/Directory/index.vue')
+        },
+        //TestCase详情
+        {
+          path: '/Directory/TestCase/Detail',
+          name: 'DirectoryTestCaseDetail',
+          component: () => import('@/pages/TestCase/Detail.vue')
+        },
+        //TestDataSource详情
+        {
+          path: '/Directory/TestDataSource/Detail',
+          name: 'DirectoryTestDataSourceDetail',
+          component: () => import('@/pages/TestDataSource/Detail.vue')
+        },
       ]
     },
   ]

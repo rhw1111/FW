@@ -50,6 +50,7 @@ namespace FW.TestPlatform.Main.Application
                 Configuration = queryResult.Configuration,
                 Status = queryResult.Status,
                 EngineType = queryResult.EngineType,
+                TreeID = queryResult.TreeID,
                 MasterHostID = queryResult.MasterHostID,
                 MasterHostAddress = queryResult.MasterHost.Address,
                 CreateTime = queryResult.CreateTime.ToCurrentUserTimeZone()
