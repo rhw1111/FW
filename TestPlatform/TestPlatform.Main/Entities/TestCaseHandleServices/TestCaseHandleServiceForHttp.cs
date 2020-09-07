@@ -118,8 +118,16 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task<bool> IsEngineRun(TestCase tCase, CancellationToken cancellationToken = default)
         {
+            var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
+            int locustMasterBindPort = configuration.LocustMasterBindPort;
+
+            if (locustMasterBindPort <= 5557)
+            {
+                locustMasterBindPort = 5557;
+            }
+
             //执行主机查进程命令
-            var result = await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}'",10, cancellationToken);
+            var result = await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep {locustMasterBindPort.ToString()} | grep -v grep | awk '{{print $2}}'",10, cancellationToken);
             if (string.IsNullOrEmpty(result))
             {
                 return false;
@@ -355,13 +363,21 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task Stop(TestCase tCase, CancellationToken cancellationToken = default)
         {
+            var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
+            int locustMasterBindPort = configuration.LocustMasterBindPort;
+
+            if (locustMasterBindPort <= 5557)
+            {
+                locustMasterBindPort = 5557;
+            }
+
             //执行主机杀进程命令
-            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}' | xargs kill -9",10, cancellationToken);
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep {locustMasterBindPort.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9",10, cancellationToken);
             //执行slave杀进程命令
             var slaveHosts = tCase.GetAllSlaveHosts(cancellationToken);
             await foreach (var item in slaveHosts)
             {
-                await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}' | xargs kill -9",10, cancellationToken);
+                await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep {locustMasterBindPort.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9",10, cancellationToken);
             }
         }
 
