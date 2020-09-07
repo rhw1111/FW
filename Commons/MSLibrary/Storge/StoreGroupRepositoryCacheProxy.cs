@@ -30,13 +30,21 @@ namespace MSLibrary.Storge
 
         public async Task<StoreGroup> QueryByName(string name)
         {
-            return await _kvcacheVisitor.Get(
+            return (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _storeGroupRepository.QueryByName(name);
+                    var obj= await _storeGroupRepository.QueryByName(name);
+                    if (obj == null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }
                 },
                 name
-                );
+                )).Item1;
         }
     }
 }

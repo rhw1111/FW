@@ -9,7 +9,6 @@ using IdentityCenter.Main.Entities.DAL;
 using MSLibrary;
 using MSLibrary.DI;
 using MSLibrary.Transaction;
-using MSLibrary.Collections;
 using IdentityCenter.Main.DAL;
 
 namespace IdentityCenter.Main.IdentityServer.DAL
@@ -26,7 +25,22 @@ namespace IdentityCenter.Main.IdentityServer.DAL
 
         public async Task<IdentityClient?> QueryByClientID(string clientID, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            IdentityClient? result = null;
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.SqlServer, true, false, _dbConnectionMainFactory.CreateReadForIdentityConfiguration(), async (conn, transaction) =>
+            {
+                await using (var dbContext = EntityDBContextFactory.CreateConfigurationDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    result = await (from item in dbContext.IdentityClients
+                                               where item.ClientID == clientID
+                                    select item).FirstOrDefaultAsync();
+                }
+            });
+
+            return result;
         }
     }
 }

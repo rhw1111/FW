@@ -25,7 +25,7 @@ namespace IdentityCenter.Main.DAL
         /// <summary>
         /// 认证确认
         /// </summary>
-        public DbSet<IdentityConsent> IdentityConsentTokens { get; set; } = null!;
+        public DbSet<IdentityConsent> IdentityConsents { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilde)
         {

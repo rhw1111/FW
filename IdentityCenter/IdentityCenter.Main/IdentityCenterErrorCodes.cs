@@ -134,5 +134,25 @@ namespace IdentityCenter.Main
         /// 找不到指定名称的认证客户端主机
         /// </summary>
         NotFoundIdentityClientHostByName = 324710070,
+        /// <summary>
+        /// 微信小程序请求处理缺少参数
+        /// </summary>
+        WeChatMiniHandleRequestMissPara= 324710200,
+        /// <summary>
+        /// 找不到指定类型的微信小程序请求处理
+        /// </summary>
+        NotFoundWeChatMiniRealHandlerByType = 324710201,
+        /// <summary>
+        /// 微信小程序登录错误
+        /// </summary>
+        WeChatMiniLoginError = 324710270,
+        /// <summary>
+        /// 已经存在指定名称的角色
+        /// </summary>
+        ExistRoleByName= 324710410,
+        /// <summary>
+        /// 已经存在指定编码的权限
+        /// </summary>
+        ExistPrivilegeByCode = 324710411,
     }
 }

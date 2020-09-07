@@ -31,18 +31,34 @@ namespace MSLibrary.Cache
 
         public async Task<KVCacheVisitor> QueryByName(string name)
         {
-            return await _timeoutVisitor.Get<string, KVCacheVisitor>(async (k) =>
+            return (await _timeoutVisitor.Get<string, KVCacheVisitor>(async (k) =>
             {
-                return await _kvCacheVisitorRepository.QueryByName(name);
-            }, name);
+                var obj= await _kvCacheVisitorRepository.QueryByName(name);
+                if (obj == null)
+                {
+                    return (obj, false);
+                }
+                else
+                {
+                    return (obj, true);
+                }
+            }, name)).Item1;
         }
 
         public  KVCacheVisitor QueryByNameSync(string name)
         {
             return _timeoutVisitor.GetSync<string, KVCacheVisitor>((k) =>
             {
-                return _kvCacheVisitorRepository.QueryByNameSync(name);
-            }, name);
+                var obj= _kvCacheVisitorRepository.QueryByNameSync(name);
+                if (obj == null)
+                {
+                    return (obj, false);
+                }
+                else
+                {
+                    return (obj, true);
+                }
+            }, name).Item1;
         }
     }
 }

@@ -83,8 +83,11 @@ namespace IdentityCenter.ClientService
                     switch(item.Item1.BindingType)
                     {
                         case IdentityClientBindingTypes.OpenID:
-                            authenticationBuilder.AddOpenIdConnect(item.Item1.BindingName, (options) =>
+                            authenticationBuilder
+                            
+                                .AddOpenIdConnect(item.Item1.BindingName, (options) =>
                              {
+                                 
                                  item.Item2.Init(options);
                              });
                             break;

@@ -197,4 +197,13 @@ namespace IdentityCenter.Main
         public const string None = "None";
         public const string OpenID = "OpenID";
     }
+    
+
+    /// <summary>
+    /// 缓存键值格式集合
+    /// </summary>
+    public static class CacheKeyFormats
+    {
+        public const string UserAccountID = "UserAccount_{0}";
+    }
 }

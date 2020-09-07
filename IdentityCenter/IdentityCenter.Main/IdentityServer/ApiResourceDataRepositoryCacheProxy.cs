@@ -32,26 +32,26 @@ namespace IdentityCenter.Main.IdentityServer
         public async Task<IList<ApiResourceData>> QueryAllEnabled(CancellationToken cancellationToken = default)
         {
 
-            var resourceList=await _kvcacheVisitor.Get(
+            var resourceList=(await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _apiResourceDataRepository.QueryAllEnabled(cancellationToken);
+                    return (await _apiResourceDataRepository.QueryAllEnabled(cancellationToken),true);
                 },
                 "All"
-                );
+                )).Item1;
 
             return resourceList;
         }
 
         public async Task<IList<ApiResourceData>> QueryEnabled(IList<string> names, CancellationToken cancellationToken = default)
         {
-            var resourceList = await _kvcacheVisitor.Get(
+            var resourceList = (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _apiResourceDataRepository.QueryAllEnabled(cancellationToken);
+                    return (await _apiResourceDataRepository.QueryAllEnabled(cancellationToken),true);
                 },
                 "All"
-                );
+                )).Item1;
 
             var result = (from item in resourceList
                           where names.Contains(item.Name)
@@ -61,13 +61,13 @@ namespace IdentityCenter.Main.IdentityServer
 
         public async Task<ApiResourceData?> QueryEnabled(string name, CancellationToken cancellationToken = default)
         {
-            var resourceList = await _kvcacheVisitor.Get(
+            var resourceList = (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _apiResourceDataRepository.QueryAllEnabled(cancellationToken);
+                    return (await _apiResourceDataRepository.QueryAllEnabled(cancellationToken),true);
                 },
                 "All"
-                );
+                )).Item1;
 
             var result = (from item in resourceList
                           where item.Name==name
@@ -77,13 +77,13 @@ namespace IdentityCenter.Main.IdentityServer
 
         public async Task<IList<ApiResourceData>> QueryByScopeEnabled(IList<string> scopeNames, CancellationToken cancellationToken = default)
         {
-            var resourceList = await _kvcacheVisitor.Get(
+            var resourceList = (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _apiResourceDataRepository.QueryAllEnabled(cancellationToken);
+                    return (await _apiResourceDataRepository.QueryAllEnabled(cancellationToken),true);
                 },
                 "All"
-                );
+                )).Item1;
 
             var result = (from item in resourceList
                           where item.Scopes.Any((scope)=> scopeNames.Contains(scope))

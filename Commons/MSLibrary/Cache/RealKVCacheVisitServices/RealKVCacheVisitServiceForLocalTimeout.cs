@@ -25,7 +25,26 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
 
         private static Dictionary<string, CacheContainer> _datas = new Dictionary<string, CacheContainer>();
 
-        public async Task<V> Get<K, V>(string cacheConfiguration, Func<Task<V>> creator, string prefix, K key)
+        public async Task Clear<K, V>(string cacheConfiguration, string prefix, K key)
+        {
+            ClearSync<K, V>(cacheConfiguration, prefix,key);
+            await Task.CompletedTask;
+        }
+
+        public void ClearSync<K, V>(string cacheConfiguration, string prefix, K key)
+        {
+            var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
+            if (_datas.TryGetValue(prefix, out CacheContainer cacheContainer))
+            {
+
+                if (_datas.TryGetValue(prefix, out cacheContainer))
+                {
+                        cacheContainer.CacheDict.Remove(key);
+                }
+            }
+        }
+
+        public async Task<(V, bool)> Get<K, V>(string cacheConfiguration, Func<Task<(V, bool)>> creator, string prefix, K key)
         {
             var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
             if (!_datas.TryGetValue(prefix, out CacheContainer cacheContainer))
@@ -35,7 +54,7 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
                 {
                     if (!_datas.TryGetValue(prefix, out cacheContainer))
                     {
-                        cacheContainer = new CacheContainer() { CacheDict =new HashLinkedCache<object, CacheTimeContainer<object>>() { Length = configuration.MaxLength } };
+                        cacheContainer = new CacheContainer() { CacheDict = new HashLinkedCache<object, CacheTimeContainer<object>>() { Length = configuration.MaxLength } };
                         _datas[prefix] = cacheContainer;
                     }
                 }
@@ -45,28 +64,33 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
                 }
             }
 
+            bool isCache = true;
             CacheTimeContainer<object> cacheItem = cacheContainer.CacheDict.GetValue(key);
             if (cacheItem == null || cacheItem.Expire())
             {
-                    await cacheContainer.SyncOperate(
-                    async()=>
+                await cacheContainer.SyncOperate(
+                async () =>
+                {
+                    cacheItem = cacheContainer.CacheDict.GetValue(key);
+                    if (cacheItem == null || cacheItem.Expire())
                     {
-                        cacheItem = cacheContainer.CacheDict.GetValue(key);
-                        if (cacheItem == null || cacheItem.Expire())
+                        var (cacheValue, isCache) = await creator();
+                        cacheItem = new CacheTimeContainer<object>(cacheValue, configuration.ExpireSeconds);
+                        if (isCache)
                         {
-                            var cacheValue = await creator();
-                            cacheItem = new CacheTimeContainer<object>(cacheValue, configuration.ExpireSeconds);
                             cacheContainer.CacheDict.SetValue(key, cacheItem);
                         }
                     }
-                    );
+                }
+                );
 
             }
 
-            return (V)cacheItem.Value;
+            return ((V)cacheItem.Value, isCache);
+
         }
 
-        public V GetSync<K, V>(string cacheConfiguration, Func<V> creator, string prefix, K key)
+        public (V, bool) GetSync<K, V>(string cacheConfiguration, Func<(V, bool)> creator, string prefix, K key)
         {
             var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
             if (!_datas.TryGetValue(prefix, out CacheContainer cacheContainer))
@@ -86,31 +110,56 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
                 }
             }
 
+            bool isCache = true;
             CacheTimeContainer<object> cacheItem = cacheContainer.CacheDict.GetValue(key);
             if (cacheItem == null || cacheItem.Expire())
             {
-                 cacheContainer.SyncOperate(
-                 () =>
-                {
-                    cacheItem = cacheContainer.CacheDict.GetValue(key);
-                    if (cacheItem == null || cacheItem.Expire())
-                    {
-                        var cacheValue =  creator();
-                        cacheItem = new CacheTimeContainer<object>(cacheValue, configuration.ExpireSeconds);
-                        cacheContainer.CacheDict.SetValue(key, cacheItem);
-                    }
-                }
-                );
+                cacheContainer.SyncOperate(
+                () =>
+               {
+                   cacheItem = cacheContainer.CacheDict.GetValue(key);
+                   if (cacheItem == null || cacheItem.Expire())
+                   {
+
+                       var (cacheValue, isCache) = creator();
+                       cacheItem = new CacheTimeContainer<object>(cacheValue, configuration.ExpireSeconds);
+                       if (isCache)
+                       {
+                           cacheContainer.CacheDict.SetValue(key, cacheItem);
+                       }
+
+                   }
+               }
+               );
 
             }
 
-            return (V)cacheItem.Value;
+
+            return ((V)cacheItem.Value, isCache);
+
         }
 
         public async Task Set<K, V>(string cacheConfiguration, string prefix, K key, V value)
         {
-            SetSync(cacheConfiguration, prefix, key, value);
-            await Task.CompletedTask;
+            var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
+            if (!_datas.TryGetValue(prefix, out CacheContainer cacheContainer))
+            {
+                await _lock.WaitAsync();
+                try
+                {
+                    if (!_datas.TryGetValue(prefix, out cacheContainer))
+                    {
+                        cacheContainer = new CacheContainer() { CacheDict = new HashLinkedCache<object, CacheTimeContainer<object>>() { Length = configuration.MaxLength } };
+                        _datas[prefix] = cacheContainer;
+                    }
+                }
+                finally
+                {
+                    _lock.Release();
+                }
+            }
+
+            cacheContainer.CacheDict.SetValue(key, new CacheTimeContainer<object>(value, configuration.ExpireSeconds));
         }
 
         public void SetSync<K, V>(string cacheConfiguration, string prefix, K key, V value)

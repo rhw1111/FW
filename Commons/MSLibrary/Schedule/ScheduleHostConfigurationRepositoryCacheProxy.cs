@@ -30,12 +30,20 @@ namespace MSLibrary.Schedule
 
         public async Task<ScheduleHostConfiguration> QueryByName(string name, CancellationToken cancellationToken = default)
         {
-            return await _kvcacheVisitor.Get(
+            return (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _scheduleHostConfigurationRepository.QueryByName(name, cancellationToken);
+                    var obj= await _scheduleHostConfigurationRepository.QueryByName(name, cancellationToken);
+                    if (obj == null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }                   
                 }, name
-                );
+                )).Item1;
         }
     }
 }

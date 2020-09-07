@@ -36,8 +36,8 @@ namespace MSLibrary.MessageQueue
             }
 
             //计算散列值
-            var keyNumber=key.ToInt();
-            var code = keyNumber % count;
+            var keyNumber=key.ToLong();
+            var code = (int)(keyNumber % count);
 
             //获取队列
             return await _sQueueRepositoryHelper.QueryByCode(arrayKey[0], false, code);
@@ -60,8 +60,8 @@ namespace MSLibrary.MessageQueue
             }
 
             //计算散列值
-            var keyNumber = key.ToInt();
-            var code = keyNumber % count;
+            var keyNumber = key.ToLong();
+            var code = (int)(keyNumber % count);
 
             //获取队列
             return await _sQueueRepositoryHelper.QueryByCode(arrayKey[0], true, code);

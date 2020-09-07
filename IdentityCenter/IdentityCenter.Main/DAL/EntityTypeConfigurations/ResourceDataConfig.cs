@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using IdentityCenter.Main.IdentityServer;
 using MSLibrary;
@@ -35,7 +36,9 @@ namespace IdentityCenter.Main.DAL.EntityTypeConfigurations
                 .HasConversion<string>((v) => JsonSerializerHelper.Serializer(v, null), (v) => JsonSerializerHelper.Deserialize<Dictionary<string, string>>(v, null));
             builder.Property((entity) => entity.UserClaims).IsRequired().HasColumnName("userclaims").HasColumnType("varchar(2000)")
                 .HasConversion<string>((v) => JsonSerializerHelper.Serializer(v, null), (v) => JsonSerializerHelper.Deserialize<List<string>>(v, null));
-
+            var sequenceProperty = builder.Property<long>("Sequence").HasColumnName("sequence").HasColumnType("bigint").Metadata;
+            sequenceProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+            sequenceProperty.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
         }
     }
 }

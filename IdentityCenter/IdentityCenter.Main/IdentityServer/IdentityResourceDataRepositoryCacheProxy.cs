@@ -32,26 +32,27 @@ namespace IdentityCenter.Main.IdentityServer
 
         public async Task<IList<IdentityResourceData>> QueryAllEnabled(CancellationToken cancellationToken = default)
         {
-            var resourceList = await _kvcacheVisitor.Get(
+            var resourceList = (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _identityResourceDataRepository.QueryAllEnabled(cancellationToken);
+                    return( await _identityResourceDataRepository.QueryAllEnabled(cancellationToken),true);
+
                 },
                 "All"
-                );
+                )).Item1;
 
             return resourceList;
         }
 
         public async Task<IList<IdentityResourceData>> QueryEnabled(IList<string> names, CancellationToken cancellationToken = default)
         {
-            var resourceList = await _kvcacheVisitor.Get(
+            var resourceList =( await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _identityResourceDataRepository.QueryAllEnabled(cancellationToken);
+                    return (await _identityResourceDataRepository.QueryAllEnabled(cancellationToken),true);
                 },
                 "All"
-                );
+                )).Item1;
 
             var result = (from item in resourceList
                           where names.Contains(item.Name)
