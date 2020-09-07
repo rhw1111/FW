@@ -46,10 +46,9 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             _systemConfigurationService = systemConfigurationService;
         }
 
-        public async Task<string> GetMasterLog(TestCase tCase, CancellationToken cancellationToken = default)
+        public async Task<string> GetMasterLog(TestCase tCase, TestHost host, CancellationToken cancellationToken = default)
         {
             var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
-            TestHost host = tCase.MasterHost;
 
             bool fileExisted = await host.SSHEndpoint.ExistsFile($"{_testFilePath}{string.Format(_testLogFileName, string.Empty)}", 10, cancellationToken);
             if (!fileExisted)
@@ -81,10 +80,9 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             return result;
         }
 
-        public async Task<string> GetSlaveLog(TestCase tCase, int idx, CancellationToken cancellationToken = default)
+        public async Task<string> GetSlaveLog(TestCase tCase, TestHost host, int idx, CancellationToken cancellationToken = default)
         {
             var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
-            TestHost host = tCase.MasterHost;
 
             //await host.SSHEndpoint.ExecuteCommand($"cat {_testFilePath}{string.Format(_testLogFileName, "_slave_*")} > {_testFilePath}{string.Format(_testLogFileName, "_slave")}", 10, cancellationToken);
             bool fileExisted = await host.SSHEndpoint.ExistsFile($"{_testFilePath}{string.Format(_testLogFileName, "_slave_" + idx)}", 10, cancellationToken);
