@@ -617,7 +617,7 @@ namespace FW.TestPlatform.Main.Entities
         public async Task<string> GetMasterLog(TestCase tCase, CancellationToken cancellationToken = default)
         {
             var handleService = getHandleService(tCase.EngineType);
-            return await handleService.GetMasterLog(tCase.MasterHost, cancellationToken);
+            return await handleService.GetMasterLog(tCase, tCase.MasterHost, cancellationToken);
         }
 
         public async Task<TestCaseSlaveHost?> GetSlaveHost(TestCase tCase, Guid slaveHostID, CancellationToken cancellationToken = default)
@@ -654,7 +654,7 @@ namespace FW.TestPlatform.Main.Entities
             }
             //开始运行获取log的程序
             var handleService = getHandleService(tCase.EngineType);
-            return await handleService.GetSlaveLog(slaveHost.Host,idx, cancellationToken);
+            return await handleService.GetSlaveLog(tCase, slaveHost.Host, idx, cancellationToken);
         }
 
         public async Task<bool> IsEngineRun(TestCase tCase, CancellationToken cancellationToken = default)
@@ -1008,7 +1008,7 @@ namespace FW.TestPlatform.Main.Entities
         Task Run(TestCase tCase, CancellationToken cancellationToken = default);
         Task Stop(TestCase tCase, CancellationToken cancellationToken = default);
         Task<bool> IsEngineRun(TestCase tCase, CancellationToken cancellationToken = default);
-        Task<string> GetMasterLog(TestHost host, CancellationToken cancellationToken = default);
-        Task<string> GetSlaveLog(TestHost host, int idx, CancellationToken cancellationToken = default);
+        Task<string> GetMasterLog(TestCase tCase, TestHost host, CancellationToken cancellationToken = default);
+        Task<string> GetSlaveLog(TestCase tCase, TestHost host, int idx, CancellationToken cancellationToken = default);
     }
 }
