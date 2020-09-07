@@ -44,7 +44,7 @@ namespace FW.TestPlatform.Main.Application
                 await treeEntity.Add(cancellationToken);
                 source.TreeID = treeEntity.ID;
                 await source.Add(cancellationToken);
-
+                scope.Complete();
                 result = new TestDataSourceViewData()
                 {
                     ID = source.ID,
