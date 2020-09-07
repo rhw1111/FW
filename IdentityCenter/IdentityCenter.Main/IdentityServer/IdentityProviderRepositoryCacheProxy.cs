@@ -32,13 +32,21 @@ namespace IdentityCenter.Main.IdentityServer
 
         public async Task<IdentityProvider?> QueryBySchemeName(string name, CancellationToken cancellationToken = default)
         {
-            return await _kvcacheVisitor.Get(
+            return( await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _identityProviderRepository.QueryBySchemeName(name, cancellationToken);
+                    var obj= await _identityProviderRepository.QueryBySchemeName(name, cancellationToken);
+                    if (obj == null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }
                 },
                 name
-                );
+                )).Item1;
         }
 
         public async Task<IList<IdentityProvider>> QueryBySchemeName(IList<string> names, CancellationToken cancellationToken = default)

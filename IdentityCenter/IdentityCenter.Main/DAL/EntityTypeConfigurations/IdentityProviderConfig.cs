@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using IdentityCenter.Main.IdentityServer;
 
@@ -19,7 +20,10 @@ namespace IdentityCenter.Main.DAL.EntityTypeConfigurations
             builder.Property((entity) => entity.DisplayName).HasColumnName("displayname").HasColumnType("nvarchar(150)");
             builder.Property((entity) => entity.Icon).HasColumnName("icon").HasColumnType("varchar(150)");
             builder.Property((entity) => entity.Active).IsRequired().HasColumnName("active").HasColumnType("bit");
-            builder.Property((entity) => entity.CreateTime).IsRequired().HasColumnName("createtime").HasColumnType("datetime2(7)");
+            var sequenceProperty = builder.Property<long>("Sequence").HasColumnName("sequence").HasColumnType("bigint").Metadata;
+            sequenceProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+            sequenceProperty.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            builder.Property((entity) => entity.CreateTime).IsRequired().HasColumnName("createtime").HasColumnType("datetime2(7)").Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
             builder.Property((entity) => entity.ModifyTime).IsRequired().HasColumnName("modifytime").HasColumnType("datetime2(7)");
         }
     }

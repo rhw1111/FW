@@ -33,9 +33,17 @@ namespace MSLibrary.Configuration
             return _kvcacheVisitor.GetSync(
                 (k)=>
                 {
-                    return _systemConfigurationRepository.QueryByName(name);
+                    var obj = _systemConfigurationRepository.QueryByName(name);
+                    if (obj == null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }
                 },name
-                );
+                ).Item1;
         }
     }
 }

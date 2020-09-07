@@ -201,6 +201,11 @@ namespace TestPlatform.Test
         [Test]
         public async Task TestDict()
         {
+            string ss = "sddd-12332";
+            if (long.TryParse(ss,out long longSS))
+            {
+                var dd = longSS;
+            }
             List<Task> waitTasks = new List<Task>();
             Task resultTask = new Task(async () =>
             {

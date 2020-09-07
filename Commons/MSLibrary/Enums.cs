@@ -1182,6 +1182,11 @@ namespace MSLibrary
         /// </summary>
         NotFoundIKVCacheVersionServiceByName= 314727202,
         /// <summary>
+        /// 找不到指定名称的KV缓存访问者
+        /// </summary>
+        NotFoundKVCacheVisitorByName = 314727203,
+
+        /// <summary>
         /// 业务动作验证失败
         /// </summary>
         BusinessActionValidateFail = 314727300,
@@ -1271,10 +1276,11 @@ namespace MSLibrary
         /// 生成Redis客户端错误
         /// </summary>
         GenerateRedisClientError= 314727902,
+       
         /// <summary>
         /// 找不到指定类型的应用程序锁服务
         /// </summary>
-        NotFoundApplicationLockServiceByType= 314727931,
+        NotFoundApplicationLockServiceByType = 314727931,
         /// <summary>
         /// 获取Redis应用程序锁超时
         /// </summary>
@@ -1353,7 +1359,10 @@ namespace MSLibrary
         /// 树状实体的类型无法作为父记录
         /// </summary>
         TreeEntityParentTypeError= 314728605,
-
+        /// <summary>
+        /// 找不到指定类型的验证码服务
+        /// </summary>
+        NotFoundVerificationCodeServiceByType= 314728701,
     }
 
     /// <summary>

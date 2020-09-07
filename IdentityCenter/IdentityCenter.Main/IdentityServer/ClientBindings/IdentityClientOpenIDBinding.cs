@@ -519,7 +519,7 @@ namespace IdentityCenter.Main.IdentityServer.ClientBindings
                 }
 
                 var returnUri = new Uri(returnUrl);
-
+                 
 
                 if (_binding.TokenUseQuery)
                 {

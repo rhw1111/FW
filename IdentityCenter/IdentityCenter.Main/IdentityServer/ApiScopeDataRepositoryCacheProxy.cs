@@ -32,26 +32,26 @@ namespace IdentityCenter.Main.IdentityServer
 
         public async Task<IList<ApiScopeData>> QueryAllEnabled(CancellationToken cancellationToken = default)
         {
-            var scopeList = await _kvcacheVisitor.Get(
+            var scopeList = (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _apiScopeDataRepository.QueryAllEnabled(cancellationToken);
+                    return (await _apiScopeDataRepository.QueryAllEnabled(cancellationToken),true);
                 },
                 "All"
-                );
+                )).Item1;
 
             return scopeList;
         }
 
         public async Task<IList<ApiScopeData>> QueryEnabled(IList<string> names, CancellationToken cancellationToken = default)
         {
-            var scopeList = await _kvcacheVisitor.Get(
+            var scopeList = (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _apiScopeDataRepository.QueryAllEnabled(cancellationToken);
+                    return (await _apiScopeDataRepository.QueryAllEnabled(cancellationToken),true);
                 },
                 "All"
-                );
+                )).Item1;
 
             var result = (from item in scopeList
                           where names.Contains(item.Name)
@@ -61,13 +61,13 @@ namespace IdentityCenter.Main.IdentityServer
 
         public async Task<ApiScopeData?> QueryEnabled(string name, CancellationToken cancellationToken = default)
         {
-            var scopeList = await _kvcacheVisitor.Get(
+            var scopeList = (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _apiScopeDataRepository.QueryAllEnabled(cancellationToken);
+                    return (await _apiScopeDataRepository.QueryAllEnabled(cancellationToken),true);
                 },
                 "All"
-                );
+                )).Item1;
 
             var result = (from item in scopeList
                           where item.Name == name

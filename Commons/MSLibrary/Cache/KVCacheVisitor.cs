@@ -113,11 +113,11 @@ namespace MSLibrary.Cache
             }
         }
 
-        public async Task<V> Get<K, V>( Func<K, Task<V>> creator, K key)
+        public async Task<(V,bool)> Get<K, V>( Func<K, Task<(V, bool)>> creator, K key)
         {
             return await _imp.Get<K, V>(this,creator, key);
         }
-        public  V GetSync<K, V>( Func<K, V> creator, K key)
+        public  (V,bool) GetSync<K, V>( Func<K, (V, bool)> creator, K key)
         {
             return _imp.GetSync<K, V>(this, creator, key);
         }
@@ -131,16 +131,28 @@ namespace MSLibrary.Cache
         {
             _imp.SetSync(this,key, value);
         }
+
+        public async Task Clear<K, V>(K key)
+        {
+            await _imp.Clear<K, V>(this, key);
+        }
+        public void ClearSync<K, V>( K key)
+        {
+            _imp.ClearSync<K, V>(this, key);
+        }
+
     }
 
     public interface IKVCacheVisitorIMP
     {
-        Task<V> Get<K,V>(KVCacheVisitor visito,Func<K,Task<V>> creator,K key);
-        V GetSync<K, V>(KVCacheVisitor visitor,Func<K, V> creator, K key);
+        Task<(V,bool)> Get<K,V>(KVCacheVisitor visito,Func<K,Task<(V,bool)>> creator,K key);
+        (V,bool) GetSync<K, V>(KVCacheVisitor visitor,Func<K, (V, bool)> creator, K key);
 
         Task Set<K, V>(KVCacheVisitor visitor, K key, V value);
         void SetSync<K, V>(KVCacheVisitor visitor, K key, V value);
 
+        Task Clear<K,V>(KVCacheVisitor visitor, K key);
+        void ClearSync<K,V>(KVCacheVisitor visitor, K key);
 
     }
 
@@ -161,7 +173,7 @@ namespace MSLibrary.Cache
             }
         }
 
-        public async Task<V> Get<K, V>(KVCacheVisitor visitor,Func<K, Task<V>> creator, K key)
+        public async Task<(V,bool)> Get<K, V>(KVCacheVisitor visitor,Func<K, Task<(V, bool)>> creator, K key)
         {
             var prefix=GetPrefix(visitor.Name, typeof(K), typeof(V));
             var realService = getRealService(visitor.CacheType);
@@ -175,7 +187,7 @@ namespace MSLibrary.Cache
           
         }
 
-        public V GetSync<K, V>(KVCacheVisitor visitor,Func<K, V> creator, K key)
+        public (V,bool) GetSync<K, V>(KVCacheVisitor visitor,Func<K, (V, bool)> creator, K key)
         {
             var prefix = GetPrefix(visitor.Name, typeof(K), typeof(V));
             var realService = getRealService(visitor.CacheType);
@@ -224,15 +236,32 @@ namespace MSLibrary.Cache
             var realService = getRealService(visitor.CacheType);
             realService.SetSync(visitor.CacheConfiguration, prefix, key, value);
         }
+
+        public async Task Clear<K,V>(KVCacheVisitor visitor, K key)
+        {
+            var prefix = GetPrefix(visitor.Name, typeof(K), typeof(V));
+            var realService = getRealService(visitor.CacheType);
+            await realService.Clear<K,V>(visitor.CacheConfiguration, prefix, key);
+        }
+
+        public void ClearSync<K,V>(KVCacheVisitor visitor, K key)
+        {
+            var prefix = GetPrefix(visitor.Name, typeof(K), typeof(V));
+            var realService = getRealService(visitor.CacheType);
+            realService.ClearSync<K, V>(visitor.CacheConfiguration, prefix, key);
+        }
     }
 
 
     public interface IRealKVCacheVisitService
     {
-        Task<V> Get<K,V>(string cacheConfiguration,Func<Task<V>> creator,string prefix, K key);
-        V GetSync<K,V>(string cacheConfiguration,Func<V> creator,string prefix, K key);
+        Task<(V,bool)> Get<K,V>(string cacheConfiguration,Func<Task<(V, bool)>> creator,string prefix, K key);
+        (V,bool) GetSync<K,V>(string cacheConfiguration,Func<(V, bool)> creator,string prefix, K key);
 
         Task Set<K, V>(string cacheConfiguration,string prefix, K key,V value);
         void SetSync<K, V>(string cacheConfiguration, string prefix, K key,V value);
+
+        Task Clear<K,V>(string cacheConfiguration, string prefix, K key);
+        void ClearSync<K,V>(string cacheConfiguration, string prefix, K key);
     }
 }

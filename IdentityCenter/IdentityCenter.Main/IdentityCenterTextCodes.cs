@@ -209,6 +209,38 @@ namespace IdentityCenter.Main
         /// {0}：客户端主机名称
         /// </summary>
         public const string NotFoundIdentityClientHostByName = "NotFoundIdentityClientHostByName";
+        /// <summary>
+        /// 微信小程序请求处理缺少参数
+        /// 格式为“微信小程序请求处理缺少参数，缺少参数{0}”
+        /// {0}：缺少的参数名称
+        /// </summary>
+        public const string WeChatMiniHandleRequestMissPara = "WeChatMiniHandleRequestMissPara";
+        /// <summary>
+        /// 找不到指定类型的微信小程序请求处理
+        /// 格式为“找不到类型为{0}的微信小程序请求处理，发生位置为{1}”
+        /// {0}：类型
+        /// {1}：发生的位置
+        /// </summary>
+        public const string NotFoundWeChatMiniRealHandlerByType = "NotFoundWeChatMiniRealHandlerByType";
+        /// <summary>
+        /// 微信小程序登录错误
+        /// 格式为“微信小程序登录错误，错误码：{0}，错误内容：{1}”
+        /// {0}：错误码
+        /// {1}：错误内容
+        /// </summary>
+        public const string WeChatMiniLoginError = "WeChatMiniLoginError";
+        /// <summary>
+        /// 已经存在指定名称的角色
+        /// 格式为“已经存在名称为{0}的角色”
+        /// {0}：名称
+        /// </summary>
+        public const string ExistRoleByName = "ExistRoleByName";
+        /// <summary>
+        /// 已经存在指定编码的权限
+        /// 格式为“已经存在编码为{0}的权限”
+        /// {0}：编码
+        /// </summary>
+        public const string ExistPrivilegeByCode = "ExistPrivilegeByCode";
 
     }
 

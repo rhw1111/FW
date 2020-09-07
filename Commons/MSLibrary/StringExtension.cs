@@ -4,6 +4,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Net;
 using System.Threading.Tasks;
+using System.Linq;
+using MongoDB.Driver.Core.Operations;
 
 namespace MSLibrary
 {
@@ -264,6 +266,27 @@ namespace MSLibrary
             return result;
         }
 
+        /// <returns></returns>
+        public static long ToLong(this string content)
+        {
+            long result = 0;
+            var arrayValue = content.Split('-');
+
+            var longValue = arrayValue[arrayValue.Count() - 1];
+            if (long.TryParse(longValue, out result))
+            {
+                return result;
+            }
+
+            for (int index = 0; index <= content.Length - 1; index++)
+            {
+                result += Convert.ToInt32(content[index]);
+
+            }
+
+            return result;
+        }
+
 
         public static string ToPlural(this string word)
         {
@@ -376,5 +399,23 @@ namespace MSLibrary
 
         }
 
+        /// <summary>
+        /// 基于当前字符串，生成指定长度的随机字符串（字符随机从当前字符串中获取）
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="len"></param>
+        /// <returns></returns>
+        public static string GetRanValue(this string text,int len)
+        {
+            StringBuilder strResult = new StringBuilder();
+            Random ran = new Random(DateTime.Now.Second);
+    
+            for (var index = 0; index <= len - 1; index++)
+            {
+                strResult.Append(text[ran.Next(0, len)]);
+            }
+
+            return strResult.ToString();
+        }
     }
 }
