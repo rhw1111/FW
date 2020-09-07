@@ -41,7 +41,7 @@ namespace FW.TestPlatform.Main.Application
                 {
                     ParentID = model.FolderID,
                     Value = source.ID.ToString(),
-                    Name = "C-" + source.Name,
+                    Name = source.Name,
                     ID = Guid.NewGuid(),
                     Type = TreeEntityValueServiceTypes.TestCase
                 };

@@ -37,9 +37,23 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseDataSourceByID, fragment, 1, 0);
             }
+            TestDataSource newSource = new TestDataSource()
+            {
+                Name = model.Name,
+                Data = model.Data,
+                Type = model.Type,
+                ID = source.ID
+            };
             await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
             {
                 TreeEntity? tEntity = null;
+                TreeEntity newTreeEntity = new TreeEntity()
+                {
+                    Name = model.Name,
+                    Type = TreeEntityValueServiceTypes.TestDataSource,
+                    Value = source.ID.ToString(),
+                    ParentID = model.FolderID
+                };
                 if (source.TreeID != null)
                 {
                     tEntity = await _treeEntityRepository.QueryByID(source.TreeID.Value, cancellationToken);
@@ -56,40 +70,29 @@ namespace FW.TestPlatform.Main.Application
                     }
                     if (model.Name != source.Name || (tEntity != null && model.FolderID != tEntity.ParentID))
                     {
-                        await tEntity.Delete(cancellationToken);
+                        newTreeEntity.ID = tEntity.ID;
+                        await tEntity.Update(cancellationToken);
                     }
                 }
-                if (source.TreeID == null || model.Name != source.Name || (tEntity != null && model.FolderID != tEntity.ParentID))
+                else
                 {
-                    TreeEntity treeEntity = new TreeEntity
-                    {
-                        ParentID = model.FolderID,
-                        Value = source.ID.ToString(),
-                        Name = "DS-" + source.Name,
-                        ID = Guid.NewGuid(),
-                        Type = TreeEntityValueServiceTypes.TestCase
-                    };
-                    await treeEntity.Add(cancellationToken);
-                    source.TreeID = treeEntity.ID;
+                    newTreeEntity.ID = Guid.NewGuid();
+                    await newTreeEntity.Add(cancellationToken);
+                    newSource.TreeID = newTreeEntity.ID;
                 }
-                source.Type = model.Type;
-                source.Data = model.Data;
-                source.Name = model.Name;
-                source.ModifyTime = DateTime.UtcNow;
-                await source.Update(cancellationToken);
+                await newSource.Update(cancellationToken);
+                scope.Complete();
             }
 
-            TestDataSourceViewData result = new TestDataSourceViewData()
+            return new TestDataSourceViewData()
             {
-                ID = source.ID,
-                Type = source.Type,
-                Data = source.Data,
-                Name = source.Name,
-                CreateTime = source.CreateTime.ToCurrentUserTimeZone(),
-                ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
+                ID = newSource.ID,
+                Type = newSource.Type,
+                Data = newSource.Data,
+                Name = newSource.Name,
+                CreateTime = newSource.CreateTime.ToCurrentUserTimeZone(),
+                ModifyTime = newSource.ModifyTime.ToCurrentUserTimeZone()
             };
-
-            return result;
         }
     }
 }

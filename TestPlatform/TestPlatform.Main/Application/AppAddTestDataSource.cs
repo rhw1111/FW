@@ -37,7 +37,7 @@ namespace FW.TestPlatform.Main.Application
                 {
                     ParentID = model.FolderID,
                     Value = source.ID.ToString(),
-                    Name = "DS-" + source.Name,
+                    Name = source.Name,
                     ID = Guid.NewGuid(),
                     Type = TreeEntityValueServiceTypes.TestDataSource
                 };
