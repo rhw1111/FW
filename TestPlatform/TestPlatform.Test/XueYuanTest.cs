@@ -225,7 +225,7 @@ namespace TestPlatform.Test
             Assert.Pass();
         }
 
-        //[Test]
+        [Test]
         public async Task TestTestCaseRun()
         {
             TestCase testCase = new TestCase()
@@ -263,7 +263,7 @@ namespace TestPlatform.Test
             Assert.Pass();
         }
 
-        [Test]
+        //[Test]
         public async Task TestTestCaseWebSocketRun()
         {
             TestCase testCase = new TestCase()
