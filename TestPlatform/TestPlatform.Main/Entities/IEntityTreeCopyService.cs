@@ -7,6 +7,6 @@ namespace FW.TestPlatform.Main.Entities
 {
     public interface IEntityTreeCopyService
     {
-        Task Execute(string type, Guid entityID, Guid parentTreeID);
+        Task<bool> Execute(string type, Guid entityID, Guid? parentTreeID);
     }
 }
