@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using MSLibrary.DI;
 using FW.TestPlatform.Main.Entities;
 using MSLibrary.LanguageTranslate;
+using MSLibrary.Collections;
 
 namespace FW.TestPlatform.Main.Application
 {
@@ -15,9 +16,11 @@ namespace FW.TestPlatform.Main.Application
     public class AppQuerySingleTestDataSource : IAppQuerySingleTestDataSource
     {
         private readonly ITestDataSourceRepository _testDataSourceRepository;
-        public AppQuerySingleTestDataSource(ITestDataSourceRepository testDataSourceRepository)
+        private readonly ITreeEntityRepository _treeEntityRepository;
+        public AppQuerySingleTestDataSource(ITestDataSourceRepository testDataSourceRepository, ITreeEntityRepository treeEntityRepository)
         {
             _testDataSourceRepository = testDataSourceRepository;
+            _treeEntityRepository = treeEntityRepository;
         }     
         public async Task<TestDataSourceViewData> Do(Guid id, CancellationToken cancellationToken = default)
         {
@@ -34,6 +37,13 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseDataSourceByID, fragment, 1, 0);
             }
+            var parentName = string.Empty;
+            if (item.TreeID != null)
+            {
+                TreeEntity? entityWithParent = await _treeEntityRepository.QueryWithParentByID(item.TreeID.Value, cancellationToken);
+                if (entityWithParent != null && entityWithParent.Parent != null)
+                    parentName = entityWithParent.Parent.Name;
+            }
             result = new TestDataSourceViewData()
             {
                 ID = item.ID,
@@ -42,7 +52,8 @@ namespace FW.TestPlatform.Main.Application
                 Data = item.Data,
                 TreeID = item.TreeID,
                 CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
-                ModifyTime = item.ModifyTime.ToCurrentUserTimeZone()
+                ModifyTime = item.ModifyTime.ToCurrentUserTimeZone(),
+                ParentName = parentName
             };
             return result;
         }
