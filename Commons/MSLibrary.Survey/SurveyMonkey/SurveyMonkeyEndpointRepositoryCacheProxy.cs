@@ -33,12 +33,21 @@ namespace MSLibrary.Survey.SurveyMonkey
 
         public async Task<SurveyMonkeyEndpoint?> QueryByName(string name, CancellationToken cancellationToken = default)
         {
-            return await _kvcacheVisitor.Get(
+            return (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _surveyMonkeyEndpointRepository.QueryByName(name, cancellationToken);
+                    var obj= await _surveyMonkeyEndpointRepository.QueryByName(name, cancellationToken);
+                    if (obj==null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }
+                   
                 }, name
-                );
+                )).Item1;
         }
     }
 }
