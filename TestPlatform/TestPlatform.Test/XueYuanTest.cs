@@ -49,7 +49,7 @@ namespace TestPlatform.Test
             //设置编码，解决中文问题
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             //设置应用程序工作基目录
-            var baseUrl = Path.GetDirectoryName(typeof(RenHaoTest).Assembly.Location);
+            var baseUrl = Path.GetDirectoryName(typeof(XueYuanTest).Assembly.Location);
             Environment.CurrentDirectory = baseUrl ?? Environment.CurrentDirectory;
 
 
