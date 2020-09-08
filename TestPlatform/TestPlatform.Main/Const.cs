@@ -67,7 +67,7 @@ namespace FW.TestPlatform.Main
         /// 测试监控地址
         /// {0}为TestCase.EngineType
         /// </summary>
-        public const string TestMonitorAddress="{0}_TestMonitorAddress";
+        public const string TestMonitorAddress = "{0}_TestMonitorAddress";
         public const string CaseServiceBaseAddress = "CaseServiceBaseAddress";
         /// <summary>
         /// 测试历史记录监控地址
@@ -351,7 +351,7 @@ namespace FW.TestPlatform.Main
     {
         public const string AppName = "appname";
     }
-    
+
     /// <summary>
     /// 批处理动作初始化类型集合
     /// </summary>
@@ -397,4 +397,12 @@ namespace FW.TestPlatform.Main
         public const int TestDataSource = 3;
     }
 
+    /// <summary>
+    /// 实体树复制服务类型集合
+    /// </summary>
+    public static class EntityTreeCopyServiceTypes
+    {
+        public const string TestCase = "TestCase";
+        public const string TestDataSource = "TestDataSource";
+    }
 }
