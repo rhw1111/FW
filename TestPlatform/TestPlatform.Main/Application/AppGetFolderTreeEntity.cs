@@ -16,8 +16,8 @@ using MSLibrary.LanguageTranslate;
 
 namespace FW.TestPlatform.Main.Application
 {
-    [Injection(InterfaceType = typeof(IAppAddTreeEntity), Scope = InjectionScope.Singleton)]
-    public class AppGetFolderTreeEntity : IAppAddTreeEntity
+    [Injection(InterfaceType = typeof(IAppGetFolderTreeEntity), Scope = InjectionScope.Singleton)]
+    public class AppGetFolderTreeEntity : IAppGetFolderTreeEntity
     {
         private readonly ITreeEntityStore _treeEntityStore;
         public AppGetFolderTreeEntity(ITreeEntityStore treeEntityStore)
