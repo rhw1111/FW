@@ -199,6 +199,10 @@ namespace IdentityCenter.Main.Entities
             return await _imp.GetThirdPartyAccount(this, source, sourceID,cancellationToken);
         }
 
+        public async Task<string> GetSerializeData()
+        {
+            return await _imp.GetSerializeData(this);
+        }
     }
 
     public interface IUserAccountIMP
