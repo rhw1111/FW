@@ -2,17 +2,17 @@
   <div class="TestDataSource">
     <!-- TestDataSource列表 -->
     <div class="q-pa-md">
-      <!-- <transition name="TreeEntity-slid">
+      <transition name="TreeEntity-slid">
         <TreeEntity v-show="expanded"
                     style="max-width:20%;height:600px;overflow:auto;float:left;" />
-      </transition> -->
+      </transition>
       <div>
-        <!-- <q-btn color="grey"
+        <q-btn color="grey"
                flat
                dense
                style="width:2%;height:600px;float:left;"
                :icon="expanded ? 'keyboard_arrow_left' : 'keyboard_arrow_right'"
-               @click="expanded = !expanded" /> -->
+               @click="expanded = !expanded" />
         <q-table title="测试数据源列表"
                  :data="TestDataSourceList"
                  :columns="columns"
@@ -40,7 +40,7 @@
               <q-btn class="btn"
                      color="primary"
                      label="更 新"
-                     @click="toDetail(props)" />
+                     @click="getTestDataSourceDetail(props)" />
               <q-btn class="btn"
                      color="red"
                      label="删 除"
@@ -62,45 +62,13 @@
     <!-- 新增TestDataSource框 -->
     <q-dialog v-model="createFixed"
               persistent>
-      <q-card style="width:100%">
+      <q-card style="width:100%; max-width: 70vw;">
         <q-card-section>
           <div class="text-h6">创建测试数据源</div>
         </q-card-section>
 
         <q-separator />
-        <div class="new_input">
-          <div class="row input_row">
-            <q-input v-model="Name"
-                     :dense="false"
-                     class="col">
-              <template v-slot:before>
-                <span style="font-size:14px">名称:</span>
-              </template>
-            </q-input>
-            <q-select v-model="Type"
-                      :options="['String','Int','Json','Label']"
-                      class="col"
-                      :dense="false">
-              <template v-slot:before>
-                <span style="font-size:14px">类型:</span>
-              </template>
-              <template v-slot:prepend>
-              </template>
-            </q-select>
-          </div>
-          <div class="row input_row">
-            <q-input v-model="Data"
-                     :dense="false"
-                     class="col-xs-12"
-                     type="textarea"
-                     :input-style="{height:'400px'}"
-                     outlined>
-              <template v-slot:before>
-                <span style="font-size:14px">数据:</span>
-              </template>
-            </q-input>
-          </div>
-        </div>
+        <CreatePut ref="createDataSource" />
 
         <q-separator />
 
@@ -120,45 +88,14 @@
     <!-- 查看更新TestDataSource框 -->
     <q-dialog v-model="LookDataSourceFixed"
               persistent>
-      <q-card style="width:100%">
+      <q-card style="width:100%; max-width: 70vw;">
         <q-card-section>
           <div class="text-h6">更新测试数据源</div>
         </q-card-section>
 
         <q-separator />
-        <div class="new_input">
-          <div class="row input_row">
-            <q-input v-model="Name"
-                     :dense="false"
-                     class="col">
-              <template v-slot:before>
-                <span style="font-size:14px">名称:</span>
-              </template>
-            </q-input>
-            <q-select v-model="Type"
-                      :options="['String','Int','Json','Label']"
-                      class="col"
-                      :dense="false">
-              <template v-slot:before>
-                <span style="font-size:14px">类型:</span>
-              </template>
-              <template v-slot:prepend>
-              </template>
-            </q-select>
-          </div>
-          <div class="row input_row">
-            <q-input v-model="Data"
-                     :dense="false"
-                     class="col-xs-12"
-                     type="textarea"
-                     :input-style="{height:'400px'}"
-                     outlined>
-              <template v-slot:before>
-                <span style="font-size:14px">数据:</span>
-              </template>
-            </q-input>
-          </div>
-        </div>
+        <CreatePut ref="putDataSource"
+                   :detailData="detailData" />
 
         <q-separator />
 
@@ -179,22 +116,22 @@
 
 <script>
 import * as Apis from "@/api/index"
-import TreeEntity from "@/components/TreeEntity.vue"
+import CreatePut from "./CreatePut.vue"               //创建更新测试数据源
+import TreeEntity from "@/components/TreeEntity.vue"  //目录管理结构树
 export default {
   name: 'TestDataSource',
   components: {
-    TreeEntity
+    TreeEntity,
+    CreatePut
   },
   data () {
     return {
+
       createFixed: false,  //新增Flag
       LookDataSourceFixed: false,//查看更新DataSource
       TestDataSourceList: [], //TestDataSource列表
-      SelectedId: '',//选择更新的id
-      Name: '',
-      Type: '',
-      Data: '',
 
+      detailData: '',
       selected: [],//批量选择
       //表格配置
       columns: [
@@ -240,103 +177,87 @@ export default {
         this.$q.loading.hide();
       })
     },
+    //获得TestDataSource详情数据
+    getTestDataSourceDetail (env) {
+      this.$q.loading.show()
+      let para = {
+        id: env.row.id
+      }
+      Apis.getTestDataSourceDetail(para).then((res) => {
+        console.log(res)
+        let data = res.data;
+        this.detailData = {
+          SelectedId: data.id,
+          Name: data.name,
+          Type: data.type,
+          Data: data.data,
+          ChangeFileDirectoryName: data.parentName,
+          ChangeFileDirectoryId: data.treeID
+        }
+        this.LookDataSourceFixed = true;
+        this.$q.loading.hide()
+      })
+    },
     //打开
     openCreate () {
-      this.Name = '';
-      this.Type = '';
-      this.Data = '';
       this.createFixed = true;
     },
     //跳转到详情
     toDetail (env) {
       let row = env.row;
       this.LookDataSourceFixed = true;
-      this.SelectedId = row.id;
-      this.Name = row.name;
-      this.Type = row.type;
-      this.Data = row.data;
-      // this.$router.push({
-      //   name: 'TestDataSourceDetail',
-      //   query: {
-      //     id: env.row.id
-      //   }
-      // })
-    },
-    //取消更新测试数据源
-    cancelPutDataSource () {
-      this.LookDataSourceFixed = false;
-      this.SelectedId = '';
-      this.Name = '';
-      this.Type = '';
-      this.Data = '';
-    },
-    //更新TestDataSource
-    putTestDataSource () {
-      let para = {
-        ID: this.SelectedId,
-        Name: this.Name,
-        Type: this.Type,
-        Data: this.Data.trim()
-      }
-      if (this.SelectedId && this.Name && this.Type && this.Data.trim()) {
-        if (!this.isDataType(this.Type)) { return; }
-        this.$q.loading.show()
-        Apis.putTestDataSource(para).then((res) => {
-          console.log(res)
-          this.getTestDataSource();
-          this.$q.notify({
-            position: 'top',
-            message: '提示',
-            caption: '更新成功',
-            color: 'secondary',
-          })
-        })
-      } else {
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '请填写完整信息',
-          color: 'red',
-        })
-      }
+      this.getTestDataSourceDetail()
     },
     //页码切换
     switchPage (value) {
       this.getTestDataSource(value)
     },
+    //---------------------------------------------- 新建取消创建测试数据源 -------------------------------------------
     //新建TestDataSource
     newCreate () {
-      let para = {
-        Name: this.Name,
-        Type: this.Type,
-        Data: this.Data,
-      }
-      if (this.Name && this.Type && this.Data.trim()) {
-        if (!this.isDataType(this.Type)) { return; }
-        this.$q.loading.show()
-        Apis.postCreateTestDataSource(para).then(() => {
-          this.getTestDataSource();
-          this.createFixed = false;
-          this.$q.notify({
-            position: 'top',
-            message: '提示',
-            caption: '创建成功',
-            color: 'secondary',
-          })
-        })
-      } else {
+      if (!this.$refs.createDataSource.newCreate()) { return }
+      let para = this.$refs.createDataSource.newCreate()
+      this.$q.loading.show()
+      Apis.postCreateTestDataSource(para).then(() => {
+        this.getTestDataSource();
+        this.createFixed = false;
         this.$q.notify({
           position: 'top',
           message: '提示',
-          caption: '请填写完整信息',
-          color: 'red',
+          caption: '创建成功',
+          color: 'secondary',
         })
-      }
+      })
     },
     //取消新建TestDataSource
     newCancel () {
+      this.$refs.createDataSource.newCancel();
       this.createFixed = false;
     },
+
+    //---------------------------------------------- 更新取消创建测试数据源 -------------------------------------------
+    //取消更新测试数据源
+    cancelPutDataSource () {
+      this.$refs.putDataSource.cancelPutDataSource();
+      this.LookDataSourceFixed = false;
+    },
+    //更新TestDataSource
+    putTestDataSource () {
+      if (!this.$refs.putDataSource.putTestDataSource()) { return }
+      let para = this.$refs.putDataSource.putTestDataSource();
+      this.$q.loading.show()
+      Apis.putTestDataSource(para).then((res) => {
+        console.log(res)
+        this.getTestDataSource();
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '更新成功',
+          color: 'secondary',
+        })
+      })
+    },
+    //---------------------------------------------- 删除测试数据源 -------------------------------------------
     //删除TestDataSource
     deleteTestDataSource () {
       if (this.selected.length == 0) {
@@ -426,54 +347,6 @@ export default {
           this.getTestDataSource();
         })
       })
-    },
-    //判断类型是否正确
-    isDataType (type) {
-      if (type == 'Int') {
-        if (!Number(this.Data)) {
-          this.$q.notify({
-            position: 'top',
-            message: '提示',
-            caption: '当前数据不是Int类型',
-            color: 'red',
-          })
-          return false;
-        }
-        return true;
-      } else if (type == 'Json') {
-        if (!this.isJSON(this.Data.trim())) {
-          return false;
-        }
-        return true
-      } else {
-        return true;
-      }
-    },
-    //判断是否是JSON格式
-    isJSON (str) {
-      if (typeof str == 'string') {
-        try {
-          var obj = JSON.parse(str);
-          if (typeof obj == 'object' && obj) {
-            return true
-          } else {
-            this.$q.notify({
-              position: 'top',
-              message: '提示',
-              caption: '配置不是正确的JSON格式',
-              color: 'red',
-            })
-          }
-
-        } catch (e) {
-          this.$q.notify({
-            position: 'top',
-            message: '提示',
-            caption: '配置不是正确的JSON格式',
-            color: 'red',
-          })
-        }
-      }
     },
   }
 }

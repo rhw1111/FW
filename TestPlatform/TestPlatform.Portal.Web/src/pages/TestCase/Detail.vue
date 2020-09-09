@@ -44,10 +44,9 @@
              label="复 制"
              @click="CopyTestCase" />
     </div>
-    <!-- TestCase字段 -->
+    <!-- 新建测试用例 -->
     <div class="q-pa-md">
       <CreateShowTestCase :masterHostList="masterHostList"
-                          :dataSourceName="dataSourceName"
                           ref="CSTestCase"
                           :detailData="detailData" />
     </div>
@@ -142,35 +141,19 @@ export default {
   },
   data () {
     return {
-      lookLogText: '',//日志内容
       isNoRun: 0,//判断是否在运行
-      timerOut: null, //定时器
+      timerOut: null, //查看当前测试用例是否运行的定时器
       detailData: '',//详情数据
-      data: [
-        {
-          name: '2020/6/20Test',
-          EngineType: '1',
-        },
-        {
-          name: '2020/6/21Test',
-          EngineType: '2',
-        },
-        {
-          name: '2020/6/22Test',
-          EngineType: '3',
-        },
-      ],
+
       masterHostList: [],//主机列表
-      dataSourceName: [],//数据源名称列表
 
-
-
+      //------------------------- 复制 --------------------------
       CopyTestCaseFixed: false,//复制创建TestCaseFlag
       CopyTestCaseName: '',//复制创建TestCase名称
-      CopyTestCaseSlaveFlag: '否',
+      CopyTestCaseSlaveFlag: '否',//复制创建是否复制从主机
 
 
-
+      //------------------------- 主机 --------------------------
       lookMasterLogFlag: false,//主机日志Flag
       lookMasterLogText: ''//主机日志内容
 
@@ -180,6 +163,7 @@ export default {
     this.getTestCaseDetail();
   },
   beforeDestroy () {
+    //清除定时器
     clearInterval(this.timerOut);
     this.timerOut = null;
   },
@@ -190,11 +174,9 @@ export default {
       Apis.getTestCaseDetail({ id: this.$route.query.id }).then((res) => {
         console.log(res)
         this.detailData = res.data;
-        //this.getMasterHostList();
-        //this.getSlaveHostsList();
-        this.getDataSourceName();
         this.$refs.TestCaseSlaveHost.getSlaveHostsList();
         this.$refs.TestCaseHistory.getHistoryList();
+        //判断当前测试用例是否在运行当中（运行中：循环查看测试用例是否运行，运行完毕停止。）
         if (res.data.status == 1) {
           this.timerOut = window.setInterval(() => {
             setTimeout(this.getTestCaseStatus(), 0);
@@ -210,16 +192,6 @@ export default {
         }
       })
     },
-
-    //获得数据源名称
-    getDataSourceName () {
-      let para = {}
-      Apis.getDataSourceName(para).then((res) => {
-        console.log(res)
-        this.dataSourceName = res.data;
-        this.$q.loading.hide()
-      })
-    },
     //查看TestCase是否运行
     getTestCaseStatus () {
       Apis.getTestCaseStatus({ caseId: this.$route.query.id }).then((res) => {
@@ -231,7 +203,7 @@ export default {
         }
       })
     },
-    //保存更新TestCase
+    //保存更新测试用例
     putTestCase () {
       if (!this.$refs.CSTestCase.newCreate()) { return; }
       let para = this.$refs.CSTestCase.newCreate();
@@ -248,7 +220,7 @@ export default {
         this.getTestCaseDetail();
       })
     },
-    //删除当条TestCase
+    //删除当条测试用例
     deleteTestCase () {
       this.$q.dialog({
         title: '提示',
@@ -269,10 +241,10 @@ export default {
           console.log(res)
           this.$router.push({ name: 'TestCase' })
         })
-      }).onCancel(() => {
       })
     },
-    //运行
+    //-------------------------------------------- 运行停止测试用例 --------------------------------------
+    //运行测试用例
     run () {
       this.$q.loading.show()
       let para = `?caseId=${this.$route.query.id}`
@@ -287,7 +259,7 @@ export default {
         })
       })
     },
-    //停止
+    //停止测试用例
     stop () {
       this.$q.loading.show()
       let para = `?caseId=${this.$route.query.id}`
@@ -302,6 +274,7 @@ export default {
         })
       })
     },
+    //-------------------------------------------- 查看当前测试用例状态和日志 --------------------------------------
     //查看状态
     lookStatus () {
       this.$q.loading.show()
@@ -322,11 +295,11 @@ export default {
         this.lookMasterLogText = res.data;
       })
     },
-
     //查看MonitorUrl
     lookMonitorUrl () {
       window.open(this.detailData.monitorUrl);
     },
+    //-------------------------------------------- 复制 --------------------------------------
     //复制创建TestCase打开
     CopyTestCase () {
       this.CopyTestCaseFixed = true;
@@ -350,8 +323,10 @@ export default {
       }
       Apis.postCreateTestCase(para).then((res) => {
         console.log(res)
+        //是否复制从主机
         if (this.CopyTestCaseSlaveFlag == '是') {
           if (this.SlaveHostList.length != 0) {
+            //复制从主机
             CopyCreateSlaveHost(res, 0)
           } else {
             this.$q.notify({
@@ -370,6 +345,7 @@ export default {
             });
           }
         } else {
+          //跳转到刚刚复制的页面
           this.$q.notify({
             position: 'top',
             message: '提示',
@@ -388,6 +364,7 @@ export default {
         this.getTestCaseDetail();
       })
 
+      //复制从主机
       function CopyCreateSlaveHost (res, SalveHostNum) {
         console.log(SalveHostNum, _this.SlaveHostList.length)
         if (SalveHostNum == _this.SlaveHostList.length) {
@@ -423,8 +400,8 @@ export default {
 
 
     },
-    // -------------------- 目录 ----------------------
-    //返回目录
+    // -------------------- 目录管理 ----------------------
+    //返回目录管理页面
     returnDirectory () {
       this.$router.push({
         path: '/Directory'
