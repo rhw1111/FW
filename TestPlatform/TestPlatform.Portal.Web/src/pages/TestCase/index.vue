@@ -3,18 +3,18 @@
     <!-- TestCase列表 -->
     <div class="q-pa-md">
 
-      <!-- <transition name="TreeEntity-slid">
+      <transition name="TreeEntity-slid">
         <TreeEntity v-show="expanded"
                     style="max-width:20%;height:600px;overflow:auto;float:left;" />
-      </transition> -->
+      </transition>
 
       <div>
-        <!-- <q-btn color="grey"
+        <q-btn color="grey"
                flat
                dense
                style="width:2%;height:600px;float:left;"
                :icon="expanded ? 'keyboard_arrow_left' : 'keyboard_arrow_right'"
-               @click="expanded = !expanded" /> -->
+               @click="expanded = !expanded" />
 
         <q-table title="测试用例列表"
                  :data="TestCaseList"
@@ -102,8 +102,8 @@
 
 <script>
 import * as Apis from "@/api/index"
-import CreateShowTestCase from './component/CreateShowTestCase.vue'
-import TreeEntity from "@/components/TreeEntity.vue"
+import CreateShowTestCase from './component/CreateShowTestCase.vue' //新建测试用例参数
+import TreeEntity from "@/components/TreeEntity.vue"                //目录管理树状图
 export default {
   name: 'TestCase',
   components: {
@@ -138,7 +138,7 @@ export default {
         page: 1,          //页码
         rowsNumber: 1     //总页数
       },
-      dismiss: null,
+      dismiss: null,  //批量运行测试用例的提示
       expanded: true,//目录展开收缩flag
     }
   },
@@ -149,16 +149,30 @@ export default {
 
   },
   methods: {
-    //新增
+    //打开新增测试用例界面
     openCrateTestCase () {
       this.createFixed = true;
     },
-    //获得主机列表
-    getMasterHostList () {
-      Apis.getMasterHostList().then((res) => {
+    //新增弹窗取消按钮
+    newCancel () {
+      this.$refs.CSTestCase.newCancel();
+      this.createFixed = false;
+    },
+    //创建测试用例
+    newCreate () {
+      if (!this.$refs.CSTestCase.newCreate()) { return; }
+      let para = this.$refs.CSTestCase.newCreate();
+      this.$q.loading.show()
+      Apis.postCreateTestCase(para).then((res) => {
         console.log(res)
-        this.masterHostList = res.data;
-        this.$q.loading.hide()
+        this.getTestCaseList();
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '创建成功',
+          color: 'secondary',
+        })
+        this.newCancel()
       })
     },
     //获得TeseCase列表
@@ -174,22 +188,8 @@ export default {
         this.TestCaseList = res.data.results;
         this.pagination.page = page || 1;
         this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
-        //this.getMasterHostList();
         this.getDataSourceName();
       })
-    },
-    //获得数据源名称
-    getDataSourceName () {
-      let para = {}
-      Apis.getDataSourceName(para).then((res) => {
-        console.log(res)
-        this.dataSourceName = res.data;
-        this.$q.loading.hide()
-      })
-    },
-    //列表下一页
-    nextPage (value) {
-      this.getTestCaseList(value)
     },
     //删除Testcase
     deleteTestCase (value) {
@@ -216,27 +216,36 @@ export default {
       }).onCancel(() => {
       })
     },
-    //新增弹窗取消按钮
-    newCancel () {
-      this.$refs.CSTestCase.newCancel();
-      this.createFixed = false;
-    },
-    //新增弹窗创建按钮
-    newCreate () {
-      if (!this.$refs.CSTestCase.newCreate()) { return; }
-      let para = this.$refs.CSTestCase.newCreate();
-      this.$q.loading.show()
-      Apis.postCreateTestCase(para).then((res) => {
+    //获得主机列表
+    getMasterHostList () {
+      Apis.getMasterHostList().then((res) => {
         console.log(res)
-        this.getTestCaseList();
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '创建成功',
-          color: 'secondary',
-        })
-        this.newCancel()
+        this.masterHostList = res.data;
+        this.$q.loading.hide()
       })
+    },
+    //获得从机列表
+    getSlaveHostsList (id, callback) {
+      Apis.getSlaveHostsList({ caseId: id }).then((res) => {
+        if (res.data.length == 0) {
+          callback(true)
+        } else {
+          callback(false)
+        }
+      })
+    },
+    //获得数据源名称
+    getDataSourceName () {
+      let para = {}
+      Apis.getDataSourceName(para).then((res) => {
+        console.log(res)
+        this.dataSourceName = res.data;
+        this.$q.loading.hide()
+      })
+    },
+    //列表分页切换
+    nextPage (value) {
+      this.getTestCaseList(value)
     },
     //跳转TestCase详情
     toDetail (evt) {
@@ -247,22 +256,12 @@ export default {
         },
       })
     },
-    //查看主机日志
-    lookMasterLog (value) {
-      this.$q.loading.show()
-      Apis.getMasterLog({ caseId: value.row.id }).then((res) => {
-        this.$q.loading.hide()
-        this.$q.dialog({
-          title: '提示',
-          message: res.data,
-          style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
-        })
-      })
-    },
     //运行TestCase
     runTestCase () {
+      //判断是否选择测试用例
       if (this.selected.length != 0) {
         let runArray = [];
+        //去除正在运行的测试用例
         for (let i = 0; i < this.selected.length; i++) {
           if (this.selected[i].status == '正在运行') {
             runArray.push(this.selected[i].name)
@@ -278,6 +277,7 @@ export default {
           return;
         }
         this.$q.loading.show()
+        //判断当前运行的测试用例是否包含从主机，必须包含从主机才能进行运行
         for (let i = 0; i < this.selected.length; i++) {
           this.getSlaveHostsList(this.selected[i].id, (flag) => {
             if (flag) { runArray.push(this.selected[i].name) }
@@ -306,7 +306,7 @@ export default {
         })
       }
     },
-    //运行
+    //递归运行TestCase
     run (index) {
       console.log(index)
       if (this.dismiss) {
@@ -349,20 +349,18 @@ export default {
         }
       })
     },
-    //获得从机列表
-    getSlaveHostsList (id, callback) {
-      Apis.getSlaveHostsList({ caseId: id }).then((res) => {
-        if (res.data.length == 0) {
-          callback(true)
-        } else {
-          callback(false)
-        }
+    //查看主机日志
+    lookMasterLog (value) {
+      this.$q.loading.show()
+      Apis.getMasterLog({ caseId: value.row.id }).then((res) => {
+        this.$q.loading.hide()
+        this.$q.dialog({
+          title: '提示',
+          message: res.data,
+          style: { 'width': '100%', 'max-width': '65vw', "white-space": "pre-line", "overflow-x": "hidden", "word-break": "break-all" }
+        })
       })
     },
-    // ---------------------------- 列表新样式 ----------------------------------
-    getNodeByKey (key) {
-      console.log(key)
-    }
   }
 }
 </script>
@@ -381,8 +379,6 @@ export default {
 </style>
 <style lang="scss">
 .q-table {
-  //width: 100%;
-  //table-layout: fixed;
   .text-left {
     white-space: nowrap;
     overflow: hidden;
