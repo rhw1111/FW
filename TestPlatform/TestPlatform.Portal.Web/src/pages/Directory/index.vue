@@ -6,7 +6,7 @@
         <q-btn class="btn"
                color="primary"
                label="上一级"
-               v-show="RecordDirectorySite.length!=0 && !RecordDirectorySite[RecordDirectorySite.length-1].SearchRootDirectory"
+               v-show="RecordDirectorySite.length!=0"
                @click="toPrevLevel" />
         <q-btn class="btn"
                color="primary"
@@ -23,7 +23,7 @@
         <q-btn class="btn"
                color="primary"
                label="新建目录"
-               v-show="(RecordDirectorySite.length==0 || !RecordDirectorySite[RecordDirectorySite.length-1].SearchRootDirectory)"
+               v-show="(isSearchStatus && RecordDirectorySite.length!=0) || !isSearchStatus"
                @click="newFolderCreate" />
         <q-btn class="btn"
                color="primary"
@@ -62,25 +62,16 @@
                     :dense='true' />
         </div>
 
-        <!-- <div class="col-4">
+        <div class="col-4">
           <q-btn class="btn"
                  color="primary"
                  label="搜索"
-                 @click="searchFile(1)" />
+                 @click="searchFile(1,true)" />
 
           <q-btn class="btn"
                  color="primary"
                  label="取消搜索"
                  @click="cancelSearch" />
-        </div> -->
-        <div class="col-4">
-          <q-btn class="btn"
-                 color="primary"
-                 label="搜索" />
-
-          <q-btn class="btn"
-                 color="primary"
-                 label="取消搜索" />
         </div>
       </div>
     </div>
@@ -320,23 +311,36 @@ export default {
   methods: {
     //回到之前的位置
     getEchoLocation (currentChange) {
+      //currentChange 切换的页码
       let _this = this;
+      this.selection = [];//清除选择的文件
       let Page = JSON.parse(sessionStorage.getItem('Page'));
-      this.selection = [];
       this.folderPage.folderPageCurrent = currentChange;
-      console.log(Page)
-      //判断是否是从别的页面调过来
-      if (Page != null) {
-        //判断当前目录是否搜索状态
-        if (Page.searchText || Page.FileType) {
-          //执行搜索接口
+      this.isSearchStatus = JSON.parse(sessionStorage.getItem('isSearchStatus')) || false;
+      //判断当前目录是否搜索状态
+      if (this.isSearchStatus) {
+        console.log(this.isSearchStatus)
+        this.RecordDirectorySite = JSON.parse(sessionStorage.getItem('RecordSearchDirectorySite'));
+        //判断是否是从测试用例页面跳转过来
+        if (Page) {
           this.searchText = Page.searchText;
           this.FileType = Page.FileType;
-          console.log(Page)
-          this.searchFile(currentChange ? currentChange : Page.folderPageCurrent);
-          return;
+          //判断当前搜索列表是不是根目录
+          if (this.RecordDirectorySite.length == 0) {
+            this.searchFile(Page.folderPageCurrent, false);
+          } else {
+            //执行获取子级目录接口
+            this.toNextLevel(this.RecordDirectorySite[this.RecordDirectorySite.length - 1], false, Page.folderPageCurrent)
+          }
+          sessionStorage.removeItem('Page')
+        } else {
+          if (this.RecordDirectorySite.length == 0) {
+            this.searchFile(currentChange, false);
+          } else {
+            //执行获取子级目录接口
+            this.toNextLevel(this.RecordDirectorySite[this.RecordDirectorySite.length - 1], false, currentChange)
+          }
         }
-        isParentChildren();
       } else {
         isParentChildren();
       }
@@ -346,16 +350,13 @@ export default {
         _this.RecordDirectorySite = JSON.parse(sessionStorage.getItem('RecordDirectorySite'));
         console.log(_this.folderPage, Page)
         //如果是根目录回来的则复制空数组；
-        if (_this.RecordDirectorySite == null) {
-          _this.RecordDirectorySite = [];
-        }
+        if (_this.RecordDirectorySite == null) { _this.RecordDirectorySite = []; }
+        let page = Page ? Page.folderPageCurrent : currentChange;  //回显当前的页码
         if (_this.RecordDirectorySite.length != 0) {
-          let page = Page ? Page.folderPageCurrent : 1;  //回显当前的页码
           //执行获取子级目录接口
           _this.toNextLevel(_this.RecordDirectorySite[_this.RecordDirectorySite.length - 1], false, page)
         } else {
           //执行获取根目录接口
-          let page = Page ? Page.folderPageCurrent : currentChange;  //回显当前的页码
           _this.getTreeEntityList(page);
         }
         sessionStorage.removeItem('Page')
@@ -384,12 +385,10 @@ export default {
     },
     //上一级
     toPrevLevel () {
-      //是否是搜索状态
-      if (this.RecordDirectorySite[this.RecordDirectorySite.length - 1].SearchRootDirectory) {
-        this.getEchoLocation()
+      if (this.isSearchStatus && this.RecordDirectorySite.length == 1) {
+        this.searchFile(this.RecordDirectorySite[0].pageCurrent, true);
         return;
       }
-
       let para = {
         //获取记录目录位置的上一个的id
         parentId: this.RecordDirectorySite[this.RecordDirectorySite.length - 1].id,
@@ -400,18 +399,21 @@ export default {
       Apis.getgobackpreviousTreeEntity(para).then(res => {
         console.log(res)
 
+        //删除当前记录目录位置的最后一个并且重新保存到session
+        this.RecordDirectorySite.pop();
+        //判断当前是否搜索状态
+        if (this.isSearchStatus) {
+          sessionStorage.setItem('RecordSearchDirectorySite', JSON.stringify(this.RecordDirectorySite));
+        } else {
+          sessionStorage.setItem('RecordDirectorySite', JSON.stringify(this.RecordDirectorySite));
+        }
+
         this.selection = [];
         this.folderPage.folderPageCurrent = res.data.currentPage;
         this.folderPage.folderPageTotal = res.data.totalCount;
         this.FolderList = res.data.results;
 
 
-        if (this.RecordDirectorySite[this.RecordDirectorySite.length - 1].SearchRootDirectory) {
-          this.searchFile(this.RecordDirectorySite[this.RecordDirectorySite.length - 1].pageCurrent)
-        }
-        //删除当前记录目录位置的最后一个并且重新保存到session
-        this.RecordDirectorySite.pop()
-        sessionStorage.setItem('RecordDirectorySite', JSON.stringify(this.RecordDirectorySite))
 
         this.$q.loading.hide();
       })
@@ -437,7 +439,13 @@ export default {
           if (TypeFlag) {
             value.pageCurrent = this.folderPage.folderPageCurrent;
             this.RecordDirectorySite.push(value);
-            sessionStorage.setItem('RecordDirectorySite', JSON.stringify(this.RecordDirectorySite));
+            //判断当前是否搜索状态
+            if (this.isSearchStatus) {
+              sessionStorage.setItem('RecordSearchDirectorySite', JSON.stringify(this.RecordDirectorySite));
+            } else {
+              sessionStorage.setItem('RecordDirectorySite', JSON.stringify(this.RecordDirectorySite));
+            }
+            console.log(this.RecordDirectorySite)
           }
 
           this.folderPage.folderPageCurrent = res.data.currentPage;
@@ -555,7 +563,7 @@ export default {
     },
     //---------------------------------------------- 搜索 -------------------------------------------
     //搜索
-    searchFile (Page) {
+    searchFile (Page, saveDirectory) {
       console.log(Page)
       if (!this.searchText.trim() && !this.FileType) {
         this.$q.notify({
@@ -583,7 +591,7 @@ export default {
         matchName: this.searchText,
         page: Page || 1,
         type: FileType,
-        pageSize: 5
+        pageSize: 100
       }
       console.log(para)
       this.$q.loading.show();
@@ -592,29 +600,30 @@ export default {
         this.folderPage.folderPageCurrent = res.data.currentPage;
         this.folderPage.folderPageTotal = res.data.totalCount;
 
-        //存储搜索条件
-        sessionStorage.setItem('Page', JSON.stringify({
-          searchText: this.searchText.trim(),//搜索内容
-          FileType: this.FileType,//文件类型
-          folderPageCurrent: this.folderPage.folderPageCurrent,
-          folderPageTotal: this.folderPage.folderPageTotal
-        }))
-        if (this.RecordDirectorySite.length) { this.RecordDirectorySite[this.RecordDirectorySite.length - 1].SearchRootDirectory = true; }  //将当前目录作为搜索根目录
-        sessionStorage.setItem('RecordDirectorySite', JSON.stringify(this.RecordDirectorySite));
-
         this.isSearchStatus = true;
+
+        if (saveDirectory) {
+
+          sessionStorage.setItem('RecordSearchDirectorySite', JSON.stringify([]));    //保存搜索目录位置
+          sessionStorage.setItem('isSearchStatus', true);
+          this.RecordDirectorySite = JSON.parse(sessionStorage.getItem('RecordSearchDirectorySite'));
+        }
+        console.log(this.RecordDirectorySite)
+
         this.FolderList = res.data.results;
         this.$q.loading.hide();
       })
     },
     //取消搜索
     cancelSearch () {
-      sessionStorage.removeItem('Page');
-      if (this.RecordDirectorySite.length) { this.RecordDirectorySite[this.RecordDirectorySite.length - 1].SearchRootDirectory = false; }
-      sessionStorage.setItem('RecordDirectorySite', JSON.stringify(this.RecordDirectorySite));
-      this.searchText = ''; this.FileType = null;
-      this.isSearchStatus = false;
-      this.getEchoLocation();
+      if (this.isSearchStatus) {
+        sessionStorage.removeItem('Page');
+        sessionStorage.setItem('RecordSearchDirectorySite', JSON.stringify([]));
+        sessionStorage.setItem('isSearchStatus', false)
+        this.isSearchStatus = false;
+        this.searchText = ''; this.FileType = null;
+        this.getEchoLocation();
+      }
     },
     //---------------------------------------------- 目录操作 -------------------------------------------
     //新建目录
