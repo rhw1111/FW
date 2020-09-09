@@ -679,38 +679,33 @@ namespace FW.TestPlatform.Main.Entities
 
             var handleService = getHandleService(tCase.EngineType);
 
-            List<Guid> hostIDs = new List<Guid>();
-            var slaveHosts = GetAllSlaveHosts(tCase, cancellationToken);
+            //List<Guid> hostIDs = new List<Guid>();
+            //var slaveHosts = GetAllSlaveHosts(tCase, cancellationToken);
 
-            await foreach (var item in slaveHosts)
-            {
-                hostIDs.Add(item.HostID);
-            }
+            //await foreach (var item in slaveHosts)
+            //{
+            //    hostIDs.Add(item.HostID);
+            //}
 
-            hostIDs.Add(tCase.MasterHostID);
+            //hostIDs.Add(tCase.MasterHostID);
 
 
             await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                var existsCases = await _testCaseStore.QueryCountNolockByStatus(TestCaseStatus.Running, hostIDs, cancellationToken);
-
-                if (existsCases.Count >= 1)
-                {
-
-                    var fragment = new TextFragment()
-                    {
-                        Code = TestPlatformTextCodes.TestHostHasRunning,
-                        DefaultFormatting = "包含的测试主机已经被执行，相关测试案例为{0}",
-                        ReplaceParameters = new List<object>() { existsCases.ToDisplayString((c) => c.Name, () => ",") }
-                    };
-
-                    throw new UtilityException((int)TestPlatformErrorCodes.TestHostHasRunning, fragment, 1, 0);
-                }
+                //var existsCases = await _testCaseStore.QueryCountNolockByStatus(TestCaseStatus.Running, hostIDs, cancellationToken);
+                //if (existsCases.Count >= 1)
+                //{
+                //    var fragment = new TextFragment()
+                //    {
+                //        Code = TestPlatformTextCodes.TestHostHasRunning,
+                //        DefaultFormatting = "包含的测试主机已经被执行，相关测试案例为{0}",
+                //        ReplaceParameters = new List<object>() { existsCases.ToDisplayString((c) => c.Name, () => ",") }
+                //    };
+                //    throw new UtilityException((int)TestPlatformErrorCodes.TestHostHasRunning, fragment, 1, 0);
+                //}
 
                 await handleService.Run(tCase, cancellationToken);
-                //await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.Running, cancellationToken);
                 await _testCaseStore.UpdateHistoryIdAndStatus(tCase.ID, Guid.NewGuid(), TestCaseStatus.Running, cancellationToken);
-
                 scope.Complete();
             }   
         }
