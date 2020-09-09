@@ -42,8 +42,8 @@ namespace FW.TestPlatform.Main.Application
             var history = await queryResult.GetHistory(historyId, cancellationToken);
             if (history != null)
             {
-                string from = ConvertDateTimeToInt(history.CreateTime.AddHours(-1)).ToString();
-                string to = ConvertDateTimeToInt(history.CreateTime.AddHours(1)).ToString();
+                string from = ConvertDateTimeToInt(history.CreateTime.ToCurrentUserTimeZone().AddHours(-1)).ToString();
+                string to = ConvertDateTimeToInt(history.CreateTime.ToCurrentUserTimeZone().AddHours(1)).ToString();
                 var monitorAddress = await _systemConfigurationService.GetCaseHistoryMonitorAddressAsync(cancellationToken);
                 viewHistory.ID = history.ID;
                 viewHistory.CaseID = history.CaseID;

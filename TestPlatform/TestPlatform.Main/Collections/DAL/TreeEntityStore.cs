@@ -366,5 +366,25 @@ namespace FW.TestPlatform.Main.Collections.DAL
                 }
             });
         }
+
+        public async Task<TreeEntity?> QueryWithParentByID(Guid id, CancellationToken cancellationToken = default)
+        {
+            TreeEntity? result = null;
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _collectionConnectionFactory.CreateReadForCollection(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+                    result = await (from item in dbContext.TreeEntities
+                                    where item.ID == id
+                                    select item).Include(item => item.Parent).FirstOrDefaultAsync();
+                }
+            });
+
+            return result;
+        }
     }
 }

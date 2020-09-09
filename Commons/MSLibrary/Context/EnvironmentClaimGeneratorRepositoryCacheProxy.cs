@@ -32,13 +32,21 @@ namespace MSLibrary.Context
 
         public async Task<EnvironmentClaimGenerator> QueryByName(string name)
         {
-            return await _kvcacheVisitor.Get(
+            return (await _kvcacheVisitor.Get(
                 async(k)=>
                 {
-                    return await _environmentClaimGeneratorRepository.QueryByName(name);
+                    var obj= await _environmentClaimGeneratorRepository.QueryByName(name);
+                    if (obj == null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }
                 },
                 name
-                );
+                )).Item1;
 
         }
     }

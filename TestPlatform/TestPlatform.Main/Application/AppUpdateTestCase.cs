@@ -29,8 +29,8 @@ namespace FW.TestPlatform.Main.Application
 
         public async Task<TestCaseViewData> Do(TestCaseUpdateModel model, CancellationToken cancellationToken = default)
         {
-            var source = await _testCaseRepository.QueryByID(model.ID, cancellationToken);
-            if (source == null)
+            var tCase = await _testCaseRepository.QueryByID(model.ID, cancellationToken);
+            if (tCase == null)
             {
                 var fragment = new TextFragment()
                 {
@@ -41,60 +41,64 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
             }
+            TestCase newCase = new TestCase()
+            {
+                ID = tCase.ID,
+                Name = model.Name,
+                EngineType = model.EngineType,
+                MasterHostID = model.MasterHostID,
+                Configuration = model.Configuration,
+                ModifyTime = DateTime.UtcNow
+            };
+            TreeEntity newTreeEntity = new TreeEntity()
+            {
+                Name = model.Name,
+                Type = TreeEntityValueServiceTypes.TestCase,
+                Value = tCase.ID.ToString(),
+                ParentID = model.FolderID
+            };
             await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted, Timeout = new TimeSpan(0, 0, 30) }))
             {
                 TreeEntity? tEntity = null;
-                if (source.TreeID != null)
+                if (tCase.TreeID != null)
                 {
-                    tEntity = await _treeEntityRepository.QueryByID(source.TreeID.Value, cancellationToken);
+                    tEntity = await _treeEntityRepository.QueryByID(tCase.TreeID.Value, cancellationToken);
                     if (tEntity == null)
                     {
                         var fragment = new TextFragment()
                         {
                             Code = TestPlatformTextCodes.NotFoundTreeEntityByID,
-                            DefaultFormatting = "找不到ID为{0}的测试案例",
-                            ReplaceParameters = new List<object>() { source.TreeID.Value.ToString() }
+                            DefaultFormatting = "找不到ID为{0}的节点",
+                            ReplaceParameters = new List<object>() { tCase.TreeID.Value.ToString() }
                         };
 
                         throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTreeEntityByID, fragment, 1, 0);
                     }
-                    if (model.Name != source.Name || (tEntity != null && model.FolderID != tEntity.ParentID))
+                    if (model.Name != tCase.Name || (tEntity != null && model.FolderID != tEntity.ParentID))
                     {
-                        await tEntity.Delete(cancellationToken);
+                        newTreeEntity.ID = tEntity.ID;
+                        await newTreeEntity.Update(cancellationToken);
                     }
                 }
-                if(source.TreeID == null || model.Name != source.Name || (tEntity != null && model.FolderID != tEntity.ParentID))
+                else
                 {
-                    TreeEntity treeEntity = new TreeEntity
-                    {
-                        ParentID = model.FolderID,
-                        Value = source.ID.ToString(),
-                        Name = "C-" + source.Name,
-                        ID = Guid.NewGuid(),
-                        Type = TreeEntityValueServiceTypes.TestCase
-                    };
-                    await treeEntity.Add(cancellationToken);
-                    source.TreeID = treeEntity.ID;
+                    newTreeEntity.ID = Guid.NewGuid();
+                    await newTreeEntity.Add(cancellationToken);
+                    newCase.TreeID = newTreeEntity.ID;
                 }
-                source.Name = model.Name;
-                source.EngineType = model.EngineType;
-                source.MasterHostID = model.MasterHostID;
-                source.Configuration = model.Configuration;
-                source.ModifyTime = DateTime.UtcNow;
-                await source.Update(cancellationToken);
-
+                await newCase.Update(cancellationToken);
                 scope.Complete();
             }
 
             return new TestCaseViewData()
             {
-                ID = source.ID,
-                EngineType = source.EngineType,
-                Configuration = source.Configuration,
-                Name = source.Name,
-                Status = source.Status,
-                MasterHostID = source.MasterHostID,
-                CreateTime = source.CreateTime.ToCurrentUserTimeZone()
+                ID = newCase.ID,
+                EngineType = newCase.EngineType,
+                Configuration = newCase.Configuration,
+                Name = newCase.Name,
+                Status = newCase.Status,
+                MasterHostID = newCase.MasterHostID,
+                CreateTime = newCase.CreateTime.ToCurrentUserTimeZone()
             };
         }
 

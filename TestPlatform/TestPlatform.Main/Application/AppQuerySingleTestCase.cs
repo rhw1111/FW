@@ -9,7 +9,7 @@ using FW.TestPlatform.Main.Entities;
 using MSLibrary.LanguageTranslate;
 using FW.TestPlatform.Main.Configuration;
 using FW.TestPlatform.Main.DTOModel;
-
+using MSLibrary.Collections;
 
 namespace FW.TestPlatform.Main.Application
 {
@@ -18,11 +18,13 @@ namespace FW.TestPlatform.Main.Application
     {
         private readonly ITestCaseRepository _testCaseRepository;
         private readonly ISystemConfigurationService _systemConfigurationService;
+        private readonly ITreeEntityRepository _treeEntityRepository;
 
-        public AppQuerySingleTestCase(ITestCaseRepository testCaseRepository, ISystemConfigurationService systemConfigurationService)
+        public AppQuerySingleTestCase(ITestCaseRepository testCaseRepository, ISystemConfigurationService systemConfigurationService, ITreeEntityRepository treeEntityRepository)
         {
             _testCaseRepository = testCaseRepository;
             _systemConfigurationService = systemConfigurationService;
+            _treeEntityRepository = treeEntityRepository;
         }
         public async Task<TestCaseViewData> Do(Guid id, CancellationToken cancellationToken = default)
         {
@@ -40,7 +42,13 @@ namespace FW.TestPlatform.Main.Application
             }
 
             var monitorAddress=await _systemConfigurationService.GetMonitorAddressAsync(queryResult.EngineType, cancellationToken);
-
+            var parentName = string.Empty;
+            if(queryResult.TreeID != null)
+            {
+                TreeEntity? entityWithParent = await _treeEntityRepository.QueryWithParentByID(queryResult.TreeID.Value, cancellationToken);
+                if (entityWithParent != null && entityWithParent.Parent != null)
+                    parentName = entityWithParent.Parent.Name;
+            }
 
             return new TestCaseViewData()
             {
@@ -50,9 +58,11 @@ namespace FW.TestPlatform.Main.Application
                 Configuration = queryResult.Configuration,
                 Status = queryResult.Status,
                 EngineType = queryResult.EngineType,
+                TreeID = queryResult.TreeID,
                 MasterHostID = queryResult.MasterHostID,
                 MasterHostAddress = queryResult.MasterHost.Address,
-                CreateTime = queryResult.CreateTime.ToCurrentUserTimeZone()
+                CreateTime = queryResult.CreateTime.ToCurrentUserTimeZone(),
+                ParentName = parentName
             };
         }
     }

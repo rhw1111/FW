@@ -33,22 +33,38 @@ namespace MSLibrary.Collections.Hash
 
         public async Task<HashGroup> QueryById(Guid id)
         {
-            return await _kvcacheVisitor.Get(
+            return (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _hashGroupRepository.QueryById(id);
+                    var obj= await _hashGroupRepository.QueryById(id);
+                    if (obj==null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }
                 }, id
-                );
+                )).Item1;
         }
 
         public async Task<HashGroup> QueryByName(string name)
         {
-            return await _kvcacheVisitor.Get(
+            return (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _hashGroupRepository.QueryByName(name);
+                    var obj= await _hashGroupRepository.QueryByName(name);
+                    if (obj == null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }
                 }, name
-                );
+                )).Item1;
         }
 
         public HashGroup QueryByNameSync(string name)
@@ -56,9 +72,17 @@ namespace MSLibrary.Collections.Hash
             return _kvcacheVisitor.GetSync(
                 (k) =>
                 {
-                    return  _hashGroupRepository.QueryByNameSync(name);
+                    var obj = _hashGroupRepository.QueryByNameSync(name);
+                    if (obj == null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }
                 }, name
-                );
+                ).Item1;
         }
     }
 }

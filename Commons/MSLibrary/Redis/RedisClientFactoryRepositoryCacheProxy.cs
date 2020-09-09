@@ -30,13 +30,22 @@ namespace MSLibrary.Redis
 
         public async Task<RedisClientFactory> QueryByName(string name)
         {
-            return await _kvcacheVisitor.Get(
+            return (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _redisClientFactoryRepository.QueryByName(name);
+                    var obj= await _redisClientFactoryRepository.QueryByName(name);
+
+                    if (obj == null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }
                 },
                 name
-                );
+                )).Item1;
         }
 
         public RedisClientFactory QueryByNameSync(string name)
@@ -44,10 +53,18 @@ namespace MSLibrary.Redis
             return _kvcacheVisitor.GetSync(
                (k) =>
               {
-                  return  _redisClientFactoryRepository.QueryByNameSync(name);
+                  var obj = _redisClientFactoryRepository.QueryByNameSync(name);
+                  if (obj == null)
+                  {
+                      return (obj, false);
+                  }
+                  else
+                  {
+                      return (obj, true);
+                  }
               },
               name
-              );
+              ).Item1;
         }
     }
 }

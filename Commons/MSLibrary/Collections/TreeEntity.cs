@@ -306,7 +306,7 @@ namespace MSLibrary.Collections
                     {
                         Code = TextCodes.TreeEntityParentTypeError,
                         DefaultFormatting = "树状实体{0}的类型无法作为父记录，要求的类型为{1}",
-                        ReplaceParameters = new List<object>() { entity.ParentID.ToString(), "0" }
+                        ReplaceParameters = new List<object>() { entity.ParentID.ToString(), "1" }
                     };
                     throw new UtilityException((int)Errors.TreeEntityParentTypeError, fragment, 1, 0);
                 }
@@ -428,7 +428,7 @@ namespace MSLibrary.Collections
                     {
                         Code = TextCodes.TreeEntityParentTypeError,
                         DefaultFormatting = "树状实体{0}的类型无法作为父记录，要求的类型为{1}",
-                        ReplaceParameters = new List<object>() { parentID.ToString(), "0" }
+                        ReplaceParameters = new List<object>() { parentID.ToString(), "1" }
                     };
                     throw new UtilityException((int)Errors.TreeEntityParentTypeError, fragment, 1, 0);
                 }
@@ -472,7 +472,7 @@ namespace MSLibrary.Collections
                 await action();
 
                 var newId = await _treeEntityStore.QueryByNameNoLock(treeEntity.ParentID, treeEntity.Name, cancellationToken);
-                if (newId != treeEntity.ID)
+                if (newId != null && newId != treeEntity.ID)
                 {
                     var fragment = new TextFragment()
                     {

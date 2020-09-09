@@ -30,7 +30,52 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
         {
             _redisClientFactoryRepositoryCacheProxy = redisClientFactoryRepositoryCacheProxy;
         }
-        public async Task<V> Get<K, V>(string cacheConfiguration, Func<Task<V>> creator, string prefix, K key)
+
+        public async Task Clear<K, V>(string cacheConfiguration, string prefix, K key)
+        {
+            var configurationObj = JsonSerializerHelper.Deserialize<Configuration>(cacheConfiguration);
+            var redisClientFactory = _redisClientFactoryRepositoryCacheProxy.QueryByNameSync(configurationObj.RedisClientFactoryName);
+            if (redisClientFactory == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.NotFoundRedisClientFactoryByName,
+                    DefaultFormatting = "找不到名称为{0}的Redis客户端工厂",
+                    ReplaceParameters = new List<object>() { configurationObj.RedisClientFactoryName }
+                };
+
+                throw new UtilityException((int)Errors.NotFoundRedisClientFactoryByName, fragment);
+            }
+
+            var redisClient =await redisClientFactory.GenerateClient();
+
+            string strKey = JsonSerializerHelper.Serializer(key);
+            await redisClient.DelAsync(strKey);
+        }
+
+        public void ClearSync<K, V>(string cacheConfiguration, string prefix, K key)
+        {
+            var configurationObj = JsonSerializerHelper.Deserialize<Configuration>(cacheConfiguration);
+            var redisClientFactory = _redisClientFactoryRepositoryCacheProxy.QueryByNameSync(configurationObj.RedisClientFactoryName);
+            if (redisClientFactory == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.NotFoundRedisClientFactoryByName,
+                    DefaultFormatting = "找不到名称为{0}的Redis客户端工厂",
+                    ReplaceParameters = new List<object>() { configurationObj.RedisClientFactoryName }
+                };
+
+                throw new UtilityException((int)Errors.NotFoundRedisClientFactoryByName, fragment);
+            }
+
+            var redisClient = redisClientFactory.GenerateClientSync();
+
+            string strKey = JsonSerializerHelper.Serializer(key);
+            redisClient.Del(strKey);
+        }
+
+        public async Task<(V,bool)> Get<K, V>(string cacheConfiguration, Func<Task<(V,bool)>> creator, string prefix, K key)
         {
             var configurationObj = JsonSerializerHelper.Deserialize<Configuration>(cacheConfiguration);
             var redisClientFactory = await _redisClientFactoryRepositoryCacheProxy.QueryByName(configurationObj.RedisClientFactoryName);
@@ -53,25 +98,32 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
             var strValue=await redisClient.GetAsync(strKey);
             if (strValue!=null)
             {
-                return JsonSerializerHelper.Deserialize<V>(strValue);
+                return (JsonSerializerHelper.Deserialize<V>(strValue),true);
             }
             else
             {
-                var value = await creator();
-                strValue = JsonSerializerHelper.Serializer(value);
-                if (configurationObj.ExpireSeconds > 0)
+                var (value,isCache) = await creator();
+                if (isCache)
                 {
-                    await redisClient.SetAsync(strKey, strValue, configurationObj.ExpireSeconds, RedisExistence.Nx);
+                    strValue = JsonSerializerHelper.Serializer(value);
+                    if (configurationObj.ExpireSeconds > 0)
+                    {
+                        await redisClient.SetAsync(strKey, strValue, configurationObj.ExpireSeconds, RedisExistence.Nx);
+                    }
+                    else
+                    {
+                        await redisClient.SetNxAsync(strKey, strValue);
+                    }
+                    return (value,true);
                 }
                 else
                 {
-                    await redisClient.SetNxAsync(strKey, strValue);
+                    return (value, false);
                 }
-                return value;
             }
         }
 
-        public V GetSync<K, V>(string cacheConfiguration, Func<V> creator, string prefix, K key)
+        public (V,bool) GetSync<K, V>(string cacheConfiguration, Func<(V,bool)> creator, string prefix, K key)
         {
             var configurationObj = JsonSerializerHelper.Deserialize<Configuration>(cacheConfiguration);
             var redisClientFactory = _redisClientFactoryRepositoryCacheProxy.QueryByNameSync(configurationObj.RedisClientFactoryName);
@@ -94,21 +146,28 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
             var strValue =  redisClient.Get(strKey);
             if (strValue != null)
             {
-                return JsonSerializerHelper.Deserialize<V>(strValue);
+                return (JsonSerializerHelper.Deserialize<V>(strValue),true);
             }
             else
             {
-                var value =  creator();
-                strValue = JsonSerializerHelper.Serializer(value);
-                if (configurationObj.ExpireSeconds > 0)
+                var (value,isCache) =  creator();
+                if (isCache)
                 {
-                    redisClient.Set(strKey, strValue, configurationObj.ExpireSeconds, RedisExistence.Nx);
+                    strValue = JsonSerializerHelper.Serializer(value);
+                    if (configurationObj.ExpireSeconds > 0)
+                    {
+                        redisClient.Set(strKey, strValue, configurationObj.ExpireSeconds, RedisExistence.Nx);
+                    }
+                    else
+                    {
+                        redisClient.SetNx(strKey, strValue);
+                    }
+                    return (value, true);
                 }
                 else
                 {
-                    redisClient.SetNx(strKey, strValue);
+                    return (value, false);
                 }
-                return value;
             }
         }
 

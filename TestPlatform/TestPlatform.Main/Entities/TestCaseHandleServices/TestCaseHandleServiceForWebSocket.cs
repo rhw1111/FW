@@ -49,16 +49,18 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             _systemConfigurationService = systemConfigurationService;
         }
 
-        public async Task<string> GetMasterLog(TestHost host, CancellationToken cancellationToken = default)
+        public async Task<string> GetMasterLog(TestCase tCase, TestHost host, CancellationToken cancellationToken = default)
         {
-            bool fileExisted = await host.SSHEndpoint.ExistsFile($"{_testFilePath}{string.Format(_testLogFileName, string.Empty)}", 10, cancellationToken);
+            var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
+
+            bool fileExisted = await host.SSHEndpoint.ExistsFile($"{this.GetTestFilePath(configuration)}{string.Format(_testLogFileName, string.Empty)}", 10, cancellationToken);
             if (!fileExisted)
             {
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.NotFoundLogFileByPath,
                     DefaultFormatting = "找不到路径为{0}的日志文件",
-                    ReplaceParameters = new List<object>() { $"{_testFilePath}{string.Format(_testLogFileName, string.Empty)}" }
+                    ReplaceParameters = new List<object>() { $"{this.GetTestFilePath(configuration)}{string.Format(_testLogFileName, string.Empty)}" }
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundLogFileByPath, fragment, 1, 0);
@@ -75,23 +77,25 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     var realSize=await fileStream.ReadAsync(memoryBytes);
                     result=UTF8Encoding.UTF8.GetString(memoryBytes.Slice(0, realSize).Span);
                 },
-                $"{_testFilePath}{string.Format(_testLogFileName,string.Empty)}",10,
+                $"{this.GetTestFilePath(configuration)}{string.Format(_testLogFileName,string.Empty)}",10,
                 cancellationToken
                 );
             return result;
         }
 
-        public async Task<string> GetSlaveLog(TestHost host,int idx, CancellationToken cancellationToken = default)
+        public async Task<string> GetSlaveLog(TestCase tCase, TestHost host, int idx, CancellationToken cancellationToken = default)
         {
-            //await host.SSHEndpoint.ExecuteCommand($"cat {_testFilePath}{string.Format(_testLogFileName, "_slave_*")} > {_testFilePath}{string.Format(_testLogFileName, "_slave")}", 10, cancellationToken);
-            bool fileExisted = await host.SSHEndpoint.ExistsFile($"{_testFilePath}{string.Format(_testLogFileName, "_slave_" + idx)}",10,cancellationToken);
+            var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
+
+            //await host.SSHEndpoint.ExecuteCommand($"cat {this.GetTestFilePath(configuration)}{string.Format(_testLogFileName, "_slave_*")} > {this.GetTestFilePath(configuration)}{string.Format(_testLogFileName, "_slave")}", 10, cancellationToken);
+            bool fileExisted = await host.SSHEndpoint.ExistsFile($"{this.GetTestFilePath(configuration)}{string.Format(_testLogFileName, "_slave_" + idx)}",10,cancellationToken);
             if (!fileExisted)
             {
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.NotFoundLogFileByPath,
                     DefaultFormatting = "找不到路径为{0}的日志文件",
-                    ReplaceParameters = new List<object>() { $"{_testFilePath}{string.Format(_testLogFileName, "_slave_" + idx)}" }
+                    ReplaceParameters = new List<object>() { $"{this.GetTestFilePath(configuration)}{string.Format(_testLogFileName, "_slave_" + idx)}" }
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundLogFileByPath, fragment, 1, 0);
@@ -109,7 +113,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     var realSize = await fileStream.ReadAsync(memoryBytes);
                     result = UTF8Encoding.UTF8.GetString(memoryBytes.Slice(0, realSize).Span);
                 },
-                $"{_testFilePath}{string.Format(_testLogFileName,"_slave_" + idx)}",10,
+                $"{this.GetTestFilePath(configuration)}{string.Format(_testLogFileName,"_slave_" + idx)}",10,
                 cancellationToken
                 );
             return result;
@@ -117,8 +121,16 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task<bool> IsEngineRun(TestCase tCase, CancellationToken cancellationToken = default)
         {
+            var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
+            int locustMasterBindPort = configuration.LocustMasterBindPort;
+
+            if (locustMasterBindPort <= 5557)
+            {
+                locustMasterBindPort = 5557;
+            }
+
             //执行主机查进程命令
-            var result=await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}'",10, cancellationToken);
+            var result =await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep {locustMasterBindPort.ToString()} | grep -v grep | awk '{{print $2}}'",10, cancellationToken);
             if (string.IsNullOrEmpty(result))
             {
                 return false;
@@ -238,7 +250,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 //}
 #endif
                 #endregion
-                await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{_testFilePath}{string.Format(_testFileName,string.Empty)}",10, cancellationToken);
+                await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{this.GetTestFilePath(configuration)}{string.Format(_testFileName,string.Empty)}",10, cancellationToken);
                 textStream.Close();
             }
 
@@ -252,7 +264,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 async (item) =>
                 {
                     //先删除文件夹内现有的所有文件
-                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{string.Format(_testFileName, "_*")}", 10, cancellationToken);
+                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {this.GetTestFilePath(configuration)}{string.Format(_testFileName, "_*")}", 10, cancellationToken);
 
                     //为该Slave测试机下的每个Slave上传文件
 
@@ -266,7 +278,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                                 {
                                     using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}", $"{item.SlaveName}-{index.ToString()}"))))
                                     {
-                                        await service.Upload(textStream, $"{_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")}");
+                                        await service.Upload(textStream, $"{this.GetTestFilePath(configuration)}{string.Format(_testFileName, $"_{index.ToString()}")}");
                                         textStream.Close();
                                     }
                                 }
@@ -306,13 +318,13 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             {
                async (preResult)=>
                {
-                   return await Task.FromResult($"rm -rf {_testFilePath}{string.Format(_testLogFileName,string.Empty)}");
+                   return await Task.FromResult($"rm -rf {this.GetTestFilePath(configuration)}{string.Format(_testLogFileName,string.Empty)}");
                },
                async (preResult)=>
                {
-                   //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName,string.Empty)} --master --expect-slaves={slaveCount.ToString()} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{string.Format(_testLogFileName,string.Empty)} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
-                   //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName,string.Empty)} --logfile {_testFilePath}{string.Format(_testLogFileName,string.Empty)} --master --headless --expect-workers {slaveCount.ToString()} -t {configuration.Duration.ToString()} -u {configuration.UserCount.ToString()} -r {configuration.PerSecondUserCount.ToString()} > {_testFilePath}{string.Format(_testOutFileName,string.Empty)} 2>&1 &");
-                   return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName,string.Empty)} --master --headless --expect-workers {slaveCount.ToString()} -t {configuration.Duration.ToString()} -u {configuration.UserCount.ToString()} -r {configuration.PerSecondUserCount.ToString()} > {_testFilePath}{string.Format(_testLogFileName,string.Empty)} 2>&1 &");
+                   //return await Task.FromResult($"locust -f {this.GetTestFilePath(configuration)}{string.Format(_testFileName,string.Empty)} --master --expect-slaves={slaveCount.ToString()} --no-web --run-time={  configuration.Duration.ToString()} --logfile={this.GetTestFilePath(configuration)}{string.Format(_testLogFileName,string.Empty)} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
+                   //return await Task.FromResult($"locust -f {this.GetTestFilePath(configuration)}{string.Format(_testFileName,string.Empty)} --logfile {this.GetTestFilePath(configuration)}{string.Format(_testLogFileName,string.Empty)} --master --headless --expect-workers {slaveCount.ToString()} -t {configuration.Duration.ToString()} -u {configuration.UserCount.ToString()} -r {configuration.PerSecondUserCount.ToString()} > {this.GetTestFilePath(configuration)}{string.Format(_testOutFileName,string.Empty)} 2>&1 &");
+                   return await Task.FromResult($"locust -f {this.GetTestFilePath(configuration)}{string.Format(_testFileName,string.Empty)} --master --headless --expect-workers {slaveCount.ToString()} --master-bind-port {configuration.LocustMasterBindPort.ToString()} -t {configuration.Duration.ToString()} -u {configuration.UserCount.ToString()} -r {configuration.PerSecondUserCount.ToString()} > {this.GetTestFilePath(configuration)}{string.Format(_testLogFileName,string.Empty)} 2>&1 &");
                }
             };
             await tCase.MasterHost.SSHEndpoint.ExecuteCommandBatch(commands,10, cancellationToken);
@@ -324,24 +336,24 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     {
                         async (preResult)=>
                         {
-                            return await Task.FromResult($"rm -rf {_testFilePath}{string.Format(_testLogFileName, "_slave*")}");
+                            return await Task.FromResult($"rm -rf {this.GetTestFilePath(configuration)}{string.Format(_testLogFileName, "_slave*")}");
                         }
                     };
 
 
-                //await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {_testFilePath}{string.Format(_testLogFileName, "_slave")}", cancellationToken);
+                //await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {this.GetTestFilePath(configuration)}{string.Format(_testLogFileName, "_slave")}", cancellationToken);
                 for (var index = 0;index <= item.Count - 1;index++)
                 {
                     var innerIndex = index;
                     slaveCommands.Add(
                         async (preResult) =>
                         {
-                            //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{index.ToString()}")} --slave --master-host={tCase.MasterHost.Address} --no-web --run-time={  configuration.Duration.ToString()} --logfile={_testFilePath}{string.Format(_testLogFileName, "_slave")} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
-                            //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --logfile {_testFilePath}{string.Format(_testLogFileName, $"_slave")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {_testFilePath}{string.Format(_testOutFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
-                            //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {_testFilePath}{string.Format(_testLogFileName, $"_slave")} 2>&1 &");
-                            return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {_testFilePath}{string.Format(_testLogFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
-                            //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --logfile {_testFilePath}{string.Format(_testLogFileName, $"_slave")} --worker --headless --master-host 127.0.0.1 --master-port 5557 > {_testFilePath}{string.Format(_testOutFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
-                            //return await Task.FromResult($"locust -f {_testFilePath}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host 127.0.0.1 --master-port 5557 > {_testFilePath}{string.Format(_testLogFileName, $"_slave")} 2>&1 &");
+                            //return await Task.FromResult($"locust -f {this.GetTestFilePath(configuration)}{string.Format(_testFileName, $"_{index.ToString()}")} --slave --master-host={tCase.MasterHost.Address} --no-web --run-time={  configuration.Duration.ToString()} --logfile={this.GetTestFilePath(configuration)}{string.Format(_testLogFileName, "_slave")} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
+                            //return await Task.FromResult($"locust -f {this.GetTestFilePath(configuration)}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --logfile {this.GetTestFilePath(configuration)}{string.Format(_testLogFileName, $"_slave")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {this.GetTestFilePath(configuration)}{string.Format(_testOutFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
+                            //return await Task.FromResult($"locust -f {this.GetTestFilePath(configuration)}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {this.GetTestFilePath(configuration)}{string.Format(_testLogFileName, $"_slave")} 2>&1 &");
+                            return await Task.FromResult($"locust -f {this.GetTestFilePath(configuration)}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port {configuration.LocustMasterBindPort.ToString()} > {this.GetTestFilePath(configuration)}{string.Format(_testLogFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
+                            //return await Task.FromResult($"locust -f {this.GetTestFilePath(configuration)}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --logfile {this.GetTestFilePath(configuration)}{string.Format(_testLogFileName, $"_slave")} --worker --headless --master-host 127.0.0.1 --master-port {configuration.LocustMasterBindPort.ToString()} > {this.GetTestFilePath(configuration)}{string.Format(_testOutFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
+                            //return await Task.FromResult($"locust -f {this.GetTestFilePath(configuration)}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host 127.0.0.1 --master-port {configuration.LocustMasterBindPort.ToString()} > {this.GetTestFilePath(configuration)}{string.Format(_testLogFileName, $"_slave")} 2>&1 &");
                         }
                    );                  
                 }
@@ -353,15 +365,44 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task Stop(TestCase tCase, CancellationToken cancellationToken = default)
         {
+            var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
+            int locustMasterBindPort = configuration.LocustMasterBindPort;
+
+            if (locustMasterBindPort <= 5557)
+            {
+                locustMasterBindPort = 5557;
+            }
+
             //执行主机杀进程命令
-            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}' | xargs kill -9", 10,cancellationToken);
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep {locustMasterBindPort.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10,cancellationToken);
             //执行slave杀进程命令
             var slaveHosts = tCase.GetAllSlaveHosts(cancellationToken);
             await foreach(var item in slaveHosts)
             {
-               await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef |grep locust|grep -v grep | awk '{{print $2}}' | xargs kill -9", 10,cancellationToken);
+               await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep {locustMasterBindPort.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10,cancellationToken);
             }
         }
+
+        #region Private
+        /// <summary>
+        /// 获取Path
+        /// </summary>
+        /// <param name="configurationData"></param>
+        /// <returns></returns>
+        private string GetTestFilePath(ConfigurationData configurationData)
+        {
+            int locustMasterBindPort = configurationData.LocustMasterBindPort;
+
+            if (locustMasterBindPort <= 5557)
+            {
+                locustMasterBindPort = 5557;
+            }
+
+            string path = $"{_testFilePath}{locustMasterBindPort.ToString()}/";
+
+            return path;
+        }
+        #endregion
     }
 
 

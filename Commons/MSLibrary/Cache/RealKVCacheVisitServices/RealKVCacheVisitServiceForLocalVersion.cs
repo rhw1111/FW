@@ -45,7 +45,24 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
             }
         }
 
-        public async Task<V> Get<K, V>(string cacheConfiguration, Func<Task<V>> creator, string prefix, K key)
+        public async Task Clear<K, V>(string cacheConfiguration, string prefix, K key)
+        {
+            ClearSync<K, V>(cacheConfiguration, prefix, key);
+            await Task.CompletedTask;
+        }
+
+        public void ClearSync<K, V>(string cacheConfiguration, string prefix, K key)
+        {
+            var versionMappingKey = $"{typeof(K).FullName}-{typeof(V).FullName}";
+            var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
+
+            if (_datas.TryGetValue(prefix, out CacheContainer cacheContainer))
+            {
+                cacheContainer.CacheDict.Remove(key);
+            }
+        }
+
+        public async Task<(V, bool)> Get<K, V>(string cacheConfiguration, Func<Task<(V, bool)>> creator, string prefix, K key)
         {
             var versionMappingKey = $"{typeof(K).FullName}-{typeof(V).FullName}";
             var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
@@ -98,7 +115,7 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
             }
 
 
-
+            bool isCache = true;
             var valueItem = cacheContainer.CacheDict.GetValue(key);
             if (valueItem == null)
             {
@@ -108,19 +125,25 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
                     valueItem = cacheContainer.CacheDict.GetValue(key);
                     if (valueItem == null)
                     {
-                        var cacheValue = await creator();
+                        var (cacheValue, isCache) = await creator();
                         valueItem = new CacheValueContainer() { Value = cacheValue };
-                        cacheContainer.CacheDict.SetValue(key, valueItem);
+                        if (isCache)
+                        {
+                            cacheContainer.CacheDict.SetValue(key, valueItem);
+                        }
+
                     }
                 }
                 );
 
             }
 
-            return (V)valueItem.Value;
+
+            return ((V)valueItem.Value, isCache);
+
         }
 
-        public V GetSync<K, V>(string cacheConfiguration, Func<V> creator, string prefix, K key)
+        public (V, bool) GetSync<K, V>(string cacheConfiguration, Func<(V, bool)> creator, string prefix, K key)
         {
             var versionMappingKey = $"{typeof(K).FullName}-{typeof(V).FullName}";
             var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
@@ -173,7 +196,7 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
             }
 
 
-
+            bool isCache = true;
             var valueItem = cacheContainer.CacheDict.GetValue(key);
             if (valueItem == null)
             {
@@ -183,16 +206,20 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
                    valueItem = cacheContainer.CacheDict.GetValue(key);
                    if (valueItem == null)
                    {
-                       var cacheValue = creator();
+                       var (cacheValue, isCache) = creator();
                        valueItem = new CacheValueContainer() { Value = cacheValue };
-                       cacheContainer.CacheDict.SetValue(key, valueItem);
+                       if (isCache)
+                       {
+                           cacheContainer.CacheDict.SetValue(key, valueItem);
+                       }
                    }
                }
                );
 
             }
 
-            return (V)valueItem.Value;
+            return ((V)valueItem.Value, isCache);
+
         }
 
         public async Task Set<K, V>(string cacheConfiguration, string prefix, K key, V value)
@@ -202,7 +229,7 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
 
             if (!_datas.TryGetValue(prefix, out CacheContainer cacheContainer))
             {
-                _lock.Wait();
+                await _lock.WaitAsync();
                 try
                 {
                     if (!_datas.TryGetValue(prefix, out cacheContainer))
@@ -222,7 +249,7 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
             {
                 if ((DateTime.UtcNow - cacheContainer.LatestVersionTime).TotalSeconds > configuration.VersionCallTimeout)
                 {
-                    _lock.Wait();
+                    await _lock.WaitAsync();
                     try
                     {
                         if ((DateTime.UtcNow - cacheContainer.LatestVersionTime).TotalSeconds > configuration.VersionCallTimeout)

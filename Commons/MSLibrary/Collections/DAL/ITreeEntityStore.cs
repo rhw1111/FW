@@ -20,6 +20,6 @@ namespace MSLibrary.Collections.DAL
         Task<TreeEntity?> QueryByID(Guid id, CancellationToken cancellationToken = default);
         Task<TreeEntity?> QueryByName(Guid? parentId, string name, CancellationToken cancellationToken = default);
         Task<Guid?> QueryByNameNoLock(Guid? parentId, string name, CancellationToken cancellationToken = default);
-
+        Task<TreeEntity?> QueryWithParentByID(Guid id, CancellationToken cancellationToken = default);
     }
 }

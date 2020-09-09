@@ -29,8 +29,10 @@ namespace IdentityCenter.Main.DAL.EntityTypeConfigurations
             builder.Property((entity) => entity.AllowedCorsOrigins).HasColumnName("allowedcorsorigins").HasColumnType("varchar(2000)")
                 .HasConversion<string>((v) => JsonSerializerHelper.Serializer(v, null),
                 (v) => JsonSerializerHelper.Deserialize<List<string>>(v, null));
-            builder.Property<long>("Sequence").HasColumnName("sequence").HasColumnType("bigint").Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
-            builder.Property((entity) => entity.CreateTime).IsRequired().HasColumnName("createtime").HasColumnType("datetime2(7)");
+            var sequenceProperty = builder.Property<long>("Sequence").HasColumnName("sequence").HasColumnType("bigint").Metadata;
+            sequenceProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+            sequenceProperty.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            builder.Property((entity) => entity.CreateTime).IsRequired().HasColumnName("createtime").HasColumnType("datetime2(7)").Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             builder.Property((entity) => entity.ModifyTime).IsRequired().HasColumnName("modifytime").HasColumnType("datetime2(7)");
         }
     }

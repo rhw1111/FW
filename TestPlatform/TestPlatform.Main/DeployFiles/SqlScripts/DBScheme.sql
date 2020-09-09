@@ -307,7 +307,7 @@ REPLACE INTO `schedulehostconfiguration` (`id`, `name`, `schedulegroupname`, `en
 CREATE TABLE IF NOT EXISTS `treeentity` (
   `id` char(36) NOT NULL,
   `name` varchar(150) NOT NULL,
-  `value` char(36) DEFAULT NULL,
+  `value` mediumtext DEFAULT NULL,
   `type` int NOT NULL,
   `parentid` char(36) DEFAULT NULL,
   `createtime` datetime NOT NULL,

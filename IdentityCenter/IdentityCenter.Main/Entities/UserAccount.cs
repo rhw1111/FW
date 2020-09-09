@@ -8,6 +8,7 @@ using MSLibrary.DI;
 using MSLibrary.Security;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.Transaction;
+using MSLibrary.Serializer;
 using IdentityCenter.Main.Entities.DAL;
 
 namespace IdentityCenter.Main.Entities
@@ -198,6 +199,10 @@ namespace IdentityCenter.Main.Entities
             return await _imp.GetThirdPartyAccount(this, source, sourceID,cancellationToken);
         }
 
+        public async Task<string> GetSerializeData()
+        {
+            return await _imp.GetSerializeData(this);
+        }
     }
 
     public interface IUserAccountIMP
@@ -220,7 +225,7 @@ namespace IdentityCenter.Main.Entities
         Task<UserThirdPartyAccount?> GetThirdPartyAccount(UserAccount account, Guid partyID, CancellationToken cancellationToken = default);
         Task<UserThirdPartyAccount?> GetThirdPartyAccount(UserAccount account, string source,string sourceID, CancellationToken cancellationToken = default);
 
-
+        Task<string> GetSerializeData(UserAccount account);
     }
 
     [Injection(InterfaceType = typeof(IUserAccountIMP), Scope = InjectionScope.Transient)]
@@ -232,6 +237,7 @@ namespace IdentityCenter.Main.Entities
 
         public UserAccountIMP(IUserAccountStore userAccountStore, IUserThirdPartyAccountStore userThirdPartyAccountStore, ISecurityService securityService)
         {
+            
             _userAccountStore = userAccountStore;
             _userThirdPartyAccountStore = userThirdPartyAccountStore;
             _securityService = securityService;
@@ -350,6 +356,11 @@ namespace IdentityCenter.Main.Entities
         public async Task Enable(UserAccount account, CancellationToken cancellationToken = default)
         {
             await _userAccountStore.UpdateActive(account.ID, true, cancellationToken);
+        }
+
+        public async Task<string> GetSerializeData(UserAccount account)
+        {
+            return await Task.FromResult(JsonSerializerHelper.Serializer(account));
         }
 
         public async Task<UserThirdPartyAccount?> GetThirdPartyAccount(UserAccount account, Guid partyID, CancellationToken cancellationToken = default)

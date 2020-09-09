@@ -30,13 +30,22 @@ namespace IdentityCenter.Main.IdentityServer
 
         public async Task<IdentityClient?> QueryByClientID(string clientID, CancellationToken cancellationToken = default)
         {
-            return await _kvcacheVisitor.Get(
+            return (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _identityClientRepository.QueryByClientID(clientID, cancellationToken);
+                    var obj= await _identityClientRepository.QueryByClientID(clientID, cancellationToken);
+                    if (obj == null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }
+                    
                 },
                 clientID
-                );
+                )).Item1;
         }
     }
 }

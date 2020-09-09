@@ -197,4 +197,26 @@ namespace IdentityCenter.Main
         public const string None = "None";
         public const string OpenID = "OpenID";
     }
+    
+
+    /// <summary>
+    /// 缓存键格式集合
+    /// </summary>
+    public static class CacheKeyFormats
+    {
+        public const string UserAccountID = "UserAccount_{0}";
+        public const string UserAccountName = "UserAccountName_{0}";
+        public const string UserAccountThirdParty= "UserAccountThirdParty_{0}_{1}";
+
+
+    }
+
+    /// <summary>
+    /// 缓存键关系名称集合
+    /// </summary>
+    public static class CacheKeyRelationNames
+    {
+        public const string UserAccountIDName = "UserAccountIDName";
+        public const string UserAccountIDThirdParty = "UserAccountIDThirdParty";
+    }
 }

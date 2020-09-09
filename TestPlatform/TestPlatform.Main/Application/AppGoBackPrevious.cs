@@ -46,13 +46,13 @@ namespace FW.TestPlatform.Main.Application
                     var fragment = new TextFragment()
                     {
                         Code = TestPlatformTextCodes.NotFoundTreeEntityByID,
-                        DefaultFormatting = "找不到ID为{0}的测试案例",
+                        DefaultFormatting = "找不到ID为{0}的节点",
                         ReplaceParameters = new List<object>() { treeEntity.ParentID.Value.ToString() }
                     };
 
                     throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTreeEntityByID, fragment, 1, 0);
                 }
-                queryResult = await treeEntity.GetChildren(string.Empty, null, page, pageSize, cancellationToken);
+                queryResult = await parentEntity.GetChildren(string.Empty, null, page, pageSize, cancellationToken);
             }
             else
                 queryResult = await _treeEntityRepository.QueryRoot(string.Empty, null, page, pageSize, cancellationToken);

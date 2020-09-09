@@ -161,6 +161,10 @@ namespace FW.TestPlatform.Main
         /// <summary>
         /// 找不到指定Id的测试案例
         /// </summary>
-        NotFoundTreeEntityByID = 325710223
+        NotFoundTreeEntityByID = 325710223,
+        /// <summary>
+        /// 找不到指定类型的实体树复制服务
+        /// </summary>
+        NotFoundEntityTreeCopyServiceByType= 325710224,
     }
 }

@@ -42,6 +42,11 @@ namespace IdentityCenter.Main.DAL
         /// </summary>
         public DbSet<ApiResourceData> ApiResourceDatas { get; set; } = null!;
         /// <summary>
+        /// Api范围数据
+        /// </summary>
+        public DbSet<ApiScopeData> ApiScopeDatas { get; set; } = null!;
+
+        /// <summary>
         /// 认证客户端绑定
         /// </summary>
         public DbSet<IdentityClientBinding> IdentityClientBindings { get; set; } = null!;
@@ -61,6 +66,7 @@ namespace IdentityCenter.Main.DAL
             modelBuilde.ApplyConfiguration<IdentityProvider>(new IdentityProviderConfig());
             modelBuilde.ApplyConfiguration<ResourceData>(new ResourceDataConfig());
             modelBuilde.ApplyConfiguration<IdentityResourceData>(new IdentityResourceDataConfig());
+            modelBuilde.ApplyConfiguration<ApiScopeData>(new ApiScopeDataConfig());
             modelBuilde.ApplyConfiguration<ApiResourceData>(new ApiResourceDataConfig());
             modelBuilde.ApplyConfiguration<IdentityClientBinding>(new IdentityClientBindingConfig());
             modelBuilde.ApplyConfiguration<IdentityClientOpenIDBinding>(new IdentityClientOpenIDBindingConfig());

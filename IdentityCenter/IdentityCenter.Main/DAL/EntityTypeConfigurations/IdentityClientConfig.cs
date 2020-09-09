@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using IdentityCenter.Main.IdentityServer;
 using MSLibrary;
@@ -65,7 +66,10 @@ namespace IdentityCenter.Main.DAL.EntityTypeConfigurations
 
             builder.Property((entity) => entity.ExtensionConfiguration).IsRequired().HasColumnName("extensionconfiguration").HasColumnType("nvarchar(max)");
 
-            builder.Property((entity) => entity.CreateTime).IsRequired().HasColumnName("createtime").HasColumnType("datetime2(7)");
+            var sequenceProperty = builder.Property<long>("Sequence").HasColumnName("sequence").HasColumnType("bigint").Metadata;
+            sequenceProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+            sequenceProperty.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            builder.Property((entity) => entity.CreateTime).IsRequired().HasColumnName("createtime").HasColumnType("datetime2(7)").Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
             builder.Property((entity) => entity.ModifyTime).IsRequired().HasColumnName("modifytime").HasColumnType("datetime2(7)");
         }
     }

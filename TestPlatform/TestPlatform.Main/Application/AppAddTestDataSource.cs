@@ -37,20 +37,21 @@ namespace FW.TestPlatform.Main.Application
                 {
                     ParentID = model.FolderID,
                     Value = source.ID.ToString(),
-                    Name = "DS-" + source.Name,
+                    Name = source.Name,
                     ID = Guid.NewGuid(),
                     Type = TreeEntityValueServiceTypes.TestDataSource
                 };
                 await treeEntity.Add(cancellationToken);
                 source.TreeID = treeEntity.ID;
                 await source.Add(cancellationToken);
-
+                scope.Complete();
                 result = new TestDataSourceViewData()
                 {
                     ID = source.ID,
                     Type = source.Type,
                     Data = source.Data,
                     Name = source.Name,
+                    TreeID = source.TreeID,
                     CreateTime = source.CreateTime.ToCurrentUserTimeZone(),
                     ModifyTime = source.ModifyTime.ToCurrentUserTimeZone()
                 }; 

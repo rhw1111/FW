@@ -28,11 +28,34 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
             _kvCacheVisitorRepositoryCacheProxy = kvCacheVisitorRepositoryCacheProxy;
         }
 
-        public async Task<V> Get<K, V>(string cacheConfiguration, Func<Task<V>> creator, string prefix, K key)
+        public async Task Clear<K,V>(string cacheConfiguration, string prefix, K key)
         {
             var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
 
-            Func<K, Task<V>> currentCreator = async (k) =>
+            for (var index = configuration.VistorNames.Count - 1; index >= 0; index--)
+            {
+                var visitor = _kvCacheVisitorRepositoryCacheProxy.QueryByNameSync(configuration.VistorNames[index]);
+                await visitor.Clear<K,V>(key);
+            }
+        }
+
+        public void ClearSync<K,V>(string cacheConfiguration, string prefix, K key)
+        {
+            var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
+
+            for (var index = configuration.VistorNames.Count - 1; index >= 0; index--)
+            {
+                var visitor = _kvCacheVisitorRepositoryCacheProxy.QueryByNameSync(configuration.VistorNames[index]);
+                visitor.ClearSync<K,V>(key);
+            }
+        }
+
+        public async Task<(V,bool)> Get<K, V>(string cacheConfiguration, Func<Task<(V, bool)>> creator, string prefix, K key)
+        {
+            var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
+
+            
+            Func<K, Task<(V,bool)>> currentCreator = async (k) =>
             {
                 return await creator();
             };
@@ -50,11 +73,11 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
             return await currentCreator(key);
         }
 
-        public V GetSync<K, V>(string cacheConfiguration, Func<V> creator, string prefix, K key)
+        public (V,bool) GetSync<K, V>(string cacheConfiguration, Func<(V, bool)> creator, string prefix, K key)
         {
             var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
 
-            Func<K, V> currentCreator = (k) =>
+            Func<K, (V,bool)> currentCreator = (k) =>
             {
                 return creator();
             };

@@ -271,5 +271,14 @@ namespace FW.TestPlatform.Main
         /// {0}：TreeEntity ID
         /// </summary>
         public const string NotFoundTreeEntityByID = "NotFoundTreeEntityByID";
+        /// <summary>
+        /// 找不到指定类型的实体树复制服务
+        /// 格式为“找不到类型为{0}的实体树复制服务，发生位置为{1}”
+        /// {0}：类型
+        /// {1}：发生的位置
+        /// </summary>
+        public const string NotFoundEntityTreeCopyServiceByType = "NotFoundEntityTreeCopyServiceByType";
+
+
     }
 }

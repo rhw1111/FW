@@ -12,9 +12,9 @@ namespace IdentityCenter.Main.Entities
     [Injection(InterfaceType = typeof(IUserAccountPasswordValidateService), Scope = InjectionScope.Singleton)]
     public class UserAccountPasswordValidateService : IUserAccountPasswordValidateService
     {
-        private readonly IUserAccountRepository _userAccountRepository;
+        private readonly IUserAccountRepositoryCacheProxy _userAccountRepository;
 
-        public UserAccountPasswordValidateService(IUserAccountRepository userAccountRepository)
+        public UserAccountPasswordValidateService(IUserAccountRepositoryCacheProxy userAccountRepository)
         {
             _userAccountRepository = userAccountRepository;
         }

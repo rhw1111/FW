@@ -30,13 +30,21 @@ namespace IdentityCenter.Main.IdentityServer
 
         public async Task<IdentityClientHost?> QueryByName(string name, CancellationToken cancellationToken = default)
         {
-            return await _kvcacheVisitor.Get(
+            return (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _identityClientHostRepository.QueryByName(name, cancellationToken);
+                    var obj= await _identityClientHostRepository.QueryByName(name, cancellationToken);
+                    if (obj == null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }
                 },
                 name
-                );
+                )).Item1;
         }
     }
 }

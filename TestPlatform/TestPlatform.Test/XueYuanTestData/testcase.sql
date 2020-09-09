@@ -10,6 +10,7 @@ where id = 'ce514456-8da9-432f-8999-1010fa94a83a';
 
 UPDATE tpmain.testcase
 SET configuration = '{
+    "LocustMasterBindPort": 5557,
     "UserCount": 10,
     "PerSecondUserCount": 10,
     "Duration": 100,

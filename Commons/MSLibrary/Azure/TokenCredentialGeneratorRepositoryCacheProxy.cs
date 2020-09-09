@@ -30,12 +30,20 @@ namespace MSLibrary.Azure
 
         public async Task<TokenCredentialGenerator> QueryByName(string name)
         {
-            return await _kvcacheVisitor.Get(
+            return (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _tokenCredentialGeneratorRepository.QueryByName(name);
+                    var obj = await _tokenCredentialGeneratorRepository.QueryByName(name);
+                    if (obj==null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }
                 }, name
-                );
+                )).Item1;
         }
     }
 }

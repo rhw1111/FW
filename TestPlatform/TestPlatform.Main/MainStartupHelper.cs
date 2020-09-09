@@ -123,6 +123,7 @@ using FW.TestPlatform.Main.Code.GenerateVarSettingServices;
 using FW.TestPlatform.Main.Code.GenerateFuncInvokeServices;
 using FW.TestPlatform.Main.Code.GenerateVarInvokeServices;
 using FW.TestPlatform.Main.Collections.TreeEntityValueServices;
+using FW.TestPlatform.Main.Entities.EntityTreeCopyServices;
 
 namespace FW.TestPlatform.Main
 {
@@ -436,6 +437,10 @@ namespace FW.TestPlatform.Main
             GenerateVarInvokeServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}-{LabelParameterTypes.VarKV}"] = DIContainerContainer.Get<GenerateVarInvokeServiceForLocustVarKVFactory>();
 
             GenerateVarSettingServiceSelector.ServiceFactories[$"{RuntimeEngineTypes.Locust}"] = DIContainerContainer.Get<GenerateVarSettingServiceForLocustFactory>();
+        
+        
+            EntityTreeCopyService.EntityTreeCopyServiceFactories[EntityTreeCopyServiceTypes.TestCase]= DIContainerContainer.Get<EntityTreeCopyServiceForTestCaseFactory>();
+            EntityTreeCopyService.EntityTreeCopyServiceFactories[EntityTreeCopyServiceTypes.TestDataSource] = DIContainerContainer.Get<EntityTreeCopyServiceForTestDataSourceFactory>();
         }
 
 

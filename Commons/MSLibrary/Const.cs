@@ -2421,10 +2421,17 @@ namespace MSLibrary
         /// <summary>
         /// 找不到指定版本名称的KV缓存版本服务
         /// 格式为“找不到版本名称为{0}的KV缓存版本服务，发生位置为{1}”
-        /// {1}：版本名称
+        /// {0}：版本名称
         /// {1}：发生的位置
         /// </summary>
         public const string NotFoundIKVCacheVersionServiceByName = "NotFoundIKVCacheVersionServiceByName";
+        /// <summary>
+        /// 找不到指定名称的KV缓存访问者
+        /// 格式为“找不到名称为{0}的KV缓存访问者”
+        /// {0}：名称
+        /// </summary>
+        public const string NotFoundKVCacheVisitorByName = "NotFoundKVCacheVisitorByName";
+
         /// <summary>
         /// 找不到指定类型的令牌控制器服务
         /// 格式为“找不到类型为{0}的令牌控制器服务”
@@ -2733,6 +2740,13 @@ namespace MSLibrary
         /// {1}：父记录的类型
         /// </summary>
         public const string TreeEntityParentTypeError = "TreeEntityParentTypeError";
+        /// <summary>
+        /// 找不到指定类型的验证码服务
+        /// 格式为“找不到类型为{0}的验证码服务，发生位置为{1}”
+        /// {0}：类型
+        /// {1}：发生的位置
+        /// </summary>
+        public const string NotFoundVerificationCodeServiceByType = "NotFoundVerificationCodeServiceByType";
     }
 
 

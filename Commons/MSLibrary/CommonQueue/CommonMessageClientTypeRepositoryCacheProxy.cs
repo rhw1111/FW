@@ -32,13 +32,21 @@ namespace MSLibrary.CommonQueue
 
         public async Task<CommonMessageClientType> QueryByName(string name)
         {
-            return await _kvcacheVisitor.Get(
+            return (await _kvcacheVisitor.Get(
                 async(key)=>
                 {
-                    return await _commonMessageClientTypeRepository.QueryByName(name);
+                    var obj= await _commonMessageClientTypeRepository.QueryByName(name);
+                    if (obj==null)
+                    {
+                        return (obj, false);
+                    }
+                    else 
+                    {
+                        return (obj, true);
+                    }
                 },
                 name
-                );
+                )).Item1;
         }
     }
 }

@@ -29,13 +29,21 @@ namespace MSLibrary.Distribute
 
         public async Task<ApplicationLimit> QueryByName(string name)
         {
-            return await _kvcacheVisitor.Get(
+            return (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _applicationLimitRepository.QueryByName(name);
+                    var obj= await _applicationLimitRepository.QueryByName(name);
+                    if (obj == null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }
                 },
                 name
-                );
+                )).Item1;
         }
 
         public  ApplicationLimit QueryByNameSync(string name)
@@ -43,10 +51,18 @@ namespace MSLibrary.Distribute
             return _kvcacheVisitor.GetSync(
                (k) =>
                {
-                   return _applicationLimitRepository.QueryByNameSync(name);
+                   var obj= _applicationLimitRepository.QueryByNameSync(name);
+                   if (obj == null)
+                   {
+                       return (obj, false);
+                   }
+                   else
+                   {
+                       return (obj, true);
+                   }
                },
               name
-              );
+              ).Item1;
         }
     }
 }

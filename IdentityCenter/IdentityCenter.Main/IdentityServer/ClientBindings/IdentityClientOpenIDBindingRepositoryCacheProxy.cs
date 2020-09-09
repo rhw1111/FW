@@ -30,13 +30,21 @@ namespace IdentityCenter.Main.IdentityServer.ClientBindings
 
         public async Task<IdentityClientOpenIDBinding?> QueryByName(string name, CancellationToken cancellationToken = default)
         {
-            return await _kvcacheVisitor.Get(
+            return (await _kvcacheVisitor.Get(
                 async (k) =>
                 {
-                    return await _identityClientOpenIDBindingRepository.QueryByName(name,cancellationToken);
+                    var obj= await _identityClientOpenIDBindingRepository.QueryByName(name, cancellationToken);
+                    if (obj == null)
+                    {
+                        return (obj, false);
+                    }
+                    else
+                    {
+                        return (obj, true);
+                    }
                 },
                 name
-                );
+                )).Item1;
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MSLibrary.Serializer;
 using IdentityCenter.Main.IdentityServer;
@@ -17,7 +18,10 @@ namespace IdentityCenter.Main.DAL.EntityTypeConfigurations
             builder.Property((entity) => entity.Name).IsRequired().HasColumnName("name").HasColumnType("varchar(150)");
             builder.Property((entity) => entity.ClaimContextGeneratorName).IsRequired().HasColumnName("claimcontextgeneratorname").HasColumnType("varchar(150)");
             builder.Property((entity) => entity.EnvironmentClaimGeneratorName).IsRequired().HasColumnName("environmentclaimgeneratorname").HasColumnType("varchar(150)");
-            builder.Property((entity) => entity.CreateTime).IsRequired().HasColumnName("createtime").HasColumnType("datetime2(7)");
+            var sequenceProperty = builder.Property<long>("Sequence").HasColumnName("sequence").HasColumnType("bigint").Metadata;
+            sequenceProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+            sequenceProperty.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            builder.Property((entity) => entity.CreateTime).IsRequired().HasColumnName("createtime").HasColumnType("datetime2(7)").Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
             builder.Property((entity) => entity.ModifyTime).IsRequired().HasColumnName("modifytime").HasColumnType("datetime2(7)");
         }
     }
