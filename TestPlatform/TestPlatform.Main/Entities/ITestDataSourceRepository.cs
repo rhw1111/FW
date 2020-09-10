@@ -15,5 +15,6 @@ namespace FW.TestPlatform.Main.Entities
         Task<QueryResult<TestDataSource>> QueryByPage(string matchName, int page, int pageSize, CancellationToken cancellationToken = default);
         Task DeleteMutipleTestDataSource(List<Guid> list, CancellationToken cancellationToken = default);
         IAsyncEnumerable<TestDataSource> GetDataSources(CancellationToken cancellationToken = default);
+        Task<QueryResult<TestDataSource>> QueryByParentId(Guid? parentId, int page, int pageSize, CancellationToken cancellationToken = default);
     }
 }

@@ -78,7 +78,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         }
         //查询增加修改执行TestCase
         [HttpGet("querybypage")]
-        public async Task<QueryResult<TestCaseListViewData>> GetByPage(string? matchName,int page, int? pageSize)
+        public async Task<QueryResult<TestCaseListViewData>> GetByPage(Guid? parentId, string? matchName,int page, int? pageSize)
         {
             if(matchName == null)
             {
@@ -88,7 +88,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             {
                 pageSize = _pageSize;
             }
-            return await _appQueryTestCase.Do(matchName, page, (int)pageSize);
+            return await _appQueryTestCase.Do(parentId, matchName, page, (int)pageSize);
         }
 
         [HttpGet("testcase")]
