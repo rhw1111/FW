@@ -32,7 +32,7 @@
                :dense="false"
                class="col"
                readonly
-               placeholder="点击右侧加号选择文件要复制的目录">
+               placeholder="点击右侧加号选择文件要复制到哪个目录">
         <template v-slot:before>
           <span style="font-size:14px">文件目录位置:</span>
         </template>
