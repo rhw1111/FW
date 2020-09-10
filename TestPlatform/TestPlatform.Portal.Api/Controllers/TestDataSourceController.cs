@@ -39,7 +39,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         }
 
         [HttpGet("querybypage")]
-        public async Task<QueryResult<TestDataSourceViewData>> GetByPage(string? matchName,int page, int? pageSize)
+        public async Task<QueryResult<TestDataSourceViewData>> GetByPage(Guid? parentId, string? matchName,int page, int? pageSize)
         {
             if (matchName == null)
                 matchName = "";
@@ -47,7 +47,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             {
                 pageSize = _pageSize;
             }
-            return await _appQueryTestDataSource.Do(matchName, page, (int)pageSize);
+            return await _appQueryTestDataSource.Do(parentId, matchName, page, (int)pageSize);
         }
 
         [HttpGet("testdatasource")]

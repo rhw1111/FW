@@ -44,6 +44,11 @@ namespace FW.TestPlatform.Main.Entities
             return await _testCaseStore.QueryByPage(matchName, page, pageSize, cancellationToken);
         }
 
+        public async Task<QueryResult<TestCase>> QueryByParentId(Guid? parentId, int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            return await _testCaseStore.QueryByParentId(parentId, page, pageSize, cancellationToken);
+        }
+
         public async Task<QueryResult<TestCase>> QueryByPage(int page, int pageSize, CancellationToken cancellationToken = default)
         {
             return await _testCaseStore.QueryByPage(page, pageSize, cancellationToken);

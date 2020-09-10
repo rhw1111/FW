@@ -249,6 +249,51 @@ namespace FW.TestPlatform.Main.Entities.DAL
             return result;
         }
 
+        public async Task<QueryResult<TestCase>> QueryByParentId(Guid? parentId, int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            QueryResult<TestCase> result = new QueryResult<TestCase>()
+            {
+                CurrentPage = page
+            };
+
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    var count = await (from item in dbContext.TreeEntities
+                                       where item.ParentID == parentId && item.Type == 2
+                                       select item.ID).CountAsync();
+                    //var count = await (from item in dbContext.TestCases
+                    //                   where EF.Functions.Like(item.Name, strLike)
+                    //                   select item.ID).CountAsync();
+
+                    result.TotalCount = count;
+                    var ids = (from item in dbContext.TreeEntities
+                               where item.ParentID == parentId && item.Type == 2
+                               orderby item.CreateTime descending
+                               select item.Value
+                                        ).Skip((page - 1) * pageSize).Take(pageSize);
+                    if (ids.Count() > 0)
+                    {
+                        var datas = await (from item in dbContext.TestCases
+                                           join idItem in ids
+                                      on item.ID.ToString() equals idItem
+                                           orderby EF.Property<long>(item, "Sequence") descending
+                                           select item).ToListAsync();
+
+                        result.Results.AddRange(datas);
+                    }
+                }
+            });
+
+            return result;
+        }
+
         public async Task<QueryResult<TestCase>> QueryByPage(int page, int pageSize, CancellationToken cancellationToken = default)
         {
             QueryResult<TestCase> result = new QueryResult<TestCase>()
