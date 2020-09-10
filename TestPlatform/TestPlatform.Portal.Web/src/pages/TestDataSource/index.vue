@@ -3,8 +3,16 @@
     <!-- TestDataSource列表 -->
     <div class="q-pa-md">
       <transition name="TreeEntity-slid">
-        <TreeEntity v-show="expanded"
-                    style="max-width:20%;height:600px;overflow:auto;float:left;" />
+        <el-tree v-show="expanded"
+                 :data="simple"
+                 :props="defaultProps"
+                 :highlight-current="true"
+                 :expand-on-click-node="false"
+                 @node-expand="unfoldTree"
+                 @node-click="handleNodeClick"
+                 style="max-width:20%;height:600px;overflow:auto;float:left;"></el-tree>
+        <!-- <TreeEntity v-show="expanded"
+                    style="max-width:20%;height:600px;overflow:auto;float:left;" /> -->
       </transition>
       <div>
         <q-btn color="grey"
@@ -44,7 +52,7 @@
               <q-btn class="btn"
                      color="red"
                      label="删 除"
-                     @click="deleteTestDataSourceOne(props.row.id)" />
+                     @click="deleteTestDataSourceOne(props.row)" />
             </q-td>
           </template>
           <template v-slot:bottom
@@ -117,11 +125,10 @@
 <script>
 import * as Apis from "@/api/index"
 import CreatePut from "./CreatePut.vue"               //创建更新测试数据源
-import TreeEntity from "@/components/TreeEntity.vue"  //目录管理结构树
+//import TreeEntity from "@/components/TreeEntity.vue"  //目录管理结构树
 export default {
   name: 'TestDataSource',
   components: {
-    TreeEntity,
     CreatePut
   },
   data () {
@@ -152,18 +159,36 @@ export default {
         page: 1,          //页码
         rowsNumber: 1     //总页数
       },
-
+      //------------------------ 目录 -------------------------------
       expanded: true,//目录展开收缩flag
+      //目录列表
+      simple: [
+        {
+          id: null,
+          label: '根目录',
+          children: [
+          ]
+        }
+      ],
+      //目录配置
+      defaultProps: {
+        children: 'children',
+        label: 'label'
+      },
+
+      SelectLocation: '',//选择的位置
     }
   },
   mounted () {
     this.getTestDataSource();
+    this.getTreeEntityList();
   },
   methods: {
     //获得TestDataSource列表
-    getTestDataSource (page) {
+    getTestDataSource (page, parentId) {
       this.$q.loading.show()
       let para = {
+        parentId: parentId || null,
         matchName: '',
         page: page || 1,
         pageSize: 50
@@ -203,14 +228,13 @@ export default {
       this.createFixed = true;
     },
     //跳转到详情
-    toDetail (env) {
-      let row = env.row;
+    toDetail () {
       this.LookDataSourceFixed = true;
       this.getTestDataSourceDetail()
     },
     //页码切换
     switchPage (value) {
-      this.getTestDataSource(value)
+      this.getTestDataSource(value, this.SelectLocation.id)
     },
     //---------------------------------------------- 新建取消创建测试数据源 -------------------------------------------
     //新建TestDataSource
@@ -285,17 +309,35 @@ export default {
         if (this.selected.length == 1) {
           //单个删除TestDataSource
           this.$q.loading.show()
-          let para = `?id=${this.selected[0].id}`;
-          Apis.deleteTestDataSource(para).then(() => {
-            this.selected = [];
-            this.$q.notify({
-              position: 'top',
-              message: '提示',
-              caption: '删除成功',
-              color: 'secondary',
+
+          //判断当前的测试用例是否存在目录管理里面，执行不同的删除方法
+          if (this.selected[0].treeID == null) {
+            let para = `?id=${this.selected[0].id}`;
+            Apis.deleteTestDataSource(para).then(() => {
+              this.selected = [];
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: '删除成功',
+                color: 'secondary',
+              })
+              this.getTestDataSource();
             })
-            this.getTestDataSource();
-          })
+          } else {
+            let para = `?id=${this.selected[0].treeID}`
+            Apis.deleteTreeEntity(para).then((res) => {
+              this.selected = [];
+              console.log(res)
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: '删除成功',
+                color: 'secondary',
+              })
+              this.getTestDataSource();
+            })
+          }
+
         } else if (this.selected.length > 1) {
           //批量删除TestDataSource
           this.$q.loading.show()
@@ -320,7 +362,7 @@ export default {
       })
     },
     //单个删除TestDataSource
-    deleteTestDataSourceOne (id) {
+    deleteTestDataSourceOne (value) {
       this.$q.dialog({
         title: '提示',
         message: '您确定要删除当前选择的测试数据源吗',
@@ -335,18 +377,99 @@ export default {
         },
       }).onOk(() => {
         this.$q.loading.show()
-        let para = `?id=${id}`;
-        Apis.deleteTestDataSource(para).then(() => {
-          this.selected = [];
-          this.$q.notify({
-            position: 'top',
-            message: '提示',
-            caption: '删除成功',
-            color: 'secondary',
+        //判断当前的测试用例是否存在目录管理里面，执行不同的删除方法
+        if (value.treeID == null) {
+          let para = `?id=${value.id}`;
+          Apis.deleteTestDataSource(para).then(() => {
+            this.selected = [];
+            this.$q.notify({
+              position: 'top',
+              message: '提示',
+              caption: '删除成功',
+              color: 'secondary',
+            })
+            this.getTestDataSource();
           })
-          this.getTestDataSource();
-        })
+        } else {
+          let para = `?id=${value.treeID}`
+          Apis.deleteTreeEntity(para).then((res) => {
+            this.selected = [];
+            console.log(res)
+            this.$q.notify({
+              position: 'top',
+              message: '提示',
+              caption: '删除成功',
+              color: 'secondary',
+            })
+            this.getTestDataSource();
+          })
+        }
       })
+    },
+    //---------------------------------------------- 目录 -------------------------------------------
+    //获得目录
+    getTreeEntityList (Page, parentID) {
+      this.$q.loading.show();
+      let para = {
+        parentId: parentID || null,
+        matchName: '',
+        page: Page ? Page : 1,
+        type: 1,
+        pageSize: 100
+      }
+      Apis.getTreeEntityChildrenList(para).then(res => {
+        console.log(res)
+        for (let i = 0; i < res.data.results.length; i++) {
+          this.simple[0].children.push({
+            id: res.data.results[i].id,
+            label: res.data.results[i].name,
+            parentID: res.data.results[i].parentID,
+            type: res.data.results[i].type,
+            value: res.data.results[i].value,
+            children: [
+              {}
+            ]
+          })
+        }
+        this.$q.loading.hide();
+      })
+    },
+    //展开
+    unfoldTree (value) {
+      console.log(value)
+      this.$q.loading.show();
+      let para = {
+        parentId: value.id,
+        matchName: '',
+        page: 1,
+        type: 1,
+        pageSize: 100
+      }
+      Apis.getTreeEntityChildrenList(para).then(res => {
+        console.log(res)
+
+        value.children = [];
+        for (let i = 0; i < res.data.results.length; i++) {
+          if (!value.children) {
+            this.$set(value, 'children', [{}]);
+          }
+          value.children.push({
+            id: res.data.results[i].id,
+            label: res.data.results[i].name,
+            parentID: res.data.results[i].parentID,
+            type: res.data.results[i].type,
+            value: res.data.results[i].value,
+            children: [{}]
+          })
+        }
+        this.$q.loading.hide();
+      })
+    },
+    //选择目录
+    handleNodeClick (data) {
+      console.log(data);
+      this.getTestDataSource(1, data.id)
+      this.SelectLocation = data;
     },
   }
 }

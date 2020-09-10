@@ -236,11 +236,20 @@ export default {
         },
       }).onOk(() => {
         this.$q.loading.show()
-        let para = `?id=${this.detailData.id}`
-        Apis.deleteTestCase(para).then((res) => {
-          console.log(res)
-          this.$router.push({ name: 'TestCase' })
-        })
+        //判断当前的测试用例是否存在目录管理里面，执行不同的删除方法
+        if (this.detailData.treeID == null) {
+          let para = `?id=${this.detailData.id}`
+          Apis.deleteTestCase(para).then((res) => {
+            console.log(res)
+            this.$router.push({ name: 'TestCase' })
+          })
+        } else {
+          let para = `?id=${this.detailData.treeID}`
+          Apis.deleteTreeEntity(para).then((res) => {
+            console.log(res)
+            this.$router.push({ name: 'TestCase' })
+          })
+        }
       })
     },
     //-------------------------------------------- 运行停止测试用例 --------------------------------------

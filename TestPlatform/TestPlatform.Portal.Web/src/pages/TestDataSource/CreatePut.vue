@@ -5,7 +5,7 @@
               persistent>
       <q-card style="width: 100%;">
         <q-card-section>
-          <div class="text-h6">选择文件目录</div>
+          <div class="text-h6">选择文件目录位置</div>
         </q-card-section>
 
         <q-separator />
@@ -49,9 +49,9 @@
                  :dense="false"
                  class="col"
                  readonly
-                 placeholder="点击右侧加号选择文件目录">
+                 placeholder="点击右侧加号选择文件目录位置">
           <template v-slot:before>
-            <span style="font-size:14px">文件目录:</span>
+            <span style="font-size:14px">文件目录位置:</span>
           </template>
           <template v-slot:append>
             <q-btn round

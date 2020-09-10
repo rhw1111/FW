@@ -5,7 +5,7 @@
               persistent>
       <q-card style="width: 100%;">
         <q-card-section>
-          <div class="text-h6">选择文件目录</div>
+          <div class="text-h6">选择文件目录位置</div>
         </q-card-section>
 
         <q-separator />
