@@ -602,7 +602,7 @@ export default {
         this.EngineType = val.engineType;
         this.masterHostSelect = val.masterHostAddress;
         this.MasterHostID = val.masterHostID;
-        this.ChangeFileDirectoryName = val.parentName;
+        this.ChangeFileDirectoryName = val.parentName != '' ? val.parentName : '根目录';
         this.ChangeFileDirectoryId = val.treeID;
         this.Configuration = JSON.stringify(JSON.parse(val.configuration), null, 2);
       }

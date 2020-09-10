@@ -2,7 +2,7 @@
   <div id="Directory">
     <!-- button -->
     <div class="detail_header row detail_fixed">
-      <div class="col-7">
+      <div class="col-7 col-md-6 row">
         <q-btn class="btn"
                color="primary"
                label="上一级"
@@ -10,21 +10,25 @@
                @click="toPrevLevel" />
         <q-btn class="btn"
                color="primary"
-               label="目录重命名"
-               @click="ModifyFolderName" />
-        <q-btn class="btn"
-               color="red"
-               label="删除"
-               @click="DeleteFolder" />
+               label="新建目录"
+               v-show="(isSearchStatus && RecordDirectorySite.length!=0) || !isSearchStatus"
+               @click="newFolderCreate" />
         <q-btn class="btn"
                color="primary"
                label="移动目录"
                @click="ChangeFileDirectory" />
         <q-btn class="btn"
                color="primary"
-               label="新建目录"
-               v-show="(isSearchStatus && RecordDirectorySite.length!=0) || !isSearchStatus"
-               @click="newFolderCreate" />
+               label="目录重命名"
+               @click="ModifyFolderName" />
+        <q-btn class="btn"
+               color="primary"
+               label="复制"
+               @click="openCopyDirector" />
+        <q-btn class="btn"
+               color="red"
+               label="删除"
+               @click="DeleteFolder" />
         <q-btn class="btn"
                color="primary"
                label="新建测试用例"
@@ -33,16 +37,12 @@
                color="primary"
                label="新建测试数据源"
                @click="createDataSourceFixed = true;" />
-        <q-btn class="btn"
-               color="primary"
-               label="复制"
-               @click="openCopyDirector" />
       </div>
-
-      <div class="col-5 row">
+      <div class="col-5 col-md-6  row">
 
         <div class="col-8 row">
-          <q-input class="col-8"
+          <q-input class="col-6"
+                   style="height:40px;"
                    v-model="searchText"
                    outlined
                    placeholder="请输入文件名称"
@@ -53,22 +53,22 @@
             </template>
           </q-input>
 
-          <q-select class="col-3"
+          <q-select class="col-5"
                     v-model="FileType"
-                    style="margin-left:10px;"
+                    style="margin-left:10px;height:40px;"
                     :options="['文件夹','测试用例','测试数据源']"
                     label="类型"
                     outlined
                     :dense='true' />
         </div>
 
-        <div class="col-4">
-          <q-btn class="btn"
+        <div class="col-4 row">
+          <q-btn class="btn col-4"
                  color="primary"
                  label="搜索"
                  @click="searchFile(1,true)" />
 
-          <q-btn class="btn"
+          <q-btn class="btn col-6"
                  color="primary"
                  label="取消搜索"
                  @click="cancelSearch" />
@@ -139,7 +139,8 @@
 
         <q-separator />
 
-        <TreeEntity ref="TreeEntity" />
+        <TreeEntity ref="TreeEntity"
+                    :existingDirectories='existingDirectories' />
 
         <q-separator />
 
@@ -246,7 +247,8 @@
 
         <q-separator />
         <CopyDirector ref="copyDirector"
-                      :selection="selection" />
+                      :selection="selection"
+                      :existingDirectories='existingDirectories' />
         <q-separator />
 
         <q-card-actions align="right">
@@ -302,6 +304,8 @@ export default {
       LookDataSourceFixed: false,     //更新测试数据源弹窗
       // -------- 复制 -------
       copyDirectorFlag: false,         //复制目录或Flag
+
+      existingDirectories: []//复制或移动目录的时候禁止出现已选择的目录
 
     }
   },
@@ -380,6 +384,11 @@ export default {
         this.folderPage.folderPageTotal = res.data.totalCount;
 
         this.FolderList = res.data.results;
+        // for (let i = 0; i < 100; i++) {
+        //   this.FolderList.push({
+        //     type: 1
+        //   })
+        // }
         this.$q.loading.hide();
       })
     },
@@ -602,8 +611,13 @@ export default {
 
         this.isSearchStatus = true;
 
+        sessionStorage.setItem('Page', JSON.stringify({
+          searchText: this.searchText.trim(),//搜索内容
+          FileType: this.FileType,//文件类型
+          folderPageCurrent: this.folderPage.folderPageCurrent,
+          folderPageTotal: this.folderPage.folderPageTotal
+        }))
         if (saveDirectory) {
-
           sessionStorage.setItem('RecordSearchDirectorySite', JSON.stringify([]));    //保存搜索目录位置
           sessionStorage.setItem('isSearchStatus', true);
           this.RecordDirectorySite = JSON.parse(sessionStorage.getItem('RecordSearchDirectorySite'));
@@ -744,6 +758,11 @@ export default {
           color: 'red',
         })
       } else {
+        //存储目录防止移动时出现相同目录
+        this.existingDirectories = [];
+        for (let i = 0; i < this.selection.length; i++) {
+          if (this.selection[i].type == 1) { this.existingDirectories.push(this.selection[i]) }
+        }
         this.ChangeFileDirectoryFlag = true;
       }
     },
@@ -848,6 +867,11 @@ export default {
         })
         return;
       }
+      //存储目录防止移动时出现相同目录
+      this.existingDirectories = [];
+      for (let i = 0; i < this.selection.length; i++) {
+        if (this.selection[i].type == 1) { this.existingDirectories.push(this.selection[i]) }
+      }
       this.copyDirectorFlag = true;
     },
     //复制按钮
@@ -869,6 +893,7 @@ export default {
     .btn {
       margin-right: 10px;
       margin-bottom: 5px;
+      height: 36px;
     }
   }
   .detail_fixed {
@@ -878,7 +903,6 @@ export default {
     z-index: 10;
   }
   .folder {
-    padding: 50px 0px;
     box-sizing: border-box;
     .Rootfolder {
       width: 100%;
@@ -934,6 +958,19 @@ export default {
       box-sizing: border-box;
       background: white;
     }
+  }
+}
+</style>
+<style lang="scss">
+@media screen and (max-width: 1450px) {
+  .folder {
+    padding: 80px 0px 50px;
+  }
+}
+
+@media screen and (min-width: 1450px) {
+  .folder {
+    padding: 50px 0px 50px;
   }
 }
 </style>

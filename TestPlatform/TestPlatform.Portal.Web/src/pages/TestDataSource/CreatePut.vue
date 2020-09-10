@@ -104,7 +104,7 @@ export default {
       this.Name = value.Name;
       this.Type = value.Type;
       this.Data = value.Data;
-      this.ChangeFileDirectoryName = value.ChangeFileDirectoryName;
+      this.ChangeFileDirectoryName = value.ChangeFileDirectoryName != '' ? value.ChangeFileDirectoryName : '根目录';
       this.ChangeFileDirectoryId = value.ChangeFileDirectoryId;
     }
   },
