@@ -336,7 +336,9 @@ export default {
             //执行获取子级目录接口
             this.toNextLevel(this.RecordDirectorySite[this.RecordDirectorySite.length - 1], false, Page.folderPageCurrent)
           }
-          sessionStorage.removeItem('Page')
+          if (Page.type == 2) {
+            sessionStorage.removeItem('Page')
+          }
         } else {
           if (this.RecordDirectorySite.length == 0) {
             this.searchFile(currentChange, false);
@@ -394,6 +396,18 @@ export default {
     },
     //上一级
     toPrevLevel () {
+      //回显搜索状态值
+      if (this.isSearchStatus) {
+        let Page = JSON.parse(sessionStorage.getItem('Page'));
+        if (Page) {
+          this.searchText = Page.searchText;
+          this.FileType = Page.FileType;
+        }
+      } else {
+        this.searchText = '';
+        this.FileType = null;
+      }
+
       if (this.isSearchStatus && this.RecordDirectorySite.length == 1) {
         this.searchFile(this.RecordDirectorySite[0].pageCurrent, true);
         return;
@@ -429,6 +443,17 @@ export default {
     },
     //下一级
     toNextLevel (value, TypeFlag, page) {
+      //回显搜索状态值
+      if (this.isSearchStatus) {
+        let Page = JSON.parse(sessionStorage.getItem('Page'));
+        if (Page) {
+          this.searchText = Page.searchText;
+          this.FileType = Page.FileType;
+        }
+      } else {
+        this.searchText = '';
+        this.FileType = null;
+      }
       console.log(value)
       if (value.type === 1) {
         //----------------- 当前进入的是目录 ----------------- 
@@ -469,10 +494,11 @@ export default {
         //----------------- 当前进入的是测试用例 ----------------- 
         //存储搜索条件
         sessionStorage.setItem('Page', JSON.stringify({
-          searchText: this.searchText.trim(),//搜索内容
-          FileType: this.FileType,//文件类型
+          searchText: this.isSearchStatus ? this.searchText.trim() : '',//搜索内容
+          FileType: this.isSearchStatus ? this.FileType : null,//文件类型
           folderPageCurrent: this.folderPage.folderPageCurrent,
-          folderPageTotal: this.folderPage.folderPageTotal
+          folderPageTotal: this.folderPage.folderPageTotal,
+          type: 2
         }))
         this.$router.push({
           name: 'DirectoryTestCaseDetail',
@@ -574,6 +600,7 @@ export default {
     //搜索
     searchFile (Page, saveDirectory) {
       console.log(Page)
+      console.log(this.searchText)
       if (!this.searchText.trim() && !this.FileType) {
         this.$q.notify({
           position: 'top',
@@ -615,7 +642,8 @@ export default {
           searchText: this.searchText.trim(),//搜索内容
           FileType: this.FileType,//文件类型
           folderPageCurrent: this.folderPage.folderPageCurrent,
-          folderPageTotal: this.folderPage.folderPageTotal
+          folderPageTotal: this.folderPage.folderPageTotal,
+          type: 1
         }))
         if (saveDirectory) {
           sessionStorage.setItem('RecordSearchDirectorySite', JSON.stringify([]));    //保存搜索目录位置
@@ -724,6 +752,7 @@ export default {
             label: '取消'
           },
         }).onOk(data => {
+          console.log(data)
           if (!data.trim()) {
             this.$q.notify({
               position: 'top',
