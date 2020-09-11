@@ -4,17 +4,10 @@
     <div class="q-pa-md">
 
       <transition name="TreeEntity-slid">
-        <el-tree v-show="expanded"
-                 :data="simple"
-                 :props="defaultProps"
-                 :highlight-current="true"
-                 :expand-on-click-node="false"
-                 @node-expand="unfoldTree"
-                 @node-click="handleNodeClick"
-                 style="max-width:20%;height:600px;overflow:auto;float:left;"></el-tree>
-        <!-- <TreeEntity v-show="expanded"
+        <TreeEntity v-show="expanded"
                     refs="TreeEntity"
-                    style="max-width:20%;height:600px;overflow:auto;float:left;" /> -->
+                    style="max-width:20%;height:600px;overflow:auto;float:left;"
+                    @getDirectoryLocation="getDirectoryLocation" />
       </transition>
 
       <div>
@@ -111,10 +104,11 @@
 <script>
 import * as Apis from "@/api/index"
 import CreateShowTestCase from './component/CreateShowTestCase.vue' //新建测试用例参数
-//import TreeEntity from "@/components/TreeEntity.vue"                //目录管理树状图
+import TreeEntity from "@/components/TreeEntity.vue"                //目录管理树状图
 export default {
   name: 'TestCase',
   components: {
+    TreeEntity,
     CreateShowTestCase,
   },
   data () {
@@ -149,26 +143,11 @@ export default {
 
       //------------------------------- 目录 ---------------------------
       expanded: true,//目录展开收缩flag
-      //目录列表
-      simple: [
-        {
-          id: null,
-          label: '根目录',
-          children: [
-          ]
-        }
-      ],
-      //目录配置
-      defaultProps: {
-        children: 'children',
-        label: 'label'
-      },
       SelectLocation: '',//选择的位置
     }
   },
   mounted () {
     this.getTestCaseList();
-    this.getTreeEntityList();
   },
   methods: {
     //打开新增测试用例界面
@@ -236,13 +215,13 @@ export default {
           let para = `?id=${value.row.id}`
           Apis.deleteTestCase(para).then((res) => {
             console.log(res)
-            this.getTestCaseList();
+            this.getTestCaseList(1, this.SelectLocation.id);
           })
         } else {
           let para = `?id=${value.row.treeID}`
           Apis.deleteTreeEntity(para).then((res) => {
             console.log(res)
-            this.getTestCaseList();
+            this.getTestCaseList(1, this.SelectLocation.id);
           })
         }
       })
@@ -393,67 +372,9 @@ export default {
       })
     },
     // --------------------- 目录 --------------------
-    //获得目录
-    getTreeEntityList (Page, parentID) {
-      this.$q.loading.show();
-      let para = {
-        parentId: parentID || null,
-        matchName: '',
-        page: Page ? Page : 1,
-        type: 1,
-        pageSize: 100
-      }
-      Apis.getTreeEntityChildrenList(para).then(res => {
-        console.log(res)
-        for (let i = 0; i < res.data.results.length; i++) {
-          this.simple[0].children.push({
-            id: res.data.results[i].id,
-            label: res.data.results[i].name,
-            parentID: res.data.results[i].parentID,
-            type: res.data.results[i].type,
-            value: res.data.results[i].value,
-            children: [
-              {}
-            ]
-          })
-        }
-        this.$q.loading.hide();
-      })
-    },
-    //展开
-    unfoldTree (value) {
-      console.log(value)
-      this.$q.loading.show();
-      let para = {
-        parentId: value.id,
-        matchName: '',
-        page: 1,
-        type: 1,
-        pageSize: 100
-      }
-      Apis.getTreeEntityChildrenList(para).then(res => {
-        console.log(res)
-
-        value.children = [];
-        for (let i = 0; i < res.data.results.length; i++) {
-          if (!value.children) {
-            this.$set(value, 'children', [{}]);
-          }
-          value.children.push({
-            id: res.data.results[i].id,
-            label: res.data.results[i].name,
-            parentID: res.data.results[i].parentID,
-            type: res.data.results[i].type,
-            value: res.data.results[i].value,
-            children: [{}]
-          })
-        }
-        this.$q.loading.hide();
-      })
-    },
-    //选择目录
-    handleNodeClick (data) {
-      console.log(data);
+    //获得选择的目录
+    getDirectoryLocation (data) {
+      console.log(data)
       this.getTestCaseList(1, data.id)
       this.SelectLocation = data;
     },

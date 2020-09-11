@@ -10,7 +10,8 @@
 
         <q-separator />
 
-        <TreeEntity ref="TreeEntity" />
+        <TreeEntity ref="TreeEntity"
+                    :existingDirectories="existingDirectories" />
 
         <q-separator />
 
@@ -51,7 +52,7 @@
 import * as Apis from "@/api/index"
 import TreeEntity from "@/components/TreeEntity.vue"                          //目录管理结构树
 export default {
-  props: ['selection'],
+  props: ['selection', 'existingDirectories'],
   components: {
     TreeEntity
   },
@@ -102,7 +103,7 @@ export default {
           caption: '请选择目录位置',
           color: 'red',
         })
-
+        return;
       }
       console.log(this.selectionArr)
       this.recheckingSelection(this.ChangeFileDirectoryValue);
