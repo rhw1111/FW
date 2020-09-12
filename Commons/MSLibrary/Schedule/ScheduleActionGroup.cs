@@ -671,10 +671,10 @@ namespace MSLibrary.Schedule
                          */
                         using (var diContainer = DIContainerContainer.CreateContainer())
                         {
-                            var orginialDI= ContextContainer.GetValue<IDIContainer>("DI");
+                            var orginialDI= ContextContainer.GetValue<IDIContainer>(ContextTypes.DI);
                             try
                             {
-                                ContextContainer.SetValue<IDIContainer>("DI", diContainer);
+                                ContextContainer.SetValue<IDIContainer>(ContextTypes.DI, diContainer);
 
                                 var initGeneratorService = getInitGeneratorService(initType);
                                 var initService = await initGeneratorService.Generator(initConfiguration);
@@ -703,7 +703,7 @@ namespace MSLibrary.Schedule
                             }
                             finally
                             {
-                                ContextContainer.SetValue<IDIContainer>("DI", orginialDI);
+                                ContextContainer.SetValue<IDIContainer>(ContextTypes.DI, orginialDI);
                             }
 
                         }

@@ -16,9 +16,9 @@ namespace MSLibrary.AspNet.Middleware
             return app.UseMiddleware<DIWrapper>(diContainerContextName, categoryName);
         }
 
-        public static IApplicationBuilder UseExceptionWrapper(this IApplicationBuilder app, string categoryName, bool isDebug)
+        public static IApplicationBuilder UseExceptionWrapper(this IApplicationBuilder app, string categoryName, bool isDebug,bool isInnerService)
         {
-            return app.UseMiddleware<ExceptionWrapper>(categoryName, isDebug);
+            return app.UseMiddleware<ExceptionWrapper>(categoryName, isDebug, isInnerService);
         }
 
 

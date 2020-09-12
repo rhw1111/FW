@@ -28,13 +28,15 @@ namespace MSLibrary.AspNet.Middleware
         private string _categoryName;
         private IAppExceptionHttpContextLogConvert _appExceptionHttpContextLogConvert;
         private bool _isDebug = false;
+        private bool _isInnerService = false;
 
-        public ExceptionWrapper(RequestDelegate nextMiddleware, string categoryName, bool isDebug, IAppExceptionHttpContextLogConvert appExceptionHttpContextLogConvert) : base()
+        public ExceptionWrapper(RequestDelegate nextMiddleware, string categoryName, bool isDebug,bool isInnerService, IAppExceptionHttpContextLogConvert appExceptionHttpContextLogConvert) : base()
         {
             _nextMiddleware = nextMiddleware;
             _categoryName = categoryName;
             _appExceptionHttpContextLogConvert = appExceptionHttpContextLogConvert;
             _isDebug = isDebug;
+            _isInnerService = isInnerService;
         }
 
         public async Task Invoke(HttpContext context)
@@ -46,13 +48,15 @@ namespace MSLibrary.AspNet.Middleware
             }
             catch (Exception ex)
             {
-                if (ex is UtilityException && ((UtilityException)ex).Level > 0)
+                if (ex is UtilityException && (((UtilityException)ex).Level > 0 || _isInnerService))
                 {
                     var utilityException = (UtilityException)ex;
 
 
                     object errorMessage = new ErrorMessage()
                     {
+                        Level= utilityException.Level,
+                        Type= utilityException.Type,
                         Code = utilityException.Code,
                         Message = await utilityException.GetCurrentLcidMessage()
                     };

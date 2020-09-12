@@ -15,7 +15,6 @@ using MSLibrary.Context;
 using MSLibrary.Context.Middleware;
 using MSLibrary.Context.Filter;
 using Microsoft.AspNetCore.Mvc;
-using MSLibrary.Logger.Middleware;
 using Exceptionless;
 using MSLibrary.AspNet.Filter;
 using MSLibrary.AspNet.Middleware;
@@ -45,7 +44,7 @@ namespace FW.TestPlatform.CaseService
                 opts.Filters.AddService<UserAuthorizeActionGolbalFilter>();
                 opts.Filters.AddService<HttpExtensionContextActionGolbalFilter>();
                 opts.Filters.Add(DIContainerContainer.Get<UserAuthorizeFilter>(new object?[] { true, null, ClaimContextGeneratorNames.Default, ClaimContextGeneratorNames.Default, null }, new Type[] { typeof(bool), typeof(string), typeof(string), typeof(string), typeof(string) }));
-                opts.Filters.Add(DIContainerContainer.Get<ExceptionFilter>(LoggerCategoryNames.TestPlatform_Portal_Api, coreConfiguration.Debug));
+                opts.Filters.Add(DIContainerContainer.Get<ExceptionFilter>(LoggerCategoryNames.TestPlatform_Portal_Api, coreConfiguration.Debug,false));
 
                 //opts.MaxIAsyncEnumerableBufferLimit
             });
@@ -81,7 +80,7 @@ namespace FW.TestPlatform.CaseService
             app.UseRouting();
 
             app.UseDIWrapper(ContextTypes.DI, LoggerCategoryNames.DIWrapper);
-            app.UseExceptionWrapper(LoggerCategoryNames.HttpRequest, applicationConfiguration.Debug);
+            app.UseExceptionWrapper(LoggerCategoryNames.HttpRequest, applicationConfiguration.Debug,true);
             app.UserHttpExtensionContext(string.Empty, HttpExtensionContextHandleServiceNames.Internationalization, LoggerCategoryNames.ContextExtension);
 
             app.UseAuthentication();

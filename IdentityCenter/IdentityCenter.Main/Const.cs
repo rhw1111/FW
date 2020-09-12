@@ -207,8 +207,8 @@ namespace IdentityCenter.Main
         public const string UserAccountID = "UserAccount_{0}";
         public const string UserAccountName = "UserAccountName_{0}";
         public const string UserAccountThirdParty= "UserAccountThirdParty_{0}_{1}";
-
-
+        public const string UserPrivilege = "UserPrivilege_{0}";
+        public const string UserRole = "UserRole_{0}";
     }
 
     /// <summary>
@@ -218,5 +218,14 @@ namespace IdentityCenter.Main
     {
         public const string UserAccountIDName = "UserAccountIDName";
         public const string UserAccountIDThirdParty = "UserAccountIDThirdParty";
+    }
+
+    /// <summary>
+    /// 缓存版本号名称集合
+    /// </summary>
+    public static class CacheVersionNames
+    {
+        public const string Role = "Role";
+        public const string Privilege = "Privilege";
     }
 }

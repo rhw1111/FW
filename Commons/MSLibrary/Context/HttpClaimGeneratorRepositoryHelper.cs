@@ -69,7 +69,7 @@ namespace MSLibrary.Context
             {
                
                 var generator = await _httpClaimGeneratorRepository.QueryByName(name);
-                generatorItem = new CacheTimeContainer<HttpClaimGenerator>(generator, CacheTimeout);
+                generatorItem = new CacheTimeContainer<HttpClaimGenerator>(generator, CacheTimeout,0);
                 _generatorsByName.SetValue(name, generatorItem);
             }
 

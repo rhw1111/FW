@@ -30,6 +30,13 @@ namespace MSLibrary.Logger
 
         public string CategoryName { get; set; }
 
+        private readonly ICommonLogLocalEnvInfoGeneratorService _commonLogLocalEnvInfoGeneratorService;
+
+        public ExceptionLessLogger()
+        {
+            _commonLogLocalEnvInfoGeneratorService = DIContainerContainer.Get<ICommonLogLocalEnvInfoGeneratorService>();
+        }
+
         public IDisposable BeginScope<TState>(TState state)
         {
             return (new LoggerExternalScopeProvider()).Push(state);
@@ -61,18 +68,37 @@ namespace MSLibrary.Logger
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
+            List<string> tagList = new List<string>();
+            var userInfo = _commonLogLocalEnvInfoGeneratorService.GenerateUserInfo();
+            string traceID = string.Empty;
+            string linkID = string.Empty;
+            var traceInfoContext = ContextContainer.GetValue<IRequestTraceInofContext>(ContextTypes.Trace);
+            if (traceInfoContext != null)
+            {
+                traceID = traceInfoContext.GetTraceID();
+                linkID = traceInfoContext.GetLinkID();
+                tagList.Add(traceID);
+                tagList.Add(linkID);
+                tagList.Add(userInfo);
+            }
+           
+
             init();
             var level = convertLevel(logLevel);
             if (state is string)
             {
 
-                ExceptionlessClient.Default.SubmitLog("", state as string, level);
+                //ExceptionlessClient.Default.SubmitLog("", state as string, level);
+                ExceptionlessClient.Default.CreateLog(CategoryName, state as string, level).AddTags(tagList.ToArray()).Submit();
+
             }
             else if (state is IExceptionLessLoggerContentExtension)
             {
                 var content = state as IExceptionLessLoggerContentExtension;
                 //var source = content.GetSource();
                 var tags = content.GetTags();
+                tagList.AddRange(tags);
+
 
                 //尝试序列化state
                 string strState = string.Empty;
@@ -84,14 +110,29 @@ namespace MSLibrary.Logger
                 {
 
                 }
-
-                ExceptionlessClient.Default.CreateLog(CategoryName, strState, level).AddTags(tags).Submit();
+                
+                ExceptionlessClient.Default.CreateLog(CategoryName, strState, level).AddTags(tagList.ToArray()).Submit();
             }
             else
             {
                 if (formatter != null)
                 {
-                    ExceptionlessClient.Default.SubmitLog(CategoryName, formatter(state, exception), level);
+                    ExceptionlessClient.Default.CreateLog(CategoryName, formatter(state, exception), level).AddTags(tagList.ToArray()).Submit();
+                    //ExceptionlessClient.Default.SubmitLog(CategoryName, formatter(state, exception), level);
+                }
+                else
+                {
+                    string strState = string.Empty;
+                    try
+                    {
+                        strState = JsonSerializerHelper.Serializer(state);
+                    }
+                    catch
+                    {
+
+                    }
+
+                    ExceptionlessClient.Default.CreateLog(CategoryName, strState, level).AddTags(tagList.ToArray()).Submit();
                 }
             }
         }

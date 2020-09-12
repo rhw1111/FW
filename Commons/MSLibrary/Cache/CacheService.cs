@@ -110,5 +110,63 @@ namespace MSLibrary.Cache
             }
             return kv;
         }
+
+        public async Task Clear<K, V>(IEnumerable<K> keys)
+        {
+            if (KVCacheVisitorName != null)
+            {
+                var kv = await getVisitor();
+                await kv.Clear<K, V>(keys);
+            }
+        }
+
+        public void ClearSync<K, V>(IEnumerable<K> keys)
+        {
+            if (KVCacheVisitorName != null)
+            {
+                var kv = getVisitorSync();
+                kv.ClearSync<K, V>(keys);
+            }
+        }
+
+        public async Task<V> GetHash<K, V>(Func<K, string, Task<(V, bool)>> creator, K key, string hashKey)
+        {
+            if (KVCacheVisitorName == null)
+            {
+                return (await creator(key,hashKey)).Item1;
+            }
+
+            var kv = getVisitorSync();
+            return (await kv.GetHash<K, V>(creator, key,hashKey)).Item1;
+        }
+
+        public V GetHashSync<K, V>(Func<K, string, (V, bool)> creator, K key, string hashKey)
+        {
+            if (KVCacheVisitorName == null)
+            {
+                return creator(key, hashKey).Item1;
+            }
+
+            var kv = getVisitorSync();
+            return  kv.GetHashSync<K, V>(creator, key, hashKey).Item1;
+        }
+
+        public async Task SetHash<K, V>(K key, IDictionary<string, V> values)
+        {
+            if (KVCacheVisitorName != null)
+            {
+                var kv = await getVisitor();
+                await kv.SetHash(key, values);
+            }
+        }
+
+        public void SetHashSync<K, V>(K key, IDictionary<string, V> values)
+        {
+            if (KVCacheVisitorName != null)
+            {
+                var kv = getVisitorSync();
+                kv.SetHashSync(key, values);
+            }
+        }
     }
 }

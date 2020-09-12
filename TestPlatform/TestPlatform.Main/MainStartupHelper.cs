@@ -194,6 +194,7 @@ namespace FW.TestPlatform.Main
             ContextContainer.Current.Register<int>(ContextTypes.CurrentUserLcid, new ContextCurrentUserLcid());
             ContextContainer.Current.Register<int>(ContextTypes.CurrentUserTimezoneOffset, new ContextCurrentUserTimezoneOffset());
             ContextContainer.Current.Register<ConcurrentDictionary<string, object>>(ContextTypes.Dictionary, new ContextDictionary());
+            ContextContainer.Current.Register<IRequestTraceInofContext>(ContextTypes.Trace, new ContextCurrentTrace());
 
         }
 
@@ -207,11 +208,15 @@ namespace FW.TestPlatform.Main
         /// <param name="dISetting"></param>
         public static void InitDI(IServiceCollection serviceCollection, DISetting dISetting)
         {
+
+            //serviceCollection.AddHttpClient();
             serviceCollection.AddHttpClient();
-            serviceCollection.AddHttpClient("A")               
+            serviceCollection.AddHttpClient("A")  
+                
                     .ConfigurePrimaryHttpMessageHandler(() =>
                         new HttpClientHandler()
                         {
+                             
                             AllowAutoRedirect = false
                         }
                     );

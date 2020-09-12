@@ -100,10 +100,10 @@ namespace MSLibrary.Transaction
 
                         using (var diContainer = DIContainerContainer.CreateContainer())
                         {
-                            var orginialDI = ContextContainer.GetValue<IDIContainer>("DI");
+                            var orginialDI = ContextContainer.GetValue<IDIContainer>(ContextTypes.DI);
                             try
                             {
-                                ContextContainer.SetValue<IDIContainer>("DI", diContainer);
+                                ContextContainer.SetValue<IDIContainer>(ContextTypes.DI, diContainer);
 
                                 if (await record.NeedCancel())
                                 {
@@ -112,7 +112,7 @@ namespace MSLibrary.Transaction
                             }
                             finally
                             {
-                                ContextContainer.SetValue<IDIContainer>("DI", orginialDI);
+                                ContextContainer.SetValue<IDIContainer>(ContextTypes.DI, orginialDI);
                             }
                         }
 

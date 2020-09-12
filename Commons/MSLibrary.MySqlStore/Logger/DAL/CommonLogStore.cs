@@ -49,8 +49,8 @@ namespace MSLibrary.MySqlStore.Logger.DAL
                         log.ID = Guid.NewGuid();
                     }
 
-                        command.CommandText = string.Format(@"insert into commonlog_local (id,parentid,prelevelid,currentlevelid,contextinfo,categoryname,actionname,parentactionname,requestbody,responsebody,requesturi,message,root,level,duration,createtime,modifytime)
-                                                VALUES (@id,@parentid,@prelevelid,@currentlevelid,@contextinfo,@categoryname,@actionname,@parentactionname,@requestbody,@responsebody,@requesturi,@message,@root,@level,@duration,utc_timestamp(),utc_timestamp())");
+                        command.CommandText = string.Format(@"insert into commonlog_local (id,parentid,prelevelid,currentlevelid,contextinfo,traceid,linkid,parentcontextinfo,categoryname,actionname,parentactionname,requestbody,responsebody,requesturi,message,root,level,duration,createtime,modifytime)
+                                                VALUES (@id,@parentid,@prelevelid,@currentlevelid,@contextinfo,@traceid,@linkid,@categoryname,@actionname,@parentactionname,@requestbody,@responsebody,@requesturi,@message,@root,@level,@duration,utc_timestamp(),utc_timestamp())");
 
                         parameter = new MySqlParameter("@id", MySqlDbType.Guid)
                         {
@@ -91,6 +91,18 @@ namespace MSLibrary.MySqlStore.Logger.DAL
                     parameter = new MySqlParameter("@contextinfo", MySqlDbType.VarChar, length)
                     {
                         Value = log.ContextInfo
+                    };
+                    command.Parameters.Add(parameter);
+
+                    parameter = new MySqlParameter("@traceid", MySqlDbType.VarChar, length)
+                    {
+                        Value = log.TraceID
+                    };
+                    command.Parameters.Add(parameter);
+
+                    parameter = new MySqlParameter("@linkid", MySqlDbType.VarChar, length)
+                    {
+                        Value = log.LinkID
                     };
                     command.Parameters.Add(parameter);
 

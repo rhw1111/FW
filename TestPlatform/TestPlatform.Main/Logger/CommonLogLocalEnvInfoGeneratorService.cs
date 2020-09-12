@@ -9,11 +9,6 @@ namespace FW.TestPlatform.Main.Logger
     [Injection(InterfaceType = typeof(ICommonLogLocalEnvInfoGeneratorService), Scope = InjectionScope.Singleton)]
     public class CommonLogLocalEnvInfoGeneratorService : ICommonLogLocalEnvInfoGeneratorService
     {
-        public string GenerateParentUserInfo()
-        {
-            return string.Empty;
-        }
-
         public string GenerateUserInfo()
         {
             return string.Empty;

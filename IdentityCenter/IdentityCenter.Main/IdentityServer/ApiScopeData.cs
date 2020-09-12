@@ -28,7 +28,7 @@ namespace IdentityCenter.Main.IdentityServer
             public IApiScopeDataIMP Create()
             {
                 IApiScopeDataIMP imp;
-                var di = ContextContainer.GetValue<IDIContainer>("DI");
+                var di = ContextContainer.GetValue<IDIContainer>(ContextTypes.DI);
                 if (di == null)
                 {
                     imp = DIContainerContainer.Get<IApiScopeDataIMP>();

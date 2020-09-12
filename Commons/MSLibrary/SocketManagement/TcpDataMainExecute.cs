@@ -58,6 +58,8 @@ namespace MSLibrary.SocketManagement
             {
                 ErrorMessage errorMessage = new ErrorMessage()
                 {
+                    Level = ex.Level,
+                    Type = ex.Type,
                     Code = ex.Code,
                     Message = await ex.GetCurrentLcidMessage()
                 };
