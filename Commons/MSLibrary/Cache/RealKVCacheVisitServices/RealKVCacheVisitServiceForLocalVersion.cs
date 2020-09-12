@@ -8,6 +8,7 @@ using MSLibrary.DI;
 using MSLibrary.Serializer;
 using MSLibrary.LanguageTranslate;
 using MSLibrary.Thread;
+using System.Linq;
 
 namespace MSLibrary.Cache.RealKVCacheVisitServices
 {
@@ -51,6 +52,12 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
             await Task.CompletedTask;
         }
 
+        public async Task Clear<K, V>(string cacheConfiguration, string prefix, IEnumerable<K> keys)
+        {
+            ClearSync<K, V>(cacheConfiguration, prefix, keys);
+            await Task.CompletedTask;
+        }
+
         public void ClearSync<K, V>(string cacheConfiguration, string prefix, K key)
         {
             var versionMappingKey = $"{typeof(K).FullName}-{typeof(V).FullName}";
@@ -60,6 +67,21 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
             {
                 cacheContainer.CacheDict.Remove(key);
             }
+        }
+
+        public void ClearSync<K, V>(string cacheConfiguration, string prefix, IEnumerable<K> keys)
+        {
+            var versionMappingKey = $"{typeof(K).FullName}-{typeof(V).FullName}";
+            var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
+
+            if (_datas.TryGetValue(prefix, out CacheContainer cacheContainer))
+            {
+                foreach (var item in keys)
+                {
+                    cacheContainer.CacheDict.Remove(item);
+                }
+            }
+
         }
 
         public async Task<(V, bool)> Get<K, V>(string cacheConfiguration, Func<Task<(V, bool)>> creator, string prefix, K key)
@@ -126,7 +148,7 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
                     if (valueItem == null)
                     {
                         var (cacheValue, isCache) = await creator();
-                        valueItem = new CacheValueContainer() { Value = cacheValue };
+                        valueItem = new CacheValueContainer() { Type=0, Value = cacheValue };
                         if (isCache)
                         {
                             cacheContainer.CacheDict.SetValue(key, valueItem);
@@ -138,9 +160,230 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
 
             }
 
+            if (valueItem.Type!=0)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.KVCacheValueContainerTypeError,
+                    DefaultFormatting = "键为{0}的KV缓存值容器类型不正确，需要的类型为{1}，当前类型为{2}，发生位置为{3}",
+                    ReplaceParameters = new List<object>() { key.ToString(),"0","1", $"{this.GetType().FullName}.Get<K, V>" }
+                };
+
+                throw new UtilityException((int)Errors.KVCacheValueContainerTypeError, fragment);
+            }
 
             return ((V)valueItem.Value, isCache);
 
+        }
+
+        public async Task<(V, bool)> GetHash<K, V>(string cacheConfiguration,  Func<Task<(V, bool)>> creator,string prefix, K key, string hashKey)
+        {
+            var versionMappingKey = $"{typeof(K).FullName}-{typeof(V).FullName}";
+            var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
+            if (!_datas.TryGetValue(prefix, out CacheContainer cacheContainer))
+            {
+                await _lock.WaitAsync();
+                try
+                {
+                    if (!_datas.TryGetValue(prefix, out cacheContainer))
+                    {
+                        var (versionService, versionname) = getVersionService(configuration, versionMappingKey);
+                        var version = await versionService.GetVersion(versionname);
+                        cacheContainer = new CacheContainer() { Version = version, LatestVersionTime = DateTime.UtcNow, CacheDict = new HashLinkedCache<object, CacheValueContainer>() { Length = configuration.MaxLength } };
+                        _datas[prefix] = cacheContainer;
+                    }
+                }
+                finally
+                {
+                    _lock.Release();
+                }
+            }
+            else
+            {
+                if ((DateTime.UtcNow - cacheContainer.LatestVersionTime).TotalSeconds > configuration.VersionCallTimeout)
+                {
+                    await _lock.WaitAsync();
+                    try
+                    {
+                        if ((DateTime.UtcNow - cacheContainer.LatestVersionTime).TotalSeconds > configuration.VersionCallTimeout)
+                        {
+                            var (versionService, versionname) = getVersionService(configuration, versionMappingKey);
+                            var version = await versionService.GetVersion(versionname);
+                            if (version != cacheContainer.Version)
+                            {
+                                cacheContainer = new CacheContainer() { Version = version, LatestVersionTime = DateTime.UtcNow, CacheDict = new HashLinkedCache<object, CacheValueContainer>() { Length = configuration.MaxLength } };
+                                _datas[prefix] = cacheContainer;
+                            }
+                            else
+                            {
+                                cacheContainer.LatestVersionTime = DateTime.UtcNow;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        _lock.Release();
+                    }
+
+                }
+            }
+
+
+            bool isCache = true;
+            var valueItem = cacheContainer.CacheDict.GetValue(key);
+            if (valueItem == null)
+            {
+                await cacheContainer.SyncOperate(
+                async () =>
+                {
+                    valueItem = cacheContainer.CacheDict.GetValue(key);
+                    if (valueItem == null)
+                    {
+                        var (cacheValue, isCache) = await creator();
+                        Dictionary<string, V> realValue = new Dictionary<string, V>();
+                        if (isCache)
+                        {
+                            realValue[hashKey] = cacheValue;
+                        }
+                        valueItem = new CacheValueContainer() { Type = 1, Value = realValue };
+                        cacheContainer.CacheDict.SetValue(key, valueItem);
+
+                    }
+
+                }
+                );
+
+            }
+
+            if (valueItem.Type != 1)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.KVCacheValueContainerTypeError,
+                    DefaultFormatting = "键为{0}的KV缓存值容器类型不正确，需要的类型为{1}，当前类型为{2}，发生位置为{3}",
+                    ReplaceParameters = new List<object>() { key.ToString(), "1", valueItem.Type.ToString(), $"{this.GetType().FullName}.GetHash<K, V>" }
+                };
+
+                throw new UtilityException((int)Errors.KVCacheValueContainerTypeError, fragment);
+            }
+
+            var dictValue = (Dictionary<string, V>)valueItem.Value;
+
+            if (!dictValue.TryGetValue(hashKey, out V realValue))
+            {
+                 (realValue, isCache) = await creator();
+                if (isCache)
+                {
+                    dictValue[hashKey] = realValue;
+                }
+            }
+
+            return (realValue, isCache);
+        }
+
+        public (V, bool) GetHashSync<K, V>(string cacheConfiguration, Func<(V, bool)> creator,string prefix,  K key, string hashKey)
+        {
+            var versionMappingKey = $"{typeof(K).FullName}-{typeof(V).FullName}";
+            var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
+            if (!_datas.TryGetValue(prefix, out CacheContainer cacheContainer))
+            {
+                 _lock.Wait();
+                try
+                {
+                    if (!_datas.TryGetValue(prefix, out cacheContainer))
+                    {
+                        var (versionService, versionname) = getVersionService(configuration, versionMappingKey);
+                        var version =  versionService.GetVersionSync(versionname);
+                        cacheContainer = new CacheContainer() { Version = version, LatestVersionTime = DateTime.UtcNow, CacheDict = new HashLinkedCache<object, CacheValueContainer>() { Length = configuration.MaxLength } };
+                        _datas[prefix] = cacheContainer;
+                    }
+                }
+                finally
+                {
+                    _lock.Release();
+                }
+            }
+            else
+            {
+                if ((DateTime.UtcNow - cacheContainer.LatestVersionTime).TotalSeconds > configuration.VersionCallTimeout)
+                {
+                    _lock.Wait();
+                    try
+                    {
+                        if ((DateTime.UtcNow - cacheContainer.LatestVersionTime).TotalSeconds > configuration.VersionCallTimeout)
+                        {
+                            var (versionService, versionname) = getVersionService(configuration, versionMappingKey);
+                            var version =  versionService.GetVersionSync(versionname);
+                            if (version != cacheContainer.Version)
+                            {
+                                cacheContainer = new CacheContainer() { Version = version, LatestVersionTime = DateTime.UtcNow, CacheDict = new HashLinkedCache<object, CacheValueContainer>() { Length = configuration.MaxLength } };
+                                _datas[prefix] = cacheContainer;
+                            }
+                            else
+                            {
+                                cacheContainer.LatestVersionTime = DateTime.UtcNow;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        _lock.Release();
+                    }
+
+                }
+            }
+
+
+            bool isCache = true;
+            var valueItem = cacheContainer.CacheDict.GetValue(key);
+            if (valueItem == null)
+            {
+                cacheContainer.SyncOperate(
+                () =>
+                {
+                    valueItem = cacheContainer.CacheDict.GetValue(key);
+                    if (valueItem == null)
+                    {
+                        var (cacheValue, isCache) =  creator();
+                        Dictionary<string, V> realValue = new Dictionary<string, V>();
+                        if (isCache)
+                        {
+                            realValue[hashKey] = cacheValue;
+                        }
+                        valueItem = new CacheValueContainer() { Type = 1, Value = realValue };
+                        cacheContainer.CacheDict.SetValue(key, valueItem);
+
+                    }
+
+                }
+                );
+
+            }
+
+            if (valueItem.Type != 1)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.KVCacheValueContainerTypeError,
+                    DefaultFormatting = "键为{0}的KV缓存值容器类型不正确，需要的类型为{1}，当前类型为{2}，发生位置为{3}",
+                    ReplaceParameters = new List<object>() { key.ToString(), "1", valueItem.Type.ToString(), $"{this.GetType().FullName}.GetHashSync<K, V>" }
+                };
+
+                throw new UtilityException((int)Errors.KVCacheValueContainerTypeError, fragment);
+            }
+
+            var dictValue = (Dictionary<string, V>)valueItem.Value;
+
+            if (!dictValue.TryGetValue(hashKey, out V realValue))
+            {
+                (realValue, isCache) =  creator();
+                if (isCache)
+                {
+                    dictValue[hashKey] = realValue;
+                }
+            }
+
+            return (realValue, isCache);
         }
 
         public (V, bool) GetSync<K, V>(string cacheConfiguration, Func<(V, bool)> creator, string prefix, K key)
@@ -207,7 +450,7 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
                    if (valueItem == null)
                    {
                        var (cacheValue, isCache) = creator();
-                       valueItem = new CacheValueContainer() { Value = cacheValue };
+                       valueItem = new CacheValueContainer() { Type=0, Value = cacheValue };
                        if (isCache)
                        {
                            cacheContainer.CacheDict.SetValue(key, valueItem);
@@ -216,6 +459,18 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
                }
                );
 
+            }
+
+            if (valueItem.Type != 0)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TextCodes.KVCacheValueContainerTypeError,
+                    DefaultFormatting = "键为{0}的KV缓存值容器类型不正确，需要的类型为{1}，当前类型为{2}，发生位置为{3}",
+                    ReplaceParameters = new List<object>() { key.ToString(), "0", "1", $"{this.GetType().FullName}.GetSync<K, V>" }
+                };
+
+                throw new UtilityException((int)Errors.KVCacheValueContainerTypeError, fragment);
             }
 
             return ((V)valueItem.Value, isCache);
@@ -275,7 +530,122 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
                 }
             }
 
-            var valueItem = new CacheValueContainer() { Value = value };
+            var valueItem = new CacheValueContainer() { Type=0, Value = value };
+            cacheContainer.CacheDict.SetValue(key, valueItem);
+        }
+
+        public async Task SetHash<K, V>(string cacheConfiguration, string prefix, K key, IDictionary<string, V> values)
+        {
+            var versionMappingKey = $"{typeof(K).FullName}-{typeof(V).FullName}";
+            var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
+
+            if (!_datas.TryGetValue(prefix, out CacheContainer cacheContainer))
+            {
+                await _lock.WaitAsync();
+                try
+                {
+                    if (!_datas.TryGetValue(prefix, out cacheContainer))
+                    {
+                        var (versionService, versionname) = getVersionService(configuration, versionMappingKey);
+                        var version = await versionService.GetVersion(versionname);
+                        cacheContainer = new CacheContainer() { Version = version, LatestVersionTime = DateTime.UtcNow, CacheDict = new HashLinkedCache<object, CacheValueContainer>() { Length = configuration.MaxLength } };
+                        _datas[prefix] = cacheContainer;
+                    }
+                }
+                finally
+                {
+                    _lock.Release();
+                }
+            }
+            else
+            {
+                if ((DateTime.UtcNow - cacheContainer.LatestVersionTime).TotalSeconds > configuration.VersionCallTimeout)
+                {
+                    await _lock.WaitAsync();
+                    try
+                    {
+                        if ((DateTime.UtcNow - cacheContainer.LatestVersionTime).TotalSeconds > configuration.VersionCallTimeout)
+                        {
+                            var (versionService, versionname) = getVersionService(configuration, versionMappingKey);
+                            var version = await versionService.GetVersion(versionname);
+                            if (version != cacheContainer.Version)
+                            {
+                                cacheContainer = new CacheContainer() { Version = version, LatestVersionTime = DateTime.UtcNow, CacheDict = new HashLinkedCache<object, CacheValueContainer>() { Length = configuration.MaxLength } };
+                                _datas[prefix] = cacheContainer;
+                            }
+                            else
+                            {
+                                cacheContainer.LatestVersionTime = DateTime.UtcNow;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        _lock.Release();
+                    }
+
+                }
+            }
+
+
+            var valueItem = new CacheValueContainer() { Type = 1, Value = values.ToDictionary((kv)=>kv.Key,(kv)=>kv.Value) };
+            cacheContainer.CacheDict.SetValue(key, valueItem);
+        }
+
+        public void SetHashSync<K, V>(string cacheConfiguration, string prefix, K key, IDictionary<string, V> values)
+        {
+            var versionMappingKey = $"{typeof(K).FullName}-{typeof(V).FullName}";
+            var configuration = JsonSerializerHelper.Deserialize<KVCacheConfiguration>(cacheConfiguration);
+
+            if (!_datas.TryGetValue(prefix, out CacheContainer cacheContainer))
+            {
+                _lock.Wait();
+                try
+                {
+                    if (!_datas.TryGetValue(prefix, out cacheContainer))
+                    {
+                        var (versionService, versionname) = getVersionService(configuration, versionMappingKey);
+                        var version = versionService.GetVersionSync(versionname);
+                        cacheContainer = new CacheContainer() { Version = version, LatestVersionTime = DateTime.UtcNow, CacheDict = new HashLinkedCache<object, CacheValueContainer>() { Length = configuration.MaxLength } };
+                        _datas[prefix] = cacheContainer;
+                    }
+                }
+                finally
+                {
+                    _lock.Release();
+                }
+            }
+            else
+            {
+                if ((DateTime.UtcNow - cacheContainer.LatestVersionTime).TotalSeconds > configuration.VersionCallTimeout)
+                {
+                    _lock.Wait();
+                    try
+                    {
+                        if ((DateTime.UtcNow - cacheContainer.LatestVersionTime).TotalSeconds > configuration.VersionCallTimeout)
+                        {
+                            var (versionService, versionname) = getVersionService(configuration, versionMappingKey);
+                            var version = versionService.GetVersionSync(versionname);
+                            if (version != cacheContainer.Version)
+                            {
+                                cacheContainer = new CacheContainer() { Version = version, LatestVersionTime = DateTime.UtcNow, CacheDict = new HashLinkedCache<object, CacheValueContainer>() { Length = configuration.MaxLength } };
+                                _datas[prefix] = cacheContainer;
+                            }
+                            else
+                            {
+                                cacheContainer.LatestVersionTime = DateTime.UtcNow;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        _lock.Release();
+                    }
+
+                }
+            }
+
+            var valueItem = new CacheValueContainer() { Type = 1, Value = values.ToDictionary((kv) => kv.Key, (kv) => kv.Value) };
             cacheContainer.CacheDict.SetValue(key, valueItem);
         }
 
@@ -332,7 +702,7 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
                 }
             }
 
-            var valueItem = new CacheValueContainer() { Value = value };
+            var valueItem = new CacheValueContainer() { Type=0, Value = value };
             cacheContainer.CacheDict.SetValue(key, valueItem);
         }
 
@@ -364,6 +734,7 @@ namespace MSLibrary.Cache.RealKVCacheVisitServices
         /// </summary>
         private class CacheValueContainer
         {
+            public int Type { get; set; }
             public object Value { get; set; }
         }
 

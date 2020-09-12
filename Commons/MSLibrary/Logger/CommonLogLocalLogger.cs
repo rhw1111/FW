@@ -42,19 +42,16 @@ namespace MSLibrary.Logger
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            var strUserInfo = _commonLogLocalEnvInfoGeneratorService.GenerateUserInfo();
-            var strParentUserInfo = _commonLogLocalEnvInfoGeneratorService.GenerateParentUserInfo();
-
-
-            if (strUserInfo == null)
+            var userInfo=_commonLogLocalEnvInfoGeneratorService.GenerateUserInfo();
+            string traceID = string.Empty;
+            string linkID = string.Empty;
+            var traceInfoContext = ContextContainer.GetValue<IRequestTraceInofContext>(ContextTypes.Trace);
+            if (traceInfoContext!=null)
             {
-                strUserInfo = string.Empty;
+                traceID = traceInfoContext.GetTraceID();
+                linkID = traceInfoContext.GetLinkID();
             }
 
-            if (strParentUserInfo == null)
-            {
-                strParentUserInfo = string.Empty;
-            }
 
             if (state is string)
             {
@@ -70,13 +67,14 @@ namespace MSLibrary.Logger
                         ParentActionName = string.Empty,
                         PreLevelID = Guid.Empty,
                         CurrentLevelID = Guid.Empty,
-                         CategoryName=CategoryName,
+                        CategoryName=CategoryName,
                         ActionName = string.Empty,
                         RequestBody = string.Empty,
                         ResponseBody = string.Empty,
                         RequestUri = string.Empty,
-                        ContextInfo = strUserInfo,
-                        ParentContextInfo=strParentUserInfo,
+                        ContextInfo = userInfo,
+                         TraceID= traceID,
+                         LinkID=linkID,
                         Root = true,
                      
                         Message = state as string
@@ -118,10 +116,11 @@ namespace MSLibrary.Logger
                         RequestBody = logContent.RequestBody,
                         ResponseBody=logContent.ResponseBody,
                         RequestUri = logContent.RequestUri,
-                        ContextInfo = strUserInfo,
-                        ParentContextInfo=strParentUserInfo,
+                        ContextInfo = userInfo,
+                        TraceID = traceID,
+                        LinkID = linkID,
                         Root = true,
-                         Duration= logContent.Duration,
+                        Duration= logContent.Duration,
                         Message = logContent.Message
                     };
                 }
@@ -161,9 +160,10 @@ namespace MSLibrary.Logger
                             ActionName = string.Empty,
                             RequestBody = string.Empty,
                             RequestUri = string.Empty,
-                            ContextInfo = strUserInfo,
-                            ParentContextInfo = strParentUserInfo,
-                            
+                            ContextInfo = userInfo,
+                            TraceID = traceID,
+                            LinkID = linkID,
+
                             Root = true,
                             Message = formatter(state, exception)
                         };
@@ -201,11 +201,6 @@ namespace MSLibrary.Logger
         /// </summary>
         /// <returns></returns>
         string GenerateUserInfo();
-        /// <summary>
-        /// 生成父用户信息
-        /// </summary>
-        /// <returns></returns>
-        string GenerateParentUserInfo();
     }
 
 

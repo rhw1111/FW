@@ -40,6 +40,8 @@ namespace MSLibrary.Azure.Function
 
                 ErrorMessage errorMessage = new ErrorMessage()
                 {
+                    Type=ex.Type,
+                     Level=ex.Level,
                     Code = ex.Code,
                     Message = await ex.GetCurrentLcidMessage()
                 };

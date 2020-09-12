@@ -33,6 +33,11 @@ namespace MSLibrary
         /// 当前使用的DI
         /// </summary>
         public const string DI = "DI";
+        /// <summary>
+        /// 当前链路追踪
+        /// </summary>
+        public const string Trace = "Trace";
+
     }
 
     /// <summary>
@@ -2431,7 +2436,27 @@ namespace MSLibrary
         /// {0}：名称
         /// </summary>
         public const string NotFoundKVCacheVisitorByName = "NotFoundKVCacheVisitorByName";
-
+        /// <summary>
+        /// 已经存在指定名称的缓存版本号记录
+        /// 格式为“已经存在名称为{0}的缓存版本号记录”
+        /// {0}：名称
+        /// </summary>
+        public const string ExistCacheVersionByName = "ExistCacheVersionByName";
+        /// <summary>
+        /// 找不到指定名称的缓存版本号记录
+        /// 格式为“找不到名称为{0}的缓存版本号记录”
+        /// {0}：名称
+        /// </summary>
+        public const string NotFoundCacheVersionByName = "NotFoundCacheVersionByName";
+        /// <summary>
+        /// KV缓存值容器类型不正确
+        /// 格式为“键为{0}的KV缓存值容器类型不正确，需要的类型为{1}，当前类型为{2}，发生位置为{3}”
+        /// {0}：键
+        /// {1}：需要的类型
+        /// {2}：当前类型
+        /// {3}：发生的位置
+        /// </summary>
+        public const string KVCacheValueContainerTypeError = "KVCacheValueContainerTypeError";
         /// <summary>
         /// 找不到指定类型的令牌控制器服务
         /// 格式为“找不到类型为{0}的令牌控制器服务”
@@ -2445,6 +2470,14 @@ namespace MSLibrary
         /// {0}：控制器名称
         /// </summary>
         public const string NotFoundTokenControllerByName = "NotFoundTokenControllerByName";
+        /// <summary>
+        /// 找不到指定类型的令牌客户端服务
+        /// 格式为“找不到类型为{0}的令牌客户端服务，发生位置为{1}”
+        /// {0}：类型
+        /// {1}：发生的位置
+        /// </summary>
+        public const string NotFoundTokenClientServiceByType = "NotFoundTokenClientServiceByType";
+
         /// 业务动作验证失败
         /// 格式为“{0}”
         /// {0}：验证结果详细信息

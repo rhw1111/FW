@@ -26,7 +26,7 @@ namespace IdentityCenter.Main.IdentityServer
             public IIdentityResourceDataIMP Create()
             {
                 IIdentityResourceDataIMP imp;
-                var di = ContextContainer.GetValue<IDIContainer>("DI");
+                var di = ContextContainer.GetValue<IDIContainer>(ContextTypes.DI);
                 if (di == null)
                 {
                     imp = DIContainerContainer.Get<IIdentityResourceDataIMP>();

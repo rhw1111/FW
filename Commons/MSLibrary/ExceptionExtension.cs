@@ -114,7 +114,7 @@ namespace MSLibrary
         /// <returns></returns>
         public static async Task<string> GetCurrentLcidMessage(this Exception exception)
         {
-            if (exception is UtilityException)
+            if (exception is UtilityException && ((UtilityException)exception).Fragment!=null)
             {
                 var lcid = ContextContainer.GetValue<int>(ContextTypes.CurrentUserLcid);
                 return await ((UtilityException)exception).Fragment.GetLanguageText(lcid);
@@ -132,7 +132,7 @@ namespace MSLibrary
         /// <returns></returns>
         public static string GetCurrentLcidMessageSync(this Exception exception)
         {
-            if (exception is UtilityException)
+            if (exception is UtilityException && ((UtilityException)exception).Fragment != null)
             {
                 var lcid = ContextContainer.GetValue<int>(ContextTypes.CurrentUserLcid);
                 return ((UtilityException)exception).Fragment.GetLanguageTextSync(lcid);

@@ -56,7 +56,7 @@ namespace MSLibrary.AspNet.Middleware
             {
                 using (var diContainer = DIContainerContainer.CreateContainer())
                 {
-                    ContextContainer.SetValue<IDIContainer>(_name, diContainer);
+                    ContextContainer.SetValue<IDIContainer>(ContextTypes.DI, diContainer);
 
                     var replaceExcludePaths = await _appGetOutputStreamReplaceExcludePaths.Do();
                     bool needReplace = true;

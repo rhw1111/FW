@@ -74,7 +74,7 @@ namespace MSLibrary.MessageQueue
             if (queueItem == null || queueItem.Expire())
             {
                 var squeue = await _sQueueRepository.QueryByCode(groupName, isDead, code);
-                queueItem = new CacheTimeContainer<SQueue>(squeue, CacheTimeout);
+                queueItem = new CacheTimeContainer<SQueue>(squeue, CacheTimeout,0);
                 _queuesByCode.SetValue(key, queueItem);
             }
 
@@ -88,7 +88,7 @@ namespace MSLibrary.MessageQueue
             if (countItem == null || countItem.Expire())
             {
                 var queryResult = await _sQueueRepository.QueryByGroup(groupName, isDead, 1,1);
-                countItem = new CacheTimeContainer<int>(queryResult.TotalCount, CacheTimeout);
+                countItem = new CacheTimeContainer<int>(queryResult.TotalCount, CacheTimeout,0);
                 _queueCountByGroup.SetValue(key, countItem);
             }
 

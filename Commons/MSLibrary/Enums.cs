@@ -1185,7 +1185,18 @@ namespace MSLibrary
         /// 找不到指定名称的KV缓存访问者
         /// </summary>
         NotFoundKVCacheVisitorByName = 314727203,
-
+        /// <summary>
+        /// 已经存在指定名称的缓存版本号记录
+        /// </summary>
+        ExistCacheVersionByName= 314727205,
+        /// <summary>
+        /// 找不到指定名称的缓存版本号记录
+        /// </summary>
+        NotFoundCacheVersionByName = 314727206,
+        /// <summary>
+        /// KV缓存值容器类型不正确
+        /// </summary>
+        KVCacheValueContainerTypeError = 314727207,
         /// <summary>
         /// 业务动作验证失败
         /// </summary>
@@ -1221,9 +1232,13 @@ namespace MSLibrary
         /// </summary>
         NotFoundTokenCredentialGeneratorByName = 314727502,
         /// <summary>
+        /// 找不到指定类型的令牌客户端服务
+        /// </summary>
+        NotFoundTokenClientServiceByType= 314727503,
+        /// <summary>
         /// 找不到指定类型的分布式操作记录服务
         /// </summary>
-        NotFoundDTOperationRecordServiceByType= 314727601,
+        NotFoundDTOperationRecordServiceByType = 314727601,
         /// <summary>
         /// 找不到指定类型的分布式操作数据服务
         /// </summary>

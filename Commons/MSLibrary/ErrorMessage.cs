@@ -9,6 +9,10 @@ namespace MSLibrary
     public class ErrorMessage
     {
         [DataMember]
+        public int Level { get; set; }
+        [DataMember]
+        public int Type { get; set; }
+        [DataMember]
         public int Code { get; set; }
         [DataMember]
         public string Message { get; set; }

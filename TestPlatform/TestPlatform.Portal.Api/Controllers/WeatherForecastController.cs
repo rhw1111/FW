@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MSLibrary.Logger;
@@ -13,6 +14,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
+        private readonly IHttpClientFactory _clientFactory;
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -20,15 +22,17 @@ namespace FW.TestPlatform.Portal.Api.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IHttpClientFactory clientFactory)
         {
             _logger = logger;
+            _clientFactory = clientFactory;
         }
 
         
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
+           
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {

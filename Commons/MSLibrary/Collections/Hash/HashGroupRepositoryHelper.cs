@@ -53,7 +53,7 @@ namespace MSLibrary.Collections.Hash
             if (groupItem == null || groupItem.Expire())
             {
                 var group = await _hashGroupRepository.QueryById(id);
-                groupItem = new CacheTimeContainer<HashGroup>(group, CacheTimeout);
+                groupItem = new CacheTimeContainer<HashGroup>(group, CacheTimeout,0);
                 _groupsByID.SetValue(id, groupItem);
             }
 
@@ -70,7 +70,7 @@ namespace MSLibrary.Collections.Hash
             if (groupItem == null || groupItem.Expire())
             {
                 var group = await _hashGroupRepository.QueryByName(name);
-                groupItem = new CacheTimeContainer<HashGroup>(group, CacheTimeout);
+                groupItem = new CacheTimeContainer<HashGroup>(group, CacheTimeout,0);
                 _groupsByName.SetValue(name, groupItem);
             }
 
@@ -82,7 +82,7 @@ namespace MSLibrary.Collections.Hash
             if (groupItem == null || groupItem.Expire())
             {
                 var group = _hashGroupRepository.QueryByNameSync(name);
-                groupItem = new CacheTimeContainer<HashGroup>(group, CacheTimeout);
+                groupItem = new CacheTimeContainer<HashGroup>(group, CacheTimeout,0);
                 _groupsByName.SetValue(name, groupItem);
             }
 

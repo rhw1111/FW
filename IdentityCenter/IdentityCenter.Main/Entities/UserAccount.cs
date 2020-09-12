@@ -203,6 +203,17 @@ namespace IdentityCenter.Main.Entities
         {
             return await _imp.GetSerializeData(this);
         }
+
+        public async Task<bool> HasRole( string roleName, CancellationToken cancellationToken = default)
+        {
+            return await _imp.HasRole(this, roleName, cancellationToken);
+        }
+        public async Task<bool> HasPrivilege(string privilegeCode, CancellationToken cancellationToken = default)
+        {
+            return await _imp.HasPrivilege(this,privilegeCode, cancellationToken);
+        }
+
+
     }
 
     public interface IUserAccountIMP
@@ -224,6 +235,15 @@ namespace IdentityCenter.Main.Entities
 
         Task<UserThirdPartyAccount?> GetThirdPartyAccount(UserAccount account, Guid partyID, CancellationToken cancellationToken = default);
         Task<UserThirdPartyAccount?> GetThirdPartyAccount(UserAccount account, string source,string sourceID, CancellationToken cancellationToken = default);
+
+        Task AddRole(UserAccount account, Guid roleID, CancellationToken cancellationToken = default);
+        Task AddRoles(UserAccount account, IEnumerable<Guid> roleIDs, CancellationToken cancellationToken = default);
+        Task RemoveRole(UserAccount account, Guid roleID, CancellationToken cancellationToken = default);
+        Task RemoveRoles(UserAccount account, IEnumerable<Guid> roleIDs, CancellationToken cancellationToken = default);
+
+        Task<bool> HasRole(UserAccount account, string roleName, CancellationToken cancellationToken = default);
+        Task<bool> HasPrivilege(UserAccount account, string privilegeCode, CancellationToken cancellationToken = default);
+
 
         Task<string> GetSerializeData(UserAccount account);
     }
@@ -281,6 +301,16 @@ namespace IdentityCenter.Main.Entities
 
                 scope.Complete();
             }
+        }
+
+        public Task AddRole(UserAccount account, Guid roleID, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AddRoles(UserAccount account, IEnumerable<Guid> roleIDs, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task AddThirdPartyAccount(UserAccount account, UserThirdPartyAccount partyAccount, CancellationToken cancellationToken = default)
@@ -371,6 +401,28 @@ namespace IdentityCenter.Main.Entities
         public async Task<UserThirdPartyAccount?> GetThirdPartyAccount(UserAccount account, string source, string sourceID, CancellationToken cancellationToken = default)
         {
             return await _userThirdPartyAccountStore.QueryBySource(account.ID, source, sourceID, cancellationToken);
+        }
+
+        public Task<bool> HasPrivilege(UserAccount account, string privilegeCode, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public Task<bool> HasRole(UserAccount account, string roleName, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public Task RemoveRole(UserAccount account, Guid roleID, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveRoles(UserAccount account, IEnumerable<Guid> roleIDs, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task Update(UserAccount account, CancellationToken cancellationToken = default)

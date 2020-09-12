@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPlatform.Deployment", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSLibrary.Survey", "..\Commons\MSLibrary.Survey\MSLibrary.Survey.csproj", "{111A2B57-267C-4F44-B25E-F4148C96D1DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSLibrary.SerialNo", "..\Commons\MSLibrary.SerialNo\MSLibrary.SerialNo.csproj", "{9F3336D6-E266-4E4C-AE62-C9CD3A84DAD9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSLibrary.SerialNo", "..\Commons\MSLibrary.SerialNo\MSLibrary.SerialNo.csproj", "{9F3336D6-E266-4E4C-AE62-C9CD3A84DAD9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

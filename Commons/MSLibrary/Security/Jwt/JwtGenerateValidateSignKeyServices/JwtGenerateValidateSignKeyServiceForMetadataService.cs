@@ -51,7 +51,7 @@ namespace MSLibrary.Security.Jwt.JwtGenerateValidateSignKeyServices
                 if (needCreate)
                 {
                     keys = await getSecurityKeys(configurationObj.Uri);
-                    cacheItem = new CacheTimeContainer<IEnumerable<SecurityKey>>(keys, configurationObj.Timeout);
+                    cacheItem = new CacheTimeContainer<IEnumerable<SecurityKey>>(keys, configurationObj.Timeout,0);
                     endpoint.SetExtension(_cacheAttributeName, cacheItem);
                 }
             }

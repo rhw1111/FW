@@ -107,6 +107,8 @@ namespace MSLibrary.Context.Filter
 
                           ErrorMessage errorMessage = new ErrorMessage()
                           {
+                              Type = 1,
+                              Level = 1,
                               Code = (int)Errors.AuthorizeFail,
                               Message = string.Format(StringLanguageTranslate.Translate(TextCodes.AuthorizeFail, "用户授权失败，没有找到对应的身份信息"))
                           };

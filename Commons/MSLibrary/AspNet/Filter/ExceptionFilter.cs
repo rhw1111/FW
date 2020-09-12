@@ -29,12 +29,14 @@ namespace MSLibrary.AspNet.Filter
 
         private string _categoryName;
         private bool _isDebug;
+        private bool _isInnerService=false;
         private IAppExceptionContextLogConvert _appExceptionContextLogConvert;
 
-        public ExceptionFilter(string categoryName, bool isDebug, IAppExceptionContextLogConvert appExceptionContextLogConvert) : base()
+        public ExceptionFilter(string categoryName, bool isDebug, bool isInnerService, IAppExceptionContextLogConvert appExceptionContextLogConvert) : base()
         {
             _categoryName = categoryName;
             _isDebug = isDebug;
+            _isInnerService = isInnerService;
             _appExceptionContextLogConvert = appExceptionContextLogConvert;
         }
 
@@ -59,11 +61,13 @@ namespace MSLibrary.AspNet.Filter
                 }
 
 
-                if (context.Exception is UtilityException && ((UtilityException)context.Exception).Level > 0)
+                if (context.Exception is UtilityException && (((UtilityException)context.Exception).Level > 0 || _isInnerService))
                 {
                     var utilityException = (UtilityException)context.Exception;
                     object errorMessage = new ErrorMessage()
                     {
+                        Level= utilityException.Level,
+                         Type= utilityException.Type,
                         Code = utilityException.Code,
                         Message = await utilityException.GetCurrentLcidMessage()
                     };

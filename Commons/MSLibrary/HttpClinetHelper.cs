@@ -24,6 +24,8 @@ namespace MSLibrary
                 _httpClientFactoryGenerator = value;
             }
         }
+
+  
         /// <summary>
         /// Post提交对象，无返回值
         /// </summary>
@@ -6518,7 +6520,7 @@ namespace MSLibrary
                     ReplaceParameters = new List<object>() { }
                 };
 
-                return await Task.FromResult(new UtilityException(errorResult.Code, fragment));
+                return await Task.FromResult(new UtilityException(errorResult.Code, fragment, errorResult.Level, errorResult.Type));
             }
 
         }
