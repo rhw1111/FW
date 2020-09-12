@@ -71,7 +71,7 @@ namespace FW.TestPlatform.Main.Application
                     if (model.Name != source.Name || (tEntity != null && model.FolderID != tEntity.ParentID))
                     {
                         newTreeEntity.ID = tEntity.ID;
-                        await tEntity.Update(cancellationToken);
+                        await newTreeEntity.Update(cancellationToken);
                     }
                 }
                 else
