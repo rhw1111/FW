@@ -235,7 +235,7 @@ namespace FW.TestPlatform.Main.Collections.DAL
                     var datas = await (from item in dbContext.TreeEntities
                                        join idItem in ids
                                   on item.ID equals idItem
-                                       orderby EF.Property<long>(item, "Sequence") descending
+                                       orderby item.Type ascending, item.Name
                                        select item).ToListAsync();
 
                     result.Results.AddRange(datas);

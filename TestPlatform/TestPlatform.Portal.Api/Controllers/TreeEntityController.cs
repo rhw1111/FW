@@ -26,9 +26,13 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppUpdateTreeEntityName _appUpdateTreeEntityName;
         private readonly IAppQueryChild _appQueryChild;
         private readonly IAppDeleteTreeEntity _appDeleteTreeEntity;
+        private readonly IAppExecuteCopy _appExecuteCopy;
+        private readonly IAppGetFolderTreeEntity _appGetFolderTreeEntity;
+        private readonly IAppQueryTreeEntityPath _appQueryTreeEntity;
 
         public TreeEntityController(IAppQueryTreeEntityChildren appQueryTreeEntityChildren, IAppQueryTreeEntities appQueryTreeEntities, IAppGoBackPrevious appGoBackPrevious, IAppAddTreeEntity appAddTreeEntity,
-            IAppUpdateTreeEntityParent appUpdateTreeEntityParent, IAppUpdateTreeEntityName appUpdateTreeEntityName, IAppQueryChild appQueryChild, IAppDeleteTreeEntity appDeleteTreeEntity)
+            IAppUpdateTreeEntityParent appUpdateTreeEntityParent, IAppUpdateTreeEntityName appUpdateTreeEntityName, IAppQueryChild appQueryChild, IAppDeleteTreeEntity appDeleteTreeEntity, IAppExecuteCopy appExecuteCopy, IAppGetFolderTreeEntity appGetFolderTreeEntity,
+            IAppQueryTreeEntityPath appQueryTreeEntity)
         {
             _appQueryTreeEntityChildren = appQueryTreeEntityChildren;
             _appQueryTreeEntities = appQueryTreeEntities;
@@ -38,6 +42,9 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _appUpdateTreeEntityName = appUpdateTreeEntityName;
             _appQueryChild = appQueryChild;
             _appDeleteTreeEntity = appDeleteTreeEntity;
+            _appExecuteCopy = appExecuteCopy;
+            _appGetFolderTreeEntity = appGetFolderTreeEntity;
+            _appQueryTreeEntity = appQueryTreeEntity;
         }
 
         [HttpGet("querybypage")]
@@ -102,6 +109,24 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         public async Task UpdateName(Guid id, string name)
         {
             await _appUpdateTreeEntityName.Do(id, name);
+        }
+
+        [HttpPost("copy")]
+        public async Task<bool> copy(ExecuteCopyModel model)
+        {
+            return await _appExecuteCopy.Do(model);
+        }
+
+        [HttpPost("createfolder")]
+        public async Task<TreeEntityViewModel> createfolder(TreeEntityAddModel model)
+        {
+            return await _appGetFolderTreeEntity.Do(model);
+        }
+
+        [HttpGet("treepath")]
+        public async Task<List<string>> TreePath(Guid id)
+        {
+            return await _appQueryTreeEntity.Do(id);
         }
     }
 }

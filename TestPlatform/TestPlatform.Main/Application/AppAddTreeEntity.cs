@@ -43,6 +43,7 @@ namespace FW.TestPlatform.Main.Application
                     ID = treeEntity.ID,
                     Name = treeEntity.Name,
                     Type = treeEntity.Type,
+                    ParentID = treeEntity.ParentID,
                     CreateTime = treeEntity.CreateTime.ToCurrentUserTimeZone()
                 };
             }

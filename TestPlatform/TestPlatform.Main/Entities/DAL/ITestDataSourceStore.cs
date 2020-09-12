@@ -21,5 +21,6 @@ namespace FW.TestPlatform.Main.Entities.DAL
         Task<QueryResult<TestDataSource>> QueryByPage(string matchName, int page, int pageSize, CancellationToken cancellationToken = default);
         Task DeleteMutiple(List<Guid> ids, CancellationToken cancellationToken = default);
         IAsyncEnumerable<TestDataSource> GetDataSources(CancellationToken cancellationToken = default);
+        Task<QueryResult<TestDataSource>> QueryByParentId(Guid? parentId, int page, int pageSize, CancellationToken cancellationToken = default);
     }
 }

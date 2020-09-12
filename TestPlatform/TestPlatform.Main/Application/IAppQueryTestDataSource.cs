@@ -10,6 +10,6 @@ namespace FW.TestPlatform.Main.Application
 {
     public interface IAppQueryTestDataSource
     {
-        Task<QueryResult<TestDataSourceViewData>> Do(string matchName,int page,int pageSize, CancellationToken cancellationToken = default);
+        Task<QueryResult<TestDataSourceViewData>> Do(Guid? parentId, string matchName,int page,int pageSize, CancellationToken cancellationToken = default);
     }
 }

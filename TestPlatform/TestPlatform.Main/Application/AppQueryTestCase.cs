@@ -20,10 +20,10 @@ namespace FW.TestPlatform.Main.Application
             _testCaseRepository = testCaseRepository;
         }
 
-        public async Task<QueryResult<TestCaseListViewData>> Do(string matchName, int page, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<QueryResult<TestCaseListViewData>> Do(Guid? parentId, string matchName, int page, int pageSize, CancellationToken cancellationToken = default)
         {
             QueryResult<TestCaseListViewData> result = new QueryResult<TestCaseListViewData>();
-            var queryResult=await _testCaseRepository.QueryByPage(matchName, page, pageSize, cancellationToken);
+            var queryResult=await _testCaseRepository.QueryByParentId(parentId, page, pageSize, cancellationToken);
 
             result.CurrentPage = queryResult.CurrentPage;
             result.TotalCount = queryResult.TotalCount;
@@ -38,6 +38,7 @@ namespace FW.TestPlatform.Main.Application
                         EngineType = item.EngineType,
                         Status = item.Status == TestCaseStatus.NoRun ? "没有运行" : (item.Status == TestCaseStatus.Running ? "正在运行" : ""),
                         Configuration = item.Configuration,
+                        TreeID = item.TreeID,
                         CreateTime = item.CreateTime
                     }
                     );

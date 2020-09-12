@@ -45,24 +45,33 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundSlaveHostInCase, fragment, 1, 0);
             }
-            
-            tCaseSlaveHost.TestCaseID = slaveHost.TestCaseID;
-            tCaseSlaveHost.HostID = slaveHost.HostID;
-            tCaseSlaveHost.Count = slaveHost.Count;
-            tCaseSlaveHost.ExtensionInfo = slaveHost.ExtensionInfo;
-            tCaseSlaveHost.SlaveName = slaveHost.SlaveName;
-            tCaseSlaveHost.ModifyTime = DateTime.UtcNow;
+            TestCaseSlaveHost newSlaveHost = new TestCaseSlaveHost()
+            {
+                ID = slaveHost.ID,
+                TestCaseID = slaveHost.TestCaseID,
+                HostID = slaveHost.HostID,
+                Count = slaveHost.Count,
+                ExtensionInfo = slaveHost.ExtensionInfo,
+                SlaveName = slaveHost.SlaveName,
+                ModifyTime = DateTime.UtcNow
+            };
+            //tCaseSlaveHost.TestCaseID = slaveHost.TestCaseID;
+            //tCaseSlaveHost.HostID = slaveHost.HostID;
+            //tCaseSlaveHost.Count = slaveHost.Count;
+            //tCaseSlaveHost.ExtensionInfo = slaveHost.ExtensionInfo;
+            //tCaseSlaveHost.SlaveName = slaveHost.SlaveName;
+            //tCaseSlaveHost.ModifyTime = DateTime.UtcNow;
 
-            await testCase.UpdateSlaveHost(tCaseSlaveHost, cancellationToken);
+            await testCase.UpdateSlaveHost(newSlaveHost, cancellationToken);
 
             return new TestCaseSlaveHostViewData()
             {
-                ID = tCaseSlaveHost.ID,
-                TestCaseID = tCaseSlaveHost.TestCaseID,
-                HostID = tCaseSlaveHost.HostID,
-                Count = tCaseSlaveHost.Count,
-                ExtensionInfo = tCaseSlaveHost.ExtensionInfo,
-                SlaveName = tCaseSlaveHost.SlaveName,
+                ID = newSlaveHost.ID,
+                TestCaseID = newSlaveHost.TestCaseID,
+                HostID = newSlaveHost.HostID,
+                Count = newSlaveHost.Count,
+                ExtensionInfo = newSlaveHost.ExtensionInfo,
+                SlaveName = newSlaveHost.SlaveName,
                 CreateTime = tCaseSlaveHost.CreateTime.ToCurrentUserTimeZone()
             };
         }

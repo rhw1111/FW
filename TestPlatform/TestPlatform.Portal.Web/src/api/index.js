@@ -42,6 +42,9 @@ const action = ({
     }, responseType)
   }
   if (apiName.includes('put')) {
+    if (postfix) {
+      postfix && (api = `${api}/${postfix}`)
+    }
     return put(api, {
       ...payload
     }, responseType)
@@ -398,7 +401,7 @@ export const postHistoryUpdateGatewayDataFormat = payload =>
 
 
 
-// ------------------------------------------- TestHost ----------------------------------------------
+// ------------------------------------------- 目录 ----------------------------------------------
 
 //获得树结构根目录
 export const getTreeEntityList = payload =>
@@ -425,6 +428,42 @@ export const getgobackpreviousTreeEntity = payload =>
 export const postCreateTreeEntity = payload =>
   action({
     apiName: 'postCreateTreeEntity',
+    payload
+  })
+
+
+//删除树结构的某一个
+export const deleteTreeEntity = postfix =>
+  action({
+    apiName: 'deleteTreeEntity',
+    postfix
+  })
+
+//更新父节点
+export const putTreeEntityParent = postfix =>
+  action({
+    apiName: 'putTreeEntityParent',
+    postfix
+  })
+
+//更新名称
+export const putTreeEntityName = postfix =>
+  action({
+    apiName: 'putTreeEntityName',
+    postfix
+  })
+
+//复制创建测试用例和测试数据源
+export const postTreeEntityCopyFile = payload =>
+  action({
+    apiName: 'postTreeEntityCopyFile',
+    payload
+  })
+
+//复制创建目录
+export const postTreeEntityCopyFolder = payload =>
+  action({
+    apiName: 'postTreeEntityCopyFolder',
     payload
   })
 

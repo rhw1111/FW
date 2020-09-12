@@ -5,12 +5,12 @@
               persistent>
       <q-card style="width: 100%;">
         <q-card-section>
-          <div class="text-h6">选择文件目录</div>
+          <div class="text-h6">选择文件目录位置</div>
         </q-card-section>
 
         <q-separator />
 
-        <TreeEntity />
+        <TreeEntity ref="TreeEntity" />
 
         <q-separator />
 
@@ -22,7 +22,7 @@
           <q-btn flat
                  label="确定"
                  color="primary"
-                 @click="ChangeFileDirectoryFlag = false;" />
+                 @click="SelectDirectoryLocation" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -34,6 +34,7 @@
             @cancelMasterHost='cancelMasterHost'
             ref='lookUp' />
     <div class="new_input">
+      <!-- 基础配置 -->
       <div class="row input_row">
         <q-input v-model="Name"
                  :dense="false"
@@ -55,8 +56,8 @@
 
       </div>
 
+      <!-- 基础配置 -->
       <div class="row input_row">
-
         <q-input :dense="false"
                  class="col"
                  readonly
@@ -73,13 +74,24 @@
                    @click="masterHost" />
           </template>
         </q-input>
-        <q-input :dense="false"
+        <q-input v-model="paraConfig.LocustMasterBindPort"
+                 @input="ifRegular('LocustMasterBindPort',paraConfig.LocustMasterBindPort)"
+                 :dense="false"
+                 class="col"
+                 placeholder="值范围(15557~25557)">
+          <template v-slot:before>
+            <span style="font-size:14px">主机端口:</span>
+          </template>
+        </q-input>
+      </div>
+      <div class="row input_row">
+        <q-input v-model="ChangeFileDirectoryName"
+                 :dense="false"
                  class="col"
                  readonly
-                 placeholder="点击右侧加号选择文件目录"
-                 v-if="$route.name=='Directory' || $route.name=='DirectoryTestCaseDetail'">
+                 placeholder="点击右侧加号选择文件目录位置">
           <template v-slot:before>
-            <span style="font-size:14px">文件目录:</span>
+            <span style="font-size:14px">文件目录位置:</span>
           </template>
           <template v-slot:append>
             <q-btn round
@@ -91,6 +103,7 @@
         </q-input>
       </div>
 
+      <!-- 参数配置 -->
       <span style="font-size:14px">参数配置:</span>
       <div class="row"
            style="margin-bottom:10px;">
@@ -255,7 +268,7 @@
                     </template>
                   </q-input>
                   <q-select v-model="paraConfig.DataSourceVars[ind].DataSourceName"
-                            :options="dataSource"
+                            :options="dataSourceName"
                             class="col-5"
                             :dense="true">
                     <template v-slot:before>
@@ -554,17 +567,17 @@
 
 <script>
 import * as Apis from "@/api/index"
-import lookUp from "@/components/lookUp.vue"
-import Clipboard from 'clipboard';
-import TreeEntity from "@/components/TreeEntity.vue"
+import lookUp from "@/components/lookUp.vue"          //主机列表
+import TreeEntity from "@/components/TreeEntity.vue"  //目录管理结构树
 export default {
   name: 'CreateShowTestCase',
-  props: ['dataSourceName', 'detailData'],
+  props: ['detailData'],
   components: {
     lookUp,
     TreeEntity
   },
   watch: {
+    //如果是详情数据直接替换
     detailData (val) {
       if (val) {
         console.log(val)
@@ -577,6 +590,7 @@ export default {
           Duration: configuration.Duration || '',//压测时间
           ResponseSeparator: configuration.ResponseSeparator || '',//结束分隔符
           DataSourceVars: configuration.DataSourceVars || [],//数据源
+          LocustMasterBindPort: configuration.LocustMasterBindPort || 5557,//数据源
           IsPrintLog: configuration.IsPrintLog == true ? '是' : '否',//是否打印日志
           SyncType: configuration.SyncType == false ? '异步模式' : '同步模式',//是否同步异步
           ConnectInit: configuration.ConnectInit || { VarSettings: [] },//连接初始化
@@ -588,41 +602,30 @@ export default {
         this.EngineType = val.engineType;
         this.masterHostSelect = val.masterHostAddress;
         this.MasterHostID = val.masterHostID;
+        this.ChangeFileDirectoryName = val.parentName != '' ? val.parentName : '根目录';
+        this.ChangeFileDirectoryId = val.treeID;
         this.Configuration = JSON.stringify(JSON.parse(val.configuration), null, 2);
       }
     },
-    dataSourceName (val) {
-      console.log(val)
-      if (val) {
-        for (let i = 0; i < val.length; i++) {
-          this.dataSource.push(val[i].name)
-        }
-      }
-    }
   },
   mounted () {
-    for (let i = 0; i < this.dataSourceName.length; i++) {
-      this.dataSource.push(this.dataSourceName[i].name)
-    }
+    this.getDataSourceName();
   },
   data () {
     return {
-
-
-      // -------- 更改文件目录 -------
-      ChangeFileDirectoryFlag: false,//更改文件目录Flag
-      ChangeFileDirectoryValue: '',
-
+      dataSourceName: [],//数据源名称数组
+      // --------------------- 主机选择 ---------------------
       HostFixed: false,     //主机flag
       masterHostSelect: '', //主机选择
       masterHostIndex: -1,//主机下标
       masterHostList: [],//主机列表
 
-      dataSource: [],//数据源名称数组
 
+      //------------------------ 基础参数配置 -----------------------
       Name: '',           //Name
       Configuration: '',  //Configuration
       EngineType: '',     //EngineType
+      FolderID: null,     //目录位置
       MasterHostID: '',   //MasterHostID 主机ID
 
       //Configuration参数配置
@@ -634,6 +637,7 @@ export default {
         Duration: '',//压测时间
         ResponseSeparator: '',//结束分隔符
         DataSourceVars: [],//数据源
+        LocustMasterBindPort: 15557,//主机端口
         IsPrintLog: '否',//是否打印日志
         SyncType: '同步模式',//是否同步异步
         ConnectInit: {
@@ -644,7 +648,7 @@ export default {
         },//发送初始化
         StopInit: {
           VarSettings: []
-        }//停止初始化
+        },//停止初始化
       },
       //是否打印日志
       PrintLogOptions: [
@@ -657,6 +661,7 @@ export default {
           value: false,
         }
       ],
+      //是否同步异步
       SyncTypeOptions: [
         {
           label: '同步模式',
@@ -667,14 +672,100 @@ export default {
           value: false,
         }
       ],
-      DataSourceExpanded: false, //DataSourceVars 扩展框flag
-      ConnectInitExpanded: false,//ConnectInit扩展框flag
-      SendInitExpanded: false,//SendInit扩展框flag
+      DataSourceExpanded: false, //DataSourceVars 展开flag
+      ConnectInitExpanded: false,//ConnectInit展开flag
+      SendInitExpanded: false,//SendInit展开flag
       StopInitExpanded: false,//StopInit
-      ConfigTextExpanded: false,//配置文本
+      ConfigTextExpanded: false,//配置文本展开
+
+
+      // -------- 目录管理 -------
+      ChangeFileDirectoryFlag: false,//更改文件目录Flag
+      ChangeFileDirectoryName: '',   //选择的目录名称
+      ChangeFileDirectoryId: null,   //选择的目录Id
     }
   },
   methods: {
+    //获得数据源名称
+    getDataSourceName () {
+      let para = {}
+      Apis.getDataSourceName(para).then((res) => {
+        console.log(res)
+        for (let i = 0; i < res.data.length; i++) {
+          this.dataSourceName.push(res.data[i].name)
+        }
+        this.$q.loading.hide()
+      })
+    },
+    // ---------------------------------------- 测试用例创建取消 ------------------------------------ 
+    //取消创建测试用例
+    newCancel () {
+      this.Name = '';
+      this.Configuration = '';
+      this.EngineType = '';
+      this.MasterHostID = '';
+      this.masterHostSelect = '';
+      this.$refs.lookUp.selectIndex = -1;
+
+      this.paraConfig = {
+        UserCount: '',//压测用户总数
+        PerSecondUserCount: '',//每秒加载用户数
+        Address: '',//被测服务器
+        Port: '',//被测服务器端口
+        Duration: '',//压测时间
+        ResponseSeparator: '',//结束分隔符
+        DataSourceVars: [],//数据源
+        ConnectInit: {
+          VarSettings: []
+        },//连接初始化
+        SendInit: {
+          VarSettings: []
+        },//发送初始化
+        StopInit: {
+          VarSettings: []
+        }//停止初始化
+      }
+    },
+    //创建测试用例
+    newCreate () {
+      let para = {
+        Name: this.Name,
+        Configuration: this.Configuration.trim(),
+        EngineType: this.EngineType,
+        MasterHostID: this.MasterHostID,
+        FolderID: this.ChangeFileDirectoryId,
+      }
+      console.log(para)
+      //判断基础参数是否选择
+      if (this.Name && this.isJSON(this.Configuration) && this.EngineType && this.MasterHostID) {
+        return para
+      } else {
+        if (this.Name == '') {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '请填写名称',
+            color: 'red',
+          })
+        } else if (this.EngineType == '') {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '请填选择引擎类型',
+            color: 'red',
+          })
+        } else if (this.MasterHostID == '') {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '请选择主机',
+            color: 'red',
+          })
+        }
+        return false;
+      }
+    },
+    // -------------------------------- 主机 ---------------------------
     //打开主机lookUP选择框
     masterHost () {
       this.HostFixed = true;
@@ -706,115 +797,16 @@ export default {
       this.HostFixed = false;
       this.$refs.lookUp.selectIndex = this.masterHostIndex;
     },
-    //新增弹窗取消按钮
-    newCancel () {
-      this.Name = '';
-      this.Configuration = '';
-      this.EngineType = '';
-      this.MasterHostID = '';
-      this.masterHostSelect = '';
-      this.$refs.lookUp.selectIndex = -1;
-
-      this.paraConfig = {
-        UserCount: '',//压测用户总数
-        PerSecondUserCount: '',//每秒加载用户数
-        Address: '',//被测服务器
-        Port: '',//被测服务器端口
-        Duration: '',//压测时间
-        ResponseSeparator: '',//结束分隔符
-        DataSourceVars: [],//数据源
-        ConnectInit: {
-          VarSettings: []
-        },//连接初始化
-        SendInit: {
-          VarSettings: []
-        },//发送初始化
-        StopInit: {
-          VarSettings: []
-        }//停止初始化
-      }
-    },
-    newCreate () {
-      let para = {
-        Name: this.Name,
-        Configuration: this.Configuration.trim(),
-        EngineType: this.EngineType,
-        MasterHostID: this.MasterHostID,
-        FolderID: null,
-      }
-      console.log(para)
-      if (this.Name && this.isJSON(this.Configuration) && this.EngineType && this.MasterHostID) {
-        return para
-      } else {
-        if (this.Name == '') {
-          this.$q.notify({
-            position: 'top',
-            message: '提示',
-            caption: '请填写名称',
-            color: 'red',
-          })
-        } else if (this.EngineType == '') {
-          this.$q.notify({
-            position: 'top',
-            message: '提示',
-            caption: '请填选择引擎类型',
-            color: 'red',
-          })
-        } else if (this.MasterHostID == '') {
-          this.$q.notify({
-            position: 'top',
-            message: '提示',
-            caption: '请选择主机',
-            color: 'red',
-          })
-        }
-        return false;
-      }
-    },
     // ---------------------------------------- 参数配置 ------------------------------------ 
-    //复制文本
-    CopyPageText (data) {
-      if (data.trim() == '') {
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '当前配置文本为空',
-          color: 'red',
-        })
-        return;
-      }
-      let clipboard = new Clipboard('.tag', {
-        text: function () {
-          return data
-        }
-      })
-      clipboard.on('success', () => {
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '复制成功',
-          color: 'secondary',
-        })
-        // 释放内存
-        clipboard.destroy()
-      })
-      clipboard.on('error', () => {
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '复制失败，当前浏览器不支持复制。',
-          color: 'red',
-        })
-        clipboard.destroy()
-      })
-    },
     //生成JSON
     CreateJson () {
+      //------------- 参数文本为空新添加参数 ------------- 
       if (this.Configuration.trim() == '') {
-        //验证ip地址是否正确
-        //if (!this.isValidIp(this.paraConfig.Address)) { return; }
         //验证端口号是否正确
         if (!this.isPort(this.paraConfig.Port)) { return; }
+        //验证主机端口号是否正确
+        if (!this.isMasterPort(this.paraConfig.LocustMasterBindPort)) { return; }
+        //判断数据源数据是否正确
         if (!this.ifDataVars()) { return; }
         this.Configuration = JSON.stringify({
           UserCount: this.paraConfig.UserCount ? Number(this.paraConfig.UserCount) : '',//压测用户总数
@@ -824,6 +816,7 @@ export default {
           Duration: this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '',//压测时间
           ResponseSeparator: this.paraConfig.ResponseSeparator,//结束分隔符
           DataSourceVars: this.paraConfig.DataSourceVars,//数据源
+          LocustMasterBindPort: Number(this.paraConfig.LocustMasterBindPort),//主机端口
           IsPrintLog: this.paraConfig.IsPrintLog == true || this.paraConfig.IsPrintLog == '是' ? true : false,//是否打印日志
           SyncType: this.paraConfig.SyncType == true || this.paraConfig.SyncType == '同步模式' ? true : false,//是否同步异步
           ConnectInit: {
@@ -837,11 +830,16 @@ export default {
           }//停止初始化
         }, null, 2);
         this.ConfigTextExpanded = true;
+
+
+        //------------- 参数文本不为空新更新参数 ------------- 
       } else if (this.isJSON(this.Configuration.trim())) {
-        //验证ip地址是否正确
-        //if (!this.isValidIp(this.paraConfig.Address)) { return; }
         //验证端口号是否正确
         if (!this.isPort(this.paraConfig.Port)) { return; }
+        //验证主机端口号是否正确
+        if (!this.isMasterPort(this.paraConfig.LocustMasterBindPort)) { return; }
+
+        //判断数据源数据是否正确
         if (!this.ifDataVars()) { return; }
         this.Configuration = JSON.parse(this.Configuration);
         this.Configuration.UserCount = this.paraConfig.UserCount ? Number(this.paraConfig.UserCount) : '';
@@ -851,6 +849,7 @@ export default {
         this.Configuration.Duration = this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '';
         this.Configuration.ResponseSeparator = this.paraConfig.ResponseSeparator;
         this.Configuration.DataSourceVars = this.paraConfig.DataSourceVars;
+        this.Configuration.LocustMasterBindPort = this.paraConfig.LocustMasterBindPort;
         this.Configuration.IsPrintLog = this.paraConfig.IsPrintLog == true || this.paraConfig.IsPrintLog == '是' ? true : false;
         this.Configuration.SyncType = this.paraConfig.SyncType == true || this.paraConfig.SyncType == '同步模式' ? true : false;
         this.Configuration.ConnectInit.VarSettings = this.paraConfig.ConnectInit.VarSettings;
@@ -928,12 +927,31 @@ export default {
         }
       } else { return true; }
     },
+    //判断主机端口号是否正确
+    isMasterPort (val) {
+      if (val != '') {
+        if (!(/^[1-9]\d*$/.test(val) && 15557 <= 1 * val && 1 * val <= 25557)) {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '主机端口不符合范围：15557-25557',
+            color: 'red',
+          })
+          return false;
+        } else {
+          return true;
+        }
+      } else { return true; }
+    },
     //判断验证正则
     ifRegular (key, val) {
       this.$nextTick(() => {
         if (key == 'Port') {
           let str = val.replace(/[^\d]/g, "");
           this.$set(this.paraConfig, key, str > 65535 ? 65535 : str)
+        } else if (key == 'LocustMasterBindPort') {
+          let str = val.replace(/[^\d]/g, "");
+          this.$set(this.paraConfig, key, str > 15557 ? 25557 : str)
         } else {
           this.$set(this.paraConfig, key, val.replace(/[^\d]/g, "").replace(/^0/g, ""))
         }
@@ -1057,7 +1075,7 @@ export default {
         }
       })
     },
-    //上移列表
+    //数据源、初始化上移列表
     moveUpList (value, index) {
       if (value == 'DataSourceVars' && index != 0) {
         this.paraConfig.DataSourceVars[index] = this.paraConfig.DataSourceVars.splice(index - 1, 1, this.paraConfig.DataSourceVars[index])[0];
@@ -1069,7 +1087,7 @@ export default {
         this.paraConfig.StopInit.VarSettings[index] = this.paraConfig.StopInit.VarSettings.splice(index - 1, 1, this.paraConfig.StopInit.VarSettings[index])[0];
       }
     },
-    //下移列表
+    //数据源、初始化下移列表
     moveDownList (value, index) {
       if (value == 'DataSourceVars' && index < this.paraConfig.DataSourceVars.length - 1) {
 
@@ -1090,12 +1108,17 @@ export default {
       }
     },
 
-
-    //更改文件夹目录
+    //---------------------------------------------- 目录管理 -------------------------------------------
+    //打开文件目录位置弹窗
     ChangeFileDirectory () {
       this.ChangeFileDirectoryFlag = true;
     },
-
+    //选择目录位置   
+    SelectDirectoryLocation () {
+      this.ChangeFileDirectoryName = this.$refs.TreeEntity.getDirectoryLocation().label;
+      this.ChangeFileDirectoryId = this.$refs.TreeEntity.getDirectoryLocation().id || null;
+      this.ChangeFileDirectoryFlag = false;
+    },
   }
 }
 </script>

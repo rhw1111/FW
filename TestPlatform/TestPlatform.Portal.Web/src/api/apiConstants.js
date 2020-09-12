@@ -105,5 +105,15 @@ const apiConstants = {
   getgobackpreviousTreeEntity: 'api/treeentity/gobackprevious',//回到上一级 
 
   postCreateTreeEntity: 'api/treeentity/add',//创建目录
+
+  deleteTreeEntity: 'api/treeentity/delete',//删除树结构的某一个
+
+  putTreeEntityParent: 'api/treeentity/updateparent',//更新父节点
+
+  putTreeEntityName: 'api/treeentity/updatename',//更新名称
+
+  postTreeEntityCopyFile: 'api/treeentity/copy',//复制创建测试用例和测试数据源
+
+  postTreeEntityCopyFolder: 'api/treeentity/createfolder',//复制创建目录
 }
 export default apiConstants

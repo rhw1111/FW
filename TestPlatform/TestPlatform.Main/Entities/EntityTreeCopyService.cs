@@ -13,10 +13,10 @@ namespace FW.TestPlatform.Main.Entities
     public class EntityTreeCopyService : IEntityTreeCopyService
     {
         public static IDictionary<string, IFactory<IEntityTreeCopyService>> EntityTreeCopyServiceFactories { get; } = new Dictionary<string, IFactory<IEntityTreeCopyService>>();
-        public async Task Execute(string type, Guid entityID, Guid parentTreeID)
+        public async Task<bool> Execute(string type, Guid entityID, Guid? parentTreeID)
         {
             var service = getService(type);
-            await service.Execute(type, entityID, parentTreeID);
+            return await service.Execute(type, entityID, parentTreeID);
         }
 
         private IEntityTreeCopyService getService(string type)

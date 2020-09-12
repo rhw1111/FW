@@ -445,6 +445,7 @@ namespace FW.TestPlatform.Main
         
         
             EntityTreeCopyService.EntityTreeCopyServiceFactories[EntityTreeCopyServiceTypes.TestCase]= DIContainerContainer.Get<EntityTreeCopyServiceForTestCaseFactory>();
+            EntityTreeCopyService.EntityTreeCopyServiceFactories[EntityTreeCopyServiceTypes.TestDataSource] = DIContainerContainer.Get<EntityTreeCopyServiceForTestDataSourceFactory>();
         }
 
 
