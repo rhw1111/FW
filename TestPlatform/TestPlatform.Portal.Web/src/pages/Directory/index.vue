@@ -1,13 +1,19 @@
 <template>
-  <div id="Directory">
+  <div id="Directory"
+       class="column item-start">
     <!-- button -->
-    <div class="detail_header row detail_fixed">
-      <div class="col-7 col-md-6 row">
+    <div class="col-auto  detail_header row">
+      <div class="col-7 col-md-7 row">
         <q-btn class="btn"
                color="primary"
                label="上一级"
                v-show="RecordDirectorySite.length!=0"
                @click="toPrevLevel" />
+        <q-btn class="btn"
+               color="primary"
+               label="返回根目录"
+               v-show="RecordDirectorySite.length!=0"
+               @click="returnToRoot" />
         <q-btn class="btn"
                color="primary"
                label="新建目录"
@@ -32,13 +38,15 @@
         <q-btn class="btn"
                color="primary"
                label="新建测试用例"
+               v-show="(isSearchStatus && RecordDirectorySite.length!=0) || !isSearchStatus"
                @click="createTestCaseFixed = true;" />
         <q-btn class="btn"
                color="primary"
                label="新建测试数据源"
+               v-show="(isSearchStatus && RecordDirectorySite.length!=0) || !isSearchStatus"
                @click="createDataSourceFixed = true;" />
       </div>
-      <div class="col-5 col-md-6  row">
+      <div class="col-5 col-md-5  row">
 
         <div class="col-8 row">
           <q-input class="col-6"
@@ -75,8 +83,12 @@
         </div>
       </div>
     </div>
+
+    <div class="col-auto  pathLocation q-pa-md">
+      {{currentDirectoryLocation}}
+    </div>
     <!-- 目录 -->
-    <div class="folder">
+    <div class="col-9 col-md-8  folder">
       <div class="q-pa-md">
         <div class="Rootfolder">
           <div class="Rootfolder_list"
@@ -115,18 +127,18 @@
             <p>{{value.name}}</p>
           </div>
         </div>
-        <div class="folderList_page">
-          <el-pagination background
-                         style="float:right;margin-top:5px;margin-right:5%;"
-                         layout="prev, pager, next"
-                         :current-page="folderPage.folderPageCurrent"
-                         :page-size="100"
-                         @current-change="switchFolderPage"
-                         :total="folderPage.folderPageTotal">
-          </el-pagination>
-          <!-- </q-pagination> -->
-        </div>
       </div>
+    </div>
+
+    <div class="folderList_page">
+      <el-pagination background
+                     style="float:right;margin-top:10px;margin-right:5%;"
+                     layout="prev, pager, next"
+                     :current-page="folderPage.folderPageCurrent"
+                     :page-size="100"
+                     @current-change="switchFolderPage"
+                     :total="folderPage.folderPageTotal">
+      </el-pagination>
     </div>
 
     <!-- 更改文件目录 -->
@@ -167,7 +179,8 @@
 
         <q-separator />
 
-        <CreateShowTestCase ref="CSTestCase" />
+        <CreateShowTestCase ref="CSTestCase"
+                            :currentDirectory="RecordDirectorySite[RecordDirectorySite.length-1]" />
 
         <q-separator />
 
@@ -193,7 +206,8 @@
         </q-card-section>
 
         <q-separator />
-        <CreatePut ref="createDataSource" />
+        <CreatePut ref="createDataSource"
+                   :currentDirectory="RecordDirectorySite[RecordDirectorySite.length-1]" />
         <q-separator />
 
         <q-card-actions align="right">
@@ -290,6 +304,7 @@ export default {
         folderPageTotal: null,        //总数量
       },
       isSearchStatus: false,          //是否是搜索状态
+      currentDirectoryLocation: '',    //当前所在目录位置
       // -------- 搜索 -------
       searchText: '',//搜索内容
       FileType: null,//文件类型
@@ -386,12 +401,7 @@ export default {
         this.folderPage.folderPageTotal = res.data.totalCount;
 
         this.FolderList = res.data.results;
-        // for (let i = 0; i < 100; i++) {
-        //   this.FolderList.push({
-        //     type: 1
-        //   })
-        // }
-        this.$q.loading.hide();
+        this.getTreeEntityTreePath();
       })
     },
     //上一级
@@ -422,6 +432,8 @@ export default {
       Apis.getgobackpreviousTreeEntity(para).then(res => {
         console.log(res)
 
+
+
         //删除当前记录目录位置的最后一个并且重新保存到session
         this.RecordDirectorySite.pop();
         //判断当前是否搜索状态
@@ -431,14 +443,15 @@ export default {
           sessionStorage.setItem('RecordDirectorySite', JSON.stringify(this.RecordDirectorySite));
         }
 
+
         this.selection = [];
         this.folderPage.folderPageCurrent = res.data.currentPage;
         this.folderPage.folderPageTotal = res.data.totalCount;
         this.FolderList = res.data.results;
 
 
+        this.getTreeEntityTreePath();
 
-        this.$q.loading.hide();
       })
     },
     //下一级
@@ -488,7 +501,7 @@ export default {
           this.selection = [];
           this.FolderList = res.data.results;
 
-          this.$q.loading.hide();
+          this.getTreeEntityTreePath();
         })
       } else if (value.type === 2) {
         //----------------- 当前进入的是测试用例 ----------------- 
@@ -512,7 +525,6 @@ export default {
         this.getTestDataSourceDetail(value.value)
       }
     },
-
     //删除文件夹
     DeleteFolder () {
       if (this.selection.length == 0) {
@@ -562,39 +574,36 @@ export default {
       console.log(value)
       this.getEchoLocation(value)
     },
-    //确定选择目录位置
-    SelectDirectoryLocation () {
-      let _this = this;
-      let putNum = 0;
-      this.ChangeFileDirectoryValue = this.$refs.TreeEntity.getDirectoryLocation();
-      //判断是否选择要移动的目录
-      if (!this.ChangeFileDirectoryValue) {
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: '请选择要移动的目录',
-          color: 'red',
-        })
-        return;
+    //获得文件目录路径
+    getTreeEntityTreePath () {
+      console.log(this.RecordDirectorySite)
+      this.$q.loading.show();
+      if (this.isSearchStatus) {
+        if (this.RecordDirectorySite.length > 0) {
+          let para = { id: this.RecordDirectorySite[this.RecordDirectorySite.length - 1].id };
+          Apis.getTreeEntityTreePath(para).then((res) => {
+            console.log(res)
+            this.currentDirectoryLocation = `当前所在目录位置：根目录 > ` + res.data.join(' > ');
+            this.$q.loading.hide();
+          })
+        } else {
+          this.currentDirectoryLocation = `当前所在目录位置：根目录 > `;
+          this.$q.loading.hide();
+        }
       } else {
-        this.$q.loading.show();
-        UpdateFolder();
+        if (this.RecordDirectorySite.length != 0) {
+          let para = { id: this.RecordDirectorySite[this.RecordDirectorySite.length - 1].id };
+          Apis.getTreeEntityTreePath(para).then((res) => {
+            console.log(res)
+            this.currentDirectoryLocation = '当前所在目录位置：根目录 > ' + res.data.join(' > ');
+            this.$q.loading.hide();
+          })
+        } else {
+          this.currentDirectoryLocation = '当前所在目录位置：根目录 > ';
+          this.$q.loading.hide();
+        }
       }
-      console.log(this.ChangeFileDirectoryValue)
-      //递归执行移动目录操作
-      function UpdateFolder () {
-        let para = `?id=${_this.selection[putNum].id}&parentId=${_this.ChangeFileDirectoryValue.id}`
-        Apis.putTreeEntityParent(para).then(res => {
-          console.log(res)
-          if (putNum != _this.selection.length - 1) {
-            putNum++;
-            UpdateFolder()
-          } else {
-            _this.ChangeFileDirectoryFlag = false;
-            _this.getEchoLocation();
-          }
-        })
-      }
+
     },
     //---------------------------------------------- 搜索 -------------------------------------------
     //搜索
@@ -653,7 +662,7 @@ export default {
         console.log(this.RecordDirectorySite)
 
         this.FolderList = res.data.results;
-        this.$q.loading.hide();
+        this.getTreeEntityTreePath();
       })
     },
     //取消搜索
@@ -668,6 +677,23 @@ export default {
       }
     },
     //---------------------------------------------- 目录操作 -------------------------------------------
+    //返回根目录
+    returnToRoot () {
+      //判断当前是否搜索状态
+      if (this.isSearchStatus) {
+        this.RecordDirectorySite = [];
+        sessionStorage.removeItem('Page');
+        sessionStorage.setItem('RecordSearchDirectorySite', JSON.stringify([]));
+        sessionStorage.setItem('isSearchStatus', false)
+        this.isSearchStatus = false;
+        this.searchText = ''; this.FileType = null;
+        this.getTreeEntityList();
+      } else {
+        this.RecordDirectorySite = [];
+        this.getTreeEntityList();
+        sessionStorage.setItem('RecordDirectorySite', JSON.stringify(this.RecordDirectorySite));
+      }
+    },
     //新建目录
     newFolderCreate () {
       this.$q.dialog({
@@ -795,6 +821,45 @@ export default {
         this.ChangeFileDirectoryFlag = true;
       }
     },
+    //确定选择目录位置
+    SelectDirectoryLocation () {
+      let _this = this;
+      let putNum = 0;
+      this.ChangeFileDirectoryValue = this.$refs.TreeEntity.getDirectoryLocation();
+      //判断是否选择要移动的目录
+      if (!this.ChangeFileDirectoryValue) {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '请选择要移动的目录',
+          color: 'red',
+        })
+        return;
+      } else {
+        this.$q.loading.show();
+        UpdateFolder();
+      }
+      console.log(this.ChangeFileDirectoryValue)
+      //递归执行移动目录操作
+      function UpdateFolder () {
+        let para = '';
+        if (_this.ChangeFileDirectoryValue.id) {
+          para = `?id=${_this.selection[putNum].id}&parentId=${_this.ChangeFileDirectoryValue.id}`
+        } else {
+          para = `?id=${_this.selection[putNum].id}`
+        }
+        Apis.putTreeEntityParent(para).then(res => {
+          console.log(res)
+          if (putNum != _this.selection.length - 1) {
+            putNum++;
+            UpdateFolder()
+          } else {
+            _this.ChangeFileDirectoryFlag = false;
+            _this.getEchoLocation();
+          }
+        })
+      }
+    },
     //---------------------------------------------- 新建取消创建测试用例 -------------------------------------------
     //新增弹窗取消按钮
     newCancel () {
@@ -906,6 +971,7 @@ export default {
     //复制按钮
     copyDirectorCreate () {
       this.$refs.copyDirector.copyDirectorCreate();
+      this.copyDirectorFlag = false;
     }
   }
 }
@@ -913,6 +979,9 @@ export default {
 
 <style lang="scss" scoped>
 #Directory {
+  position: fixed;
+  width: 100%;
+  height: 100%;
   .detail_header {
     padding: 10px 16px 5px;
     width: 100%;
@@ -925,14 +994,18 @@ export default {
       height: 36px;
     }
   }
-  .detail_fixed {
-    position: fixed;
-    top: 48px;
-    left: 0;
-    z-index: 10;
-  }
-  .folder {
+
+  .pathLocation {
+    width: 100%;
     box-sizing: border-box;
+    border-bottom: 1px solid #ccc;
+    word-wrap: break-word;
+  }
+
+  .folder {
+    padding-bottom: 30px;
+    box-sizing: border-box;
+    overflow-y: scroll;
     .Rootfolder {
       width: 100%;
       .Rootfolder_list {
@@ -977,29 +1050,16 @@ export default {
         }
       }
     }
-    .folderList_page {
-      position: fixed;
-      bottom: 0%;
-      right: 0%;
-      width: 100%;
-      height: 50px;
-      border-top: 1px solid #ccc;
-      box-sizing: border-box;
-      background: white;
-    }
   }
-}
-</style>
-<style lang="scss">
-@media screen and (max-width: 1450px) {
-  .folder {
-    padding: 80px 0px 50px;
-  }
-}
-
-@media screen and (min-width: 1450px) {
-  .folder {
-    padding: 50px 0px 50px;
+  .folderList_page {
+    position: fixed;
+    bottom: 0%;
+    right: 0%;
+    width: 100%;
+    height: 50px;
+    border-top: 1px solid #ccc;
+    box-sizing: border-box;
+    background: white;
   }
 }
 </style>

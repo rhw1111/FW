@@ -467,6 +467,13 @@ export const postTreeEntityCopyFolder = payload =>
     payload
   })
 
+//获取节点的路径
+export const getTreeEntityTreePath = payload =>
+  action({
+    apiName: 'getTreeEntityTreePath',
+    payload
+  })
+
 
 
 

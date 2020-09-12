@@ -39,6 +39,7 @@ export default {
   },
   mounted () {
     this.DisablesSelectedDirectories = this.existingDirectories || [];
+    console.log(this.DisablesSelectedDirectories)
     this.getTreeEntityList();
   },
   methods: {
@@ -56,9 +57,8 @@ export default {
         console.log(res)
         let resultsArr = res.data.results;
         for (let i = 0; i < res.data.results.length; i++) {
-          console.log(res.data.results)
           for (let j = 0; j < this.DisablesSelectedDirectories.length; j++) {
-            if (this.DisablesSelectedDirectories[j].id == res.data.results[i].id) {
+            if (this.DisablesSelectedDirectories[j].parentID == res.data.results[i].id || this.DisablesSelectedDirectories[j].id == res.data.results[i].id) {
               resultsArr.splice(i, 1, '');
             }
           }
@@ -101,7 +101,7 @@ export default {
         for (let i = 0; i < res.data.results.length; i++) {
           console.log(res.data.results)
           for (let j = 0; j < this.DisablesSelectedDirectories.length; j++) {
-            if (this.DisablesSelectedDirectories[j].id == res.data.results[i].id) {
+            if (this.DisablesSelectedDirectories[j].parentID == res.data.results[i].id || this.DisablesSelectedDirectories[j].id == res.data.results[i].id) {
               resultsArr[i] = '';
               break;
             }
