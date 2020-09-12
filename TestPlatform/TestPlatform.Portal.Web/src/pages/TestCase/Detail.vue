@@ -50,6 +50,17 @@
                           ref="CSTestCase"
                           :detailData="detailData" />
     </div>
+    <!-- 从机和历史记录列表 -->
+    <div class="q-pa-md row HostList">
+      <!-- 从主机列表 -->
+      <SlaveHost :isNoRun="isNoRun"
+                 :detailData="detailData"
+                 ref="TestCaseSlaveHost" />
+      <!-- 历史记录列表 -->
+      <History :isNoRun="isNoRun"
+               :detailData="detailData"
+               ref="TestCaseHistory" />
+    </div>
     <!-- 复制创建TestCase -->
     <q-dialog v-model="CopyTestCaseFixed"
               persistent>
@@ -94,17 +105,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <!-- 从机和历史记录列表 -->
-    <div class="q-pa-md row HostList">
-      <!-- 从主机列表 -->
-      <SlaveHost :isNoRun="isNoRun"
-                 :detailData="detailData"
-                 ref="TestCaseSlaveHost" />
-      <!-- 历史记录列表 -->
-      <History :isNoRun="isNoRun"
-               :detailData="detailData"
-               ref="TestCaseHistory" />
-    </div>
     <!-- 主机日志提示 -->
     <q-dialog v-model="lookMasterLogFlag">
       <q-card class="q-dialog-plugin full-height"
