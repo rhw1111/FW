@@ -44,7 +44,7 @@
              label="复 制"
              @click="CopyTestCase" />
     </div>
-    <!-- 新建测试用例 -->
+    <!-- 测试用例参数 -->
     <div class="q-pa-md">
       <CreateShowTestCase :masterHostList="masterHostList"
                           ref="CSTestCase"
