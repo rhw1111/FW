@@ -78,7 +78,7 @@
                  @input="ifRegular('LocustMasterBindPort',paraConfig.LocustMasterBindPort)"
                  :dense="false"
                  class="col"
-                 placeholder="值范围(15557~25557)">
+                 placeholder="值范围(15557~25557) 默认15557">
           <template v-slot:before>
             <span style="font-size:14px">主机端口:</span>
           </template>
@@ -841,6 +841,7 @@ export default {
             VarSettings: this.paraConfig.StopInit.VarSettings
           }//停止初始化
         }, null, 2);
+        this.paraConfig.LocustMasterBindPort = JSON.parse(this.Configuration).LocustMasterBindPort;
         this.ConfigTextExpanded = true;
 
 
@@ -861,7 +862,7 @@ export default {
         this.Configuration.Duration = this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '';
         this.Configuration.ResponseSeparator = this.paraConfig.ResponseSeparator;
         this.Configuration.DataSourceVars = this.paraConfig.DataSourceVars;
-        this.Configuration.LocustMasterBindPort = this.paraConfig.LocustMasterBindPort || 15557;
+        this.Configuration.LocustMasterBindPort = Number(this.paraConfig.LocustMasterBindPort) || 15557;
         this.Configuration.IsPrintLog = this.paraConfig.IsPrintLog == true || this.paraConfig.IsPrintLog == '是' ? true : false;
         this.Configuration.SyncType = this.paraConfig.SyncType == true || this.paraConfig.SyncType == '同步模式' ? true : false;
         this.Configuration.ConnectInit.VarSettings = this.paraConfig.ConnectInit.VarSettings;

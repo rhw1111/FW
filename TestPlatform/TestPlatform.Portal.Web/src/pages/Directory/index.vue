@@ -831,7 +831,7 @@ export default {
         this.$q.notify({
           position: 'top',
           message: '提示',
-          caption: '请选择要移动的目录',
+          caption: '请选择要移动到的目录位置',
           color: 'red',
         })
         return;
@@ -972,6 +972,7 @@ export default {
     copyDirectorCreate () {
       this.$refs.copyDirector.copyDirectorCreate();
       this.copyDirectorFlag = false;
+      this.selection = [];
     }
   }
 }

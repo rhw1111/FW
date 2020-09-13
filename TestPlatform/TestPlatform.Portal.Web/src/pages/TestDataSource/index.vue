@@ -69,7 +69,8 @@
         </q-card-section>
 
         <q-separator />
-        <CreatePut ref="createDataSource" />
+        <CreatePut ref="createDataSource"
+                   :currentDirectory="SelectLocation" />
 
         <q-separator />
 
@@ -221,7 +222,7 @@ export default {
       let para = this.$refs.createDataSource.newCreate()
       this.$q.loading.show()
       Apis.postCreateTestDataSource(para).then(() => {
-        this.getTestDataSource();
+        this.getTestDataSource(1, this.SelectLocation.id);
         this.createFixed = false;
         this.$q.notify({
           position: 'top',
@@ -250,7 +251,7 @@ export default {
       this.$q.loading.show()
       Apis.putTestDataSource(para).then((res) => {
         console.log(res)
-        this.getTestDataSource();
+        this.getTestDataSource(1, this.SelectLocation.id);
         this.$q.notify({
           position: 'top',
           message: '提示',

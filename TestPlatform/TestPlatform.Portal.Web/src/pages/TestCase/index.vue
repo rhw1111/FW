@@ -81,6 +81,7 @@
         <q-separator />
 
         <CreateShowTestCase :masterHostList="masterHostList"
+                            :currentDirectory="SelectLocation"
                             ref="CSTestCase" />
 
         <q-separator />
@@ -166,7 +167,7 @@ export default {
       this.$q.loading.show()
       Apis.postCreateTestCase(para).then((res) => {
         console.log(res)
-        this.getTestCaseList();
+        this.getTestCaseList(1, this.SelectLocation.id);
         this.$q.notify({
           position: 'top',
           message: '提示',
