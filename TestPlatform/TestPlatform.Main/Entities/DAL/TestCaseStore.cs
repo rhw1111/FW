@@ -223,7 +223,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
 
-                    var strLike = $"%{matchName.ToSqlLike()}%";
+                    var strLike = $"%{matchName.ToMySqlLike()}%";
                     var count = await (from item in dbContext.TestCases
                                        where EF.Functions.Like(item.Name, strLike)
                                        select item.ID).CountAsync();

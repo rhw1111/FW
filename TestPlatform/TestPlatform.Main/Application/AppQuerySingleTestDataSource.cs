@@ -38,11 +38,15 @@ namespace FW.TestPlatform.Main.Application
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseDataSourceByID, fragment, 1, 0);
             }
             var parentName = string.Empty;
+            Guid? parentId = null;
             if (item.TreeID != null)
             {
                 TreeEntity? entityWithParent = await _treeEntityRepository.QueryWithParentByID(item.TreeID.Value, cancellationToken);
                 if (entityWithParent != null && entityWithParent.Parent != null)
+                {
                     parentName = entityWithParent.Parent.Name;
+                    parentId = entityWithParent.ParentID;
+                }
             }
             result = new TestDataSourceViewData()
             {
@@ -53,7 +57,8 @@ namespace FW.TestPlatform.Main.Application
                 TreeID = item.TreeID,
                 CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
                 ModifyTime = item.ModifyTime.ToCurrentUserTimeZone(),
-                ParentName = parentName
+                ParentName = parentName,
+                ParentID = parentId
             };
             return result;
         }

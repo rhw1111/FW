@@ -191,7 +191,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
 
-                    var strLike = $"{matchAddress.ToSqlLike()}%";
+                    var strLike = $"{matchAddress.ToMySqlLike()}%";
                     var count = await (from item in dbContext.TestHosts
                                     where EF.Functions.Like(item.Address, strLike) && item.SSHEndpoint != null
                                        select item.ID).CountAsync();
