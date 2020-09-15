@@ -204,7 +204,7 @@ namespace FW.TestPlatform.Main.SSH.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
 
-                    var strLike = $"%{matchName.ToSqlLike()}%";
+                    var strLike = $"%{matchName.ToMySqlLike()}%";
                     var count = await (from item in dbContext.SSHEndpoints
                                        where EF.Functions.Like(item.Name, strLike)
                                        select item.ID).CountAsync();

@@ -190,5 +190,21 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<string>(nameof(ParentName), value);
             }
         }
+        /// <summary>
+        /// 树父节点ID
+        /// </summary>
+        [DataMember]
+        public Guid? ParentID
+        {
+            get
+            {
+
+                return GetAttribute<Guid?>(nameof(ParentID));
+            }
+            set
+            {
+                SetAttribute<Guid?>(nameof(ParentID), value);
+            }
+        }
     }
 }
