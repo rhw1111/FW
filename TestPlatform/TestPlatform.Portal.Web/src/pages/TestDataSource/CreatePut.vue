@@ -109,9 +109,9 @@ export default {
       this.Type = value.Type;
       this.Data = value.Data;
       if (value.ChangeFileDirectoryId) {
-        this.getTreeEntityTreePath(value.ChangeFileDirectoryId, true);
+        this.getTreeEntityTreePath(value.ChangeFileDirectoryId);
       } else {
-        this.ChangeFileDirectoryName = value.ChangeFileDirectoryName != '' ? value.ChangeFileDirectoryName : '根目录';
+        this.ChangeFileDirectoryName = value.ChangeFileDirectoryName != '' ? value.ChangeFileDirectoryName : '根目录 >';
       }
       this.ChangeFileDirectoryId = value.ChangeFileDirectoryId;
     }
@@ -120,7 +120,7 @@ export default {
       this.getTreeEntityTreePath(this.currentDirectory.id);
       this.ChangeFileDirectoryId = this.currentDirectory.id;
     } else {
-      this.ChangeFileDirectoryName = '根目录';
+      this.ChangeFileDirectoryName = '根目录 >';
     }
   },
   methods: {
@@ -244,27 +244,21 @@ export default {
       if (this.$refs.TreeEntity.getDirectoryLocation().id) {
         this.getTreeEntityTreePath(this.$refs.TreeEntity.getDirectoryLocation().id);
       } else {
-        this.ChangeFileDirectoryName = this.$refs.TreeEntity.getDirectoryLocation().label;
+        this.ChangeFileDirectoryName = this.$refs.TreeEntity.getDirectoryLocation().label || '根目录 >';
       }
       this.ChangeFileDirectoryId = this.$refs.TreeEntity.getDirectoryLocation().id || null;
       this.ChangeFileDirectoryFlag = false;
     },
     //获得文件目录路径
-    getTreeEntityTreePath (ID, isDetail) {
-      //ID 当前文件目录ID  isDetail 是否是进入测试数据源或测试用例
+    getTreeEntityTreePath (ID) {
+      //ID 当前文件目录ID 
       console.log(ID)
       this.$q.loading.show();
       let para = { id: ID };
       Apis.getTreeEntityTreePath(para).then((res) => {
         console.log(res)
-        if (!isDetail) {
-          this.ChangeFileDirectoryName = `根目录 > ` + res.data.join(' > ');
-          this.$q.loading.hide();
-        } else {
-          res.data.pop();
-          this.ChangeFileDirectoryName = `根目录 > ` + res.data.join(' > ');
-          this.$q.loading.hide();
-        }
+        this.ChangeFileDirectoryName = `根目录 > ` + res.data.join(' > ');
+        this.$q.loading.hide();
       })
     },
   }

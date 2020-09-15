@@ -39,10 +39,10 @@
              color="primary"
              label="性 能 监 测"
              @click="lookMonitorUrl" />
-      <q-btn class="btn"
+      <!-- <q-btn class="btn"
              color="primary"
              label="复 制"
-             @click="CopyTestCase" />
+             @click="CopyTestCase" /> -->
     </div>
     <!-- 测试用例参数 -->
     <div class="q-pa-md">
@@ -241,13 +241,21 @@ export default {
           let para = `?id=${this.detailData.id}`
           Apis.deleteTestCase(para).then((res) => {
             console.log(res)
-            this.$router.push({ name: 'TestCase' })
+            if (this.$route.name == 'DirectoryTestCaseDetail') {
+              this.returnDirectory();
+            } else {
+              this.$router.push({ name: 'TestCase' })
+            }
           })
         } else {
           let para = `?id=${this.detailData.treeID}`
           Apis.deleteTreeEntity(para).then((res) => {
             console.log(res)
-            this.$router.push({ name: 'TestCase' })
+            if (this.$route.name == 'DirectoryTestCaseDetail') {
+              this.returnDirectory();
+            } else {
+              this.$router.push({ name: 'TestCase' })
+            }
           })
         }
       })

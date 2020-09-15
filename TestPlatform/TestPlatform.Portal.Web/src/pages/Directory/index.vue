@@ -64,7 +64,7 @@
           <q-select class="col-5"
                     v-model="FileType"
                     style="margin-left:10px;height:40px;"
-                    :options="['文件夹','测试用例','测试数据源']"
+                    :options="['目录','测试用例','测试数据源']"
                     label="类型"
                     outlined
                     :dense='true' />
@@ -525,7 +525,7 @@ export default {
         this.getTestDataSourceDetail(value.value)
       }
     },
-    //删除文件夹
+    //删除文件
     DeleteFolder () {
       if (this.selection.length == 0) {
         this.$q.notify({
@@ -622,7 +622,7 @@ export default {
       console.log(this.FileType)
       let FileType = null;
       switch (this.FileType) {
-        case '文件夹':
+        case '目录':
           FileType = 1;
           break;
         case '测试用例':
@@ -920,7 +920,7 @@ export default {
           Type: data.type,
           Data: data.data,
           ChangeFileDirectoryName: data.parentName,
-          ChangeFileDirectoryId: data.treeID
+          ChangeFileDirectoryId: data.parentID
         }
         this.LookDataSourceFixed = true;
         this.$q.loading.hide()

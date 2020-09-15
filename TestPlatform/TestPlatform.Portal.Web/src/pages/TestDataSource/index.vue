@@ -4,14 +4,14 @@
     <div class="q-pa-md">
       <transition name="TreeEntity-slid">
         <TreeEntity v-show="expanded"
-                    style="max-width:20%;height:600px;overflow:auto;float:left;"
+                    style="max-width:20%;height:100%;overflow:auto;float:left;"
                     @getDirectoryLocation="getDirectoryLocation" />
       </transition>
-      <div>
+      <div style="height:100%;">
         <q-btn color="grey"
                flat
                dense
-               style="width:2%;height:600px;float:left;"
+               style="width:2%;height:100%;float:left;"
                :icon="expanded ? 'keyboard_arrow_left' : 'keyboard_arrow_right'"
                @click="expanded = !expanded" />
         <q-table title="测试数据源列表"
@@ -21,7 +21,6 @@
                  :selected.sync="selected"
                  row-key="id"
                  :rows-per-page-options=[0]
-                 table-style="max-height: 500px"
                  no-data-label="暂无数据更新">
 
           <template v-slot:top-right>
@@ -432,8 +431,9 @@ export default {
 
 <style lang="scss" scoped>
 .TestDataSource {
+  position: fixed;
   width: 100%;
-  overflow: hidden;
+  height: 100%;
   .TestDataSource_header {
     position: fixed;
     left: 0;
@@ -448,24 +448,14 @@ export default {
     }
   }
   .q-pa-md {
-    margin-top: 40px;
-  }
-  .q-table {
-    table-layout: fixed;
-    .cursor-pointer {
-      .text-left {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .q-table--col-auto-width {
-        width: 75px;
-      }
-    }
+    height: 100%;
   }
 }
 </style>
 <style lang="scss">
+.q-table__container {
+  height: 95%;
+}
 .q-table {
   .text-left {
     white-space: nowrap;

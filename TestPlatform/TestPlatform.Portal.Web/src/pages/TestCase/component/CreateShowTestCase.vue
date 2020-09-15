@@ -602,12 +602,12 @@ export default {
         this.EngineType = val.engineType;
         this.masterHostSelect = val.masterHostAddress;
         this.MasterHostID = val.masterHostID;
-        if (val.treeID) {
-          this.getTreeEntityTreePath(val.treeID, true);
+        if (val.parentID) {
+          this.getTreeEntityTreePath(val.parentID);
         } else {
-          this.ChangeFileDirectoryName = val.parentName != '' ? val.parentName : '根目录';
+          this.ChangeFileDirectoryName = val.parentName != '' ? val.parentName : '根目录 >';
         }
-        this.ChangeFileDirectoryId = val.treeID;
+        this.ChangeFileDirectoryId = val.parentID;
         this.Configuration = JSON.stringify(JSON.parse(val.configuration), null, 2);
       }
     },
@@ -618,7 +618,7 @@ export default {
       this.getTreeEntityTreePath(this.currentDirectory.id);
       this.ChangeFileDirectoryId = this.currentDirectory.id;
     } else {
-      this.ChangeFileDirectoryName = '根目录';
+      this.ChangeFileDirectoryName = '根目录 >';
     }
     console.log(this.currentDirectory)
     this.getDataSourceName();
@@ -1131,26 +1131,20 @@ export default {
       if (this.$refs.TreeEntity.getDirectoryLocation().id) {
         this.getTreeEntityTreePath(this.$refs.TreeEntity.getDirectoryLocation().id);
       } else {
-        this.ChangeFileDirectoryName = this.$refs.TreeEntity.getDirectoryLocation().label;
+        this.ChangeFileDirectoryName = this.$refs.TreeEntity.getDirectoryLocation().label || '根目录 >';
       }
       this.ChangeFileDirectoryId = this.$refs.TreeEntity.getDirectoryLocation().id || null;
       this.ChangeFileDirectoryFlag = false;
     },
     //获得文件目录路径
-    getTreeEntityTreePath (ID, isDetail) {
-      //ID 当前文件目录ID  isDetail 是否是进入测试数据源或测试用例
+    getTreeEntityTreePath (ID) {
+      //ID 当前文件目录ID  
       this.$q.loading.show();
       let para = { id: ID };
       Apis.getTreeEntityTreePath(para).then((res) => {
         console.log(res)
-        if (!isDetail) {
-          this.ChangeFileDirectoryName = `根目录 > ` + res.data.join(' > ');
-          this.$q.loading.hide();
-        } else {
-          res.data.pop();
-          this.ChangeFileDirectoryName = `根目录 > ` + res.data.join(' > ');
-          this.$q.loading.hide();
-        }
+        this.ChangeFileDirectoryName = `根目录 > ` + res.data.join(' > ');
+        this.$q.loading.hide();
       })
     },
   }
