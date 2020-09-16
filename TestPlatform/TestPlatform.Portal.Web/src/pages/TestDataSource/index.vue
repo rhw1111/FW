@@ -195,7 +195,7 @@ export default {
           Type: data.type,
           Data: data.data,
           ChangeFileDirectoryName: data.parentName,
-          ChangeFileDirectoryId: data.treeID
+          ChangeFileDirectoryId: data.parentID
         }
         this.LookDataSourceFixed = true;
         this.$q.loading.hide()
