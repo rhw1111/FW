@@ -703,7 +703,7 @@ namespace FW.TestPlatform.Main.NetGateway
                             var payloadData = payloadPacket.PayloadData;
 
                             var requestType = 0;
-                            var googleData = this.GetGoogleData(payloadData, out requestType);
+                            var googleData = this.GetGoogleData_TCP(payloadData, out requestType);
 
                             if (googleData != null)
                             {
@@ -1438,6 +1438,54 @@ namespace FW.TestPlatform.Main.NetGateway
                 byte[] body = data.Skip(dspapi_end).ToArray();
 
                 return body;
+            }
+
+            return null;
+        }
+
+        private byte[]? GetGoogleData_TCP(byte[] data, out int requestType)
+        {
+            requestType = 0;
+
+            if (data == null || data.Length < 82)
+            {
+                return null;
+            }
+
+            int packetType = data[0];
+            int tcpMessageType = data[5];
+
+            if (packetType == 2 && tcpMessageType == 85)
+            {
+                int tcp_start = 6;
+                int sizeLengthOfChannelName = 2;
+                int sizeChannelName = Byte2Int(data.Skip(tcp_start).Take(sizeLengthOfChannelName).ToArray());
+                int sizeLengthOfTargetInstanceName = 1;
+                int sizeTargetInstanceName = data[tcp_start + sizeLengthOfChannelName + sizeChannelName];
+                int sizeLengthOfData = 4;
+                //int sizeData = Byte4Int(data.Skip(tcp_start + sizeLengthOfChannelName + sizeChannelName + sizeLengthOfTargetInstanceName + sizeTargetInstanceName).Take(sizeLengthOfData).ToArray());
+
+                int depapi_start = tcp_start + sizeLengthOfChannelName + sizeChannelName + sizeLengthOfTargetInstanceName + sizeTargetInstanceName + sizeLengthOfData;
+                int messageType = data[depapi_start];
+                requestType = data[depapi_start + 23];
+
+                if (packetType == 2 && messageType == 7 && (requestType == 0 || requestType == 1))
+                {
+                    byte[] length_osin_byte = data.Skip(depapi_start + 23 + 5).Take(2).ToArray();
+                    int length_osin = Byte2Int(length_osin_byte);
+
+                    int dsp_begin = depapi_start + 23 + 5 + 2 + length_osin + 5;
+                    //int dsp_end = dsp_begin + 4;
+                    byte[] length_dspm_byte = data.Skip(dsp_begin).Take(4).ToArray();
+                    int length_dspm = Byte4Int(length_dspm_byte);
+
+                    int dspapi_begin = depapi_start + 23 + 5 + 2 + length_osin;
+                    int dspapi_end = dspapi_begin + length_dspm;
+
+                    byte[] body = data.Skip(dspapi_end).Take(data.Length - dspapi_end - 1).ToArray();
+
+                    return body;
+                }
             }
 
             return null;
