@@ -173,6 +173,50 @@ namespace FW.TestPlatform.Main.Entities.DAL
             return result;
         }
 
+        public async Task<QueryResult<TestDataSource>> QueryByParentId(Guid? parentId, int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            QueryResult<TestDataSource> result = new QueryResult<TestDataSource>()
+            {
+                CurrentPage = page
+            };
+
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    var count = await (from item in dbContext.TreeEntities
+                                    where item.ParentID == parentId && item.Type == 3
+                                    select item.ID).CountAsync();
+
+                    result.TotalCount = count;
+
+                    var ids= (from item in dbContext.TreeEntities
+                              where item.ParentID == parentId && item.Type == 3
+                              orderby EF.Property<long>(item,"Sequence") descending
+                                        select item.Value                                 
+                                        ).Skip((page-1)*pageSize).Take(pageSize);
+
+                    if (ids.Count() > 0)
+                    {
+                        //var ids = values.Select(val => new gui)
+                        var datas = await (from item in dbContext.TestDataSources
+                                       join idItem in ids
+                                       on item.ID.ToString() equals idItem
+                                       orderby item.CreateTime descending
+                                       select item).ToListAsync();
+                        result.Results.AddRange(datas);
+                    }                    
+                }
+            });
+
+            return result;
+        }
+
         public async Task<QueryResult<TestDataSource>> QueryByPage(string matchName, int page, int pageSize, CancellationToken cancellationToken = default)
         {
             QueryResult<TestDataSource> result = new QueryResult<TestDataSource>()
@@ -189,26 +233,26 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
 
-                    var strLike = $"%{matchName.ToSqlLike()}%";
+                    var strLike = $"%{matchName.ToMySqlLike()}%";
                     var count = await (from item in dbContext.TestDataSources
-                                    where EF.Functions.Like(item.Name, strLike)
-                                    select item.ID).CountAsync();
+                                       where EF.Functions.Like(item.Name, strLike)
+                                       select item.ID).CountAsync();
 
                     result.TotalCount = count;
 
-                    var ids= (from item in dbContext.TestDataSources
-                                        where EF.Functions.Like(item.Name, strLike)  
-                                        orderby EF.Property<long>(item,"Sequence") descending
-                                        select item.ID                                 
-                                        ).Skip((page-1)*pageSize).Take(pageSize);
+                    var ids = (from item in dbContext.TestDataSources
+                               where EF.Functions.Like(item.Name, strLike)
+                               orderby EF.Property<long>(item, "Sequence") descending
+                               select item.ID
+                                        ).Skip((page - 1) * pageSize).Take(pageSize);
 
-                    var datas =await (from item in dbContext.TestDataSources
-                                 join idItem in ids
-                                 on item.ID equals idItem
-                                 orderby item.CreateTime descending
-                                 select item).ToListAsync();
+                    var datas = await (from item in dbContext.TestDataSources
+                                       join idItem in ids
+                                       on item.ID equals idItem
+                                       orderby item.CreateTime descending
+                                       select item).ToListAsync();
 
-                    result.Results.AddRange(datas);                    
+                    result.Results.AddRange(datas);
                 }
             });
 

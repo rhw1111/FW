@@ -24,6 +24,8 @@ namespace MSLibrary.Logger.DAL
             log.PreLevelID = (Guid)reader[string.Format("{0}prelevelid", prefix)];
             log.CurrentLevelID = (Guid)reader[string.Format("{0}currentlevelid", prefix)];
             log.ContextInfo = reader[string.Format("{0}contextinfo", prefix)].ToString();
+            log.TraceID = reader[string.Format("{0}traceid", prefix)].ToString();
+            log.LinkID = reader[string.Format("{0}linkid", prefix)].ToString();
             log.CategoryName = reader[string.Format("{0}categoryname", prefix)].ToString();
             log.ActionName = reader[string.Format("{0}actionname", prefix)].ToString();
             log.ParentActionName = reader[string.Format("{0}parentactionname", prefix)].ToString();
@@ -44,10 +46,10 @@ namespace MSLibrary.Logger.DAL
         /// <returns></returns>
         public static string GetCommonLogSelectFields(string prefix)
         {
-            var strSelect = @"{0}.[id] as [{0}id],{0}.[parentid] as [{0}parentid],{0}.[prelevelid] as [{0}prelevelid],{0}.[currentlevelid] as [{0}currentlevelid],{0}.[contextinfo] as [{0}contextinfo],{0}.[categoryname] as [{0}categoryname],{0}.[actionname] as [{0}actionname],{0}.[parentactionname] as [{0}parentactionname],{0}.[requestbody] as [{0}requestbody],{0}.[responsebody] as [{0}responsebody],{0}.[requesturi] as [{0}requesturi],{0}.[message] as [{0}message],{0}.[root] as [{0}root],{0}.[level] as [{0}level],{0}.[duration] as [{0}duration],{0}.[createtime] as [{0}createtime],{0}.[modifytime] as [{0}modifytime],{0}.[sequence] as [{0}sequence]";
+            var strSelect = @"{0}.[id] as [{0}id],{0}.[parentid] as [{0}parentid],{0}.[prelevelid] as [{0}prelevelid],{0}.[currentlevelid] as [{0}currentlevelid],{0}.[contextinfo] as [{0}contextinfo],{0}.[traceid] as [{0}traceid],{0}.[linkid] as [{0}linkid],{0}.[categoryname] as [{0}categoryname],{0}.[actionname] as [{0}actionname],{0}.[parentactionname] as [{0}parentactionname],{0}.[requestbody] as [{0}requestbody],{0}.[responsebody] as [{0}responsebody],{0}.[requesturi] as [{0}requesturi],{0}.[message] as [{0}message],{0}.[root] as [{0}root],{0}.[level] as [{0}level],{0}.[duration] as [{0}duration],{0}.[createtime] as [{0}createtime],{0}.[modifytime] as [{0}modifytime],{0}.[sequence] as [{0}sequence]";
             if (string.IsNullOrEmpty(prefix))
             {
-                strSelect = @"[id],[parentid],[prelevelid],[currentlevelid],[contextinfo],[categoryname],[actionname],[parentactionname],[requestbody],[responsebody],[requesturi],[message],[root],[level],[duration],[createtime],[modifytime],[sequence]";
+                strSelect = @"[id],[parentid],[prelevelid],[currentlevelid],[contextinfo],[traceid],[linkid],[categoryname],[actionname],[parentactionname],[requestbody],[responsebody],[requesturi],[message],[root],[level],[duration],[createtime],[modifytime],[sequence]";
             }
             return string.Format(strSelect, prefix);
         }

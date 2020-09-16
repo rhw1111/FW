@@ -47,6 +47,8 @@ namespace MSLibrary.AspNet
 
                 object errorMessage = new ErrorMessage()
                 {
+                     Type=ex.Type,
+                     Level=ex.Level,
                     Code = ex.Code,
                     Message = await ex.GetCurrentLcidMessage()
                 };
@@ -108,6 +110,8 @@ namespace MSLibrary.AspNet
 
                 object errorMessage = new ErrorMessage()
                 {
+                     Type=ex.Type,
+                    Level=ex.Level,
                     Code = ex.Code,
                     Message = await ex.GetCurrentLcidMessage()
                 };
@@ -174,6 +178,8 @@ namespace MSLibrary.AspNet
 
                 object errorMessage = new ErrorMessage()
                 {
+                    Type=ex.Type,
+                    Level=ex.Level,
                     Code = ex.Code,
                     Message = await ex.GetCurrentLcidMessage()
                 };

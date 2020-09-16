@@ -57,7 +57,7 @@ namespace MSLibrary.Logger
         public CommonLogLocalLogger Create()
         {
             CommonLogLocalLogger logger;
-            var di = ContextContainer.GetValue<IDIContainer>("DI");
+            var di = ContextContainer.GetValue<IDIContainer>(ContextTypes.DI);
             if (di == null)
             {
                 logger = DIContainerContainer.Get<CommonLogLocalLogger>();

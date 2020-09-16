@@ -15,7 +15,9 @@ namespace MSLibrary.Cache
     public class CacheKeyRelationService : ICacheKeyRelationService
     {
         public static string? RedisClientFactoryName { get; set; } = null;
-        private static string _relationNameFormat = "{0}_{1}";
+        public static string? RelationNamePrefix { get; set; } = "KeyRelation_";
+
+        private static string _relationNameFormat = "{2}{0}_{1}";
 
         private readonly IRedisClientFactoryRepositoryCacheProxy _redisClientFactoryRepositoryCacheProxy;
 
@@ -29,7 +31,8 @@ namespace MSLibrary.Cache
             if (RedisClientFactoryName!=null)
             {
                 var redisClient = await getRedisClient(RedisClientFactoryName);
-                await redisClient.SAddAsync(string.Format(_relationNameFormat, relationName, oKey), nKey);
+               
+                await redisClient.SAddAsync(string.Format(_relationNameFormat, relationName, oKey, RelationNamePrefix), nKey);
             }
           
         }
@@ -39,7 +42,7 @@ namespace MSLibrary.Cache
             if (RedisClientFactoryName != null)
             {
                 var redisClient = await getRedisClient(RedisClientFactoryName);
-                await redisClient.DelAsync(string.Format(_relationNameFormat, relationName, oKey));
+                await redisClient.DelAsync(string.Format(_relationNameFormat, relationName, oKey, RelationNamePrefix));
             }
         }
 
@@ -49,7 +52,7 @@ namespace MSLibrary.Cache
             if (RedisClientFactoryName != null)
             {
                 var redisClient = await getRedisClient(RedisClientFactoryName);
-                result=(await redisClient.SMembersAsync(string.Format(_relationNameFormat, relationName, oKey))).ToList();
+                result=(await redisClient.SMembersAsync(string.Format(_relationNameFormat, relationName, oKey, RelationNamePrefix))).ToList();
              
             }
             if (result == null)

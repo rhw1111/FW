@@ -96,7 +96,7 @@ namespace IdentityCenter.Main
         /// </summary>
         public static void InitContext()
         {
-            ContextContainer.Current.Register<IDIContainer>(ContextExtensionTypes.DI, new ContextDIContainer());
+            ContextContainer.Current.Register<IDIContainer>(ContextTypes.DI, new ContextDIContainer());
             ContextContainer.Current.Register<int>(ContextTypes.CurrentUserLcid, new ContextCurrentUserLcid());
             ContextContainer.Current.Register<int>(ContextTypes.CurrentUserTimezoneOffset, new ContextCurrentUserTimezoneOffset());
             ContextContainer.Current.Register<ConcurrentDictionary<string, object>>(ContextTypes.Dictionary, new ContextDictionary());

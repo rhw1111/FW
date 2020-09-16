@@ -9,13 +9,19 @@ namespace MSLibrary.Cache
         private DateTime _cacheTime = DateTime.UtcNow;
         private int _timeout;
 
-        public CacheTimeContainer(T value,int timeout)
+        public CacheTimeContainer(T value,int timeout,int type)
         {
             Value = value;
             _timeout = timeout;
+            Type = type;
         }
 
         public T Value
+        {
+            get;
+            set;
+        }
+        public int Type
         {
             get;
             set;

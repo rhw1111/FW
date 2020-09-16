@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using MSLibrary.DI;
@@ -113,23 +114,41 @@ namespace MSLibrary.Cache
             }
         }
 
-        public async Task<(V,bool)> Get<K, V>( Func<K, Task<(V, bool)>> creator, K key)
+        public async Task<(V, bool)> Get<K, V>(Func<K, Task<(V, bool)>> creator, K key)
         {
-            return await _imp.Get<K, V>(this,creator, key);
+            return await _imp.Get<K, V>(this, creator, key);
         }
-        public  (V,bool) GetSync<K, V>( Func<K, (V, bool)> creator, K key)
+        public (V, bool) GetSync<K, V>(Func<K, (V, bool)> creator, K key)
         {
             return _imp.GetSync<K, V>(this, creator, key);
         }
 
-        public async Task Set<K, V>( K key, V value)
+        public async Task Set<K, V>(K key, V value)
         {
             await _imp.Set(this, key, value);
         }
 
         public void SetSync<K, V>(K key, V value)
         {
-            _imp.SetSync(this,key, value);
+            _imp.SetSync(this, key, value);
+        }
+
+        public async Task SetHash<K, V>(K key, IDictionary<string, V> values)
+        {
+            await _imp.SetHash(this, key, values);
+        }
+        public void SetHashSync<K, V>(K key, IDictionary<string, V> values)
+        {
+            _imp.SetHashSync(this, key, values);
+        }
+
+        public async Task<(V, bool)> GetHash<K, V>(Func<K, string, Task<(V, bool)>> creator, K key, string hashKey)
+        {
+            return await _imp.GetHash(this, creator, key, hashKey);
+        }
+        public (V, bool) GetHashSync<K, V>(Func<K, string, (V, bool)> creator, K key, string hashKey)
+        {
+            return _imp.GetHashSync(this, creator, key, hashKey);
         }
 
         public async Task Clear<K, V>(K key)
@@ -139,6 +158,15 @@ namespace MSLibrary.Cache
         public void ClearSync<K, V>( K key)
         {
             _imp.ClearSync<K, V>(this, key);
+        }
+
+        public async Task Clear<K, V>( IEnumerable<K> keys)
+        {
+            await _imp.Clear<K, V>(this, keys);
+        }
+        public void ClearSync<K, V>(IEnumerable<K> keys)
+        {
+            _imp.Clear<K, V>(this, keys);
         }
 
     }
@@ -151,8 +179,17 @@ namespace MSLibrary.Cache
         Task Set<K, V>(KVCacheVisitor visitor, K key, V value);
         void SetSync<K, V>(KVCacheVisitor visitor, K key, V value);
 
+        Task SetHash<K, V>(KVCacheVisitor visitor, K key, IDictionary<string, V> values);
+        void SetHashSync<K, V>(KVCacheVisitor visitor, K key, IDictionary<string, V> values);
+        Task<(V, bool)> GetHash<K, V>(KVCacheVisitor visitor, Func<K,string,Task<(V, bool)>> creator, K key,string hashKey);
+        (V, bool) GetHashSync<K, V>(KVCacheVisitor visitor, Func<K,string,(V, bool)> creator, K key, string hashKey);
+
         Task Clear<K,V>(KVCacheVisitor visitor, K key);
         void ClearSync<K,V>(KVCacheVisitor visitor, K key);
+
+        Task Clear<K, V>(KVCacheVisitor visitor, IEnumerable<K> keys);
+        void ClearSync<K, V>(KVCacheVisitor visitor, IEnumerable<K> keys);
+
 
     }
 
@@ -250,6 +287,60 @@ namespace MSLibrary.Cache
             var realService = getRealService(visitor.CacheType);
             realService.ClearSync<K, V>(visitor.CacheConfiguration, prefix, key);
         }
+
+        public async Task Clear<K, V>(KVCacheVisitor visitor, IEnumerable<K> keys)
+        {
+            var prefix = GetPrefix(visitor.Name, typeof(K), typeof(V));
+            var realService = getRealService(visitor.CacheType);
+            await realService.Clear<K, V>(visitor.CacheConfiguration, prefix, keys);
+        }
+
+        public void ClearSync<K, V>(KVCacheVisitor visitor, IEnumerable<K> keys)
+        {
+            var prefix = GetPrefix(visitor.Name, typeof(K), typeof(V));
+            var realService = getRealService(visitor.CacheType);
+            realService.ClearSync<K, V>(visitor.CacheConfiguration, prefix, keys);
+        }
+
+        public async Task SetHash<K, V>(KVCacheVisitor visitor, K key, IDictionary<string, V> values)
+        {
+            var prefix = GetPrefix(visitor.Name, typeof(K), typeof(V));
+            var realService = getRealService(visitor.CacheType);
+            await realService.SetHash(visitor.CacheConfiguration, prefix, key, values);
+        }
+
+        public void SetHashSync<K, V>(KVCacheVisitor visitor, K key, IDictionary<string, V> values)
+        {
+            var prefix = GetPrefix(visitor.Name, typeof(K), typeof(V));
+            var realService = getRealService(visitor.CacheType);
+             realService.SetHashSync(visitor.CacheConfiguration, prefix, key, values);
+        }
+
+        public async Task<(V, bool)> GetHash<K, V>(KVCacheVisitor visitor, Func<K,string,Task<(V, bool)>> creator, K key, string hashKey)
+        {
+            var prefix = GetPrefix(visitor.Name, typeof(K), typeof(V));
+            var realService = getRealService(visitor.CacheType);
+
+            return await realService.GetHash(visitor.CacheConfiguration,
+                async () =>
+                {
+                    return await creator(key,hashKey);
+                }
+            , prefix,key, hashKey);
+        }
+
+        public (V, bool) GetHashSync<K, V>(KVCacheVisitor visitor, Func<K,string,(V, bool)> creator, K key, string hashKey)
+        {
+            var prefix = GetPrefix(visitor.Name, typeof(K), typeof(V));
+            var realService = getRealService(visitor.CacheType);
+
+            return realService.GetHashSync(visitor.CacheConfiguration,
+                 () =>
+                 {
+                     return creator(key,hashKey);
+                 }
+            , prefix, key,hashKey);
+        }
     }
 
 
@@ -263,5 +354,15 @@ namespace MSLibrary.Cache
 
         Task Clear<K,V>(string cacheConfiguration, string prefix, K key);
         void ClearSync<K,V>(string cacheConfiguration, string prefix, K key);
+
+        Task Clear<K, V>(string cacheConfiguration, string prefix, IEnumerable<K> keys);
+        void ClearSync<K, V>(string cacheConfiguration, string prefix, IEnumerable<K> keys);
+
+        Task SetHash<K, V>(string cacheConfiguration, string prefix, K key, IDictionary<string, V> values);
+        void SetHashSync<K, V>(string cacheConfiguration, string prefix, K key, IDictionary<string, V> values);
+        Task<(V, bool)> GetHash<K, V>(string cacheConfiguration, Func<Task<(V, bool)>> creator, string prefix, K key, string hashKey);
+        (V, bool) GetHashSync<K, V>(string cacheConfiguration, Func<(V, bool)> creator,string prefix,  K key, string hashKey);
+
+
     }
 }

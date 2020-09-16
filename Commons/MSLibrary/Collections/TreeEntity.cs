@@ -250,6 +250,16 @@ namespace MSLibrary.Collections
         {
             return await _imp.GetFormatValue(this,cancellationToken);
         }
+
+        /// <summary>
+        /// 获取节点的路径
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<IList<string>> GetPath(CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetPath(this, cancellationToken);
+        }
     }
 
     public interface ITreeEntityIMP
@@ -263,6 +273,7 @@ namespace MSLibrary.Collections
         Task<TreeEntity?> GetChildren(TreeEntity entity, string name, CancellationToken cancellationToken = default);
         Task<bool> HasChildren(TreeEntity entity,CancellationToken cancellationToken = default);
         Task<JObject> GetFormatValue(TreeEntity entity, CancellationToken cancellationToken = default);
+        Task<IList<string>> GetPath(TreeEntity entity, CancellationToken cancellationToken = default);
     }
 
     public interface ITreeEntityValueService
@@ -433,8 +444,14 @@ namespace MSLibrary.Collections
                     throw new UtilityException((int)Errors.TreeEntityParentTypeError, fragment, 1, 0);
                 }
             }
-
-            await _treeEntityStore.UpdateParent(entity.ID, parentID, cancellationToken);
+            entity.ParentID = parentID;
+            await checkDuplicate(entity,
+                async () =>
+                {
+                    await _treeEntityStore.UpdateParent(entity.ID, parentID, cancellationToken);
+                },
+                cancellationToken);
+            //await _treeEntityStore.UpdateParent(entity.ID, parentID, cancellationToken);
         }
 
         private ITreeEntityValueService getValueService(int type)
@@ -489,6 +506,7 @@ namespace MSLibrary.Collections
         public async Task UpdateName(TreeEntity entity, string name, CancellationToken cancellationToken = default)
         {
             var valueService = getValueService(entity.Type);
+            entity.Name = name;
             await checkDuplicate(entity,
                 async () =>
                 {
@@ -496,6 +514,37 @@ namespace MSLibrary.Collections
                     await valueService.UpdateName(name, entity.Value, cancellationToken);
                 },
                 cancellationToken);
+        }
+
+        public async Task<IList<string>> GetPath(TreeEntity entity, CancellationToken cancellationToken = default)
+        {
+            List<string> path = new List<string>(); 
+            while (true)
+            {
+                if (entity.ParentID != null)
+                {
+                    var parent = await _treeEntityStore.QueryByID(entity.ParentID.Value, cancellationToken);
+                    if (parent == null)
+                    {
+                        var fragment = new TextFragment()
+                        {
+                            Code = TextCodes.NotFoundTreeEntityByID,
+                            DefaultFormatting = "找不到Id为{0}的树状实体记录",
+                            ReplaceParameters = new List<object>() { entity.ParentID.Value.ToString() }
+                        };
+                        throw new UtilityException((int)Errors.NotFoundTreeEntityByID, fragment, 1, 0);
+                    }
+                    path.Add(entity.Name);
+                    entity = parent;
+                }
+                else
+                {
+                    path.Add(entity.Name);
+                    break;
+                }
+            }
+            path.Reverse();
+            return path;
         }
     }
 }

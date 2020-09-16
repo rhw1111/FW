@@ -109,20 +109,38 @@ namespace MSLibrary.Logger
             }
         }
 
+
         /// <summary>
-        /// 父上下文信息
+        /// 链路跟踪ID
         /// </summary>
-        public string ParentContextInfo
+        public string TraceID
         {
             get
             {
-                return GetAttribute<string>("ParentContextInfo");
+                return GetAttribute<string>("TraceID");
             }
             set
             {
-                SetAttribute<string>("ParentContextInfo", value);
+                SetAttribute<string>("TraceID", value);
             }
         }
+
+        /// <summary>
+        /// 路径链接ID
+        /// </summary>
+        public string LinkID
+        {
+            get
+            {
+                return GetAttribute<string>("LinkID");
+            }
+            set
+            {
+                SetAttribute<string>("LinkID", value);
+            }
+        }
+
+
 
         /// <summary>
         /// 目录

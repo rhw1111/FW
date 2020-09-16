@@ -16,7 +16,7 @@ namespace MSLibrary.DI
         /// <returns></returns>
         public static IDIContainer Get()
         {
-            var di = ContextContainer.GetValue<IDIContainer>("DI");
+            var di = ContextContainer.GetValue<IDIContainer>(ContextTypes.DI);
             if (di == null)
             {
                 di = DIContainerContainer.DIContainer;

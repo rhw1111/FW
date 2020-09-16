@@ -364,16 +364,16 @@ namespace MSLibrary.MessageQueue
                                     {
                                         using (var diContainer = DIContainerContainer.CreateContainer())
                                         {
-                                            var orginialDI = ContextContainer.GetValue<IDIContainer>("DI");
+                                            var orginialDI = ContextContainer.GetValue<IDIContainer>(ContextTypes.DI);
                                             try
                                             {
-                                                ContextContainer.SetValue<IDIContainer>("DI", diContainer);
+                                                ContextContainer.SetValue<IDIContainer>(ContextTypes.DI, diContainer);
                                                 //对每个消息执行处理
                                                 executeResult = await message.Execute();
                                             }
                                             finally
                                             {
-                                                ContextContainer.SetValue<IDIContainer>("DI", orginialDI);
+                                                ContextContainer.SetValue<IDIContainer>(ContextTypes.DI, orginialDI);
                                             }
                                         }
 

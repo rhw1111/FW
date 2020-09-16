@@ -36,6 +36,7 @@ namespace FW.TestPlatform.Main.Application
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTreeEntityByID, fragment, 1, 0);
             }
+            treeEntity.Name = name;
             await treeEntity.UpdateName(name, cancellationToken);
         }
     }

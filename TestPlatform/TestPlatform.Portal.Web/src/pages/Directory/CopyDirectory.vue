@@ -10,7 +10,8 @@
 
         <q-separator />
 
-        <TreeEntity ref="TreeEntity" />
+        <TreeEntity ref="TreeEntity"
+                    :existingDirectories="existingDirectories" />
 
         <q-separator />
 
@@ -32,7 +33,7 @@
                :dense="false"
                class="col"
                readonly
-               placeholder="点击右侧加号选择文件要复制的目录">
+               placeholder="点击右侧加号选择文件要复制到哪个目录">
         <template v-slot:before>
           <span style="font-size:14px">文件目录位置:</span>
         </template>
@@ -51,7 +52,7 @@
 import * as Apis from "@/api/index"
 import TreeEntity from "@/components/TreeEntity.vue"                          //目录管理结构树
 export default {
-  props: ['selection'],
+  props: ['selection', 'existingDirectories'],
   components: {
     TreeEntity
   },
@@ -88,10 +89,24 @@ export default {
         })
         return;
       }
-      this.ChangeFileDirectoryName = this.$refs.TreeEntity.getDirectoryLocation().label;
+      if (this.$refs.TreeEntity.getDirectoryLocation().id) {
+        this.getTreeEntityTreePath(this.$refs.TreeEntity.getDirectoryLocation().id);
+      } else {
+        this.ChangeFileDirectoryName = this.$refs.TreeEntity.getDirectoryLocation().label;
+      }
       this.ChangeFileDirectoryId = this.$refs.TreeEntity.getDirectoryLocation().id;
       this.ChangeFileDirectoryValue = this.$refs.TreeEntity.getDirectoryLocation();
       this.ChangeFileDirectoryFlag = false;
+    },
+    //获得文件目录路径
+    getTreeEntityTreePath (ID) {
+      this.$q.loading.show();
+      let para = { id: ID };
+      Apis.getTreeEntityTreePath(para).then((res) => {
+        console.log(res)
+        this.ChangeFileDirectoryName = `根目录 > ` + res.data.join(' > ');
+        this.$q.loading.hide();
+      })
     },
     //复制创建
     copyDirectorCreate () {
@@ -102,7 +117,7 @@ export default {
           caption: '请选择目录位置',
           color: 'red',
         })
-
+        return;
       }
       console.log(this.selectionArr)
       this.recheckingSelection(this.ChangeFileDirectoryValue);

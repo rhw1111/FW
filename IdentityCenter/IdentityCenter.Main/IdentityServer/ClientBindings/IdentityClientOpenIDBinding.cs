@@ -38,7 +38,7 @@ namespace IdentityCenter.Main.IdentityServer.ClientBindings
             public IIdentityClientOpenIDBindingIMP Create()
             {
                 IIdentityClientOpenIDBindingIMP imp;
-                var di = ContextContainer.GetValue<IDIContainer>("DI");
+                var di = ContextContainer.GetValue<IDIContainer>(ContextTypes.DI);
                 if (di == null)
                 {
                     imp = DIContainerContainer.Get<IIdentityClientOpenIDBindingIMP>();

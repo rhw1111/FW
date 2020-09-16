@@ -85,7 +85,7 @@ namespace FW.TestPlatform.Main.Collections.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
 
-                    var strLike = $"%{matchName.ToSqlLike()}%";
+                    var strLike = $"%{matchName.ToMySqlLike()}%";
                     var count = 0;
                     if (type == null)
                     {
@@ -118,7 +118,7 @@ namespace FW.TestPlatform.Main.Collections.DAL
                     var datas = await (from item in dbContext.TreeEntities
                                        join idItem in ids
                                   on item.ID equals idItem
-                                       orderby EF.Property<long>(item, "Sequence") descending
+                                       orderby item.Type ascending, item.Name
                                        select item).ToListAsync();
 
                     result.Results.AddRange(datas);
@@ -211,7 +211,7 @@ namespace FW.TestPlatform.Main.Collections.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
 
-                    var strLike = $"%{matchName.ToSqlLike()}%";
+                    var strLike = $"%{matchName.ToMySqlLike()}%";
                     var count = 0;
                     if (type == null)
                     {
@@ -235,7 +235,7 @@ namespace FW.TestPlatform.Main.Collections.DAL
                     var datas = await (from item in dbContext.TreeEntities
                                        join idItem in ids
                                   on item.ID equals idItem
-                                       orderby EF.Property<long>(item, "Sequence") descending
+                                       orderby item.Type ascending, item.Name
                                        select item).ToListAsync();
 
                     result.Results.AddRange(datas);

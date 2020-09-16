@@ -43,18 +43,22 @@ namespace FW.TestPlatform.Main.Application
 
             var monitorAddress=await _systemConfigurationService.GetMonitorAddressAsync(queryResult.EngineType, cancellationToken);
             var parentName = string.Empty;
+            Guid? parentId = null;
             if(queryResult.TreeID != null)
             {
                 TreeEntity? entityWithParent = await _treeEntityRepository.QueryWithParentByID(queryResult.TreeID.Value, cancellationToken);
                 if (entityWithParent != null && entityWithParent.Parent != null)
+                {
                     parentName = entityWithParent.Parent.Name;
+                    parentId = entityWithParent.ParentID;
+                }
             }
 
             return new TestCaseViewData()
             {
                 ID = queryResult.ID,
                 Name = queryResult.Name,
-                MonitorUrl=$"{monitorAddress}&var-CaseID={queryResult.ID.ToString().ToUrlEncode()}&from=now-15m&refresh=5s&to=now",
+                MonitorUrl = $"{monitorAddress}&var-CaseID={queryResult.ID.ToString().ToUrlEncode()}&from=now-15m&refresh=5s&to=now",
                 Configuration = queryResult.Configuration,
                 Status = queryResult.Status,
                 EngineType = queryResult.EngineType,
@@ -62,7 +66,8 @@ namespace FW.TestPlatform.Main.Application
                 MasterHostID = queryResult.MasterHostID,
                 MasterHostAddress = queryResult.MasterHost.Address,
                 CreateTime = queryResult.CreateTime.ToCurrentUserTimeZone(),
-                ParentName = parentName
+                ParentName = parentName,
+                ParentID = parentId
             };
         }
     }

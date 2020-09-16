@@ -70,7 +70,7 @@ namespace MSLibrary.Security.Jwt
             if (endpointItem == null || endpointItem.Expire())
             {
                 var endpoint = await _jwtEnpointRepository.QueryByName(name);
-                endpointItem = new CacheTimeContainer<JwtEnpoint>(endpoint, CacheTimeout);
+                endpointItem = new CacheTimeContainer<JwtEnpoint>(endpoint, CacheTimeout,0);
                 _nameEnpoints.SetValue(name, endpointItem);
             }
 

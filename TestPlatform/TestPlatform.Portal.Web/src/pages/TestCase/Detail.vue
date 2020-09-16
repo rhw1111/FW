@@ -39,16 +39,27 @@
              color="primary"
              label="性 能 监 测"
              @click="lookMonitorUrl" />
-      <q-btn class="btn"
+      <!-- <q-btn class="btn"
              color="primary"
              label="复 制"
-             @click="CopyTestCase" />
+             @click="CopyTestCase" /> -->
     </div>
-    <!-- 新建测试用例 -->
+    <!-- 测试用例参数 -->
     <div class="q-pa-md">
       <CreateShowTestCase :masterHostList="masterHostList"
                           ref="CSTestCase"
                           :detailData="detailData" />
+    </div>
+    <!-- 从机和历史记录列表 -->
+    <div class="q-pa-md row HostList">
+      <!-- 从主机列表 -->
+      <SlaveHost :isNoRun="isNoRun"
+                 :detailData="detailData"
+                 ref="TestCaseSlaveHost" />
+      <!-- 历史记录列表 -->
+      <History :isNoRun="isNoRun"
+               :detailData="detailData"
+               ref="TestCaseHistory" />
     </div>
     <!-- 复制创建TestCase -->
     <q-dialog v-model="CopyTestCaseFixed"
@@ -94,17 +105,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <!-- 从机和历史记录列表 -->
-    <div class="q-pa-md row HostList">
-      <!-- 从主机列表 -->
-      <SlaveHost :isNoRun="isNoRun"
-                 :detailData="detailData"
-                 ref="TestCaseSlaveHost" />
-      <!-- 历史记录列表 -->
-      <History :isNoRun="isNoRun"
-               :detailData="detailData"
-               ref="TestCaseHistory" />
-    </div>
     <!-- 主机日志提示 -->
     <q-dialog v-model="lookMasterLogFlag">
       <q-card class="q-dialog-plugin full-height"
@@ -236,11 +236,28 @@ export default {
         },
       }).onOk(() => {
         this.$q.loading.show()
-        let para = `?id=${this.detailData.id}`
-        Apis.deleteTestCase(para).then((res) => {
-          console.log(res)
-          this.$router.push({ name: 'TestCase' })
-        })
+        //判断当前的测试用例是否存在目录管理里面，执行不同的删除方法
+        if (this.detailData.treeID == null) {
+          let para = `?id=${this.detailData.id}`
+          Apis.deleteTestCase(para).then((res) => {
+            console.log(res)
+            if (this.$route.name == 'DirectoryTestCaseDetail') {
+              this.returnDirectory();
+            } else {
+              this.$router.push({ name: 'TestCase' })
+            }
+          })
+        } else {
+          let para = `?id=${this.detailData.treeID}`
+          Apis.deleteTreeEntity(para).then((res) => {
+            console.log(res)
+            if (this.$route.name == 'DirectoryTestCaseDetail') {
+              this.returnDirectory();
+            } else {
+              this.$router.push({ name: 'TestCase' })
+            }
+          })
+        }
       })
     },
     //-------------------------------------------- 运行停止测试用例 --------------------------------------

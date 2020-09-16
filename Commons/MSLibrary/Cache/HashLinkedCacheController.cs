@@ -55,7 +55,7 @@ namespace MSLibrary.Cache
             if (containerItem == null || containerItem.Expire())
             {
                 var value = creator(key);
-                containerItem = new CacheTimeContainer<V>(value, CacheTimeout);
+                containerItem = new CacheTimeContainer<V>(value, CacheTimeout,0);
                 _values.SetValue(key, containerItem);
             }
 
@@ -74,7 +74,7 @@ namespace MSLibrary.Cache
             if (containerItem == null || containerItem.Expire())
             {
                 var value =await creator(key);
-                containerItem = new CacheTimeContainer<V>(value, CacheTimeout);
+                containerItem = new CacheTimeContainer<V>(value, CacheTimeout,0);
                 _values.SetValue(key, containerItem);
             }
 

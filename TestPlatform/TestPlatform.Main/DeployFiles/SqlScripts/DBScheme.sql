@@ -323,3 +323,6 @@ ALTER TABLE `testcase` ADD COLUMN `testcasehistoryid` char(36) DEFAULT NULL;
 /*!ALTER TABLE testcase testdatasource 2020-08-27*/
 ALTER TABLE `testcase` ADD COLUMN `treeid` char(36) DEFAULT NULL;
 ALTER TABLE `testdatasource` ADD COLUMN `treeid` char(36) DEFAULT NULL;
+/*!ALTER TABLE commonlocal_log 2020-09-12*/
+ALTER TABLE `commonlog_local` ADD COLUMN `traceid` varchar(300) DEFAULT NULL;
+ALTER TABLE `commonlog_local` ADD COLUMN `linkid` varchar(300) DEFAULT NULL;

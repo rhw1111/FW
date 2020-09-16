@@ -19,10 +19,10 @@ namespace FW.TestPlatform.Main.Application
         {
             _testDataSourceRepository = testDataSourceRepository;
         }
-        public async Task<QueryResult<TestDataSourceViewData>> Do(string matchName, int page, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<QueryResult<TestDataSourceViewData>> Do(Guid? parentId, string matchName, int page, int pageSize, CancellationToken cancellationToken = default)
         {
             QueryResult<TestDataSourceViewData> result = new QueryResult<TestDataSourceViewData>();
-            var queryResult=await _testDataSourceRepository.QueryByPage(matchName, page, pageSize, cancellationToken);
+            var queryResult=await _testDataSourceRepository.QueryByParentId(parentId, page, pageSize, cancellationToken);
 
             result.CurrentPage = queryResult.CurrentPage;
             result.TotalCount = queryResult.TotalCount;
@@ -37,6 +37,7 @@ namespace FW.TestPlatform.Main.Application
                             Name = item.Name,
                             Type = item.Type,
                             Data = item.Data,
+                            TreeID = item.TreeID,
                             CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
                             ModifyTime = item.ModifyTime.ToCurrentUserTimeZone()
                         }
@@ -46,23 +47,5 @@ namespace FW.TestPlatform.Main.Application
 
             return result;
         }
-        //public async Task<TestDataSourceViewData?> QueryByID(Guid id, CancellationToken cancellationToken = default)
-        //{
-        //    TestDataSourceViewData result = new TestDataSourceViewData();
-        //    var item = await _testDataSourceRepository.QueryByID(id);
-        //    if (item != null)
-        //    {
-        //        result = new TestDataSourceViewData()
-        //        {
-        //            ID = item.ID,
-        //            Name = item.Name,
-        //            Type = item.Type,
-        //            Data = item.Data,
-        //            CreateTime = item.CreateTime.ToCurrentUserTimeZone(),
-        //            ModifyTime = item.ModifyTime.ToCurrentUserTimeZone()
-        //        };
-        //    }
-        //    return result;
-        //}
     }
 }

@@ -5,14 +5,16 @@
 
       <transition name="TreeEntity-slid">
         <TreeEntity v-show="expanded"
-                    style="max-width:20%;height:600px;overflow:auto;float:left;" />
+                    refs="TreeEntity"
+                    style="max-width:20%;height:100%;overflow:auto;float:left;"
+                    @getDirectoryLocation="getDirectoryLocation" />
       </transition>
 
-      <div>
+      <div style="height:100%;">
         <q-btn color="grey"
                flat
                dense
-               style="width:2%;height:600px;float:left;"
+               style="width:2%;height:100%;float:left;"
                :icon="expanded ? 'keyboard_arrow_left' : 'keyboard_arrow_right'"
                @click="expanded = !expanded" />
 
@@ -23,7 +25,6 @@
                  selection="multiple"
                  :selected.sync="selected"
                  :rows-per-page-options=[0]
-                 table-style="max-height: 500px;"
                  no-data-label="暂无数据更新">
 
           <template v-slot:top-right>
@@ -79,7 +80,7 @@
         <q-separator />
 
         <CreateShowTestCase :masterHostList="masterHostList"
-                            :dataSourceName="dataSourceName"
+                            :currentDirectory="SelectLocation"
                             ref="CSTestCase" />
 
         <q-separator />
@@ -107,8 +108,8 @@ import TreeEntity from "@/components/TreeEntity.vue"                //目录管�
 export default {
   name: 'TestCase',
   components: {
+    TreeEntity,
     CreateShowTestCase,
-    TreeEntity
   },
   data () {
     return {
@@ -139,14 +140,14 @@ export default {
         rowsNumber: 1     //总页数
       },
       dismiss: null,  //批量运行测试用例的提示
+
+      //------------------------------- 目录 ---------------------------
       expanded: true,//目录展开收缩flag
+      SelectLocation: '',//选择的位置
     }
   },
   mounted () {
     this.getTestCaseList();
-  },
-  computed: {
-
   },
   methods: {
     //打开新增测试用例界面
@@ -165,7 +166,7 @@ export default {
       this.$q.loading.show()
       Apis.postCreateTestCase(para).then((res) => {
         console.log(res)
-        this.getTestCaseList();
+        this.getTestCaseList(1, this.SelectLocation.id);
         this.$q.notify({
           position: 'top',
           message: '提示',
@@ -176,9 +177,10 @@ export default {
       })
     },
     //获得TeseCase列表
-    getTestCaseList (page) {
+    getTestCaseList (page, ParentId) {
       this.$q.loading.show()
       let para = {
+        parentId: ParentId || null,
         matchName: '',
         //pageSize: 50,
         page: page || 1
@@ -188,7 +190,7 @@ export default {
         this.TestCaseList = res.data.results;
         this.pagination.page = page || 1;
         this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
-        this.getDataSourceName();
+        this.$q.loading.hide();
       })
     },
     //删除Testcase
@@ -208,12 +210,20 @@ export default {
         },
       }).onOk(() => {
         this.$q.loading.show()
-        let para = `?id=${value.row.id}`
-        Apis.deleteTestCase(para).then((res) => {
-          console.log(res)
-          this.getTestCaseList();
-        })
-      }).onCancel(() => {
+        //判断当前的测试用例是否存在目录管理里面，执行不同的删除方法
+        if (value.row.treeID == null) {
+          let para = `?id=${value.row.id}`
+          Apis.deleteTestCase(para).then((res) => {
+            console.log(res)
+            this.getTestCaseList(1, this.SelectLocation.id);
+          })
+        } else {
+          let para = `?id=${value.row.treeID}`
+          Apis.deleteTreeEntity(para).then((res) => {
+            console.log(res)
+            this.getTestCaseList(1, this.SelectLocation.id);
+          })
+        }
       })
     },
     //获得主机列表
@@ -245,7 +255,7 @@ export default {
     },
     //列表分页切换
     nextPage (value) {
-      this.getTestCaseList(value)
+      this.getTestCaseList(value, this.SelectLocation.id);
     },
     //跳转TestCase详情
     toDetail (evt) {
@@ -361,23 +371,35 @@ export default {
         })
       })
     },
+    // --------------------- 目录 --------------------
+    //获得选择的目录
+    getDirectoryLocation (data) {
+      console.log(data)
+      this.getTestCaseList(1, data.id)
+      this.SelectLocation = data;
+    },
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .TestCase {
+  position: fixed;
   width: 100%;
-  overflow: hidden;
+  height: 100%;
+  //overflow: hidden;
   .btn {
     margin-right: 10px;
   }
   .q-pa-md {
-    margin-top: 40px;
+    height: 100%;
   }
 }
 </style>
 <style lang="scss">
+.q-table__container {
+  height: 95%;
+}
 .q-table {
   .text-left {
     white-space: nowrap;

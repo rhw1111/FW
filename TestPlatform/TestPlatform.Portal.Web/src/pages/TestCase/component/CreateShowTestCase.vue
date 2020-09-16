@@ -5,7 +5,7 @@
               persistent>
       <q-card style="width: 100%;">
         <q-card-section>
-          <div class="text-h6">选择文件目录</div>
+          <div class="text-h6">选择文件目录位置</div>
         </q-card-section>
 
         <q-separator />
@@ -78,7 +78,7 @@
                  @input="ifRegular('LocustMasterBindPort',paraConfig.LocustMasterBindPort)"
                  :dense="false"
                  class="col"
-                 placeholder="值范围(15557~25557)">
+                 placeholder="值范围(15557~25557) 默认15557">
           <template v-slot:before>
             <span style="font-size:14px">主机端口:</span>
           </template>
@@ -571,7 +571,7 @@ import lookUp from "@/components/lookUp.vue"          //主机列表
 import TreeEntity from "@/components/TreeEntity.vue"  //目录管理结构树
 export default {
   name: 'CreateShowTestCase',
-  props: ['detailData'],
+  props: ['detailData', 'currentDirectory'],
   components: {
     lookUp,
     TreeEntity
@@ -590,7 +590,7 @@ export default {
           Duration: configuration.Duration || '',//压测时间
           ResponseSeparator: configuration.ResponseSeparator || '',//结束分隔符
           DataSourceVars: configuration.DataSourceVars || [],//数据源
-          LocustMasterBindPort: configuration.LocustMasterBindPort || 5557,//数据源
+          LocustMasterBindPort: configuration.LocustMasterBindPort || 15557,//数据源
           IsPrintLog: configuration.IsPrintLog == true ? '是' : '否',//是否打印日志
           SyncType: configuration.SyncType == false ? '异步模式' : '同步模式',//是否同步异步
           ConnectInit: configuration.ConnectInit || { VarSettings: [] },//连接初始化
@@ -602,13 +602,25 @@ export default {
         this.EngineType = val.engineType;
         this.masterHostSelect = val.masterHostAddress;
         this.MasterHostID = val.masterHostID;
-        this.ChangeFileDirectoryName = val.parentName;
-        this.ChangeFileDirectoryId = val.treeID;
+        if (val.parentID) {
+          this.getTreeEntityTreePath(val.parentID);
+        } else {
+          this.ChangeFileDirectoryName = val.parentName != '' ? val.parentName : '根目录 >';
+        }
+        this.ChangeFileDirectoryId = val.parentID;
         this.Configuration = JSON.stringify(JSON.parse(val.configuration), null, 2);
       }
     },
   },
   mounted () {
+    //判断当前的目录是什么
+    if (this.currentDirectory) {
+      this.getTreeEntityTreePath(this.currentDirectory.id);
+      this.ChangeFileDirectoryId = this.currentDirectory.id;
+    } else {
+      this.ChangeFileDirectoryName = '根目录 >';
+    }
+    console.log(this.currentDirectory)
     this.getDataSourceName();
   },
   data () {
@@ -637,7 +649,7 @@ export default {
         Duration: '',//压测时间
         ResponseSeparator: '',//结束分隔符
         DataSourceVars: [],//数据源
-        LocustMasterBindPort: 15557,//主机端口
+        LocustMasterBindPort: '',//主机端口
         IsPrintLog: '否',//是否打印日志
         SyncType: '同步模式',//是否同步异步
         ConnectInit: {
@@ -816,7 +828,7 @@ export default {
           Duration: this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '',//压测时间
           ResponseSeparator: this.paraConfig.ResponseSeparator,//结束分隔符
           DataSourceVars: this.paraConfig.DataSourceVars,//数据源
-          LocustMasterBindPort: Number(this.paraConfig.LocustMasterBindPort),//主机端口
+          LocustMasterBindPort: Number(this.paraConfig.LocustMasterBindPort) || 15557,//主机端口
           IsPrintLog: this.paraConfig.IsPrintLog == true || this.paraConfig.IsPrintLog == '是' ? true : false,//是否打印日志
           SyncType: this.paraConfig.SyncType == true || this.paraConfig.SyncType == '同步模式' ? true : false,//是否同步异步
           ConnectInit: {
@@ -829,6 +841,7 @@ export default {
             VarSettings: this.paraConfig.StopInit.VarSettings
           }//停止初始化
         }, null, 2);
+        this.paraConfig.LocustMasterBindPort = JSON.parse(this.Configuration).LocustMasterBindPort;
         this.ConfigTextExpanded = true;
 
 
@@ -849,7 +862,7 @@ export default {
         this.Configuration.Duration = this.paraConfig.Duration ? Number(this.paraConfig.Duration) : '';
         this.Configuration.ResponseSeparator = this.paraConfig.ResponseSeparator;
         this.Configuration.DataSourceVars = this.paraConfig.DataSourceVars;
-        this.Configuration.LocustMasterBindPort = this.paraConfig.LocustMasterBindPort;
+        this.Configuration.LocustMasterBindPort = Number(this.paraConfig.LocustMasterBindPort) || 15557;
         this.Configuration.IsPrintLog = this.paraConfig.IsPrintLog == true || this.paraConfig.IsPrintLog == '是' ? true : false;
         this.Configuration.SyncType = this.paraConfig.SyncType == true || this.paraConfig.SyncType == '同步模式' ? true : false;
         this.Configuration.ConnectInit.VarSettings = this.paraConfig.ConnectInit.VarSettings;
@@ -951,7 +964,7 @@ export default {
           this.$set(this.paraConfig, key, str > 65535 ? 65535 : str)
         } else if (key == 'LocustMasterBindPort') {
           let str = val.replace(/[^\d]/g, "");
-          this.$set(this.paraConfig, key, str > 15557 ? 25557 : str)
+          this.$set(this.paraConfig, key, str)
         } else {
           this.$set(this.paraConfig, key, val.replace(/[^\d]/g, "").replace(/^0/g, ""))
         }
@@ -1115,9 +1128,24 @@ export default {
     },
     //选择目录位置   
     SelectDirectoryLocation () {
-      this.ChangeFileDirectoryName = this.$refs.TreeEntity.getDirectoryLocation().label;
+      if (this.$refs.TreeEntity.getDirectoryLocation().id) {
+        this.getTreeEntityTreePath(this.$refs.TreeEntity.getDirectoryLocation().id);
+      } else {
+        this.ChangeFileDirectoryName = this.$refs.TreeEntity.getDirectoryLocation().label || '根目录 >';
+      }
       this.ChangeFileDirectoryId = this.$refs.TreeEntity.getDirectoryLocation().id || null;
       this.ChangeFileDirectoryFlag = false;
+    },
+    //获得文件目录路径
+    getTreeEntityTreePath (ID) {
+      //ID 当前文件目录ID  
+      this.$q.loading.show();
+      let para = { id: ID };
+      Apis.getTreeEntityTreePath(para).then((res) => {
+        console.log(res)
+        this.ChangeFileDirectoryName = `根目录 > ` + res.data.join(' > ');
+        this.$q.loading.hide();
+      })
     },
   }
 }

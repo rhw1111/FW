@@ -97,6 +97,8 @@
     <Folder Include="Application\" />
     <Folder Include="Azure\Function\" />
     <Folder Include="Collections\Hash\HashDataMigrateServices\" />
+    <Folder Include="Logger\Application\" />
+    <Folder Include="Logger\Middleware\" />
     <Folder Include="Security\Filter\" />
     <Folder Include="SystemToken\Application\" />
   </ItemGroup>
