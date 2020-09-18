@@ -231,24 +231,28 @@ namespace FW.TestPlatform.Main.NetGateway
                                 }
                             }
 
-                            foreach (var deleteItem in deleteDatas)
+                            // 此处阀值用来判断，如果需要删除的数据太多，就不删了，是由于坏包太多所致
+                            if (deleteDatas.Count < 100)
                             {
-                                item.Value.Remove(deleteItem);
-                            }
-
-                            if (item.Value.Count > 0)
-                            {
-                                if (!restDatas.TryGetValue(item.Key, out ConcurrentDictionary<string, DataContainer>? restContainerDatas))
+                                foreach (var deleteItem in deleteDatas)
                                 {
-                                    restContainerDatas = new ConcurrentDictionary<string, DataContainer>();
-                                    restDatas[item.Key] = restContainerDatas;
+                                    item.Value.Remove(deleteItem);
                                 }
 
-                                foreach (var restItem in item.Value)
+                                if (item.Value.Count > 0)
                                 {
-                                    restContainerDatas[restItem.Response!.ID] = restItem;
-                                }
+                                    if (!restDatas.TryGetValue(item.Key, out ConcurrentDictionary<string, DataContainer>? restContainerDatas))
+                                    {
+                                        restContainerDatas = new ConcurrentDictionary<string, DataContainer>();
+                                        restDatas[item.Key] = restContainerDatas;
+                                    }
 
+                                    foreach (var restItem in item.Value)
+                                    {
+                                        restContainerDatas[restItem.Response!.ID] = restItem;
+                                    }
+
+                                }
                             }
                         }
 
