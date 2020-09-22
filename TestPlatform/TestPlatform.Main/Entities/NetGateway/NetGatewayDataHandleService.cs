@@ -24,6 +24,8 @@ using Ctrade.Message;
 using FW.TestPlatform.Main.Configuration;
 using MSLibrary.Configuration;
 using FW.TestPlatform.Main.Entities;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace FW.TestPlatform.Main.NetGateway
 {
@@ -229,24 +231,28 @@ namespace FW.TestPlatform.Main.NetGateway
                                 }
                             }
 
-                            foreach (var deleteItem in deleteDatas)
+                            // 此处阀值用来判断，如果需要删除的数据太多，就不删了，是由于坏包太多所致
+                            if (deleteDatas.Count < 100)
                             {
-                                item.Value.Remove(deleteItem);
-                            }
-
-                            if (item.Value.Count > 0)
-                            {
-                                if (!restDatas.TryGetValue(item.Key, out ConcurrentDictionary<string, DataContainer>? restContainerDatas))
+                                foreach (var deleteItem in deleteDatas)
                                 {
-                                    restContainerDatas = new ConcurrentDictionary<string, DataContainer>();
-                                    restDatas[item.Key] = restContainerDatas;
+                                    item.Value.Remove(deleteItem);
                                 }
 
-                                foreach (var restItem in item.Value)
+                                if (item.Value.Count > 0)
                                 {
-                                    restContainerDatas[restItem.Response!.ID] = restItem;
-                                }
+                                    if (!restDatas.TryGetValue(item.Key, out ConcurrentDictionary<string, DataContainer>? restContainerDatas))
+                                    {
+                                        restContainerDatas = new ConcurrentDictionary<string, DataContainer>();
+                                        restDatas[item.Key] = restContainerDatas;
+                                    }
 
+                                    foreach (var restItem in item.Value)
+                                    {
+                                        restContainerDatas[restItem.Response!.ID] = restItem;
+                                    }
+
+                                }
                             }
                         }
 
@@ -645,10 +651,15 @@ namespace FW.TestPlatform.Main.NetGateway
         {
             using (var reader = IReaderFactory.GetReader(fileName))
             {
+                int index = 0;
+                int indexException = 0;
+
                 reader.OnReadPacketEvent += (context, packet) =>
                 {
                     try
                     {
+                        index++;
+
                         DateTime timestamp = ConvertToDateTime(packet.Seconds.ToString(), packet.Microseconds.ToString());
 
                         IPacket ipacket = packet;
@@ -703,7 +714,7 @@ namespace FW.TestPlatform.Main.NetGateway
                             var payloadData = payloadPacket.PayloadData;
 
                             var requestType = 0;
-                            var googleData = this.GetGoogleData(payloadData, out requestType);
+                            var googleData = this.GetGoogleData_TCP(payloadData, out requestType);
 
                             if (googleData != null)
                             {
@@ -902,6 +913,7 @@ namespace FW.TestPlatform.Main.NetGateway
                         }
                         catch (Exception ex)
                         {
+                            indexException++;
                             //throw new Exception(string.Format("GoogleData Error, Exception: {0}. {1}", ex.Message, ex.StackTrace));
                         }
                     }
@@ -1441,6 +1453,137 @@ namespace FW.TestPlatform.Main.NetGateway
             }
 
             return null;
+        }
+
+        private byte[]? GetGoogleData_TCP(byte[] data, out int requestType)
+        {
+            requestType = 0;
+
+            if (data == null || data.Length < 82)
+            {
+                return null;
+            }
+
+            int packetType = data[0];
+            int tcpMessageType = data[5];
+            int tcpEnd = data[data.Length - 1];
+
+            if (packetType == 2 && tcpMessageType == 85 && tcpEnd == 3)
+            {
+                bool isGoodData = this.IsGoodData(data);
+
+                if (isGoodData)
+                {
+                    int index = 0;
+                    int tcp_start = 6;
+                    int sizeLengthOfChannelName = 2;
+                    int sizeChannelName = Byte2Int(data.Skip(tcp_start).Take(sizeLengthOfChannelName).ToArray());
+                    int sizeLengthOfTargetInstanceName = 1;
+                    index = tcp_start + sizeLengthOfChannelName + sizeChannelName;
+                    int sizeTargetInstanceName = data[index];
+                    //int sizeTargetInstanceName = data[tcp_start + sizeLengthOfChannelName + sizeChannelName];
+                    int sizeLengthOfData = 4;
+                    //int sizeData = Byte4Int(data.Skip(tcp_start + sizeLengthOfChannelName + sizeChannelName + sizeLengthOfTargetInstanceName + sizeTargetInstanceName).Take(sizeLengthOfData).ToArray());
+
+                    index = index + sizeLengthOfTargetInstanceName + sizeTargetInstanceName + sizeLengthOfData;
+                    int depapi_start = index;
+                    //int depapi_start = tcp_start + sizeLengthOfChannelName + sizeChannelName + sizeLengthOfTargetInstanceName + sizeTargetInstanceName + sizeLengthOfData;
+                    int messageType = data[depapi_start];
+                    requestType = data[depapi_start + 23];
+
+                    if (packetType == 2 && messageType == 7 && tcpEnd == 3 && (requestType == 0 || requestType == 1))
+                    {
+                        //byte[] length_osin_byte = data.Skip(depapi_start + 23 + 5).Take(2).ToArray();
+                        byte[] length_osin_byte = data.Skip(depapi_start + 28).Take(2).ToArray();
+                        int length_osin = Byte2Int(length_osin_byte);
+
+                        index = depapi_start + 30 + length_osin;
+                        //int dsp_begin = depapi_start + 23 + 5 + 2 + length_osin + 5;
+                        int dsp_begin = index + 5;
+                        //int dsp_end = dsp_begin + 4;
+                        byte[] length_dspm_byte = data.Skip(dsp_begin).Take(4).ToArray();
+                        int length_dspm = Byte4Int(length_dspm_byte);
+
+                        //int dspapi_begin = depapi_start + 23 + 5 + 2 + length_osin;
+                        int dspapi_begin = index;
+                        int dspapi_end = dspapi_begin + length_dspm;
+
+                        byte[] body = data.Skip(dspapi_end).Take(data.Length - dspapi_end - 1).ToArray();
+
+                        return body;
+                    }
+
+                    return null;
+                }
+
+                return null;
+            }
+
+            return null;
+        }
+
+        private bool IsGoodData(byte[] data)
+        {
+            byte b02 = 0x02;
+            byte b55 = 0x55;
+            byte b03 = 0x03;
+            byte[] b0302 = new byte[] { 0x03, 0x02 };
+
+            byte[] srcBytes = data;
+            int index = ByteIndexOf(srcBytes, b0302);
+
+            while (index > -1)
+            {
+                int i55 = data[index + 6];
+
+                if (i55 == 85)
+                {
+                    return false;
+                }
+
+                srcBytes = srcBytes.Skip(index + 6).Take(srcBytes.Length - index - 6).ToArray();
+                index = ByteIndexOf(srcBytes, b0302);
+            }
+
+            return true;
+        }
+
+        // <summary>  
+        /// 定位指定的 System.Byte[] 在此实例中的第一个匹配项的索引。  
+        /// </summary>  
+        /// <param name="srcBytes">源数组</param>  
+        /// <param name="searchBytes">查找的数组</param>  
+        /// <returns>返回的索引位置；否则返回值为 -1。</returns>  
+        private int ByteIndexOf(byte[] srcBytes, byte[] searchBytes)
+        {
+            if (srcBytes == null) { return -1; }
+            if (searchBytes == null) { return -1; }
+            if (srcBytes.Length == 0) { return -1; }
+            if (searchBytes.Length == 0) { return -1; }
+            if (srcBytes.Length < searchBytes.Length) { return -1; }
+
+            for (int i = 0; i < srcBytes.Length - searchBytes.Length; i++)
+            {
+                if (srcBytes[i] == searchBytes[0])
+                {
+                    if (searchBytes.Length == 1) { return i; }
+
+                    bool flag = true;
+
+                    for (int j = 1; j < searchBytes.Length; j++)
+                    {
+                        if (srcBytes[i + j] != searchBytes[j])
+                        {
+                            flag = false;
+                            break;
+                        }
+                    }
+
+                    if (flag) { return i; }
+                }
+            }
+
+            return -1;
         }
 
         //2位byte转为int
