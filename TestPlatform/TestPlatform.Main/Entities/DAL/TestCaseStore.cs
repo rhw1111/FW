@@ -288,6 +288,15 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
                         result.Results.AddRange(datas);
                     }
+                    if (parentId == null)
+                    {
+                        var datasWithoutTree = await (from item in dbContext.TestCases
+                                            where item.TreeID == null
+                                            orderby EF.Property<long>(item, "Sequence") descending
+                                            select item).ToListAsync();
+                        if (datasWithoutTree != null)
+                            result.Results.AddRange(datasWithoutTree);
+                    }
                 }
             });
 
