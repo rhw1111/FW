@@ -31,7 +31,7 @@
             <q-btn class="btn"
                    color="primary"
                    label="运 行"
-                   @click="runTestCase" />
+                   @click="openRunModel" />
             <q-btn class="btn"
                    color="primary"
                    label="新 增"
@@ -98,6 +98,60 @@
       </q-card>
     </q-dialog>
 
+    <!-- 运行执行框 -->
+    <q-dialog v-model="runFixed"
+              persistent>
+      <q-card style="width: 100%; max-width: 50vw;">
+        <q-card-section>
+          <div class="text-h6">请选择运行测试用例的模式</div>
+        </q-card-section>
+
+        <q-separator />
+        <div class="q-pa-md">
+          <q-radio v-model="runModel"
+                   val="parallel"
+                   label="并行模式" />
+          <q-radio v-model="runModel"
+                   val="sequential"
+                   label="顺序执行" />
+
+          <div v-show="runModel=='parallel'">
+            <div class="input_row"
+                 style="margin-bottom:10px;width:70%;"
+                 v-for="(value,index) in runModelArray"
+                 :key="index">
+              <q-input v-model="value.executionTime"
+                       outlined
+                       :dense="true"
+                       placeholder="请输入执行时间,默认0秒。"
+                       @input="forceUpdate(value.executionTime,index)">
+                <template v-slot:before>
+                  <span style="font-size:14px;width:150px;word-wrap:break-word;">{{value.name}}:</span>
+                </template>
+                <template v-slot:append>
+                  <q-avatar>
+                    秒
+                  </q-avatar>
+                </template>
+              </q-input>
+            </div>
+          </div>
+        </div>
+        <q-separator />
+
+        <q-card-actions align="right">
+          <q-btn flat
+                 label="取消"
+                 color="primary"
+                 @click="runCancelTestCase" />
+          <q-btn flat
+                 label="运行"
+                 color="primary"
+                 @click="runTestCase" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
   </div>
 </template>
 
@@ -142,12 +196,17 @@ export default {
       dismiss: null,  //批量运行测试用例的提示
 
       //------------------------------- 目录 ---------------------------
-      expanded: true,//目录展开收缩flag
+      expanded: false,//目录展开收缩flag
       SelectLocation: '',//选择的位置
+      // --------------------------------- 运行 --------------------------
+      runFixed: false,//运行执行逻辑框
+      runModel: 'parallel',//运行模式
+      runModelArray: [],//运行模式数组
+
     }
   },
   mounted () {
-    this.getTestCaseList();
+    this.getTestCaseList(1, null, true);
   },
   methods: {
     //打开新增测试用例界面
@@ -177,7 +236,7 @@ export default {
       })
     },
     //获得TeseCase列表
-    getTestCaseList (page, ParentId) {
+    getTestCaseList (page, ParentId, Bfalse) {
       this.$q.loading.show()
       let para = {
         parentId: ParentId || null,
@@ -190,6 +249,10 @@ export default {
         this.TestCaseList = res.data.results;
         this.pagination.page = page || 1;
         this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
+        if (Bfalse) {
+          this.expanded = true;
+          return;
+        }
         this.$q.loading.hide();
       })
     },
@@ -266,47 +329,12 @@ export default {
         },
       })
     },
-    //运行TestCase
-    runTestCase () {
+    // --------------------- 运行 --------------------
+    //打开运行选择模式界面
+    openRunModel () {
       //判断是否选择测试用例
       if (this.selected.length != 0) {
-        let runArray = [];
-        //去除正在运行的测试用例
-        for (let i = 0; i < this.selected.length; i++) {
-          if (this.selected[i].status == '正在运行') {
-            runArray.push(this.selected[i].name)
-          }
-        }
-        if (runArray.length != 0) {
-          this.$q.notify({
-            position: 'top',
-            message: '提示',
-            caption: `当前测试用例${runArray.join('，')}正在运行当中,请重新选择`,
-            color: 'red',
-          })
-          return;
-        }
-        this.$q.loading.show()
-        //判断当前运行的测试用例是否包含从主机，必须包含从主机才能进行运行
-        for (let i = 0; i < this.selected.length; i++) {
-          this.getSlaveHostsList(this.selected[i].id, (flag) => {
-            if (flag) { runArray.push(this.selected[i].name) }
-            if (i == this.selected.length - 1) {
-              if (runArray.length != 0) {
-                this.$q.notify({
-                  position: 'top',
-                  message: '提示',
-                  caption: `当前测试用例${runArray.join('，')}下没有从主机，请添加从主机再进行运行。`,
-                  color: 'red',
-                })
-                this.$q.loading.hide()
-              } else {
-                this.run(0);
-              }
-            }
-          })
-        }
-
+        this.isSlaveHost()
       } else {
         this.$q.notify({
           position: 'top',
@@ -315,6 +343,129 @@ export default {
           color: 'red',
         })
       }
+    },
+    // 判断当前运行的测试用例是否运行或者包含从主机，必须包含从主机才能进行运行
+    isSlaveHost () {
+      this.$q.loading.show();
+      let runArray = [];
+      //判断是否有正在运行的测试用例
+      for (let i = 0; i < this.selected.length; i++) {
+        if (this.selected[i].status == '正在运行') {
+          runArray.push(this.selected[i].name)
+        }
+      }
+      if (runArray.length != 0) {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: `当前测试用例${runArray.join('，')}正在运行当中,请重新选择`,
+          color: 'red',
+        })
+        this.$q.loading.hide();
+        return;
+      }
+      //判断当前选择的测试用例下是否有从主机
+      for (let i = 0; i < this.selected.length; i++) {
+        this.getSlaveHostsList(this.selected[i].id, (flag) => {
+          if (flag) { runArray.push(this.selected[i].name) }
+          if (i == this.selected.length - 1) {
+            if (runArray.length != 0) {
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: `当前测试用例${runArray.join('，')}下没有从主机，请添加从主机再进行运行。`,
+                color: 'red',
+              })
+              this.$q.loading.hide();
+              return;
+            } else {
+              this.$q.loading.hide();
+              this.runFixed = true;
+              for (let i = 0; i < this.selected.length; i++) {
+                this.runModelArray.push(this.selected[i]);
+                this.runModelArray[i].executionTime = null;
+              }
+            }
+          }
+        })
+      }
+    },
+    //运行TestCase
+    runTestCase () {
+      //判断是并行模式还是顺序模式
+      if (this.runModel == 'parallel') {
+        //并行模式执行
+        this.ParallelExecution();
+      } else {
+        //顺序模式执行
+        this.run(0);
+      }
+    },
+    //取消运行TestCase
+    runCancelTestCase () {
+      this.runFixed = false;
+      this.runModelArray = [];
+    },
+    //并行模式执行
+    ParallelExecution () {
+      this.$q.loading.show()
+      let _this = this;
+      let runArray = [];
+      let runNum = 0;
+
+      for (let i = 0; i < this.selected.length; i++) {
+        setTimeout(() => {
+          let para = `?caseId=${this.selected[i].id}`
+          Apis.postTestCaseRun(para).then(() => {
+            runArray[i] = this.selected[i].name;
+            if (this.dismiss) {
+              this.dismiss();
+            }
+            this.dismiss = this.$q.notify({
+              position: 'top-right',
+              caption: `当前测试用例${runArray.filter(item => item).join(',')}正在运行当中。`,
+              color: 'teal',
+              timeout: '0'
+            })
+            getTestCaseStatus(i)
+          })
+
+        }, this.selected[i].executionTime * 1000)
+      }
+      //查看并行TestCase是否执行完成
+      function getTestCaseStatus (index) {
+        Apis.getTestCaseStatus({ caseId: _this.selected[index].id }).then((res) => {
+          if (!res.data) {
+            runNum++;
+            if (runNum == _this.selected.length) {
+              _this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: '执行完成',
+                color: 'secondary',
+              })
+              _this.$q.loading.hide();
+              _this.runFixed = false;
+              _this.selected = [];
+              _this.runModelArray = [];
+              _this.dismiss();
+              return;
+            }
+
+            runArray.splice(index, 1, '');
+            _this.dismiss();
+            _this.dismiss = _this.$q.notify({
+              position: 'top-right',
+              caption: `当前测试用例${runArray.filter(item => item).join(',')}正在运行当中。`,
+              color: 'teal',
+              timeout: '0'
+            })
+          } else {
+            setTimeout(() => { getTestCaseStatus(index); }, 3000);
+          }
+        })
+      }
+
     },
     //递归运行TestCase
     run (index) {
@@ -348,7 +499,15 @@ export default {
             this.timerOut = null;
             this.dismiss();
             this.getMasterHostList();
+            this.runFixed = false;
             this.selected = [];
+            this.runModelArray = [];
+            this.$q.notify({
+              position: 'top',
+              message: '提示',
+              caption: '执行完成',
+              color: 'secondary',
+            })
             return;
           }
           clearInterval(this.timerOut);
@@ -358,6 +517,11 @@ export default {
           }, 120000)
         }
       })
+    },
+    //正则验证并行运行测试用例是否正确
+    forceUpdate (val, index) {
+      this.$set(this.runModelArray[index], 'executionTime', Number(val.replace(/[^\d]/g, "").replace(/^0/g, "")));
+      this.$forceUpdate();
     },
     //查看主机日志
     lookMasterLog (value) {
