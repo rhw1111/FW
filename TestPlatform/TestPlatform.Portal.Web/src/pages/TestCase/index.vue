@@ -116,12 +116,14 @@
                    label="顺序执行" />
 
           <div v-show="runModel=='parallel'">
-            <div class="input_row"
-                 style="margin-bottom:10px;width:70%;"
+
+            <div class="input_row row"
+                 style="margin-bottom:10px;width:100%;display:inlin-block;"
                  v-for="(value,index) in runModelArray"
                  :key="index">
               <q-input v-model="value.executionTime"
                        outlined
+                       class="col-8"
                        :dense="true"
                        placeholder="请输入执行时间,默认0秒。"
                        @input="forceUpdate(value.executionTime,index)">
@@ -134,7 +136,9 @@
                   </q-avatar>
                 </template>
               </q-input>
+
             </div>
+
           </div>
         </div>
         <q-separator />
@@ -384,6 +388,7 @@ export default {
               for (let i = 0; i < this.selected.length; i++) {
                 this.runModelArray.push(this.selected[i]);
                 this.runModelArray[i].executionTime = null;
+                this.runModelArray[i].runStatus = '未执行';
               }
             }
           }
@@ -408,63 +413,74 @@ export default {
     },
     //并行模式执行
     ParallelExecution () {
-      this.$q.loading.show()
-      let _this = this;
-      let runArray = [];
+      let ParrallelLoading = this.$q.loading;
       let runNum = 0;
+      ParrallelLoading.show();
 
       for (let i = 0; i < this.selected.length; i++) {
         setTimeout(() => {
           let para = `?caseId=${this.selected[i].id}`
           Apis.postTestCaseRun(para).then(() => {
-            runArray[i] = this.selected[i].name;
-            if (this.dismiss) {
-              this.dismiss();
-            }
-            this.dismiss = this.$q.notify({
-              position: 'top-right',
-              caption: `当前测试用例${runArray.filter(item => item).join(',')}正在运行当中。`,
-              color: 'teal',
-              timeout: '0'
+            runNum++;
+            this.$q.notify({
+              position: 'top',
+              message: '提示',
+              caption: `${this.selected[i].name}运行完成`,
+              color: 'secondary',
             })
-            getTestCaseStatus(i)
-          })
-
-        }, this.selected[i].executionTime * 1000)
+            if (runNum == this.selected.length) {
+              this.runCancelTestCase();
+              this.getTestCaseList(1, this.SelectLocation);
+              this.selected = [];
+            }
+          }).catch(err => {
+            console.log(err)
+            runNum++;
+            this.$q.notify({
+              position: 'top',
+              message: '提示',
+              caption: `${this.selected[i].name}运行失败`,
+              color: 'red',
+            })
+            setTimeout(() => {
+              ParrallelLoading.show();
+            }, 3000);
+            if (runNum == this.selected.length) {
+              ParrallelLoading.hide();
+              this.runCancelTestCase();
+              this.getTestCaseList(1, this.SelectLocation);
+              this.selected = [];
+            }
+          });
+        }, this.selected[i].executionTime * 1000);
       }
       //查看并行TestCase是否执行完成
-      function getTestCaseStatus (index) {
-        Apis.getTestCaseStatus({ caseId: _this.selected[index].id }).then((res) => {
-          if (!res.data) {
-            runNum++;
-            if (runNum == _this.selected.length) {
-              _this.$q.notify({
-                position: 'top',
-                message: '提示',
-                caption: '执行完成',
-                color: 'secondary',
-              })
-              _this.$q.loading.hide();
-              _this.runFixed = false;
-              _this.selected = [];
-              _this.runModelArray = [];
-              _this.dismiss();
-              return;
-            }
+      // function getTestCaseStatus (index) {
+      //   this.$q.loading.show();
+      //   Apis.getTestCaseStatus({ caseId: _this.selected[index].id }).then((res) => {
+      //     if (!res.data) {
+      //       runNum++;
+      //       _this.runModelArray[index].runStatus = '运行完成';
+      //       if (runNum == _this.selected.length) {
+      //         _this.$q.notify({
+      //           position: 'top',
+      //           message: '提示',
+      //           caption: '运行完成',
+      //           color: 'secondary',
+      //         })
+      //         _this.$q.loading.hide();
+      //         _this.runFixed = false;
+      //         _this.selected = [];
+      //         _this.runModelArray = [];
+      //         return;
+      //       }
 
-            runArray.splice(index, 1, '');
-            _this.dismiss();
-            _this.dismiss = _this.$q.notify({
-              position: 'top-right',
-              caption: `当前测试用例${runArray.filter(item => item).join(',')}正在运行当中。`,
-              color: 'teal',
-              timeout: '0'
-            })
-          } else {
-            setTimeout(() => { getTestCaseStatus(index); }, 3000);
-          }
-        })
-      }
+      //       runArray.splice(index, 1, '');
+      //     } else {
+      //       setTimeout(() => { getTestCaseStatus(index); }, 3000);
+      //     }
+      //   })
+      // }
 
     },
     //递归运行TestCase
@@ -552,12 +568,20 @@ export default {
   width: 100%;
   height: 100%;
   //overflow: hidden;
+
   .btn {
     margin-right: 10px;
   }
   .q-pa-md {
     height: 100%;
   }
+}
+.pointer {
+  cursor: pointer;
+  margin-left: 20px;
+  font-size: 12px;
+  border-radius: 50%;
+  display: inline-block;
 }
 </style>
 <style lang="scss">
