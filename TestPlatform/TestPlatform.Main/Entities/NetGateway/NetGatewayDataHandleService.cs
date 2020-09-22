@@ -647,8 +647,6 @@ namespace FW.TestPlatform.Main.NetGateway
             return Task.CompletedTask;
         }
 
-        ConcurrentDictionary<uint, List<DataContainer>> badDatas;
-
         private class DataContainer
         {
             public uint Ack { get; set; }
@@ -660,7 +658,7 @@ namespace FW.TestPlatform.Main.NetGateway
 
         public void OpenPcapORPcapNFFile(string fileName, string dataformat, Func<string, Task> sourceDataAction, CancellationToken token = default)
         {
-            badDatas = new ConcurrentDictionary<uint, List<DataContainer>>();
+            ConcurrentDictionary<uint, List<DataContainer>> badDatas = new ConcurrentDictionary<uint, List<DataContainer>>();
             int index = 0;
             int indexException = 0;
 
@@ -926,7 +924,7 @@ namespace FW.TestPlatform.Main.NetGateway
                             #endregion
 
                             List<int> requestTypes = new List<int>();
-                            List<byte[]> datas = this.GetGoogleData_TCP_List(payloadData, timestamp, payloadPacket, out requestTypes);
+                            List<byte[]> datas = this.GetGoogleData_TCP_List(payloadData, timestamp, payloadPacket, out requestTypes, ref badDatas);
 
                             if (datas != null)
                             {
@@ -1747,7 +1745,7 @@ namespace FW.TestPlatform.Main.NetGateway
             return datas;
         }
 
-        private List<byte[]>? GetGoogleData_TCP_List(byte[] data, DateTime timestamp, PacketDotNet.Packet packet, out List<int> requestTypes)
+        private List<byte[]>? GetGoogleData_TCP_List(byte[] data, DateTime timestamp, PacketDotNet.Packet packet, out List<int> requestTypes, ref ConcurrentDictionary<uint, List<DataContainer>> badDatas)
         {
             List<byte[]> datas = new List<byte[]>();
 
