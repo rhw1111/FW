@@ -268,38 +268,36 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     var count = await (from item in dbContext.TreeEntities
                                        where item.ParentID == parentId && item.Type == 2
                                        select item.ID).CountAsync();
-                    var countWithoutParent = 0;
+                    var countWithoutTree = 0;
                     if (parentId == null)
                     {
-                        countWithoutParent = await (from item in dbContext.TestCases
-                                                      where item.TreeID == null
-                                                      select item).CountAsync();
+                        countWithoutTree = await (from item in dbContext.TestCases
+                                                  where item.TreeID == null
+                                                  orderby item.CreateTime descending
+                                                  select item).CountAsync();
                     }
-                    result.TotalCount = count + countWithoutParent;
-                    int skipCount = 0;
-                    int takeCount = 0;
+                    result.TotalCount = count + countWithoutTree;
                     List<TestCase> datasWithoutTree = new List<TestCase>();
-                    if (countWithoutParent >= page * pageSize)
+                    if((page - 1) * pageSize < countWithoutTree)
                     {
-                        datasWithoutTree = await (from item in dbContext.TestCases
-                                                    where item.TreeID == null
-                                                    select item).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-                    }
-                    else if((page - 1) * pageSize <= countWithoutParent && countWithoutParent < page * pageSize)
-                    {
-                        skipCount = countWithoutParent - (page - 1) * pageSize;
-                        takeCount = page * pageSize - countWithoutParent;
                         datasWithoutTree = await (from item in dbContext.TestCases
                                                         where item.TreeID == null
                                                         select item).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
                     }
-                    else
+                    if (countWithoutTree < page * pageSize)
                     {
-                        skipCount = (((page - 1) * pageSize - countWithoutParent) / pageSize) * pageSize;
-                        takeCount = pageSize - ((page - 1) * pageSize - countWithoutParent) % pageSize;
-                    }
-                    if (countWithoutParent < page * pageSize)
-                    {
+                        int skipCount = 0;
+                        int takeCount = 0;
+                        if (countWithoutTree <= (page - 1) * pageSize)
+                        {
+                            skipCount = (page - 1) * pageSize - countWithoutTree;
+                            takeCount = pageSize;
+                        }
+                        else
+                        {
+                            skipCount = 0;
+                            takeCount = pageSize - (countWithoutTree - (page - 1) * pageSize);
+                        }
                         var ids = (from item in dbContext.TreeEntities
                                    where item.ParentID == parentId && item.Type == 2
                                    orderby item.CreateTime descending
