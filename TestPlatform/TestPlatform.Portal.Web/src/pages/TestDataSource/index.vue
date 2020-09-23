@@ -154,16 +154,16 @@ export default {
         rowsNumber: 1     //总页数
       },
       //------------------------ 目录 -------------------------------
-      expanded: true,//目录展开收缩flag
+      expanded: false,//目录展开收缩flag
       SelectLocation: '',//选择目录的位置
     }
   },
   mounted () {
-    this.getTestDataSource();
+    this.getTestDataSource(1, null, true);
   },
   methods: {
     //获得TestDataSource列表
-    getTestDataSource (page, parentId) {
+    getTestDataSource (page, parentId, expandedBfalse) {
       this.$q.loading.show()
       let para = {
         parentId: parentId || null,
@@ -177,6 +177,11 @@ export default {
         this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
         this.TestDataSourceList = res.data.results;
         this.selected = [];
+        //后执行树状图组件
+        if (expandedBfalse) {
+          this.expanded = true;
+          return;
+        }
         this.$q.loading.hide();
       })
     },
