@@ -960,6 +960,10 @@ namespace FW.TestPlatform.Main.NetGateway
                 reader.ReadPackets(token);
             }
 
+            var applicationConfiguration = ConfigurationContainer.Get<ApplicationConfiguration>(ConfigurationNames.Application);
+            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(GetSourceDataFromFileService)} {Path.GetFileName(fileName)} 网络数据包解析完毕，总数有{index.ToString()}，解析错误有{indexException}，坏包有{badDatas.Count().ToString()}.");
+            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(GetSourceDataFromFileService)} {Path.GetFileName(fileName)} 开始处理坏包...");
+
             // 处理坏包
             int count = badDatas.Count();
             index = 0;
@@ -1008,6 +1012,8 @@ namespace FW.TestPlatform.Main.NetGateway
                     //throw new Exception(string.Format("GoogleData Error, Exception: {0}. {1}", ex.Message, ex.StackTrace));
                 }
             }
+
+            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(GetSourceDataFromFileService)} {Path.GetFileName(fileName)} 坏包处理完毕.");
         }
 
         private void reader_OnReadPacketEvent(object context, IPacket packet)
