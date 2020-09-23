@@ -272,8 +272,9 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     if (parentId == null)
                     {
                         countWithoutTree = await (from item in dbContext.TestCases
-                                                      where item.TreeID == null
-                                                      select item).CountAsync();
+                                                  where item.TreeID == null
+                                                  orderby item.CreateTime descending
+                                                  select item).CountAsync();
                     }
                     result.TotalCount = count + countWithoutTree;
                     List<TestCase> datasWithoutTree = new List<TestCase>();
