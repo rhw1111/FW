@@ -167,7 +167,8 @@ namespace FW.TestPlatform.Main.NetGateway
                                                         {
                                                             containerData = new DataContainer()
                                                             {
-                                                                FileName = fileName
+                                                                FileName = fileName,
+                                                                Timestamp = data.CreateTime
                                                             };
                                                             containerDatas[data.ID] = containerData;
                                                         }
@@ -187,7 +188,7 @@ namespace FW.TestPlatform.Main.NetGateway
 
                                                             lock (singleDatas)
                                                             {
-                                                                singleDatas.Add(new DataContainer() { FileName = fileName, Response = data });
+                                                                singleDatas.Add(new DataContainer() { FileName = fileName, Timestamp = data.CreateTime, Response = data });
                                                             }
                                                         }
                                                     }
@@ -229,17 +230,7 @@ namespace FW.TestPlatform.Main.NetGateway
                                     containerData.Response = innerItem.Response;
                                     deleteDatas.Add(innerItem);
                                 }
-                            }
-
-                            // 此处阀值用来判断，如果需要删除的数据太多，就不删了，是由于坏包太多所致
-                            if (deleteDatas.Count < 100)
-                            {
-                                foreach (var deleteItem in deleteDatas)
-                                {
-                                    item.Value.Remove(deleteItem);
-                                }
-
-                                if (item.Value.Count > 0)
+                                else
                                 {
                                     if (!restDatas.TryGetValue(item.Key, out ConcurrentDictionary<string, DataContainer>? restContainerDatas))
                                     {
@@ -247,13 +238,33 @@ namespace FW.TestPlatform.Main.NetGateway
                                         restDatas[item.Key] = restContainerDatas;
                                     }
 
-                                    foreach (var restItem in item.Value)
-                                    {
-                                        restContainerDatas[restItem.Response!.ID] = restItem;
-                                    }
-
+                                    restContainerDatas[innerItem.Response!.ID] = innerItem;
                                 }
                             }
+
+                            // 此处阀值用来判断，如果需要删除的数据太多，就不删了，是由于坏包太多所致
+                            //if (deleteDatas.Count < 100)
+                            //{
+                            //    foreach (var deleteItem in deleteDatas)
+                            //    {
+                            //        item.Value.Remove(deleteItem);
+                            //    }
+                            //}
+
+                            //if (item.Value.Count > 0)
+                            //{
+                            //    if (!restDatas.TryGetValue(item.Key, out ConcurrentDictionary<string, DataContainer>? restContainerDatas))
+                            //    {
+                            //        restContainerDatas = new ConcurrentDictionary<string, DataContainer>();
+                            //        restDatas[item.Key] = restContainerDatas;
+                            //    }
+
+                            //    foreach (var restItem in item.Value)
+                            //    {
+                            //        restContainerDatas[restItem.Response!.ID] = restItem;
+                            //    }
+
+                            //}
                         }
 
                         if (fileNames.Count > 0)
@@ -292,53 +303,87 @@ namespace FW.TestPlatform.Main.NetGateway
                                     }
                                 }
 
+                                #region QPS
+                                //var calculateDatas = from item in containerDatas
+                                //                    where item.Value.FileName == fileName && item.Value.Request != null
+                                //                    select item.Value;
+
+                                //DateTime? maxCreateTime = null;
+                                //var qps = 0;
+                                //var totalRequestCount = calculateDatas.Count();
+                                //if (totalRequestCount > 1)
+                                //{
+                                //    var minCreateTime = calculateDatas.Min((v) => v.Request!.CreateTime);
+                                //    maxCreateTime = calculateDatas.Max((v) => v.Request!.CreateTime);
+                                //    qps = (int)(totalRequestCount / (maxCreateTime.Value - minCreateTime).TotalSeconds);
+                                //}
+                                //else if (totalRequestCount == 1)
+                                //{
+                                //    qps = 1;
+                                //    maxCreateTime = calculateDatas.Max((v) => v.Request!.CreateTime);
+                                //}
+
+                                //if (qps != 0)
+                                //{
+                                //    await _qpsCollectService.Collect(prefix,qps, maxCreateTime!.Value, cancellationToken);
+                                //}
+
                                 var calculateDatas = from item in containerDatas
-                                                    where item.Value.FileName == fileName && item.Value.Request != null
-                                                    select item.Value;
+                                                     where item.Value.FileName == fileName && item.Value.Request != null
+                                                     group item by item.Value.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") into g
+                                                     select new { g.Key, Total = g.Count() };
 
-                                DateTime? maxCreateTime = null;
-                                var qps = 0;
-                                var totalRequestCount = calculateDatas.Count();
-                                if (totalRequestCount > 1)
+                                foreach (var row in calculateDatas)
                                 {
-                                    var minCreateTime = calculateDatas.Min((v) => v.Request!.CreateTime);
-                                    maxCreateTime = calculateDatas.Max((v) => v.Request!.CreateTime);
-                                    qps = (int)(totalRequestCount / (maxCreateTime.Value - minCreateTime).TotalSeconds);
+                                    var qps = row.Total;
+                                    DateTime? maxCreateTime = Convert.ToDateTime(row.Key);
+                                    await _qpsCollectService.Collect(prefix, qps, maxCreateTime!.Value, cancellationToken);
                                 }
-                                else if (totalRequestCount == 1)
-                                {
-                                    qps = 1;
-                                    maxCreateTime = calculateDatas.Max((v) => v.Request!.CreateTime);
-                                }
+                                #endregion
 
-                                if (qps != 0)
-                                {
-                                    await _qpsCollectService.Collect(prefix,qps, maxCreateTime!.Value, cancellationToken);
-                                }
+                                #region Duration
+                                //var calculateResponseDatas = from item in containerDatas
+                                //                            where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
+                                //                            select (item.Value.Response!.CreateTime - item.Value.Request!.CreateTime).TotalMilliseconds;
 
+                                //maxCreateTime = (from item in containerDatas
+                                //                where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
+                                //                orderby item.Value.Response!.CreateTime descending
+                                //                select item.Value.Response!.CreateTime).FirstOrDefault();
+
+                                //if (calculateResponseDatas.Count() == 0)
+                                //{
+                                //    return;
+                                //}
+
+                                //var avgResponse = calculateResponseDatas.Average();
+                                //var maxResponse = calculateResponseDatas.Max();
+                                //var minResponse = calculateResponseDatas.Min();
+
+                                //if (maxCreateTime != null)
+                                //{
+                                //    await _netDurationCollectService.Collect(prefix,minResponse, maxResponse, avgResponse, maxCreateTime!.Value, cancellationToken);
+                                //}
 
                                 var calculateResponseDatas = from item in containerDatas
-                                                            where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
-                                                            select (item.Value.Response!.CreateTime - item.Value.Request!.CreateTime).TotalMilliseconds;
+                                                             where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
+                                                             group item by item.Value.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") into g
+                                                             select new { g.Key, Total = g.Count()
+                                                                , AvgDuration = g.Average(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
+                                                                , MaxDuration = g.Max(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
+                                                                , MinDuration = g.Min(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds) };
 
-                                maxCreateTime = (from item in containerDatas
-                                                where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
-                                                orderby item.Value.Response!.CreateTime descending
-                                                select item.Value.Response!.CreateTime).FirstOrDefault();
-
-                                if (calculateResponseDatas.Count() == 0)
+                                foreach (var row in calculateResponseDatas)
                                 {
-                                    return;
-                                }
+                                    DateTime? maxCreateTime = Convert.ToDateTime(row.Key);
 
-                                var avgResponse = calculateResponseDatas.Average();
-                                var maxResponse = calculateResponseDatas.Max();
-                                var minResponse = calculateResponseDatas.Min();
+                                    var avgResponse = row.AvgDuration;
+                                    var maxResponse = row.MaxDuration;
+                                    var minResponse = row.MinDuration;
 
-                                if (maxCreateTime != null)
-                                {
-                                    await _netDurationCollectService.Collect(prefix,minResponse, maxResponse, avgResponse, maxCreateTime!.Value, cancellationToken);
+                                    await _netDurationCollectService.Collect(prefix, minResponse, maxResponse, avgResponse, maxCreateTime!.Value, cancellationToken);
                                 }
+                                #endregion
 
                                 //处理只有request的数据
 
@@ -355,7 +400,7 @@ namespace FW.TestPlatform.Main.NetGateway
                                 }
                                   
                                 var requestDatas = (from item in containerDatas
-                                                    where item.Value.Request != null && item.Value.Response == null
+                                                    where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response == null
                                                     select item).ToList();
 
                                 foreach (var item in requestDatas)
@@ -373,6 +418,7 @@ namespace FW.TestPlatform.Main.NetGateway
                                     }
 
                                     dataContainer.FileName = fileName;
+                                    dataContainer.Timestamp = item.Value.Request.CreateTime;
                                     dataContainer.Request = item.Value.Request;
                                 }
                             }
@@ -544,6 +590,7 @@ namespace FW.TestPlatform.Main.NetGateway
         private class DataContainer
         {
             public string FileName { get; set; } = null!;
+            public DateTime Timestamp { get; set; }
             public NetData? Request { get; set; }
             public NetData? Response { get; set; }
         }
