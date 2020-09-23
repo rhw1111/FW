@@ -4,7 +4,7 @@
     <div class="q-pa-md">
 
       <transition name="TreeEntity-slid">
-        <TreeEntity v-show="expanded"
+        <TreeEntity v-if="expanded"
                     refs="TreeEntity"
                     style="max-width:20%;height:100%;overflow:auto;float:left;"
                     @getDirectoryLocation="getDirectoryLocation" />
@@ -252,7 +252,7 @@ export default {
         console.log(res)
         this.TestCaseList = res.data.results;
         this.pagination.page = page || 1;
-        this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
+        this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 20);
         //后执行树状图组件
         if (expandedBfalse) {
           this.expanded = true;

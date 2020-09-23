@@ -3,7 +3,7 @@
     <!-- TestDataSource列表 -->
     <div class="q-pa-md">
       <transition name="TreeEntity-slid">
-        <TreeEntity v-show="expanded"
+        <TreeEntity v-if="expanded"
                     style="max-width:20%;height:100%;overflow:auto;float:left;"
                     @getDirectoryLocation="getDirectoryLocation" />
       </transition>
@@ -169,12 +169,12 @@ export default {
         parentId: parentId || null,
         matchName: '',
         page: page || 1,
-        pageSize: 50
+        pageSize: 20
       }
       Apis.getTestDataSource(para).then((res) => {
         console.log(res)
         this.pagination.page = page || 1;
-        this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
+        this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 20);
         this.TestDataSourceList = res.data.results;
         this.selected = [];
         //后执行树状图组件
