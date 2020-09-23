@@ -252,7 +252,7 @@ export default {
         console.log(res)
         this.TestCaseList = res.data.results;
         this.pagination.page = page || 1;
-        this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 20);
+        this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
         //后执行树状图组件
         if (expandedBfalse) {
           this.expanded = true;
