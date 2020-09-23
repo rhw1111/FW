@@ -113,7 +113,7 @@
                    label="并行模式" />
           <q-radio v-model="runModel"
                    val="sequential"
-                   label="顺序执行" />
+                   label="顺序运行" />
 
           <div v-show="runModel=='parallel'">
 
@@ -125,7 +125,7 @@
                        outlined
                        class="col-8"
                        :dense="true"
-                       placeholder="请输入用例运行的开始时间。"
+                       placeholder="请输入测试用例开始运行的延迟秒数"
                        @input="forceUpdate(value.executionTime,index)">
                 <template v-slot:before>
                   <span style="font-size:14px;width:150px;word-wrap:break-word;">{{value.name}}:</span>
@@ -426,7 +426,7 @@ export default {
             this.$q.notify({
               position: 'top',
               message: '提示',
-              caption: `${this.selected[i].name}运行完成`,
+              caption: `${this.selected[i].name}运行成功`,
               color: 'secondary',
             })
             if (runNum == this.selected.length) {
@@ -455,34 +455,6 @@ export default {
           });
         }, this.selected[i].executionTime * 1000);
       }
-      //查看并行TestCase是否执行完成
-      // function getTestCaseStatus (index) {
-      //   this.$q.loading.show();
-      //   Apis.getTestCaseStatus({ caseId: _this.selected[index].id }).then((res) => {
-      //     if (!res.data) {
-      //       runNum++;
-      //       _this.runModelArray[index].runStatus = '运行完成';
-      //       if (runNum == _this.selected.length) {
-      //         _this.$q.notify({
-      //           position: 'top',
-      //           message: '提示',
-      //           caption: '运行完成',
-      //           color: 'secondary',
-      //         })
-      //         _this.$q.loading.hide();
-      //         _this.runFixed = false;
-      //         _this.selected = [];
-      //         _this.runModelArray = [];
-      //         return;
-      //       }
-
-      //       runArray.splice(index, 1, '');
-      //     } else {
-      //       setTimeout(() => { getTestCaseStatus(index); }, 3000);
-      //     }
-      //   })
-      // }
-
     },
     //递归运行TestCase
     run (index) {
@@ -522,7 +494,7 @@ export default {
             this.$q.notify({
               position: 'top',
               message: '提示',
-              caption: '执行完成',
+              caption: '运行完成',
               color: 'secondary',
             })
             return;
