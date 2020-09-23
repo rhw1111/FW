@@ -125,7 +125,7 @@
                        outlined
                        class="col-8"
                        :dense="true"
-                       placeholder="请输入执行时间,默认0秒。"
+                       placeholder="请输入用例运行的开始时间。"
                        @input="forceUpdate(value.executionTime,index)">
                 <template v-slot:before>
                   <span style="font-size:14px;width:150px;word-wrap:break-word;">{{value.name}}:</span>
@@ -240,7 +240,7 @@ export default {
       })
     },
     //获得TeseCase列表
-    getTestCaseList (page, ParentId, Bfalse) {
+    getTestCaseList (page, ParentId, expandedBfalse) {
       this.$q.loading.show()
       let para = {
         parentId: ParentId || null,
@@ -253,7 +253,8 @@ export default {
         this.TestCaseList = res.data.results;
         this.pagination.page = page || 1;
         this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
-        if (Bfalse) {
+        //后执行树状图组件
+        if (expandedBfalse) {
           this.expanded = true;
           return;
         }
