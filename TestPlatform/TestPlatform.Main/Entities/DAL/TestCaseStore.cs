@@ -268,25 +268,57 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     var count = await (from item in dbContext.TreeEntities
                                        where item.ParentID == parentId && item.Type == 2
                                        select item.ID).CountAsync();
-                    //var count = await (from item in dbContext.TestCases
-                    //                   where EF.Functions.Like(item.Name, strLike)
-                    //                   select item.ID).CountAsync();
-
-                    result.TotalCount = count;
-                    var ids = (from item in dbContext.TreeEntities
-                               where item.ParentID == parentId && item.Type == 2
-                               orderby item.CreateTime descending
-                               select item.Value
-                                        ).Skip((page - 1) * pageSize).Take(pageSize);
-                    if (ids.Count() > 0)
+                    var countWithoutParent = 0;
+                    if (parentId == null)
                     {
-                        var datas = await (from item in dbContext.TestCases
-                                           join idItem in ids
-                                      on item.ID.ToString() equals idItem
-                                           orderby EF.Property<long>(item, "Sequence") descending
-                                           select item).ToListAsync();
+                        countWithoutParent = await (from item in dbContext.TestCases
+                                                      where item.TreeID == null
+                                                      select item).CountAsync();
+                    }
+                    result.TotalCount = count + countWithoutParent;
+                    int skipCount = 0;
+                    int takeCount = 0;
+                    List<TestCase> datasWithoutTree = new List<TestCase>();
+                    if (countWithoutParent >= page * pageSize)
+                    {
+                        datasWithoutTree = await (from item in dbContext.TestCases
+                                                    where item.TreeID == null
+                                                    select item).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+                    }
+                    else if((page - 1) * pageSize <= countWithoutParent && countWithoutParent < page * pageSize)
+                    {
+                        skipCount = countWithoutParent - (page - 1) * pageSize;
+                        takeCount = page * pageSize - countWithoutParent;
+                        datasWithoutTree = await (from item in dbContext.TestCases
+                                                        where item.TreeID == null
+                                                        select item).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+                    }
+                    else
+                    {
+                        skipCount = (((page - 1) * pageSize - countWithoutParent) / pageSize) * pageSize;
+                        takeCount = pageSize - ((page - 1) * pageSize - countWithoutParent) % pageSize;
+                    }
+                    if (countWithoutParent < page * pageSize)
+                    {
+                        var ids = (from item in dbContext.TreeEntities
+                                   where item.ParentID == parentId && item.Type == 2
+                                   orderby item.CreateTime descending
+                                   select item.Value
+                                        ).Skip(skipCount).Take(takeCount);
+                        if (ids.Count() > 0)
+                        {
+                            var datas = await (from item in dbContext.TestCases
+                                               join idItem in ids
+                                          on item.ID.ToString() equals idItem
+                                               orderby EF.Property<long>(item, "Sequence") descending
+                                               select item).ToListAsync();
 
-                        result.Results.AddRange(datas);
+                            result.Results.AddRange(datas);
+                        }
+                    }
+                    if(datasWithoutTree.Count() > 0)
+                    {
+                        result.Results.AddRange(datasWithoutTree);
                     }
                 }
             });

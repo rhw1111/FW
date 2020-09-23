@@ -647,13 +647,23 @@ namespace FW.TestPlatform.Main.NetGateway
             return Task.CompletedTask;
         }
 
+        private class DataContainer
+        {
+            public uint Ack { get; set; }
+            public uint Seq { get; set; }
+            public DateTime Timestamp { get; set; }
+            public byte[] Data { get; set; }
+        }
+
+
         public void OpenPcapORPcapNFFile(string fileName, string dataformat, Func<string, Task> sourceDataAction, CancellationToken token = default)
         {
+            ConcurrentDictionary<uint, List<DataContainer>> badDatas = new ConcurrentDictionary<uint, List<DataContainer>>();
+            int index = 0;
+            int indexException = 0;
+
             using (var reader = IReaderFactory.GetReader(fileName))
             {
-                int index = 0;
-                int indexException = 0;
-
                 reader.OnReadPacketEvent += (context, packet) =>
                 {
                     try
@@ -713,6 +723,7 @@ namespace FW.TestPlatform.Main.NetGateway
                         {
                             var payloadData = payloadPacket.PayloadData;
 
+                            #region One Packet
                             //var requestType = 0;
                             //var googleData = this.GetGoogleData_TCP(payloadData, out requestType);
 
@@ -910,9 +921,10 @@ namespace FW.TestPlatform.Main.NetGateway
                             //        sourceDataAction.Invoke(string.Format("{0}|{1}|{2}|{3}", requestType, id, timestamp.ToOADate().ToString(), string.Empty, data.ToString())); ;
                             //    }
                             //}
+                            #endregion
 
                             List<int> requestTypes = new List<int>();
-                            List<byte[]> datas = this.GetGoogleData_TCP_List(payloadData, out requestTypes);
+                            List<byte[]> datas = this.GetGoogleData_TCP_List(payloadData, timestamp, payloadPacket, out requestTypes, ref badDatas);
 
                             if (datas != null)
                             {
@@ -947,6 +959,61 @@ namespace FW.TestPlatform.Main.NetGateway
                 };
                 reader.ReadPackets(token);
             }
+
+            var applicationConfiguration = ConfigurationContainer.Get<ApplicationConfiguration>(ConfigurationNames.Application);
+            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(GetSourceDataFromFileService)} {Path.GetFileName(fileName)} 网络数据包解析完毕，总数有{index.ToString()}，解析错误有{indexException}，坏包有{badDatas.Count().ToString()}.");
+            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(GetSourceDataFromFileService)} {Path.GetFileName(fileName)} 开始处理坏包...");
+
+            // 处理坏包
+            int count = badDatas.Count();
+            index = 0;
+            indexException = 0;
+
+            foreach (List<DataContainer> ackDatas in badDatas.Values)
+            {
+                index++;
+
+                if (ackDatas.Count == 0)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    DateTime timestamp = ackDatas[0].Timestamp;
+                    var payloadData = this.MergeData(ackDatas);
+
+                    List<int> requestTypes = new List<int>();
+                    List<byte[]> datas = this.GetGoogleData_TCP_List(payloadData, out requestTypes);
+
+                    if (datas != null)
+                    {
+                        for (int i = 0; i < datas.Count; i++)
+                        {
+                            var googleData = datas[i];
+                            int requestType = requestTypes[i];
+
+                            object data = string.Empty;
+                            string id = string.Empty;
+
+                            data = EmptyMsg.Parser.ParseFrom(googleData);
+                            id = ((Ctrade.Message.EmptyMsg)data).Header.MsgCd.ToString();
+
+                            if (!string.IsNullOrEmpty(data.ToString()))
+                            {
+                                sourceDataAction.Invoke(string.Format("{0}|{1}|{2}|{3}", requestType, id, timestamp.ToOADate().ToString(), string.Empty, data.ToString())); ;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    indexException++;
+                    //throw new Exception(string.Format("GoogleData Error, Exception: {0}. {1}", ex.Message, ex.StackTrace));
+                }
+            }
+
+            LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(GetSourceDataFromFileService)} {Path.GetFileName(fileName)} 坏包处理完毕.");
         }
 
         private void reader_OnReadPacketEvent(object context, IPacket packet)
@@ -1444,6 +1511,27 @@ namespace FW.TestPlatform.Main.NetGateway
             }
         }
 
+        private byte[] MergeData(List<DataContainer> ackDatas)
+        {
+            int count = 0;
+
+            foreach (DataContainer ackData in ackDatas)
+            {
+                count = count + ackData.Data.Length;
+            }
+
+            byte[] returnData = new byte[count];
+            int length2 = 0;
+
+            foreach (DataContainer ackData in ackDatas)
+            {
+                Buffer.BlockCopy(ackData.Data, 0, returnData, length2, ackData.Data.Length);
+                length2 = ackData.Data.Length;
+            }
+
+            return returnData;
+        }
+
         private byte[]? GetGoogleData(byte[] data, out int requestType)
         {
             requestType = 0;
@@ -1551,7 +1639,7 @@ namespace FW.TestPlatform.Main.NetGateway
 
             requestTypes = new List<int>();
 
-            if (data == null || data.Length < 82)
+            if (data == null || data.Length < 10)
             {
                 return datas;
             }
@@ -1611,6 +1699,172 @@ namespace FW.TestPlatform.Main.NetGateway
                             requestTypes.Add(requestType);
                         }
                     }
+                    //else if (packetType == 2 && tcpMessageType == 85 && tcpEnd != 3 || packetType != 2 && tcpMessageType != 85 && tcpEnd == 3)
+                    //{
+                    //    // Bad Data
+                    //    uint ack = ((PacketDotNet.TcpPacket)packet).AcknowledgmentNumber;
+                    //    uint seq = ((PacketDotNet.TcpPacket)packet).SequenceNumber;
+
+                    //    if (!badDatas.TryGetValue(ack, out List<DataContainer>? ackDatas))
+                    //    {
+                    //        lock (badDatas)
+                    //        {
+                    //            if (!badDatas.TryGetValue(ack, out ackDatas))
+                    //            {
+                    //                ackDatas = new List<DataContainer>();
+                    //                badDatas[ack] = ackDatas;
+                    //            }
+                    //        }
+                    //    }
+
+                    //    lock (ackDatas)
+                    //    {
+                    //        ackDatas.Insert(0, new DataContainer() { Ack = ack, Seq = seq, Timestamp = timestamp, Data = goodData });
+                    //    }
+                    //}
+                }
+            }
+            //else if (packetType == 2 && tcpMessageType == 85 && tcpEnd != 3 || packetType != 2 && tcpMessageType != 85 && tcpEnd == 3)
+            //{
+            //    // Bad Data
+            //    uint ack = ((PacketDotNet.TcpPacket)packet).AcknowledgmentNumber;
+            //    uint seq = ((PacketDotNet.TcpPacket)packet).SequenceNumber;
+
+            //    if (!badDatas.TryGetValue(ack, out List<DataContainer>? ackDatas))
+            //    {
+            //        lock (badDatas)
+            //        {
+            //            if (!badDatas.TryGetValue(ack, out ackDatas))
+            //            {
+            //                ackDatas = new List<DataContainer>();
+            //                badDatas[ack] = ackDatas;
+            //            }
+            //        }
+            //    }
+
+            //    lock (ackDatas)
+            //    {
+            //        ackDatas.Insert(0, new DataContainer() { Ack = ack, Seq = seq, Timestamp = timestamp, Data = data });
+            //    }
+            //}
+
+            return datas;
+        }
+
+        private List<byte[]>? GetGoogleData_TCP_List(byte[] data, DateTime timestamp, PacketDotNet.Packet packet, out List<int> requestTypes, ref ConcurrentDictionary<uint, List<DataContainer>> badDatas)
+        {
+            List<byte[]> datas = new List<byte[]>();
+
+            requestTypes = new List<int>();
+
+            if (data == null || data.Length < 10)
+            {
+                return datas;
+            }
+
+            int packetType = data[0];
+            int tcpMessageType = data[5];
+            int tcpEnd = data[data.Length - 1];
+
+            if (packetType == 2 && tcpMessageType == 85 && tcpEnd == 3)
+            {
+                List<byte[]> goodDatas = this.GetGoodData(data);
+
+                foreach (byte[] goodData in goodDatas)
+                {
+                    packetType = goodData[0];
+                    tcpMessageType = goodData[5];
+                    tcpEnd = goodData[goodData.Length - 1];
+
+                    if (packetType == 2 && tcpMessageType == 85 && tcpEnd == 3)
+                    {
+                        int index = 0;
+                        int tcp_start = 6;
+                        int sizeLengthOfChannelName = 2;
+                        int sizeChannelName = Byte2Int(goodData.Skip(tcp_start).Take(sizeLengthOfChannelName).ToArray());
+                        int sizeLengthOfTargetInstanceName = 1;
+                        index = tcp_start + sizeLengthOfChannelName + sizeChannelName;
+                        int sizeTargetInstanceName = goodData[index];
+                        //int sizeTargetInstanceName = goodData[tcp_start + sizeLengthOfChannelName + sizeChannelName];
+                        int sizeLengthOfData = 4;
+                        //int sizeData = Byte4Int(goodData.Skip(tcp_start + sizeLengthOfChannelName + sizeChannelName + sizeLengthOfTargetInstanceName + sizeTargetInstanceName).Take(sizeLengthOfData).ToArray());
+
+                        index = index + sizeLengthOfTargetInstanceName + sizeTargetInstanceName + sizeLengthOfData;
+                        int depapi_start = index;
+                        //int depapi_start = tcp_start + sizeLengthOfChannelName + sizeChannelName + sizeLengthOfTargetInstanceName + sizeTargetInstanceName + sizeLengthOfData;
+                        int messageType = goodData[depapi_start];
+                        int requestType = goodData[depapi_start + 23];
+
+                        if (packetType == 2 && messageType == 7 && tcpEnd == 3 && (requestType == 0 || requestType == 1))
+                        {
+                            //byte[] length_osin_byte = goodData.Skip(depapi_start + 23 + 5).Take(2).ToArray();
+                            byte[] length_osin_byte = goodData.Skip(depapi_start + 28).Take(2).ToArray();
+                            int length_osin = Byte2Int(length_osin_byte);
+
+                            index = depapi_start + 30 + length_osin;
+                            //int dsp_begin = depapi_start + 23 + 5 + 2 + length_osin + 5;
+                            int dsp_begin = index + 5;
+                            //int dsp_end = dsp_begin + 4;
+                            byte[] length_dspm_byte = goodData.Skip(dsp_begin).Take(4).ToArray();
+                            int length_dspm = Byte4Int(length_dspm_byte);
+
+                            //int dspapi_begin = depapi_start + 23 + 5 + 2 + length_osin;
+                            int dspapi_begin = index;
+                            int dspapi_end = dspapi_begin + length_dspm;
+
+                            byte[] body = goodData.Skip(dspapi_end).Take(goodData.Length - dspapi_end - 1).ToArray();
+                            datas.Add(body);
+                            requestTypes.Add(requestType);
+                        }
+                    }
+                    else if (packetType == 2 && tcpMessageType == 85 && tcpEnd != 3 || packetType != 2 && tcpMessageType != 85 && tcpEnd == 3)
+                    {
+                        // Bad Data
+                        uint ack = ((PacketDotNet.TcpPacket)packet).AcknowledgmentNumber;
+                        uint seq = ((PacketDotNet.TcpPacket)packet).SequenceNumber;
+
+                        if (!badDatas.TryGetValue(ack, out List<DataContainer>? ackDatas))
+                        {
+                            lock (badDatas)
+                            {
+                                if (!badDatas.TryGetValue(ack, out ackDatas))
+                                {
+                                    ackDatas = new List<DataContainer>();
+                                    badDatas[ack] = ackDatas;
+                                }
+                            }
+                        }
+
+                        lock (ackDatas)
+                        {
+                            //ackDatas.Add(new DataContainer() { Ack = ack, Seq = seq, Timestamp = timestamp, Data = goodData });
+                            ackDatas.Insert(0, new DataContainer() { Ack = ack, Seq = seq, Timestamp = timestamp, Data = goodData });
+                        }
+                    }
+                }
+            }
+            else if (packetType == 2 && tcpMessageType == 85 && tcpEnd != 3 || packetType != 2 && tcpMessageType != 85 && tcpEnd == 3)
+            {
+                // Bad Data
+                uint ack = ((PacketDotNet.TcpPacket)packet).AcknowledgmentNumber;
+                uint seq = ((PacketDotNet.TcpPacket)packet).SequenceNumber;
+
+                if (!badDatas.TryGetValue(ack, out List<DataContainer>? ackDatas))
+                {
+                    lock (badDatas)
+                    {
+                        if (!badDatas.TryGetValue(ack, out ackDatas))
+                        {
+                            ackDatas = new List<DataContainer>();
+                            badDatas[ack] = ackDatas;
+                        }
+                    }
+                }
+
+                lock (ackDatas)
+                {
+                    //ackDatas.Add(new DataContainer() { Ack = ack, Seq = seq, Timestamp = timestamp, Data = data });
+                    ackDatas.Insert(0, new DataContainer() { Ack = ack, Seq = seq, Timestamp = timestamp, Data = data });
                 }
             }
 
