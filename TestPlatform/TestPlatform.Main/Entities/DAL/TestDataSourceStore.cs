@@ -207,6 +207,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     {
                         datasWithoutTree = await (from item in dbContext.TestDataSources
                                                   where item.TreeID == null
+                                                  orderby item.CreateTime descending
                                                   select item).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
                     }
                     if (countWithoutTree < page* pageSize)
@@ -215,8 +216,6 @@ namespace FW.TestPlatform.Main.Entities.DAL
                         int takeCount = 0;
                         if (countWithoutTree <= (page - 1) * pageSize)
                         {
-                            //skipCount = ((page - 1) * pageSize - countWithoutTree) <= pageSize ? (page - 1) * pageSize - countWithoutTree : (page - 1) * pageSize - countWithoutTree;
-                            //takeCount = ((page - 1) * pageSize - countWithoutTree) <= pageSize ? (pageSize - ((page - 1) * pageSize - countWithoutTree) % pageSize) : pageSize;
                             skipCount = (page - 1) * pageSize - countWithoutTree;
                             takeCount = pageSize;
                         }
