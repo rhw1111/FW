@@ -169,12 +169,12 @@ export default {
         parentId: parentId || null,
         matchName: '',
         page: page || 1,
-        pageSize: 20
+        pageSize: 50
       }
       Apis.getTestDataSource(para).then((res) => {
         console.log(res)
         this.pagination.page = page || 1;
-        this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 20);
+        this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
         this.TestDataSourceList = res.data.results;
         this.selected = [];
         //后执行树状图组件
