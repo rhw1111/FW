@@ -127,6 +127,7 @@ namespace FW.TestPlatform.Main.NetGateway
                             LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames. 找到{fileNames.Count}个文件.");
                         }
 
+                        #region 解析文件
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
                             {
@@ -218,12 +219,14 @@ namespace FW.TestPlatform.Main.NetGateway
                                 );
                             }
                         );
+                        #endregion
 
                         if (fileNames.Count > 0)
                         {
                             LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run 处理单独的响应数据.");
                         }
 
+                        #region 处理单独的响应数据
                         //处理单独的响应数据
                         foreach (var item in singleResponseDatas)
                         {
@@ -272,12 +275,14 @@ namespace FW.TestPlatform.Main.NetGateway
 
                             //}
                         }
+                        #endregion
 
                         if (fileNames.Count > 0)
                         {
                             LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run 计算.");
                         }
 
+                        #region 计算
                         //计算
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
@@ -478,6 +483,7 @@ namespace FW.TestPlatform.Main.NetGateway
                                 #endregion
                             }
                         );
+                        #endregion
 
                         #region 删除用过的文件
                         //删除用过的文件
