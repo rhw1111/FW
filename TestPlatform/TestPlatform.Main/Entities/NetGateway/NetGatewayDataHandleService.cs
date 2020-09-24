@@ -26,6 +26,7 @@ using MSLibrary.Configuration;
 using FW.TestPlatform.Main.Entities;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Internal;
+using System.Data;
 
 namespace FW.TestPlatform.Main.NetGateway
 {
@@ -40,10 +41,11 @@ namespace FW.TestPlatform.Main.NetGateway
         private readonly IConvertNetDataFromSourceService _convertNetDataFromSourceService;
         private readonly IQPSCollectService _qpsCollectService;
         private readonly INetDurationCollectService _netDurationCollectService;
+        private readonly ITotalCollectService _totalCollectService;
 
         public static string LoggerCategoryName { get; set; } = "NetGatewayDataHandle";
 
-        public NetGatewayDataHandleService(INetGatewayDataHandleConfigurationService netGatewayDataHandleConfigurationService, IResolveFileNamePrefixService resolveFileNamePrefixService, IGetSourceDataFromStreamService getSourceDataFromStreamService, IGetSourceDataFromFileService getSourceDataFromFileService, IConvertNetDataFromSourceService convertNetDataFromSourceService, IQPSCollectService qpsCollectService, INetDurationCollectService netDurationCollectService)
+        public NetGatewayDataHandleService(INetGatewayDataHandleConfigurationService netGatewayDataHandleConfigurationService, IResolveFileNamePrefixService resolveFileNamePrefixService, IGetSourceDataFromStreamService getSourceDataFromStreamService, IGetSourceDataFromFileService getSourceDataFromFileService, IConvertNetDataFromSourceService convertNetDataFromSourceService, IQPSCollectService qpsCollectService, INetDurationCollectService netDurationCollectService,ITotalCollectService totalCollectService)
         {
             _netGatewayDataHandleConfigurationService = netGatewayDataHandleConfigurationService;
             _resolveFileNamePrefixService = resolveFileNamePrefixService;
@@ -52,6 +54,7 @@ namespace FW.TestPlatform.Main.NetGateway
             _convertNetDataFromSourceService = convertNetDataFromSourceService;
             _qpsCollectService = qpsCollectService;
             _netDurationCollectService = netDurationCollectService;
+            _totalCollectService = totalCollectService;
         }
 
         public async Task<INetGatewayDataHandleResult> Execute(CancellationToken cancellationToken = default)
@@ -77,6 +80,8 @@ namespace FW.TestPlatform.Main.NetGateway
             Dictionary<string,FileDataInfo> completedFiles = new Dictionary<string, FileDataInfo>();
 
             Dictionary<string,string> completedFileNames = new Dictionary<string, string>();
+
+            ConcurrentDictionary<string, ConcurrentDictionary<DateTime, QPSContainer>> qpsDatas = new ConcurrentDictionary<string, ConcurrentDictionary<DateTime, QPSContainer>>();
 
             var t1 = listenFileCompleted(netGatewayDataHandleResult, folderPath, completedFileNames, (infos) =>
             {
@@ -118,9 +123,11 @@ namespace FW.TestPlatform.Main.NetGateway
                         }
                         else
                         {
+                            qpsDatas = new ConcurrentDictionary<string, ConcurrentDictionary<DateTime, QPSContainer>>(); ;
                             LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames. 找到{fileNames.Count}个文件.");
                         }
 
+                        #region 解析文件
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
                             {
@@ -212,12 +219,14 @@ namespace FW.TestPlatform.Main.NetGateway
                                 );
                             }
                         );
+                        #endregion
 
                         if (fileNames.Count > 0)
                         {
                             LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run 处理单独的响应数据.");
                         }
 
+                        #region 处理单独的响应数据
                         //处理单独的响应数据
                         foreach (var item in singleResponseDatas)
                         {
@@ -266,12 +275,14 @@ namespace FW.TestPlatform.Main.NetGateway
 
                             //}
                         }
+                        #endregion
 
                         if (fileNames.Count > 0)
                         {
                             LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run 计算.");
                         }
 
+                        #region 计算
                         //计算
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
@@ -302,6 +313,8 @@ namespace FW.TestPlatform.Main.NetGateway
                                         }
                                     }
                                 }
+
+                                DateTime time = DateTime.Now;
 
                                 #region QPS
                                 //var calculateDatas = from item in containerDatas
@@ -336,8 +349,42 @@ namespace FW.TestPlatform.Main.NetGateway
                                 foreach (var row in calculateDatas)
                                 {
                                     var qps = row.Total;
-                                    DateTime? maxCreateTime = Convert.ToDateTime(row.Key);
-                                    await _qpsCollectService.Collect(prefix, qps, maxCreateTime!.Value, cancellationToken);
+                                    DateTime maxCreateTime = Convert.ToDateTime(row.Key);
+                                    time = maxCreateTime;
+
+                                    if (!qpsDatas.TryGetValue(prefix, out ConcurrentDictionary<DateTime, QPSContainer>? qpsData))
+                                    {
+                                        lock (qpsDatas)
+                                        {
+                                            if (!qpsDatas.TryGetValue(prefix, out qpsData))
+                                            {
+                                                qpsData = new ConcurrentDictionary<DateTime, QPSContainer>();
+                                                qpsDatas[prefix] = qpsData;
+                                                qpsData.TryAdd(maxCreateTime, new QPSContainer() { Prefix = prefix, Timestamp = maxCreateTime, QPS = qps });
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        lock (qpsData)
+                                        {
+                                            if (!qpsData.TryGetValue(maxCreateTime, out QPSContainer? qpsD))
+                                            {
+                                                if (!qpsData.TryGetValue(maxCreateTime, out qpsD))
+                                                {
+                                                    qpsD = new QPSContainer() { Prefix = prefix, Timestamp = maxCreateTime, QPS = qps };
+                                                    qpsData[maxCreateTime] = qpsD;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                qps = qps + qpsD.QPS;
+                                                qpsD.QPS = qps;
+                                            }
+                                        }
+                                    }
+
+                                    await _qpsCollectService.Collect(prefix, qps, maxCreateTime, cancellationToken);
                                 }
                                 #endregion
 
@@ -385,6 +432,18 @@ namespace FW.TestPlatform.Main.NetGateway
                                 }
                                 #endregion
 
+                                #region Total
+                                int count = containerDatas.Count();
+                                double avgQPS = calculateDatas.Average(g => g.Total);
+                                double avgDuration = calculateResponseDatas.Average(g => g.AvgDuration);
+                                double maxDuration = calculateResponseDatas.Max(g => g.MaxDuration);
+                                double minDuration = calculateResponseDatas.Min(g => g.MinDuration);
+
+                                await _totalCollectService.Collect(prefix, count, minDuration, maxDuration, avgDuration, avgQPS, time, cancellationToken);
+
+                                #endregion
+
+                                #region 处理只有request的数据
                                 //处理只有request的数据
 
                                 if (!restDatas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? restContainerDatas))
@@ -421,9 +480,12 @@ namespace FW.TestPlatform.Main.NetGateway
                                     dataContainer.Timestamp = item.Value.Request.CreateTime;
                                     dataContainer.Request = item.Value.Request;
                                 }
+                                #endregion
                             }
                         );
+                        #endregion
 
+                        #region 删除用过的文件
                         //删除用过的文件
                         foreach (var item in fileNames)
                         {
@@ -441,6 +503,7 @@ namespace FW.TestPlatform.Main.NetGateway
                         {
                             break;
                         }
+                        #endregion
 
                         LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run Task.Delay(10000).");
 
@@ -599,6 +662,13 @@ namespace FW.TestPlatform.Main.NetGateway
         {
             public string FileName { get; set; } = null!;
             public DateTime CreateTime { get; set; }
+        }
+
+        private class QPSContainer
+        {
+            public string Prefix { get; set; } = null!;
+            public DateTime Timestamp { get; set; }
+            public int QPS { get; set; }
         }
     }
 
@@ -2212,6 +2282,45 @@ namespace FW.TestPlatform.Main.NetGateway
             influxDBRecord.Fields.Add("MaxDuration", max.ToString());
             influxDBRecord.Fields.Add("MinDurartion", min.ToString());
             influxDBRecord.Fields.Add("AvgDuration", avg.ToString());
+            await influxDBEndpoint.AddData(InfluxDBParameters.DBName, influxDBRecord);
+        }
+    }
+
+    [Injection(InterfaceType = typeof(ITotalCollectService), Scope = InjectionScope.Singleton)]
+    public class TotalCollectService : ITotalCollectService
+    {
+        private readonly IInfluxDBEndpointRepository _influxDBEndpointRepository;
+
+        public TotalCollectService(IInfluxDBEndpointRepository influxDBEndpointRepository)
+        {
+            _influxDBEndpointRepository = influxDBEndpointRepository;
+        }
+
+        public async Task Collect(string prefix, int requestCount, double minDuration, double maxDuration, double avgDuration, double avgQps, DateTime time, CancellationToken cancellationToken = default)
+        {
+            InfluxDBEndpoint? influxDBEndpoint = await _influxDBEndpointRepository.QueryByName(InfluxDBParameters.EndpointName);
+            if (influxDBEndpoint == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundInfluxDBEndpoint,
+                    DefaultFormatting = "找不到指定名称{0}的InfluxDB数据源配置",
+                    ReplaceParameters = new List<object>() { InfluxDBParameters.EndpointName }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundInfluxDBEndpoint, fragment, 1, 0);
+            }
+
+            InfluxDBRecord influxDBRecord = new InfluxDBRecord();
+            influxDBRecord.MeasurementName = InfluxDBParameters.NetGatewayTotalMeasurementName;
+            TimeSpan ts = time - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            influxDBRecord.Timestamp = Convert.ToInt64(((long)(ts.TotalMilliseconds)).ToString().PadRight(19, '0'));
+            influxDBRecord.Tags.Add("HistoryCaseID", prefix);
+            influxDBRecord.Fields.Add("MaxDuration", maxDuration.ToString());
+            influxDBRecord.Fields.Add("MinDurartion", minDuration.ToString());
+            influxDBRecord.Fields.Add("AvgDuration", avgDuration.ToString());
+            influxDBRecord.Fields.Add("RequestCount", requestCount.ToString());
+            influxDBRecord.Fields.Add("AvgQPS", avgQps.ToString());
             await influxDBEndpoint.AddData(InfluxDBParameters.DBName, influxDBRecord);
         }
     }

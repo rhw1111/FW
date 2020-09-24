@@ -233,6 +233,11 @@ namespace FW.TestPlatform.Main
         /// NetGatewaySlaveData
         /// </summary>
         public const string NetGatewaySlaveMeasurementName = "NetGatewaySlaveData";
+
+        /// <summary>
+        /// NetGatewayTotalData
+        /// </summary>
+        public const string NetGatewayTotalMeasurementName = "NetGatewayTotalData";
     }
 
     /// <summary>
