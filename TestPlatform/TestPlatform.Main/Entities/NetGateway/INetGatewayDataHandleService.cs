@@ -103,6 +103,26 @@ namespace FW.TestPlatform.Main.NetGateway
         Task Collect(string prefix, double min,double max,double avg, DateTime time, CancellationToken cancellationToken = default);
     }
 
+    /// <summary>
+    /// 日志汇总指标收集服务,当前场景中，将传递该指标到流式数据库
+    /// </summary>
+    public interface ITotalCollectService
+    {
+        /// <summary>
+        /// 日志汇总指标收集服务,当前场景中，将传递该指标到流式数据库
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <param name="requestCount">请求总数</param>
+        /// <param name="minDuration">最小响应时间</param>
+        /// <param name="maxDuration">最大响应时间</param>
+        /// <param name="avgDuration">平均响应时间</param>
+        /// <param name="avgQps">平均tps</param>
+        /// <param name="time"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task Collect(string prefix,int requestCount, double minDuration, double maxDuration, double avgDuration, double avgQps, DateTime time, CancellationToken cancellationToken = default);
+    }
+
     public enum NetDataType
     {
         Request,

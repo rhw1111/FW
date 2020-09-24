@@ -40,10 +40,11 @@ namespace FW.TestPlatform.Main.NetGateway
         private readonly IConvertNetDataFromSourceService _convertNetDataFromSourceService;
         private readonly IQPSCollectService _qpsCollectService;
         private readonly INetDurationCollectService _netDurationCollectService;
+        private readonly ITotalCollectService _totalCollectService;
 
         public static string LoggerCategoryName { get; set; } = "NetGatewayDataHandle";
 
-        public NetGatewayDataHandleService(INetGatewayDataHandleConfigurationService netGatewayDataHandleConfigurationService, IResolveFileNamePrefixService resolveFileNamePrefixService, IGetSourceDataFromStreamService getSourceDataFromStreamService, IGetSourceDataFromFileService getSourceDataFromFileService, IConvertNetDataFromSourceService convertNetDataFromSourceService, IQPSCollectService qpsCollectService, INetDurationCollectService netDurationCollectService)
+        public NetGatewayDataHandleService(INetGatewayDataHandleConfigurationService netGatewayDataHandleConfigurationService, IResolveFileNamePrefixService resolveFileNamePrefixService, IGetSourceDataFromStreamService getSourceDataFromStreamService, IGetSourceDataFromFileService getSourceDataFromFileService, IConvertNetDataFromSourceService convertNetDataFromSourceService, IQPSCollectService qpsCollectService, INetDurationCollectService netDurationCollectService,ITotalCollectService totalCollectService)
         {
             _netGatewayDataHandleConfigurationService = netGatewayDataHandleConfigurationService;
             _resolveFileNamePrefixService = resolveFileNamePrefixService;
@@ -52,6 +53,7 @@ namespace FW.TestPlatform.Main.NetGateway
             _convertNetDataFromSourceService = convertNetDataFromSourceService;
             _qpsCollectService = qpsCollectService;
             _netDurationCollectService = netDurationCollectService;
+            _totalCollectService = totalCollectService;
         }
 
         public async Task<INetGatewayDataHandleResult> Execute(CancellationToken cancellationToken = default)
@@ -2212,6 +2214,45 @@ namespace FW.TestPlatform.Main.NetGateway
             influxDBRecord.Fields.Add("MaxDuration", max.ToString());
             influxDBRecord.Fields.Add("MinDurartion", min.ToString());
             influxDBRecord.Fields.Add("AvgDuration", avg.ToString());
+            await influxDBEndpoint.AddData(InfluxDBParameters.DBName, influxDBRecord);
+        }
+    }
+
+    [Injection(InterfaceType = typeof(ITotalCollectService), Scope = InjectionScope.Singleton)]
+    public class TotalCollectService : ITotalCollectService
+    {
+        private readonly IInfluxDBEndpointRepository _influxDBEndpointRepository;
+
+        public TotalCollectService(IInfluxDBEndpointRepository influxDBEndpointRepository)
+        {
+            _influxDBEndpointRepository = influxDBEndpointRepository;
+        }
+
+        public async Task Collect(string prefix, int requestCount, double minDuration, double maxDuration, double avgDuration, double avgQps, DateTime time, CancellationToken cancellationToken = default)
+        {
+            InfluxDBEndpoint? influxDBEndpoint = await _influxDBEndpointRepository.QueryByName(InfluxDBParameters.EndpointName);
+            if (influxDBEndpoint == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundInfluxDBEndpoint,
+                    DefaultFormatting = "找不到指定名称{0}的InfluxDB数据源配置",
+                    ReplaceParameters = new List<object>() { InfluxDBParameters.EndpointName }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundInfluxDBEndpoint, fragment, 1, 0);
+            }
+
+            InfluxDBRecord influxDBRecord = new InfluxDBRecord();
+            influxDBRecord.MeasurementName = InfluxDBParameters.NetGatewayTotalMeasurementName;
+            TimeSpan ts = time - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            influxDBRecord.Timestamp = Convert.ToInt64(((long)(ts.TotalMilliseconds)).ToString().PadRight(19, '0'));
+            influxDBRecord.Tags.Add("HistoryCaseID", prefix);
+            influxDBRecord.Fields.Add("MaxDuration", maxDuration.ToString());
+            influxDBRecord.Fields.Add("MinDurartion", minDuration.ToString());
+            influxDBRecord.Fields.Add("AvgDuration", avgDuration.ToString());
+            influxDBRecord.Fields.Add("RequestCount", requestCount.ToString());
+            influxDBRecord.Fields.Add("AvgQPS", avgQps.ToString());
             await influxDBEndpoint.AddData(InfluxDBParameters.DBName, influxDBRecord);
         }
     }
