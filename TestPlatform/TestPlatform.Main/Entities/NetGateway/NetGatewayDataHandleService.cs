@@ -81,6 +81,8 @@ namespace FW.TestPlatform.Main.NetGateway
 
             Dictionary<string,string> completedFileNames = new Dictionary<string, string>();
 
+            ConcurrentDictionary<string, ConcurrentDictionary<DateTime, QPSContainer>> qpsDatas = new ConcurrentDictionary<string, ConcurrentDictionary<DateTime, QPSContainer>>();
+
             var t1 = listenFileCompleted(netGatewayDataHandleResult, folderPath, completedFileNames, (infos) =>
             {
                 lock (completedFiles)
@@ -121,6 +123,7 @@ namespace FW.TestPlatform.Main.NetGateway
                         }
                         else
                         {
+                            qpsDatas = new ConcurrentDictionary<string, ConcurrentDictionary<DateTime, QPSContainer>>(); ;
                             LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames. 找到{fileNames.Count}个文件.");
                         }
 
@@ -306,6 +309,8 @@ namespace FW.TestPlatform.Main.NetGateway
                                     }
                                 }
 
+                                DateTime time = DateTime.Now;
+
                                 #region QPS
                                 //var calculateDatas = from item in containerDatas
                                 //                    where item.Value.FileName == fileName && item.Value.Request != null
@@ -339,8 +344,42 @@ namespace FW.TestPlatform.Main.NetGateway
                                 foreach (var row in calculateDatas)
                                 {
                                     var qps = row.Total;
-                                    DateTime? maxCreateTime = Convert.ToDateTime(row.Key);
-                                    await _qpsCollectService.Collect(prefix, qps, maxCreateTime!.Value, cancellationToken);
+                                    DateTime maxCreateTime = Convert.ToDateTime(row.Key);
+                                    time = maxCreateTime;
+
+                                    if (!qpsDatas.TryGetValue(prefix, out ConcurrentDictionary<DateTime, QPSContainer>? qpsData))
+                                    {
+                                        lock (qpsDatas)
+                                        {
+                                            if (!qpsDatas.TryGetValue(prefix, out qpsData))
+                                            {
+                                                qpsData = new ConcurrentDictionary<DateTime, QPSContainer>();
+                                                qpsDatas[prefix] = qpsData;
+                                                qpsData.TryAdd(maxCreateTime, new QPSContainer() { Prefix = prefix, Timestamp = maxCreateTime, QPS = qps });
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        lock (qpsData)
+                                        {
+                                            if (!qpsData.TryGetValue(maxCreateTime, out QPSContainer? qpsD))
+                                            {
+                                                if (!qpsData.TryGetValue(maxCreateTime, out qpsD))
+                                                {
+                                                    qpsD = new QPSContainer() { Prefix = prefix, Timestamp = maxCreateTime, QPS = qps };
+                                                    qpsData[maxCreateTime] = qpsD;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                qps = qps + qpsD.QPS;
+                                                qpsD.QPS = qps;
+                                            }
+                                        }
+                                    }
+
+                                    await _qpsCollectService.Collect(prefix, qps, maxCreateTime, cancellationToken);
                                 }
                                 #endregion
 
@@ -395,10 +434,11 @@ namespace FW.TestPlatform.Main.NetGateway
                                 double maxDuration = calculateResponseDatas.Max(g => g.MaxDuration);
                                 double minDuration = calculateResponseDatas.Min(g => g.MinDuration);
 
-                                await _totalCollectService.Collect(prefix, count, minDuration, maxDuration, avgDuration, avgQPS, DateTime.Now, cancellationToken);
+                                await _totalCollectService.Collect(prefix, count, minDuration, maxDuration, avgDuration, avgQPS, time, cancellationToken);
 
                                 #endregion
 
+                                #region 处理只有request的数据
                                 //处理只有request的数据
 
                                 if (!restDatas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? restContainerDatas))
@@ -435,9 +475,11 @@ namespace FW.TestPlatform.Main.NetGateway
                                     dataContainer.Timestamp = item.Value.Request.CreateTime;
                                     dataContainer.Request = item.Value.Request;
                                 }
+                                #endregion
                             }
                         );
 
+                        #region 删除用过的文件
                         //删除用过的文件
                         foreach (var item in fileNames)
                         {
@@ -455,6 +497,7 @@ namespace FW.TestPlatform.Main.NetGateway
                         {
                             break;
                         }
+                        #endregion
 
                         LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run Task.Delay(10000).");
 
@@ -613,6 +656,13 @@ namespace FW.TestPlatform.Main.NetGateway
         {
             public string FileName { get; set; } = null!;
             public DateTime CreateTime { get; set; }
+        }
+
+        private class QPSContainer
+        {
+            public string Prefix { get; set; } = null!;
+            public DateTime Timestamp { get; set; }
+            public int QPS { get; set; }
         }
     }
 
