@@ -26,6 +26,7 @@ using MSLibrary.Configuration;
 using FW.TestPlatform.Main.Entities;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Internal;
+using System.Data;
 
 namespace FW.TestPlatform.Main.NetGateway
 {
@@ -385,6 +386,17 @@ namespace FW.TestPlatform.Main.NetGateway
 
                                     await _netDurationCollectService.Collect(prefix, minResponse, maxResponse, avgResponse, maxCreateTime!.Value, cancellationToken);
                                 }
+                                #endregion
+
+                                #region Total
+                                int count = containerDatas.Count();
+                                double avgQPS = calculateDatas.Average(g => g.Total);
+                                double avgDuration = calculateResponseDatas.Average(g => g.AvgDuration);
+                                double maxDuration = calculateResponseDatas.Max(g => g.MaxDuration);
+                                double minDuration = calculateResponseDatas.Min(g => g.MinDuration);
+
+                                await _totalCollectService.Collect(prefix, count, minDuration, maxDuration, avgDuration, avgQPS, DateTime.Now, cancellationToken);
+
                                 #endregion
 
                                 //处理只有request的数据
