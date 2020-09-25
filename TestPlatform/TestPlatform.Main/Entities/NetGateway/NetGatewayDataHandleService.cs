@@ -315,6 +315,11 @@ namespace FW.TestPlatform.Main.NetGateway
                                 }
 
                                 DateTime time = DateTime.Now;
+                                int count = 0;
+                                double avgQPS = 0;
+                                double avgDuration = 0;
+                                double maxDuration = 0;
+                                double minDuration = 0;
 
                                 #region QPS
                                 //var calculateDatas = from item in containerDatas
@@ -350,7 +355,18 @@ namespace FW.TestPlatform.Main.NetGateway
                                 {
                                     var qps = row.Total;
                                     DateTime maxCreateTime = Convert.ToDateTime(row.Key);
+
                                     time = maxCreateTime;
+                                    count = count + qps;
+
+                                    if (avgQPS == 0)
+                                    {
+                                        avgQPS = qps;
+                                    }
+                                    else
+                                    {
+                                        avgQPS = (avgQPS + qps) / 2;
+                                    }
 
                                     if (!qpsDatas.TryGetValue(prefix, out ConcurrentDictionary<DateTime, QPSContainer>? qpsData))
                                     {
@@ -428,16 +444,36 @@ namespace FW.TestPlatform.Main.NetGateway
                                     var maxResponse = row.MaxDuration;
                                     var minResponse = row.MinDuration;
 
+                                    if (avgDuration == 0)
+                                    {
+                                        avgDuration = avgResponse;
+                                    }
+                                    else
+                                    {
+                                        avgDuration = (avgDuration + avgResponse) / 2;
+                                    }
+
+                                    maxDuration = maxResponse > maxDuration ? maxResponse : maxDuration;
+
+                                    if (minDuration == 0)
+                                    {
+                                        minDuration = minResponse;
+                                    }
+                                    else
+                                    {
+                                        minDuration = minResponse < minDuration ? minResponse : minDuration;
+                                    }
+
                                     await _netDurationCollectService.Collect(prefix, minResponse, maxResponse, avgResponse, maxCreateTime!.Value, cancellationToken);
                                 }
                                 #endregion
 
                                 #region Total
-                                int count = containerDatas.Count();
-                                double avgQPS = calculateDatas.Average(g => g.Total);
-                                double avgDuration = calculateResponseDatas.Average(g => g.AvgDuration);
-                                double maxDuration = calculateResponseDatas.Max(g => g.MaxDuration);
-                                double minDuration = calculateResponseDatas.Min(g => g.MinDuration);
+                                //int count = containerDatas.Count();
+                                //double avgQPS = calculateDatas.Average(g => g.Total);
+                                //double avgDuration = calculateResponseDatas.Average(g => g.AvgDuration);
+                                //double maxDuration = calculateResponseDatas.Max(g => g.MaxDuration);
+                                //double minDuration = calculateResponseDatas.Min(g => g.MinDuration);
 
                                 await _totalCollectService.Collect(prefix, count, minDuration, maxDuration, avgDuration, avgQPS, time, cancellationToken);
 
