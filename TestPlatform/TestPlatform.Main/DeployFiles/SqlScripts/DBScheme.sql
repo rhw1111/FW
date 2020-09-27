@@ -326,3 +326,23 @@ ALTER TABLE `testdatasource` ADD COLUMN `treeid` char(36) DEFAULT NULL;
 /*!ALTER TABLE commonlocal_log 2020-09-12*/
 ALTER TABLE `commonlog_local` ADD COLUMN `traceid` varchar(300) DEFAULT NULL;
 ALTER TABLE `commonlog_local` ADD COLUMN `linkid` varchar(300) DEFAULT NULL;
+
+/*!Update testcase testdatasource history data.*/
+USE tpmain;
+START TRANSACTION;
+insert into tpmain.treeentity( `id`, `value`,`name`, type, createtime, modifytime) 
+SELECT UUID() id,id `value` ,`name` ,2 type, now() createtime, now() modifytime FROM tpmain.testcase where treeid is null; 
+
+UPDATE tpmain.testcase tc INNER JOIN tpmain.treeentity te 
+ON tc.id=te.`value`
+SET tc.treeid = te.id
+WHERE tc.treeid is null;
+
+insert into tpmain.treeentity( `id`, `value`,`name`, type, createtime, modifytime) 
+SELECT UUID() id,id `value` ,`name` ,3 type, now() createtime, now() modifytime FROM tpmain.testdatasource where treeid is null; 
+
+UPDATE tpmain.testdatasource tc INNER JOIN tpmain.treeentity te 
+ON tc.id=te.`value`
+SET tc.treeid = te.id
+WHERE tc.treeid is null and te.type=3;
+COMMIT;

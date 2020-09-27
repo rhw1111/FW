@@ -268,56 +268,59 @@ namespace FW.TestPlatform.Main.Entities.DAL
                     var count = await (from item in dbContext.TreeEntities
                                        where item.ParentID == parentId && item.Type == 2
                                        select item.ID).CountAsync();
-                    var countWithoutTree = 0;
-                    if (parentId == null)
-                    {
-                        countWithoutTree = await (from item in dbContext.TestCases
-                                                  where item.TreeID == null
-                                                  orderby item.CreateTime descending
-                                                  select item).CountAsync();
-                    }
-                    result.TotalCount = count + countWithoutTree;
-                    List<TestCase> datasWithoutTree = new List<TestCase>();
-                    if((page - 1) * pageSize < countWithoutTree)
-                    {
-                        datasWithoutTree = await (from item in dbContext.TestCases
-                                                        where item.TreeID == null
-                                                        select item).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-                    }
-                    if (countWithoutTree < page * pageSize)
-                    {
-                        int skipCount = 0;
-                        int takeCount = 0;
-                        if (countWithoutTree <= (page - 1) * pageSize)
-                        {
-                            skipCount = (page - 1) * pageSize - countWithoutTree;
-                            takeCount = pageSize;
-                        }
-                        else
-                        {
-                            skipCount = 0;
-                            takeCount = pageSize - (countWithoutTree - (page - 1) * pageSize);
-                        }
-                        var ids = (from item in dbContext.TreeEntities
-                                   where item.ParentID == parentId && item.Type == 2
-                                   orderby item.CreateTime descending
-                                   select item.Value
-                                        ).Skip(skipCount).Take(takeCount);
-                        if (ids.Count() > 0)
-                        {
-                            var datas = await (from item in dbContext.TestCases
-                                               join idItem in ids
-                                          on item.ID.ToString() equals idItem
-                                               orderby EF.Property<long>(item, "Sequence") descending
-                                               select item).ToListAsync();
 
-                            result.Results.AddRange(datas);
-                        }
-                    }
-                    if(datasWithoutTree.Count() > 0)
+                    result.TotalCount = count;
+
+                    var ids = (from item in dbContext.TreeEntities
+                               where item.ParentID == parentId && item.Type == 2
+                               orderby item.CreateTime descending
+                               select item.Value
+                                        ).Skip((page-1)*pageSize).Take(pageSize);
+                    if (ids.Count() > 0)
                     {
-                        result.Results.AddRange(datasWithoutTree);
+                        var datas = await (from item in dbContext.TestCases
+                                           join idItem in ids
+                                      on item.ID.ToString() equals idItem
+                                           orderby EF.Property<long>(item, "Sequence") descending
+                                           select item).ToListAsync();
+
+                        result.Results.AddRange(datas);
                     }
+                    //var countWithoutTree = 0;
+                    //if (parentId == null)
+                    //{
+                    //    countWithoutTree = await (from item in dbContext.TestCases
+                    //                              where item.TreeID == null
+                    //                              orderby item.CreateTime descending
+                    //                              select item).CountAsync();
+                    //}
+                    
+                    //List<TestCase> datasWithoutTree = new List<TestCase>();
+                    //if((page - 1) * pageSize < countWithoutTree)
+                    //{
+                    //    datasWithoutTree = await (from item in dbContext.TestCases
+                    //                                    where item.TreeID == null
+                    //                                    select item).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+                    //}
+                    //if (countWithoutTree < page * pageSize)
+                    //{
+                    //    int skipCount = 0;
+                    //    int takeCount = 0;
+                    //    if (countWithoutTree <= (page - 1) * pageSize)
+                    //    {
+                    //        skipCount = (page - 1) * pageSize - countWithoutTree;
+                    //        takeCount = pageSize;
+                    //    }
+                    //    else
+                    //    {
+                    //        skipCount = 0;
+                    //        takeCount = pageSize - (countWithoutTree - (page - 1) * pageSize);
+                    //    }
+                    //}
+                    //if(datasWithoutTree.Count() > 0)
+                    //{
+                    //    result.Results.AddRange(datasWithoutTree);
+                    //}
                 }
             });
 
