@@ -131,92 +131,99 @@ namespace FW.TestPlatform.Main.NetGateway
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
                             {
-                                var testCaseHistory = await _resolveFileNamePrefixService.Resolve(fileName);
-
-                                string dataformat = string.Empty;
-                                var prefix = string.Empty;
-
-                                if (testCaseHistory != null)
+                                try
                                 {
-                                    dataformat = testCaseHistory.NetGatewayDataFormat;
-                                    prefix = testCaseHistory.ID.ToString().ToLower();
-                                }
-                                else
-                                {
-                                    return;
-                                }
+                                    var testCaseHistory = await _resolveFileNamePrefixService.Resolve(fileName);
 
-                                if (!datas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? containerDatas))
-                                {
-                                    lock (datas)
+                                    string dataformat = string.Empty;
+                                    var prefix = string.Empty;
+
+                                    if (testCaseHistory != null)
                                     {
-                                        if (!datas.TryGetValue(prefix, out containerDatas))
+                                        dataformat = testCaseHistory.NetGatewayDataFormat;
+                                        prefix = testCaseHistory.ID.ToString().ToLower();
+                                    }
+                                    else
+                                    {
+                                        return;
+                                    }
+
+                                    if (!datas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? containerDatas))
+                                    {
+                                        lock (datas)
                                         {
-                                            containerDatas = new ConcurrentDictionary<string, DataContainer>();
-                                            datas[prefix] = containerDatas;
+                                            if (!datas.TryGetValue(prefix, out containerDatas))
+                                            {
+                                                containerDatas = new ConcurrentDictionary<string, DataContainer>();
+                                                datas[prefix] = containerDatas;
+                                            }
                                         }
                                     }
-                                }
 
-                                await _getSourceDataFromFileService.Get(fileName, dataformat,
-                                    async (sourceData) =>
-                                    {
-                                        var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
-                                        if (data != null)
+                                    await _getSourceDataFromFileService.Get(fileName, dataformat,
+                                        async (sourceData) =>
                                         {
-                                            if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
+                                            var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
+                                            if (data != null)
                                             {
-                                                lock (containerDatas)
+                                                if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
                                                 {
-                                                    if (!containerDatas.TryGetValue(data.ID, out containerData))
+                                                    lock (containerDatas)
                                                     {
-                                                        if (data.Type == NetDataType.Request)
+                                                        if (!containerDatas.TryGetValue(data.ID, out containerData))
                                                         {
-                                                            containerData = new DataContainer()
+                                                            if (data.Type == NetDataType.Request)
                                                             {
-                                                                FileName = fileName,
-                                                                Timestamp = data.CreateTime
-                                                            };
-                                                            containerDatas[data.ID] = containerData;
-                                                        }
-                                                        else
-                                                        {
-                                                            if (!singleResponseDatas.TryGetValue(prefix, out List<DataContainer>? singleDatas))
-                                                            {
-                                                                lock (singleResponseDatas)
+                                                                containerData = new DataContainer()
                                                                 {
-                                                                    if (!singleResponseDatas.TryGetValue(prefix, out singleDatas))
+                                                                    FileName = fileName,
+                                                                    Timestamp = data.CreateTime
+                                                                };
+                                                                containerDatas[data.ID] = containerData;
+                                                            }
+                                                            else
+                                                            {
+                                                                if (!singleResponseDatas.TryGetValue(prefix, out List<DataContainer>? singleDatas))
+                                                                {
+                                                                    lock (singleResponseDatas)
                                                                     {
-                                                                        singleDatas = new List<DataContainer>();
-                                                                        singleResponseDatas[prefix] = singleDatas;
+                                                                        if (!singleResponseDatas.TryGetValue(prefix, out singleDatas))
+                                                                        {
+                                                                            singleDatas = new List<DataContainer>();
+                                                                            singleResponseDatas[prefix] = singleDatas;
+                                                                        }
                                                                     }
                                                                 }
-                                                            }
 
-                                                            lock (singleDatas)
-                                                            {
-                                                                singleDatas.Add(new DataContainer() { FileName = fileName, Timestamp = data.CreateTime, Response = data });
+                                                                lock (singleDatas)
+                                                                {
+                                                                    singleDatas.Add(new DataContainer() { FileName = fileName, Timestamp = data.CreateTime, Response = data });
+                                                                }
                                                             }
                                                         }
                                                     }
                                                 }
-                                            }
 
-                                            if (containerData != null)
-                                            {
-                                                if (data.Type == NetDataType.Request)
+                                                if (containerData != null)
                                                 {
-                                                    containerData.Request = data;
-                                                }
-                                                else
-                                                {
-                                                    containerData.Response = data;
+                                                    if (data.Type == NetDataType.Request)
+                                                    {
+                                                        containerData.Request = data;
+                                                    }
+                                                    else
+                                                    {
+                                                        containerData.Response = data;
+                                                    }
                                                 }
                                             }
-                                        }
-                                    },
-                                    cancellationToken
-                                );
+                                        },
+                                        cancellationToken
+                                    );
+                                }
+                                catch (Exception ex)
+                                {
+                                    LoggerHelper.LogError($"[{fileName}] {LoggerCategoryName}", ex.ToStackTraceString());
+                                }
                             }
                         );
                         #endregion
@@ -287,236 +294,236 @@ namespace FW.TestPlatform.Main.NetGateway
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
                             {
-                                var testCaseHistory = await _resolveFileNamePrefixService.Resolve(fileName);
-
-                                string dataformat = string.Empty;
-                                var prefix = string.Empty;
-
-                                if (testCaseHistory != null)
+                                try
                                 {
-                                    dataformat = testCaseHistory.NetGatewayDataFormat;
-                                    prefix = testCaseHistory.ID.ToString().ToLower();
-                                }
-                                else
-                                {
-                                    return;
-                                }
+                                    var testCaseHistory = await _resolveFileNamePrefixService.Resolve(fileName);
 
-                                if (!datas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? containerDatas))
-                                {
-                                    lock (datas)
+                                    string dataformat = string.Empty;
+                                    var prefix = string.Empty;
+
+                                    if (testCaseHistory != null)
                                     {
-                                        if (!datas.TryGetValue(prefix, out containerDatas))
-                                        {
-                                            containerDatas = new ConcurrentDictionary<string, DataContainer>();
-                                            datas[prefix] = containerDatas;
-                                        }
-                                    }
-                                }
-
-                                DateTime time = DateTime.Now;
-                                int count = 0;
-                                double avgQPS = 0;
-                                double avgDuration = 0;
-                                double maxDuration = 0;
-                                double minDuration = 0;
-
-                                #region QPS
-                                //var calculateDatas = from item in containerDatas
-                                //                    where item.Value.FileName == fileName && item.Value.Request != null
-                                //                    select item.Value;
-
-                                //DateTime? maxCreateTime = null;
-                                //var qps = 0;
-                                //var totalRequestCount = calculateDatas.Count();
-                                //if (totalRequestCount > 1)
-                                //{
-                                //    var minCreateTime = calculateDatas.Min((v) => v.Request!.CreateTime);
-                                //    maxCreateTime = calculateDatas.Max((v) => v.Request!.CreateTime);
-                                //    qps = (int)(totalRequestCount / (maxCreateTime.Value - minCreateTime).TotalSeconds);
-                                //}
-                                //else if (totalRequestCount == 1)
-                                //{
-                                //    qps = 1;
-                                //    maxCreateTime = calculateDatas.Max((v) => v.Request!.CreateTime);
-                                //}
-
-                                //if (qps != 0)
-                                //{
-                                //    await _qpsCollectService.Collect(prefix,qps, maxCreateTime!.Value, cancellationToken);
-                                //}
-
-                                var calculateDatas = from item in containerDatas
-                                                     where item.Value.FileName == fileName && item.Value.Request != null
-                                                     group item by item.Value.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") into g
-                                                     select new { g.Key, Total = g.Count() };
-
-                                foreach (var row in calculateDatas)
-                                {
-                                    var qps = row.Total;
-                                    DateTime maxCreateTime = Convert.ToDateTime(row.Key);
-
-                                    time = maxCreateTime;
-                                    count = count + qps;
-
-                                    if (avgQPS == 0)
-                                    {
-                                        avgQPS = qps;
+                                        dataformat = testCaseHistory.NetGatewayDataFormat;
+                                        prefix = testCaseHistory.ID.ToString().ToLower();
                                     }
                                     else
                                     {
-                                        avgQPS = (avgQPS + qps) / 2;
+                                        return;
                                     }
 
-                                    if (!qpsDatas.TryGetValue(prefix, out ConcurrentDictionary<DateTime, QPSContainer>? qpsData))
+                                    if (!datas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? containerDatas))
                                     {
-                                        lock (qpsDatas)
+                                        lock (datas)
                                         {
-                                            if (!qpsDatas.TryGetValue(prefix, out qpsData))
+                                            if (!datas.TryGetValue(prefix, out containerDatas))
                                             {
-                                                qpsData = new ConcurrentDictionary<DateTime, QPSContainer>();
-                                                qpsDatas[prefix] = qpsData;
-                                                qpsData.TryAdd(maxCreateTime, new QPSContainer() { Prefix = prefix, Timestamp = maxCreateTime, QPS = qps });
+                                                containerDatas = new ConcurrentDictionary<string, DataContainer>();
+                                                datas[prefix] = containerDatas;
                                             }
                                         }
                                     }
-                                    else
+
+                                    //List<DateTime> times = new List<DateTime>();
+                                    //List<int> counts = new List<int>();
+                                    //List<double> avgQPSs = new List<double>();
+                                    //List<double> avgDurations = new List<double>();
+                                    //List<double> maxDurations = new List<double>();
+                                    //List<double> minDurations = new List<double>();
+
+                                    #region QPS
+                                    //var calculateDatas = from item in containerDatas
+                                    //                    where item.Value.FileName == fileName && item.Value.Request != null
+                                    //                    select item.Value;
+
+                                    //DateTime? maxCreateTime = null;
+                                    //var qps = 0;
+                                    //var totalRequestCount = calculateDatas.Count();
+                                    //if (totalRequestCount > 1)
+                                    //{
+                                    //    var minCreateTime = calculateDatas.Min((v) => v.Request!.CreateTime);
+                                    //    maxCreateTime = calculateDatas.Max((v) => v.Request!.CreateTime);
+                                    //    qps = (int)(totalRequestCount / (maxCreateTime.Value - minCreateTime).TotalSeconds);
+                                    //}
+                                    //else if (totalRequestCount == 1)
+                                    //{
+                                    //    qps = 1;
+                                    //    maxCreateTime = calculateDatas.Max((v) => v.Request!.CreateTime);
+                                    //}
+
+                                    //if (qps != 0)
+                                    //{
+                                    //    await _qpsCollectService.Collect(prefix,qps, maxCreateTime!.Value, cancellationToken);
+                                    //}
+
+                                    var calculateDatas = from item in containerDatas
+                                                         where item.Value.FileName == fileName && item.Value.Request != null
+                                                         group item by item.Value.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") into g
+                                                         select new { g.Key, Total = g.Count() };
+
+                                    foreach (var row in calculateDatas)
                                     {
-                                        lock (qpsData)
+                                        var qps = row.Total;
+                                        DateTime maxCreateTime = Convert.ToDateTime(row.Key);
+
+                                        //times.Add(maxCreateTime);
+                                        //counts.Add(qps);
+                                        //avgQPSs.Add(qps);
+
+                                        if (!qpsDatas.TryGetValue(prefix, out ConcurrentDictionary<DateTime, QPSContainer>? qpsData))
                                         {
-                                            if (!qpsData.TryGetValue(maxCreateTime, out QPSContainer? qpsD))
+                                            lock (qpsDatas)
                                             {
-                                                if (!qpsData.TryGetValue(maxCreateTime, out qpsD))
+                                                if (!qpsDatas.TryGetValue(prefix, out qpsData))
                                                 {
-                                                    qpsD = new QPSContainer() { Prefix = prefix, Timestamp = maxCreateTime, QPS = qps };
-                                                    qpsData[maxCreateTime] = qpsD;
+                                                    qpsData = new ConcurrentDictionary<DateTime, QPSContainer>();
+                                                    qpsDatas[prefix] = qpsData;
+                                                    qpsData.TryAdd(maxCreateTime, new QPSContainer() { Prefix = prefix, Timestamp = maxCreateTime, QPS = qps });
                                                 }
                                             }
-                                            else
+                                        }
+                                        else
+                                        {
+                                            lock (qpsData)
                                             {
-                                                qps = qps + qpsD.QPS;
-                                                qpsD.QPS = qps;
+                                                if (!qpsData.TryGetValue(maxCreateTime, out QPSContainer? qpsD))
+                                                {
+                                                    if (!qpsData.TryGetValue(maxCreateTime, out qpsD))
+                                                    {
+                                                        qpsD = new QPSContainer() { Prefix = prefix, Timestamp = maxCreateTime, QPS = qps };
+                                                        qpsData[maxCreateTime] = qpsD;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    qps = qps + qpsD.QPS;
+                                                    qpsD.QPS = qps;
+                                                }
+                                            }
+                                        }
+
+                                        await _qpsCollectService.Collect(prefix, qps, maxCreateTime, cancellationToken);
+                                    }
+                                    #endregion
+
+                                    #region Duration
+                                    //var calculateResponseDatas = from item in containerDatas
+                                    //                            where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
+                                    //                            select (item.Value.Response!.CreateTime - item.Value.Request!.CreateTime).TotalMilliseconds;
+
+                                    //maxCreateTime = (from item in containerDatas
+                                    //                where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
+                                    //                orderby item.Value.Response!.CreateTime descending
+                                    //                select item.Value.Response!.CreateTime).FirstOrDefault();
+
+                                    //if (calculateResponseDatas.Count() == 0)
+                                    //{
+                                    //    return;
+                                    //}
+
+                                    //var avgResponse = calculateResponseDatas.Average();
+                                    //var maxResponse = calculateResponseDatas.Max();
+                                    //var minResponse = calculateResponseDatas.Min();
+
+                                    //if (maxCreateTime != null)
+                                    //{
+                                    //    await _netDurationCollectService.Collect(prefix,minResponse, maxResponse, avgResponse, maxCreateTime!.Value, cancellationToken);
+                                    //}
+
+                                    var calculateResponseDatas = from item in containerDatas
+                                                                 where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
+                                                                 group item by item.Value.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") into g
+                                                                 select new
+                                                                 {
+                                                                     g.Key,
+                                                                     Total = g.Count()
+                                                                    ,
+                                                                     AvgDuration = g.Average(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
+                                                                    ,
+                                                                     MaxDuration = g.Max(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
+                                                                    ,
+                                                                     MinDuration = g.Min(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
+                                                                 };
+
+                                    foreach (var row in calculateResponseDatas)
+                                    {
+                                        DateTime? maxCreateTime = Convert.ToDateTime(row.Key);
+
+                                        var avgResponse = row.AvgDuration;
+                                        var maxResponse = row.MaxDuration;
+                                        var minResponse = row.MinDuration;
+
+                                        //avgDurations.Add(avgResponse);
+                                        //maxDurations.Add(maxResponse);
+                                        //minDurations.Add(minResponse);
+
+                                        await _netDurationCollectService.Collect(prefix, minResponse, maxResponse, avgResponse, maxCreateTime!.Value, cancellationToken);
+                                    }
+                                    #endregion
+
+                                    #region Total
+                                    //DateTime time = times.Max();
+                                    //int count = counts.Sum();
+                                    //double avgQPS = avgQPSs.Average();
+                                    //double avgDuration = avgDurations.Average();
+                                    //double maxDuration = maxDurations.Max();
+                                    //double minDuration = minDurations.Min();
+
+                                    if (containerDatas.Count > 0 && calculateDatas.Count() > 0 && calculateResponseDatas.Count() > 0)
+                                    {
+                                        DateTime time = Convert.ToDateTime(calculateDatas.Max(g => g.Key));
+                                        int count = containerDatas.Count();
+                                        double avgQPS = calculateDatas.Average(g => g.Total);
+                                        double avgDuration = calculateResponseDatas.Average(g => g.AvgDuration);
+                                        double maxDuration = calculateResponseDatas.Max(g => g.MaxDuration);
+                                        double minDuration = calculateResponseDatas.Min(g => g.MinDuration);
+
+                                        await _totalCollectService.Collect(prefix, count, minDuration, maxDuration, avgDuration, avgQPS, time, cancellationToken);
+                                    }
+                                    #endregion
+
+                                    #region 处理只有request的数据
+                                    //处理只有request的数据
+
+                                    if (!restDatas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? restContainerDatas))
+                                    {
+                                        lock (restDatas)
+                                        {
+                                            if (!restDatas.TryGetValue(prefix, out restContainerDatas))
+                                            {
+                                                restContainerDatas = new ConcurrentDictionary<string, DataContainer>();
+                                                restDatas[prefix] = restContainerDatas;
                                             }
                                         }
                                     }
 
-                                    await _qpsCollectService.Collect(prefix, qps, maxCreateTime, cancellationToken);
-                                }
-                                #endregion
+                                    var requestDatas = (from item in containerDatas
+                                                        where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response == null
+                                                        select item).ToList();
 
-                                #region Duration
-                                //var calculateResponseDatas = from item in containerDatas
-                                //                            where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
-                                //                            select (item.Value.Response!.CreateTime - item.Value.Request!.CreateTime).TotalMilliseconds;
-
-                                //maxCreateTime = (from item in containerDatas
-                                //                where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
-                                //                orderby item.Value.Response!.CreateTime descending
-                                //                select item.Value.Response!.CreateTime).FirstOrDefault();
-
-                                //if (calculateResponseDatas.Count() == 0)
-                                //{
-                                //    return;
-                                //}
-
-                                //var avgResponse = calculateResponseDatas.Average();
-                                //var maxResponse = calculateResponseDatas.Max();
-                                //var minResponse = calculateResponseDatas.Min();
-
-                                //if (maxCreateTime != null)
-                                //{
-                                //    await _netDurationCollectService.Collect(prefix,minResponse, maxResponse, avgResponse, maxCreateTime!.Value, cancellationToken);
-                                //}
-
-                                var calculateResponseDatas = from item in containerDatas
-                                                             where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
-                                                             group item by item.Value.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") into g
-                                                             select new { g.Key, Total = g.Count()
-                                                                , AvgDuration = g.Average(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
-                                                                , MaxDuration = g.Max(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
-                                                                , MinDuration = g.Min(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds) };
-
-                                foreach (var row in calculateResponseDatas)
-                                {
-                                    DateTime? maxCreateTime = Convert.ToDateTime(row.Key);
-
-                                    var avgResponse = row.AvgDuration;
-                                    var maxResponse = row.MaxDuration;
-                                    var minResponse = row.MinDuration;
-
-                                    if (avgDuration == 0)
+                                    foreach (var item in requestDatas)
                                     {
-                                        avgDuration = avgResponse;
-                                    }
-                                    else
-                                    {
-                                        avgDuration = (avgDuration + avgResponse) / 2;
-                                    }
-
-                                    maxDuration = maxResponse > maxDuration ? maxResponse : maxDuration;
-
-                                    if (minDuration == 0)
-                                    {
-                                        minDuration = minResponse;
-                                    }
-                                    else
-                                    {
-                                        minDuration = minResponse < minDuration ? minResponse : minDuration;
-                                    }
-
-                                    await _netDurationCollectService.Collect(prefix, minResponse, maxResponse, avgResponse, maxCreateTime!.Value, cancellationToken);
-                                }
-                                #endregion
-
-                                #region Total
-                                //int count = containerDatas.Count();
-                                //double avgQPS = calculateDatas.Average(g => g.Total);
-                                //double avgDuration = calculateResponseDatas.Average(g => g.AvgDuration);
-                                //double maxDuration = calculateResponseDatas.Max(g => g.MaxDuration);
-                                //double minDuration = calculateResponseDatas.Min(g => g.MinDuration);
-
-                                await _totalCollectService.Collect(prefix, count, minDuration, maxDuration, avgDuration, avgQPS, time, cancellationToken);
-
-                                #endregion
-
-                                #region 处理只有request的数据
-                                //处理只有request的数据
-
-                                if (!restDatas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? restContainerDatas))
-                                {
-                                    lock (restDatas)
-                                    {
-                                        if (!restDatas.TryGetValue(prefix, out restContainerDatas))
+                                        if (!restContainerDatas.TryGetValue(item.Key, out DataContainer? dataContainer))
                                         {
-                                            restContainerDatas = new ConcurrentDictionary<string, DataContainer>();
-                                            restDatas[prefix] = restContainerDatas;
-                                        }
-                                    }
-                                }
-                                  
-                                var requestDatas = (from item in containerDatas
-                                                    where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response == null
-                                                    select item).ToList();
-
-                                foreach (var item in requestDatas)
-                                {
-                                    if (!restContainerDatas.TryGetValue(item.Key, out DataContainer? dataContainer))
-                                    {
-                                        lock (restContainerDatas)
-                                        {
-                                            if (!restContainerDatas.TryGetValue(item.Key, out dataContainer))
+                                            lock (restContainerDatas)
                                             {
-                                                dataContainer = new DataContainer();
-                                                restContainerDatas[item.Key] = dataContainer;
+                                                if (!restContainerDatas.TryGetValue(item.Key, out dataContainer))
+                                                {
+                                                    dataContainer = new DataContainer();
+                                                    restContainerDatas[item.Key] = dataContainer;
+                                                }
                                             }
                                         }
-                                    }
 
-                                    dataContainer.FileName = fileName;
-                                    dataContainer.Timestamp = item.Value.Request.CreateTime;
-                                    dataContainer.Request = item.Value.Request;
+                                        dataContainer.FileName = fileName;
+                                        dataContainer.Timestamp = item.Value.Request.CreateTime;
+                                        dataContainer.Request = item.Value.Request;
+                                    }
+                                    #endregion
                                 }
-                                #endregion
+                                catch (Exception ex)
+                                {
+                                    LoggerHelper.LogError($"[{fileName}] {LoggerCategoryName}", ex.ToStackTraceString());
+                                }
                             }
                         );
                         #endregion
