@@ -63,6 +63,7 @@ Axios.interceptors.response.use(
         setTimeout(() => {
           Vue.prototype.$q.loading.hide()
         }, 2000)
+        errMsg = err.response.data.Message
       }
     } else if (err.response && err.response.status) {
       errMsg = HTTP_STATUS[err.response.status] // 返回各种状态的状态码

@@ -15,7 +15,7 @@
 import * as Apis from "@/api/index"
 export default {
   name: 'TreeEntity',
-  props: ['existingDirectories'],
+  props: ['existingDirectories', 'DirectoryLocation'],
   data () {
     return {
       //目录
@@ -38,6 +38,7 @@ export default {
     }
   },
   mounted () {
+    console.log(this.DirectoryLocation)
     this.DisablesSelectedDirectories = this.existingDirectories || [];
     console.log(this.DisablesSelectedDirectories)
     this.getTreeEntityList();
@@ -136,6 +137,10 @@ export default {
     //获得选择目录的位置
     getDirectoryLocation () {
       return this.SelectLocation;
+    },
+    //获得目录结构
+    getDirectoryStructure () {
+      return this.simple;
     }
   }
 }
