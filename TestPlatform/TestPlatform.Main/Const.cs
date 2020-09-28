@@ -233,6 +233,11 @@ namespace FW.TestPlatform.Main
         /// NetGatewaySlaveData
         /// </summary>
         public const string NetGatewaySlaveMeasurementName = "NetGatewaySlaveData";
+
+        /// <summary>
+        /// NetGatewayTotalData
+        /// </summary>
+        public const string NetGatewayTotalMeasurementName = "NetGatewayTotalData";
     }
 
     /// <summary>
@@ -365,26 +370,28 @@ namespace FW.TestPlatform.Main
     /// </summary>
     public static class NetGatewayDataFormatTypes
     {
-        public const string APICreditUpdateReplyMsg = "APICreditUpdateReplyMsg";
-        public const string APICreditUpdateRequestMsg = "APICreditUpdateRequestMsg";
-        public const string ApiListMarketDataAck = "ApiListMarketDataAck";
-        public const string ApiMarketData = "ApiMarketData";
-        public const string ApiMarketDataRequest = "ApiMarketDataRequest";
-        public const string APIOcoOrderCancelReplyMsg = "APIOcoOrderCancelReplyMsg";
-        public const string APIOcoOrderCancelRequestMsg = "APIOcoOrderCancelRequestMsg";
-        public const string APIOcoOrderSumitReplyMsg = "APIOcoOrderSumitReplyMsg";
-        public const string APIOcoOrderSumitRequestMsg = "APIOcoOrderSumitRequestMsg";
-        public const string APIOrderCancelReplyMsg = "APIOrderCancelReplyMsg";
-        public const string APIOrderCancelRequestMsg = "APIOrderCancelRequestMsg";
-        public const string APIOrderSubmitReplyMsg = "APIOrderSubmitReplyMsg";
-        public const string APIOrderSubmitRequestMsg = "APIOrderSubmitRequestMsg";
-        public const string BridgeOrderSubmitRequestMsg = "BridgeOrderSubmitRequestMsg";
-        public const string TokenReplyMsg = "TokenReplyMsg";
-        public const string TokenRequestMsg = "TokenRequestMsg";
-        public const string EmptyMsg = "EmptyMsg";
+        //public const string APICreditUpdateReplyMsg = "APICreditUpdateReplyMsg";
+        //public const string APICreditUpdateRequestMsg = "APICreditUpdateRequestMsg";
+        //public const string ApiListMarketDataAck = "ApiListMarketDataAck";
+        //public const string ApiMarketData = "ApiMarketData";
+        //public const string ApiMarketDataRequest = "ApiMarketDataRequest";
+        //public const string APIOcoOrderCancelReplyMsg = "APIOcoOrderCancelReplyMsg";
+        //public const string APIOcoOrderCancelRequestMsg = "APIOcoOrderCancelRequestMsg";
+        //public const string APIOcoOrderSumitReplyMsg = "APIOcoOrderSumitReplyMsg";
+        //public const string APIOcoOrderSumitRequestMsg = "APIOcoOrderSumitRequestMsg";
+        //public const string APIOrderCancelReplyMsg = "APIOrderCancelReplyMsg";
+        //public const string APIOrderCancelRequestMsg = "APIOrderCancelRequestMsg";
+        //public const string APIOrderSubmitReplyMsg = "APIOrderSubmitReplyMsg";
+        //public const string APIOrderSubmitRequestMsg = "APIOrderSubmitRequestMsg";
+        //public const string BridgeOrderSubmitRequestMsg = "BridgeOrderSubmitRequestMsg";
+        //public const string TokenReplyMsg = "TokenReplyMsg";
+        //public const string TokenRequestMsg = "TokenRequestMsg";
+        //public const string EmptyMsg = "EmptyMsg";
         //public const string Standard = "Standard";
         //public const string Header = "Header";
         //public const string User = "User";
+        public const string DSP = "DSP";
+        public const string IMIX = "IMIX";
     }
 
     /// <summary>

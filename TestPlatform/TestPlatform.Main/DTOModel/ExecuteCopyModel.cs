@@ -33,16 +33,16 @@ namespace FW.TestPlatform.Main.DTOModel
         /// 父节点Guid
         /// </summary>
         [DataMember]
-        public Guid ParentID
+        public Guid? ParentID
         {
             get
             {
 
-                return GetAttribute<Guid>(nameof(ParentID));
+                return GetAttribute<Guid?>(nameof(ParentID));
             }
             set
             {
-                SetAttribute<Guid>(nameof(ParentID), value);
+                SetAttribute<Guid?>(nameof(ParentID), value);
             }
         }
 

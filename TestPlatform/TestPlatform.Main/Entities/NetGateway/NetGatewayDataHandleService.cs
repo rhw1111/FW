@@ -26,6 +26,7 @@ using MSLibrary.Configuration;
 using FW.TestPlatform.Main.Entities;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Internal;
+using System.Data;
 
 namespace FW.TestPlatform.Main.NetGateway
 {
@@ -40,10 +41,11 @@ namespace FW.TestPlatform.Main.NetGateway
         private readonly IConvertNetDataFromSourceService _convertNetDataFromSourceService;
         private readonly IQPSCollectService _qpsCollectService;
         private readonly INetDurationCollectService _netDurationCollectService;
+        private readonly ITotalCollectService _totalCollectService;
 
         public static string LoggerCategoryName { get; set; } = "NetGatewayDataHandle";
 
-        public NetGatewayDataHandleService(INetGatewayDataHandleConfigurationService netGatewayDataHandleConfigurationService, IResolveFileNamePrefixService resolveFileNamePrefixService, IGetSourceDataFromStreamService getSourceDataFromStreamService, IGetSourceDataFromFileService getSourceDataFromFileService, IConvertNetDataFromSourceService convertNetDataFromSourceService, IQPSCollectService qpsCollectService, INetDurationCollectService netDurationCollectService)
+        public NetGatewayDataHandleService(INetGatewayDataHandleConfigurationService netGatewayDataHandleConfigurationService, IResolveFileNamePrefixService resolveFileNamePrefixService, IGetSourceDataFromStreamService getSourceDataFromStreamService, IGetSourceDataFromFileService getSourceDataFromFileService, IConvertNetDataFromSourceService convertNetDataFromSourceService, IQPSCollectService qpsCollectService, INetDurationCollectService netDurationCollectService,ITotalCollectService totalCollectService)
         {
             _netGatewayDataHandleConfigurationService = netGatewayDataHandleConfigurationService;
             _resolveFileNamePrefixService = resolveFileNamePrefixService;
@@ -52,6 +54,7 @@ namespace FW.TestPlatform.Main.NetGateway
             _convertNetDataFromSourceService = convertNetDataFromSourceService;
             _qpsCollectService = qpsCollectService;
             _netDurationCollectService = netDurationCollectService;
+            _totalCollectService = totalCollectService;
         }
 
         public async Task<INetGatewayDataHandleResult> Execute(CancellationToken cancellationToken = default)
@@ -77,6 +80,8 @@ namespace FW.TestPlatform.Main.NetGateway
             Dictionary<string,FileDataInfo> completedFiles = new Dictionary<string, FileDataInfo>();
 
             Dictionary<string,string> completedFileNames = new Dictionary<string, string>();
+
+            ConcurrentDictionary<string, ConcurrentDictionary<DateTime, QPSContainer>> qpsDatas = new ConcurrentDictionary<string, ConcurrentDictionary<DateTime, QPSContainer>>();
 
             var t1 = listenFileCompleted(netGatewayDataHandleResult, folderPath, completedFileNames, (infos) =>
             {
@@ -118,105 +123,117 @@ namespace FW.TestPlatform.Main.NetGateway
                         }
                         else
                         {
+                            qpsDatas = new ConcurrentDictionary<string, ConcurrentDictionary<DateTime, QPSContainer>>(); ;
                             LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run ForEach fileNames. 找到{fileNames.Count}个文件.");
                         }
 
+                        #region 解析文件
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
                             {
-                                var testCaseHistory = await _resolveFileNamePrefixService.Resolve(fileName);
-
-                                string dataformat = string.Empty;
-                                var prefix = string.Empty;
-
-                                if (testCaseHistory != null)
+                                try
                                 {
-                                    dataformat = testCaseHistory.NetGatewayDataFormat;
-                                    prefix = testCaseHistory.ID.ToString().ToLower();
-                                }
-                                else
-                                {
-                                    return;
-                                }
+                                    var testCaseHistory = await _resolveFileNamePrefixService.Resolve(fileName);
 
-                                if (!datas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? containerDatas))
-                                {
-                                    lock (datas)
+                                    string dataformat = string.Empty;
+                                    var prefix = string.Empty;
+
+                                    if (testCaseHistory != null)
                                     {
-                                        if (!datas.TryGetValue(prefix, out containerDatas))
+                                        dataformat = testCaseHistory.NetGatewayDataFormat;
+                                        prefix = testCaseHistory.ID.ToString().ToLower();
+                                    }
+                                    else
+                                    {
+                                        return;
+                                    }
+
+                                    if (!datas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? containerDatas))
+                                    {
+                                        lock (datas)
                                         {
-                                            containerDatas = new ConcurrentDictionary<string, DataContainer>();
-                                            datas[prefix] = containerDatas;
+                                            if (!datas.TryGetValue(prefix, out containerDatas))
+                                            {
+                                                containerDatas = new ConcurrentDictionary<string, DataContainer>();
+                                                datas[prefix] = containerDatas;
+                                            }
                                         }
                                     }
-                                }
 
-                                await _getSourceDataFromFileService.Get(fileName, dataformat,
-                                    async (sourceData) =>
-                                    {
-                                        var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
-                                        if (data != null)
+                                    await _getSourceDataFromFileService.Get(fileName, dataformat,
+                                        async (sourceData) =>
                                         {
-                                            if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
+                                            var data = await _convertNetDataFromSourceService.Convert(prefix, sourceData, cancellationToken);
+                                            if (data != null)
                                             {
-                                                lock (containerDatas)
+                                                if (!containerDatas.TryGetValue(data.ID, out DataContainer? containerData))
                                                 {
-                                                    if (!containerDatas.TryGetValue(data.ID, out containerData))
+                                                    lock (containerDatas)
                                                     {
-                                                        if (data.Type == NetDataType.Request)
+                                                        if (!containerDatas.TryGetValue(data.ID, out containerData))
                                                         {
-                                                            containerData = new DataContainer()
+                                                            if (data.Type == NetDataType.Request)
                                                             {
-                                                                FileName = fileName
-                                                            };
-                                                            containerDatas[data.ID] = containerData;
-                                                        }
-                                                        else
-                                                        {
-                                                            if (!singleResponseDatas.TryGetValue(prefix, out List<DataContainer>? singleDatas))
-                                                            {
-                                                                lock (singleResponseDatas)
+                                                                containerData = new DataContainer()
                                                                 {
-                                                                    if (!singleResponseDatas.TryGetValue(prefix, out singleDatas))
+                                                                    FileName = fileName,
+                                                                    Timestamp = data.CreateTime
+                                                                };
+                                                                containerDatas[data.ID] = containerData;
+                                                            }
+                                                            else
+                                                            {
+                                                                if (!singleResponseDatas.TryGetValue(prefix, out List<DataContainer>? singleDatas))
+                                                                {
+                                                                    lock (singleResponseDatas)
                                                                     {
-                                                                        singleDatas = new List<DataContainer>();
-                                                                        singleResponseDatas[prefix] = singleDatas;
+                                                                        if (!singleResponseDatas.TryGetValue(prefix, out singleDatas))
+                                                                        {
+                                                                            singleDatas = new List<DataContainer>();
+                                                                            singleResponseDatas[prefix] = singleDatas;
+                                                                        }
                                                                     }
                                                                 }
-                                                            }
 
-                                                            lock (singleDatas)
-                                                            {
-                                                                singleDatas.Add(new DataContainer() { FileName = fileName, Response = data });
+                                                                lock (singleDatas)
+                                                                {
+                                                                    singleDatas.Add(new DataContainer() { FileName = fileName, Timestamp = data.CreateTime, Response = data });
+                                                                }
                                                             }
                                                         }
                                                     }
                                                 }
-                                            }
 
-                                            if (containerData != null)
-                                            {
-                                                if (data.Type == NetDataType.Request)
+                                                if (containerData != null)
                                                 {
-                                                    containerData.Request = data;
-                                                }
-                                                else
-                                                {
-                                                    containerData.Response = data;
+                                                    if (data.Type == NetDataType.Request)
+                                                    {
+                                                        containerData.Request = data;
+                                                    }
+                                                    else
+                                                    {
+                                                        containerData.Response = data;
+                                                    }
                                                 }
                                             }
-                                        }
-                                    },
-                                    cancellationToken
-                                );
+                                        },
+                                        cancellationToken
+                                    );
+                                }
+                                catch (Exception ex)
+                                {
+                                    LoggerHelper.LogError($"[{fileName}] {LoggerCategoryName}", ex.ToStackTraceString());
+                                }
                             }
                         );
+                        #endregion
 
                         if (fileNames.Count > 0)
                         {
                             LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run 处理单独的响应数据.");
                         }
 
+                        #region 处理单独的响应数据
                         //处理单独的响应数据
                         foreach (var item in singleResponseDatas)
                         {
@@ -229,17 +246,7 @@ namespace FW.TestPlatform.Main.NetGateway
                                     containerData.Response = innerItem.Response;
                                     deleteDatas.Add(innerItem);
                                 }
-                            }
-
-                            // 此处阀值用来判断，如果需要删除的数据太多，就不删了，是由于坏包太多所致
-                            if (deleteDatas.Count < 100)
-                            {
-                                foreach (var deleteItem in deleteDatas)
-                                {
-                                    item.Value.Remove(deleteItem);
-                                }
-
-                                if (item.Value.Count > 0)
+                                else
                                 {
                                     if (!restDatas.TryGetValue(item.Key, out ConcurrentDictionary<string, DataContainer>? restContainerDatas))
                                     {
@@ -247,137 +254,281 @@ namespace FW.TestPlatform.Main.NetGateway
                                         restDatas[item.Key] = restContainerDatas;
                                     }
 
-                                    foreach (var restItem in item.Value)
-                                    {
-                                        restContainerDatas[restItem.Response!.ID] = restItem;
-                                    }
-
+                                    restContainerDatas[innerItem.Response!.ID] = innerItem;
                                 }
                             }
+
+                            // 此处阀值用来判断，如果需要删除的数据太多，就不删了，是由于坏包太多所致
+                            //if (deleteDatas.Count < 100)
+                            //{
+                            //    foreach (var deleteItem in deleteDatas)
+                            //    {
+                            //        item.Value.Remove(deleteItem);
+                            //    }
+                            //}
+
+                            //if (item.Value.Count > 0)
+                            //{
+                            //    if (!restDatas.TryGetValue(item.Key, out ConcurrentDictionary<string, DataContainer>? restContainerDatas))
+                            //    {
+                            //        restContainerDatas = new ConcurrentDictionary<string, DataContainer>();
+                            //        restDatas[item.Key] = restContainerDatas;
+                            //    }
+
+                            //    foreach (var restItem in item.Value)
+                            //    {
+                            //        restContainerDatas[restItem.Response!.ID] = restItem;
+                            //    }
+
+                            //}
                         }
+                        #endregion
 
                         if (fileNames.Count > 0)
                         {
                             LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run 计算.");
                         }
 
+                        #region 计算
                         //计算
                         await ParallelHelper.ForEach(fileNames, 10,
                             async (fileName) =>
                             {
-                                var testCaseHistory = await _resolveFileNamePrefixService.Resolve(fileName);
-
-                                string dataformat = string.Empty;
-                                var prefix = string.Empty;
-
-                                if (testCaseHistory != null)
+                                try
                                 {
-                                    dataformat = testCaseHistory.NetGatewayDataFormat;
-                                    prefix = testCaseHistory.ID.ToString().ToLower();
-                                }
-                                else
-                                {
-                                    return;
-                                }
+                                    var testCaseHistory = await _resolveFileNamePrefixService.Resolve(fileName);
 
-                                if (!datas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? containerDatas))
-                                {
-                                    lock (datas)
+                                    string dataformat = string.Empty;
+                                    var prefix = string.Empty;
+
+                                    if (testCaseHistory != null)
                                     {
-                                        if (!datas.TryGetValue(prefix, out containerDatas))
-                                        {
-                                            containerDatas = new ConcurrentDictionary<string, DataContainer>();
-                                            datas[prefix] = containerDatas;
-                                        }
+                                        dataformat = testCaseHistory.NetGatewayDataFormat;
+                                        prefix = testCaseHistory.ID.ToString().ToLower();
                                     }
-                                }
-
-                                var calculateDatas = from item in containerDatas
-                                                    where item.Value.FileName == fileName && item.Value.Request != null
-                                                    select item.Value;
-
-                                DateTime? maxCreateTime = null;
-                                var qps = 0;
-                                var totalRequestCount = calculateDatas.Count();
-                                if (totalRequestCount > 1)
-                                {
-                                    var minCreateTime = calculateDatas.Min((v) => v.Request!.CreateTime);
-                                    maxCreateTime = calculateDatas.Max((v) => v.Request!.CreateTime);
-                                    qps = (int)(totalRequestCount / (maxCreateTime.Value - minCreateTime).TotalSeconds);
-                                }
-                                else if (totalRequestCount == 1)
-                                {
-                                    qps = 1;
-                                    maxCreateTime = calculateDatas.Max((v) => v.Request!.CreateTime);
-                                }
-
-                                if (qps != 0)
-                                {
-                                    await _qpsCollectService.Collect(prefix,qps, maxCreateTime!.Value, cancellationToken);
-                                }
-
-
-                                var calculateResponseDatas = from item in containerDatas
-                                                            where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
-                                                            select (item.Value.Response!.CreateTime - item.Value.Request!.CreateTime).TotalMilliseconds;
-
-                                maxCreateTime = (from item in containerDatas
-                                                where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
-                                                orderby item.Value.Response!.CreateTime descending
-                                                select item.Value.Response!.CreateTime).FirstOrDefault();
-
-                                if (calculateResponseDatas.Count() == 0)
-                                {
-                                    return;
-                                }
-
-                                var avgResponse = calculateResponseDatas.Average();
-                                var maxResponse = calculateResponseDatas.Max();
-                                var minResponse = calculateResponseDatas.Min();
-
-                                if (maxCreateTime != null)
-                                {
-                                    await _netDurationCollectService.Collect(prefix,minResponse, maxResponse, avgResponse, maxCreateTime!.Value, cancellationToken);
-                                }
-
-                                //处理只有request的数据
-
-                                if (!restDatas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? restContainerDatas))
-                                {
-                                    lock (restDatas)
+                                    else
                                     {
-                                        if (!restDatas.TryGetValue(prefix, out restContainerDatas))
-                                        {
-                                            restContainerDatas = new ConcurrentDictionary<string, DataContainer>();
-                                            restDatas[prefix] = restContainerDatas;
-                                        }
+                                        return;
                                     }
-                                }
-                                  
-                                var requestDatas = (from item in containerDatas
-                                                    where item.Value.Request != null && item.Value.Response == null
-                                                    select item).ToList();
 
-                                foreach (var item in requestDatas)
-                                {
-                                    if (!restContainerDatas.TryGetValue(item.Key, out DataContainer? dataContainer))
+                                    if (!datas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? containerDatas))
                                     {
-                                        lock (restContainerDatas)
+                                        lock (datas)
                                         {
-                                            if (!restContainerDatas.TryGetValue(item.Key, out dataContainer))
+                                            if (!datas.TryGetValue(prefix, out containerDatas))
                                             {
-                                                dataContainer = new DataContainer();
-                                                restContainerDatas[item.Key] = dataContainer;
+                                                containerDatas = new ConcurrentDictionary<string, DataContainer>();
+                                                datas[prefix] = containerDatas;
                                             }
                                         }
                                     }
 
-                                    dataContainer.FileName = fileName;
-                                    dataContainer.Request = item.Value.Request;
+                                    //List<DateTime> times = new List<DateTime>();
+                                    //List<int> counts = new List<int>();
+                                    //List<double> avgQPSs = new List<double>();
+                                    //List<double> avgDurations = new List<double>();
+                                    //List<double> maxDurations = new List<double>();
+                                    //List<double> minDurations = new List<double>();
+
+                                    #region QPS
+                                    //var calculateDatas = from item in containerDatas
+                                    //                    where item.Value.FileName == fileName && item.Value.Request != null
+                                    //                    select item.Value;
+
+                                    //DateTime? maxCreateTime = null;
+                                    //var qps = 0;
+                                    //var totalRequestCount = calculateDatas.Count();
+                                    //if (totalRequestCount > 1)
+                                    //{
+                                    //    var minCreateTime = calculateDatas.Min((v) => v.Request!.CreateTime);
+                                    //    maxCreateTime = calculateDatas.Max((v) => v.Request!.CreateTime);
+                                    //    qps = (int)(totalRequestCount / (maxCreateTime.Value - minCreateTime).TotalSeconds);
+                                    //}
+                                    //else if (totalRequestCount == 1)
+                                    //{
+                                    //    qps = 1;
+                                    //    maxCreateTime = calculateDatas.Max((v) => v.Request!.CreateTime);
+                                    //}
+
+                                    //if (qps != 0)
+                                    //{
+                                    //    await _qpsCollectService.Collect(prefix,qps, maxCreateTime!.Value, cancellationToken);
+                                    //}
+
+                                    var calculateDatas = from item in containerDatas
+                                                         where item.Value.FileName == fileName && item.Value.Request != null
+                                                         group item by item.Value.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") into g
+                                                         select new { g.Key, Total = g.Count() };
+
+                                    foreach (var row in calculateDatas)
+                                    {
+                                        var qps = row.Total;
+                                        DateTime maxCreateTime = Convert.ToDateTime(row.Key);
+
+                                        //times.Add(maxCreateTime);
+                                        //counts.Add(qps);
+                                        //avgQPSs.Add(qps);
+
+                                        if (!qpsDatas.TryGetValue(prefix, out ConcurrentDictionary<DateTime, QPSContainer>? qpsData))
+                                        {
+                                            lock (qpsDatas)
+                                            {
+                                                if (!qpsDatas.TryGetValue(prefix, out qpsData))
+                                                {
+                                                    qpsData = new ConcurrentDictionary<DateTime, QPSContainer>();
+                                                    qpsDatas[prefix] = qpsData;
+                                                    qpsData.TryAdd(maxCreateTime, new QPSContainer() { Prefix = prefix, Timestamp = maxCreateTime, QPS = qps });
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            lock (qpsData)
+                                            {
+                                                if (!qpsData.TryGetValue(maxCreateTime, out QPSContainer? qpsD))
+                                                {
+                                                    if (!qpsData.TryGetValue(maxCreateTime, out qpsD))
+                                                    {
+                                                        qpsD = new QPSContainer() { Prefix = prefix, Timestamp = maxCreateTime, QPS = qps };
+                                                        qpsData[maxCreateTime] = qpsD;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    qps = qps + qpsD.QPS;
+                                                    qpsD.QPS = qps;
+                                                }
+                                            }
+                                        }
+
+                                        await _qpsCollectService.Collect(prefix, qps, maxCreateTime, cancellationToken);
+                                    }
+                                    #endregion
+
+                                    #region Duration
+                                    //var calculateResponseDatas = from item in containerDatas
+                                    //                            where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
+                                    //                            select (item.Value.Response!.CreateTime - item.Value.Request!.CreateTime).TotalMilliseconds;
+
+                                    //maxCreateTime = (from item in containerDatas
+                                    //                where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
+                                    //                orderby item.Value.Response!.CreateTime descending
+                                    //                select item.Value.Response!.CreateTime).FirstOrDefault();
+
+                                    //if (calculateResponseDatas.Count() == 0)
+                                    //{
+                                    //    return;
+                                    //}
+
+                                    //var avgResponse = calculateResponseDatas.Average();
+                                    //var maxResponse = calculateResponseDatas.Max();
+                                    //var minResponse = calculateResponseDatas.Min();
+
+                                    //if (maxCreateTime != null)
+                                    //{
+                                    //    await _netDurationCollectService.Collect(prefix,minResponse, maxResponse, avgResponse, maxCreateTime!.Value, cancellationToken);
+                                    //}
+
+                                    var calculateResponseDatas = from item in containerDatas
+                                                                 where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response != null
+                                                                 group item by item.Value.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") into g
+                                                                 select new
+                                                                 {
+                                                                     g.Key,
+                                                                     Total = g.Count()
+                                                                    ,
+                                                                     AvgDuration = g.Average(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
+                                                                    ,
+                                                                     MaxDuration = g.Max(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
+                                                                    ,
+                                                                     MinDuration = g.Min(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
+                                                                 };
+
+                                    foreach (var row in calculateResponseDatas)
+                                    {
+                                        DateTime? maxCreateTime = Convert.ToDateTime(row.Key);
+
+                                        var avgResponse = row.AvgDuration;
+                                        var maxResponse = row.MaxDuration;
+                                        var minResponse = row.MinDuration;
+
+                                        //avgDurations.Add(avgResponse);
+                                        //maxDurations.Add(maxResponse);
+                                        //minDurations.Add(minResponse);
+
+                                        await _netDurationCollectService.Collect(prefix, minResponse, maxResponse, avgResponse, maxCreateTime!.Value, cancellationToken);
+                                    }
+                                    #endregion
+
+                                    #region Total
+                                    //DateTime time = times.Max();
+                                    //int count = counts.Sum();
+                                    //double avgQPS = avgQPSs.Average();
+                                    //double avgDuration = avgDurations.Average();
+                                    //double maxDuration = maxDurations.Max();
+                                    //double minDuration = minDurations.Min();
+
+                                    if (containerDatas.Count > 0 && calculateDatas.Count() > 0 && calculateResponseDatas.Count() > 0)
+                                    {
+                                        DateTime time = Convert.ToDateTime(calculateDatas.Max(g => g.Key));
+                                        int count = containerDatas.Count();
+                                        double avgQPS = calculateDatas.Average(g => g.Total);
+                                        double avgDuration = calculateResponseDatas.Average(g => g.AvgDuration);
+                                        double maxDuration = calculateResponseDatas.Max(g => g.MaxDuration);
+                                        double minDuration = calculateResponseDatas.Min(g => g.MinDuration);
+
+                                        await _totalCollectService.Collect(prefix, count, minDuration, maxDuration, avgDuration, avgQPS, time, cancellationToken);
+                                    }
+                                    #endregion
+
+                                    #region 处理只有request的数据
+                                    //处理只有request的数据
+
+                                    if (!restDatas.TryGetValue(prefix, out ConcurrentDictionary<string, DataContainer>? restContainerDatas))
+                                    {
+                                        lock (restDatas)
+                                        {
+                                            if (!restDatas.TryGetValue(prefix, out restContainerDatas))
+                                            {
+                                                restContainerDatas = new ConcurrentDictionary<string, DataContainer>();
+                                                restDatas[prefix] = restContainerDatas;
+                                            }
+                                        }
+                                    }
+
+                                    var requestDatas = (from item in containerDatas
+                                                        where item.Value.FileName == fileName && item.Value.Request != null && item.Value.Response == null
+                                                        select item).ToList();
+
+                                    foreach (var item in requestDatas)
+                                    {
+                                        if (!restContainerDatas.TryGetValue(item.Key, out DataContainer? dataContainer))
+                                        {
+                                            lock (restContainerDatas)
+                                            {
+                                                if (!restContainerDatas.TryGetValue(item.Key, out dataContainer))
+                                                {
+                                                    dataContainer = new DataContainer();
+                                                    restContainerDatas[item.Key] = dataContainer;
+                                                }
+                                            }
+                                        }
+
+                                        dataContainer.FileName = fileName;
+                                        dataContainer.Timestamp = item.Value.Request.CreateTime;
+                                        dataContainer.Request = item.Value.Request;
+                                    }
+                                    #endregion
+                                }
+                                catch (Exception ex)
+                                {
+                                    LoggerHelper.LogError($"[{fileName}] {LoggerCategoryName}", ex.ToStackTraceString());
                                 }
                             }
                         );
+                        #endregion
 
+                        #region 删除用过的文件
                         //删除用过的文件
                         foreach (var item in fileNames)
                         {
@@ -395,6 +546,7 @@ namespace FW.TestPlatform.Main.NetGateway
                         {
                             break;
                         }
+                        #endregion
 
                         LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} t2 Task.Run Task.Delay(10000).");
 
@@ -544,6 +696,7 @@ namespace FW.TestPlatform.Main.NetGateway
         private class DataContainer
         {
             public string FileName { get; set; } = null!;
+            public DateTime Timestamp { get; set; }
             public NetData? Request { get; set; }
             public NetData? Response { get; set; }
         }
@@ -552,6 +705,13 @@ namespace FW.TestPlatform.Main.NetGateway
         {
             public string FileName { get; set; } = null!;
             public DateTime CreateTime { get; set; }
+        }
+
+        private class QPSContainer
+        {
+            public string Prefix { get; set; } = null!;
+            public DateTime Timestamp { get; set; }
+            public int QPS { get; set; }
         }
     }
 
@@ -1080,79 +1240,79 @@ namespace FW.TestPlatform.Main.NetGateway
                     object data = string.Empty;
                     string dataformat = string.Empty;
 
-                    switch (dataformat)
-                    {
-                        case NetGatewayDataFormatTypes.APICreditUpdateReplyMsg:
-                            data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
+                    //switch (dataformat)
+                    //{
+                    //    case NetGatewayDataFormatTypes.APICreditUpdateReplyMsg:
+                    //        data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APICreditUpdateRequestMsg:
-                            data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APICreditUpdateRequestMsg:
+                    //        data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.ApiListMarketDataAck:
-                            data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.ApiListMarketDataAck:
+                    //        data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.ApiMarketData:
-                            data = ApiMarketData.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.ApiMarketData:
+                    //        data = ApiMarketData.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.ApiMarketDataRequest:
-                            data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.ApiMarketDataRequest:
+                    //        data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg:
-                            data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg:
+                    //        data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg:
-                            data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg:
+                    //        data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg:
-                            data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg:
+                    //        data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg:
-                            data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg:
+                    //        data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOrderCancelReplyMsg:
-                            data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOrderCancelReplyMsg:
+                    //        data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOrderCancelRequestMsg:
-                            data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOrderCancelRequestMsg:
+                    //        data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg:
-                            data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg:
+                    //        data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg:
-                            data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg:
+                    //        data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg:
-                            data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg:
+                    //        data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.TokenReplyMsg:
-                            data = TokenReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.TokenReplyMsg:
+                    //        data = TokenReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.TokenRequestMsg:
-                            data = TokenRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.TokenRequestMsg:
+                    //        data = TokenRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.EmptyMsg:
-                            data = EmptyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.EmptyMsg:
+                    //        data = EmptyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        default:
-                            break;
-                    }
+                    //        break;
+                    //    default:
+                    //        break;
+                    //}
 
                     if (!string.IsNullOrEmpty(data.ToString()))
                     {
@@ -1420,79 +1580,79 @@ namespace FW.TestPlatform.Main.NetGateway
                     {
                         object data = string.Empty;
 
-                        switch (dataformat)
-                        {
-                            case NetGatewayDataFormatTypes.APICreditUpdateReplyMsg:
-                                data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
+                        //switch (dataformat)
+                        //{
+                        //    case NetGatewayDataFormatTypes.APICreditUpdateReplyMsg:
+                        //        data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.APICreditUpdateRequestMsg:
-                                data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.APICreditUpdateRequestMsg:
+                        //        data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.ApiListMarketDataAck:
-                                data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.ApiListMarketDataAck:
+                        //        data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.ApiMarketData:
-                                data = ApiMarketData.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.ApiMarketData:
+                        //        data = ApiMarketData.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.ApiMarketDataRequest:
-                                data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.ApiMarketDataRequest:
+                        //        data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg:
-                                data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg:
+                        //        data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg:
-                                data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg:
+                        //        data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg:
-                                data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg:
+                        //        data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg:
-                                data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg:
+                        //        data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.APIOrderCancelReplyMsg:
-                                data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.APIOrderCancelReplyMsg:
+                        //        data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.APIOrderCancelRequestMsg:
-                                data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.APIOrderCancelRequestMsg:
+                        //        data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg:
-                                data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg:
+                        //        data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg:
-                                data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg:
+                        //        data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg:
-                                data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg:
+                        //        data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.TokenReplyMsg:
-                                data = TokenReplyMsg.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.TokenReplyMsg:
+                        //        data = TokenReplyMsg.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.TokenRequestMsg:
-                                data = TokenRequestMsg.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.TokenRequestMsg:
+                        //        data = TokenRequestMsg.Parser.ParseFrom(googleData);
 
-                                break;
-                            case NetGatewayDataFormatTypes.EmptyMsg:
-                                data = EmptyMsg.Parser.ParseFrom(googleData);
+                        //        break;
+                        //    case NetGatewayDataFormatTypes.EmptyMsg:
+                        //        data = EmptyMsg.Parser.ParseFrom(googleData);
 
-                                break;
-                            default:
-                                break;
-                        }
+                        //        break;
+                        //    default:
+                        //        break;
+                        //}
 
                         if (!string.IsNullOrEmpty(data.ToString()))
                         {
@@ -2165,6 +2325,45 @@ namespace FW.TestPlatform.Main.NetGateway
             influxDBRecord.Fields.Add("MaxDuration", max.ToString());
             influxDBRecord.Fields.Add("MinDurartion", min.ToString());
             influxDBRecord.Fields.Add("AvgDuration", avg.ToString());
+            await influxDBEndpoint.AddData(InfluxDBParameters.DBName, influxDBRecord);
+        }
+    }
+
+    [Injection(InterfaceType = typeof(ITotalCollectService), Scope = InjectionScope.Singleton)]
+    public class TotalCollectService : ITotalCollectService
+    {
+        private readonly IInfluxDBEndpointRepository _influxDBEndpointRepository;
+
+        public TotalCollectService(IInfluxDBEndpointRepository influxDBEndpointRepository)
+        {
+            _influxDBEndpointRepository = influxDBEndpointRepository;
+        }
+
+        public async Task Collect(string prefix, int requestCount, double minDuration, double maxDuration, double avgDuration, double avgQps, DateTime time, CancellationToken cancellationToken = default)
+        {
+            InfluxDBEndpoint? influxDBEndpoint = await _influxDBEndpointRepository.QueryByName(InfluxDBParameters.EndpointName);
+            if (influxDBEndpoint == null)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.NotFoundInfluxDBEndpoint,
+                    DefaultFormatting = "找不到指定名称{0}的InfluxDB数据源配置",
+                    ReplaceParameters = new List<object>() { InfluxDBParameters.EndpointName }
+                };
+
+                throw new UtilityException((int)TestPlatformErrorCodes.NotFoundInfluxDBEndpoint, fragment, 1, 0);
+            }
+
+            InfluxDBRecord influxDBRecord = new InfluxDBRecord();
+            influxDBRecord.MeasurementName = InfluxDBParameters.NetGatewayTotalMeasurementName;
+            TimeSpan ts = time - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            influxDBRecord.Timestamp = Convert.ToInt64(((long)(ts.TotalMilliseconds)).ToString().PadRight(19, '0'));
+            influxDBRecord.Tags.Add("HistoryCaseID", prefix);
+            influxDBRecord.Fields.Add("MaxDuration", maxDuration.ToString());
+            influxDBRecord.Fields.Add("MinDurartion", minDuration.ToString());
+            influxDBRecord.Fields.Add("AvgDuration", avgDuration.ToString());
+            influxDBRecord.Fields.Add("RequestCount", requestCount.ToString());
+            influxDBRecord.Fields.Add("AvgQPS", avgQps.ToString());
             await influxDBEndpoint.AddData(InfluxDBParameters.DBName, influxDBRecord);
         }
     }
