@@ -390,7 +390,7 @@ namespace FW.TestPlatform.Main
         //public const string Standard = "Standard";
         //public const string Header = "Header";
         //public const string User = "User";
-        public const string DSP = "DSP";
+        public const string DEP = "DEP";
         public const string IMIX = "IMIX";
     }
 

@@ -582,79 +582,79 @@ namespace TestPlatform.Test
                 {
                     object data = string.Empty;
 
-                    switch (dataformat)
-                    {
-                        case NetGatewayDataFormatTypes.APICreditUpdateReplyMsg:
-                            data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
+                    //switch (dataformat)
+                    //{
+                    //    case NetGatewayDataFormatTypes.APICreditUpdateReplyMsg:
+                    //        data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APICreditUpdateRequestMsg:
-                            data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APICreditUpdateRequestMsg:
+                    //        data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.ApiListMarketDataAck:
-                            data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.ApiListMarketDataAck:
+                    //        data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.ApiMarketData:
-                            data = ApiMarketData.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.ApiMarketData:
+                    //        data = ApiMarketData.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.ApiMarketDataRequest:
-                            data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.ApiMarketDataRequest:
+                    //        data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg:
-                            data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg:
+                    //        data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg:
-                            data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg:
+                    //        data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg:
-                            data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg:
+                    //        data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg:
-                            data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg:
+                    //        data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOrderCancelReplyMsg:
-                            data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOrderCancelReplyMsg:
+                    //        data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOrderCancelRequestMsg:
-                            data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOrderCancelRequestMsg:
+                    //        data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg:
-                            data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg:
+                    //        data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg:
-                            data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg:
+                    //        data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg:
-                            data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg:
+                    //        data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.TokenReplyMsg:
-                            data = TokenReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.TokenReplyMsg:
+                    //        data = TokenReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.TokenRequestMsg:
-                            data = TokenRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.TokenRequestMsg:
+                    //        data = TokenRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.EmptyMsg:
-                            data = EmptyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.EmptyMsg:
+                    //        data = EmptyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        default:
-                            break;
-                    }
+                    //        break;
+                    //    default:
+                    //        break;
+                    //}
 
                     if (!string.IsNullOrEmpty(data.ToString()))
                     {
@@ -741,79 +741,79 @@ namespace TestPlatform.Test
                     object data = string.Empty;
                     string dataformat = string.Empty;
 
-                    switch (dataformat)
-                    {
-                        case NetGatewayDataFormatTypes.APICreditUpdateReplyMsg:
-                            data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
+                    //switch (dataformat)
+                    //{
+                    //    case NetGatewayDataFormatTypes.APICreditUpdateReplyMsg:
+                    //        data = APICreditUpdateReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APICreditUpdateRequestMsg:
-                            data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APICreditUpdateRequestMsg:
+                    //        data = APICreditUpdateRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.ApiListMarketDataAck:
-                            data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.ApiListMarketDataAck:
+                    //        data = ApiListMarketDataAck.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.ApiMarketData:
-                            data = ApiMarketData.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.ApiMarketData:
+                    //        data = ApiMarketData.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.ApiMarketDataRequest:
-                            data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.ApiMarketDataRequest:
+                    //        data = ApiMarketDataRequest.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg:
-                            data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOcoOrderCancelReplyMsg:
+                    //        data = APIOcoOrderCancelReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg:
-                            data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOcoOrderCancelRequestMsg:
+                    //        data = APIOcoOrderCancelRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg:
-                            data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOcoOrderSumitReplyMsg:
+                    //        data = APIOcoOrderSumitReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg:
-                            data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOcoOrderSumitRequestMsg:
+                    //        data = APIOcoOrderSumitRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOrderCancelReplyMsg:
-                            data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOrderCancelReplyMsg:
+                    //        data = APIOrderCancelReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOrderCancelRequestMsg:
-                            data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOrderCancelRequestMsg:
+                    //        data = APIOrderCancelRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg:
-                            data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOrderSubmitReplyMsg:
+                    //        data = APIOrderSubmitReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg:
-                            data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.APIOrderSubmitRequestMsg:
+                    //        data = APIOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg:
-                            data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.BridgeOrderSubmitRequestMsg:
+                    //        data = BridgeOrderSubmitRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.TokenReplyMsg:
-                            data = TokenReplyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.TokenReplyMsg:
+                    //        data = TokenReplyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.TokenRequestMsg:
-                            data = TokenRequestMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.TokenRequestMsg:
+                    //        data = TokenRequestMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        case NetGatewayDataFormatTypes.EmptyMsg:
-                            data = EmptyMsg.Parser.ParseFrom(googleData);
+                    //        break;
+                    //    case NetGatewayDataFormatTypes.EmptyMsg:
+                    //        data = EmptyMsg.Parser.ParseFrom(googleData);
 
-                            break;
-                        default:
-                            break;
-                    }
+                    //        break;
+                    //    default:
+                    //        break;
+                    //}
 
                     if (!string.IsNullOrEmpty(data.ToString()))
                     {
