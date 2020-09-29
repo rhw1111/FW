@@ -51,9 +51,12 @@ Axios.interceptors.response.use(
     }
   },
   err => {
+    console.log(err)
     let errMsg = '网络错误'
     if (err.response && err.response.status === 500) {
       if (err.response.data.Message) {
+        errMsg = err;
+        console.log(errMsg)
         Vue.prototype.$q.notify({
           position: 'top',
           message: '提示',

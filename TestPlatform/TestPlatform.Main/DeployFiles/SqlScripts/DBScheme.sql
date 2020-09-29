@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `testdatasource` (
 CREATE TABLE IF NOT EXISTS `testhost` (
   `id` char(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `address` varchar(100) NOT NULL DEFAULT '',
-  `sshendpointid` char(36) NOT NULL DEFAULT '0',
+  `sshendpointid` char(36) NOT NULL,
   `createtime` datetime NOT NULL,
   `modifytime` datetime NOT NULL,
   `sequence` bigint NOT NULL AUTO_INCREMENT,
