@@ -361,6 +361,11 @@ namespace FW.TestPlatform.Main.NetGateway
                                                          group item by item.Value.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") into g
                                                          select new { g.Key, Total = g.Count() };
 
+                                    if (calculateDatas != null)
+                                    {
+                                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} {fileName} QPS.Count = {calculateDatas.Count()}.");
+                                    }
+
                                     foreach (var row in calculateDatas)
                                     {
                                         var qps = row.Total;
@@ -444,6 +449,11 @@ namespace FW.TestPlatform.Main.NetGateway
                                                                     ,
                                                                      MinDuration = g.Min(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
                                                                  };
+
+                                    if (calculateResponseDatas != null)
+                                    {
+                                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} {fileName} Duration.Count = {calculateResponseDatas.Count()}.");
+                                    }
 
                                     foreach (var row in calculateResponseDatas)
                                     {
