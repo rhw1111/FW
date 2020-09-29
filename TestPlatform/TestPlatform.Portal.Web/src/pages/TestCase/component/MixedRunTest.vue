@@ -228,7 +228,7 @@ export default {
       let rechecking = [];
       for (var i = 0; i < this.selected.length; i++) {
         for (var j = i + 1; j < this.selected.length; j++) {
-          if (JSON.parse(this.selected[i]['configuration']).Port === JSON.parse(this.selected[j]['configuration']).Port) {
+          if (this.selected[i].masterHostID === this.selected[j].masterHostID && JSON.parse(this.selected[i]['configuration']).LocustMasterBindPort === JSON.parse(this.selected[j]['configuration']).LocustMasterBindPort) {
             rechecking.push(this.selected[i].name);
             rechecking.push(this.selected[j].name);
           }
@@ -239,7 +239,7 @@ export default {
         this.$q.notify({
           position: 'top',
           message: '提示',
-          caption: `当前测试用例${rechecking.join('，')}端口号重复，请修改或者重新选择。`,
+          caption: `当前测试用例${rechecking.join('，')}主机端口号重复，请修改或者重新选择。`,
           color: 'red',
         })
         this.$q.loading.hide();

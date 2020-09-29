@@ -38,6 +38,7 @@ namespace FW.TestPlatform.Main.Application
                         EngineType = item.EngineType,
                         Status = item.Status == TestCaseStatus.NoRun ? "没有运行" : (item.Status == TestCaseStatus.Running ? "正在运行" : ""),
                         Configuration = item.Configuration,
+                        MasterHostID = item.MasterHostID,
                         TreeID = item.TreeID,
                         CreateTime = item.CreateTime
                     }
