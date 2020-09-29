@@ -440,14 +440,11 @@ namespace FW.TestPlatform.Main.NetGateway
                                                                  group item by item.Value.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") into g
                                                                  select new
                                                                  {
-                                                                     g.Key,
-                                                                     Total = g.Count()
-                                                                    ,
-                                                                     AvgDuration = g.Average(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
-                                                                    ,
-                                                                     MaxDuration = g.Max(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
-                                                                    ,
-                                                                     MinDuration = g.Min(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
+                                                                     g.Key
+                                                                     , Total = g.Count()
+                                                                     , AvgDuration = g.Average(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
+                                                                     , MaxDuration = g.Max(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
+                                                                     , MinDuration = g.Min(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
                                                                  };
 
                                     if (calculateResponseDatas != null)
