@@ -228,7 +228,7 @@ export default {
       let rechecking = [];
       for (var i = 0; i < this.selected.length; i++) {
         for (var j = i + 1; j < this.selected.length; j++) {
-          if (this.selected[i].MasterHostID == this.selected[j].MasterHostID && JSON.parse(this.selected[i]['configuration']).LocustMasterBindPort === JSON.parse(this.selected[j]['configuration']).LocustMasterBindPort) {
+          if (this.selected[i].masterHostID === this.selected[j].masterHostID && JSON.parse(this.selected[i]['configuration']).LocustMasterBindPort === JSON.parse(this.selected[j]['configuration']).LocustMasterBindPort) {
             rechecking.push(this.selected[i].name);
             rechecking.push(this.selected[j].name);
           }
