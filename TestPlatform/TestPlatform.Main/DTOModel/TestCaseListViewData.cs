@@ -96,6 +96,22 @@ namespace FW.TestPlatform.Main.DTOModel
         }
 
         /// <summary>
+        /// Master主机ID
+        /// </summary>
+        [DataMember]
+        public Guid MasterHostID
+        {
+            get
+            {
+                return GetAttribute<Guid>(nameof(MasterHostID));
+            }
+            set
+            {
+                SetAttribute<Guid>(nameof(MasterHostID), value);
+            }
+        }
+
+        /// <summary>
         /// 创建时间
         /// </summary>
         [DataMember]
