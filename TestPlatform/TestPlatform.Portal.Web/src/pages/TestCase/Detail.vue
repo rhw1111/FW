@@ -294,14 +294,19 @@ export default {
     //-------------------------------------------- 查看当前测试用例状态和日志 --------------------------------------
     //查看状态
     lookStatus () {
-      this.$q.loading.show()
-      Apis.getCheckStatus({ caseId: this.$route.query.id }).then((res) => {
-        this.$q.dialog({
-          title: '提示',
-          message: res.data ? '当前测试用例正在运行' : '当前测试用例为停止状态'
-        })
-        this.$q.loading.hide()
+      console.log(this.detailData)
+      this.$q.dialog({
+        title: '提示',
+        message: this.detailData.status ? '当前测试用例正在运行' : '当前测试用例为停止状态'
       })
+      // this.$q.loading.show()
+      // Apis.getCheckStatus({ caseId: this.$route.query.id }).then((res) => {
+      //   this.$q.dialog({
+      //     title: '提示',
+      //     message: res.data ? '当前测试用例正在运行' : '当前测试用例为停止状态'
+      //   })
+      //   this.$q.loading.hide()
+      // })
     },
     //查看master日志
     lookMasterLog () {

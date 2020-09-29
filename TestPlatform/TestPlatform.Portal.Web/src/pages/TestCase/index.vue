@@ -373,6 +373,7 @@ export default {
     },
     //关闭运行选择模式界面
     closeRunModel () {
+      this.selected = [];
       this.getTestCaseList(1, this.SelectLocation.id);
     },
     //查看主机日志

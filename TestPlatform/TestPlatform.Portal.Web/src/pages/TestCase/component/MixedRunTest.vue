@@ -33,6 +33,7 @@
                  :key="index">
               <q-input v-model="value.executionTime"
                        outlined
+                       :disable="runBtnDisable"
                        class="col-10"
                        :dense="true"
                        placeholder="请输入测试用例开始运行的延迟秒数"
@@ -92,6 +93,7 @@
           <q-btn flat
                  label="关闭"
                  color="primary"
+                 :disable="runBtnDisable"
                  @click="runCancelTestCase" />
           <q-btn flat
                  label="运行"
@@ -163,8 +165,10 @@ export default {
       // --------------------------------- 运行 --------------------------
       runBtnDisable: false,//当前是否在运行
       runFixed: false,//运行执行逻辑框
+      stopRunFlag: false,//全部停止按钮Flag
       runModel: 'parallel',//运行模式
-      runModelArray: [],//运行模式数组
+      runModelArray: [],//并行运行模式数组
+      runOrderTimerArray: [],//并行运行模式定时器数组
       runOrderArray: [],//顺序运行模式数组
       runResults: [],//运行结果数组
     }
@@ -203,7 +207,7 @@ export default {
     isSlaveHost () {
       this.$q.loading.show();
       let runArray = [];
-      //判断是否有正在运行的测试用例
+      //------------------------------- 判断是否有正在运行的测试用例 ------------------------------- 
       for (let i = 0; i < this.selected.length; i++) {
         if (this.selected[i].status == '正在运行') {
           runArray.push(this.selected[i].name)
@@ -219,7 +223,36 @@ export default {
         this.$q.loading.hide();
         return;
       }
-      //判断当前选择的测试用例下是否有从主机
+
+      //-------------------------------  判断当前选择的测试用例端口号是否重复 ------------------------------- 
+      let rechecking = [];
+      for (var i = 0; i < this.selected.length; i++) {
+        for (var j = i + 1; j < this.selected.length; j++) {
+          if (JSON.parse(this.selected[i]['configuration']).Port === JSON.parse(this.selected[j]['configuration']).Port) {
+            rechecking.push(this.selected[i].name);
+            rechecking.push(this.selected[j].name);
+          }
+        }
+      }
+      rechecking = unique(rechecking);
+      if (rechecking.length != 0) {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: `当前测试用例${rechecking.join('，')}端口号重复，请修改或者重新选择。`,
+          color: 'red',
+        })
+        this.$q.loading.hide();
+        return;
+      }
+      //数组去重
+      function unique (arr) {
+        const res = new Map();
+        return arr.filter((a) => !res.has(a) && res.set(a, 1))
+      }
+
+
+      //------------------------------- 判断当前选择的测试用例下是否有从主机 ------------------------------- 
       for (let i = 0; i < this.selected.length; i++) {
         this.getSlaveHostsList(this.selected[i].id, (flag) => {
           if (flag) { runArray.push(this.selected[i].name) }
@@ -278,10 +311,20 @@ export default {
       this.runModelArray = [];
       this.runResults = [];
       this.runOrderArray = [];
+      this.selected = [];
       this.$parent.closeRunModel();
     },
     //运行全部停止
     runAllStop () {
+      if (this.stopRunFlag) {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '当前测试用例正在停止中',
+          color: 'secondary',
+        })
+        return;
+      }
       //判断是并行模式还是顺序模式
       let _this = this;
       let stopArr = []//停止的测试用例
@@ -308,7 +351,6 @@ export default {
           runStatus: '开始停止',
           date: _this.nowTime()
         })
-        this.StopRunFlag = true;
         stop();
       } else {
         this.$q.notify({
@@ -318,14 +360,26 @@ export default {
           color: 'secondary',
         })
       }
+
+
+
       //停止测试用例
       function stop () {
+        if (_this.runModel == 'parallel') {
+          console.log(_this.runOrderTimerArray)
+          _this.runOrderTimerArray.map(item => { clearTimeout(item) });
+        }
+        _this.stopRunFlag = true;
         if (stopArrnum == stopArr.length) {
           _this.runResults.push({
             name: '当前所有正在运行的测试用例',
             runStatus: '已停止运行',
             date: _this.nowTime()
           })
+          if (_this.runModel == 'parallel') {
+            _this.stopRunFlag = false;
+            _this.runBtnDisable = false;
+          }
           return;
         }
         let para = `?caseId=${stopArr[stopArrnum].id}`
@@ -333,6 +387,15 @@ export default {
           console.log(res)
           stopArrnum++;
           stop();
+        }).catch(err => {
+          //判断当前是否没有停止成功
+          if (String(err).indexOf('500') == -1) {
+            Apis.postTestCaseStop(para).then((res) => {
+              console.log(res)
+              stopArrnum++;
+              stop();
+            })
+          }
         })
       }
 
@@ -341,7 +404,7 @@ export default {
     //并行模式运行
     ParallelExecution () {
       for (let i = 0; i < this.runModelArray.length; i++) {
-        setTimeout(() => {
+        let timer = setTimeout(() => {
           let para = `?caseId=${this.runModelArray[i].id}`
           Apis.postTestCaseRun(para).then((res) => {
             console.log(res)
@@ -355,14 +418,45 @@ export default {
             this.getParallelRunStatus(i);
           }).catch(err => {
             console.log(err)
-            this.$set(this.runModelArray[i], 'runStatus', '运行失败')
-            this.runResults.push({
-              name: this.runModelArray[i].name,
-              runStatus: '运行失败',
-              date: this.nowTime()
-            })
+            //判断当前是否没运行起来
+            if (String(err).indexOf('500') == -1) {
+              console.log('`当前测试用例${this.runModelArray[i].name}没有启动成功，正在重新启动`');
+              Apis.postTestCaseRun(para).then((res) => {
+                console.log(res)
+                this.$set(this.runModelArray[i], 'runStatus', '正在运行')
+                console.log(this.runModelArray[i])
+                this.runResults.push({
+                  name: this.runModelArray[i].name,
+                  runStatus: '正在运行',
+                  date: this.nowTime()
+                })
+                this.getParallelRunStatus(i);
+              }).catch(err => {
+                console.log(err, `当前测试用例${this.runModelArray[i].name}启动又一次失败`);
+                this.$set(this.runModelArray[i], 'runStatus', '运行失败')
+                this.runResults.push({
+                  name: this.runModelArray[i].name,
+                  runStatus: '运行失败',
+                  date: this.nowTime()
+                })
+              })
+              this.$set(this.runModelArray[i], 'runStatus', '运行失败')
+              this.runResults.push({
+                name: this.runModelArray[i].name,
+                runStatus: '运行失败',
+                date: this.nowTime()
+              })
+            } else {
+              this.$set(this.runModelArray[i], 'runStatus', '运行失败')
+              this.runResults.push({
+                name: this.runModelArray[i].name,
+                runStatus: '运行失败',
+                date: this.nowTime()
+              })
+            }
           })
         }, this.runModelArray[i].executionTime * 1000);
+        this.runOrderTimerArray.push(timer)
       }
     },
     //正则验证并行运行测试用例是否正确
@@ -396,6 +490,15 @@ export default {
             runStatus: '运行结束',
             date: this.nowTime()
           })
+          //如果全部执行完成则打开按钮的点击
+          let IsItAllRunning = false;
+          for (let i = 0; i < this.runModelArray.length; i++) {
+            if (this.runModelArray[i].runStatus == '没有运行' || this.runModelArray[i].runStatus == '正在运行') {
+              IsItAllRunning = true;
+              break;
+            }
+          }
+          if (!IsItAllRunning) { this.runBtnDisable = false; }
         }
       })
     },
@@ -409,6 +512,7 @@ export default {
           runStatus: '运行完毕',
           date: this.nowTime()
         })
+        this.runBtnDisable = false;
         return;
       }
       let para = `?caseId=${this.runOrderArray[index].id}`
@@ -450,6 +554,11 @@ export default {
             runStatus: '运行结束',
             date: this.nowTime()
           })
+          if (this.stopRunFlag) {
+            this.runBtnDisable = false;
+            this.stopRunFlag = false;
+            return;
+          }
           this.OrderRun(index += 1)
         }
       })
