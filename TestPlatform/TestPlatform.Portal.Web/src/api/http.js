@@ -51,9 +51,12 @@ Axios.interceptors.response.use(
     }
   },
   err => {
+    console.log(err)
     let errMsg = '网络错误'
     if (err.response && err.response.status === 500) {
       if (err.response.data.Message) {
+        errMsg = err;
+        console.log(errMsg)
         Vue.prototype.$q.notify({
           position: 'top',
           message: '提示',
@@ -63,7 +66,6 @@ Axios.interceptors.response.use(
         setTimeout(() => {
           Vue.prototype.$q.loading.hide()
         }, 2000)
-        errMsg = err.response.data.Message
       }
     } else if (err.response && err.response.status) {
       errMsg = HTTP_STATUS[err.response.status] // 返回各种状态的状态码
