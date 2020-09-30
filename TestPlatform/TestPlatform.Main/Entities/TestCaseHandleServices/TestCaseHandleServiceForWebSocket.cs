@@ -127,7 +127,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             int port = this.GetPort(configuration);
 
             //执行主机查进程命令
-            var result =await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep {port.ToString()} | grep -v grep | awk '{{print $2}}'",10, cancellationToken);
+            var result =await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep master-bind-port | grep {port.ToString()} | grep -v grep | awk '{{print $2}}'",10, cancellationToken);
             if (string.IsNullOrEmpty(result))
             {
                 return false;
@@ -139,7 +139,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         public async Task Run(TestCase tCase, CancellationToken cancellationToken = default)
         {
             var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
-
 
             var scriptTemplate=await _scriptTemplateRepository.QueryByName(ScriptTemplateNames.LocustWebSocket, cancellationToken);
             
@@ -187,8 +186,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             //将Tcp停止前初始化脚本配置加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.StopInit, configuration.StopInit);
 
-
-
             //为DataSourceVars补充Data属性
 
             await ParallelHelper.ForEach(configuration.DataSourceVars, 10,
@@ -225,9 +222,13 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             strCode = strCode.Replace("{IsPrintLog}", configuration.IsPrintLog ? "True" : "False");
             strCode = strCode.Replace("{SyncType}", configuration.SyncType ? "True" : "False");
 
-            //代码模板必须有一个格式为{SlaveName}的替换符，该替换符标识每个Slave
-
             string path = this.GetTestFilePath(configuration);
+
+            #region 检查主机端口是否被占用，并强制终止
+            await this.Stop(tCase, cancellationToken);
+            #endregion
+
+            //代码模板必须有一个格式为{SlaveName}的替换符，该替换符标识每个Slave
 
             //获取测试用例的主测试机，上传测试代码
             using (var textStream=new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}", "Master"))))
@@ -371,12 +372,12 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             int port = this.GetPort(configuration);
 
             //执行主机杀进程命令
-            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10,cancellationToken);
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep master-bind-port | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10,cancellationToken);
             //执行slave杀进程命令
             var slaveHosts = tCase.GetAllSlaveHosts(cancellationToken);
             await foreach(var item in slaveHosts)
             {
-               await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10,cancellationToken);
+               await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep master-port | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10,cancellationToken);
             }
         }
 
