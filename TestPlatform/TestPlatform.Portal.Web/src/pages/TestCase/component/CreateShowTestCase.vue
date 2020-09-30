@@ -590,9 +590,9 @@ export default {
           Duration: configuration.Duration || '',//压测时间
           ResponseSeparator: configuration.ResponseSeparator || '',//结束分隔符
           DataSourceVars: configuration.DataSourceVars || [],//数据源
-          LocustMasterBindPort: configuration.LocustMasterBindPort || 15557,//数据源
+          LocustMasterBindPort: configuration.LocustMasterBindPort || '',//数据源
           IsPrintLog: configuration.IsPrintLog == true ? '是' : '否',//是否打印日志
-          SyncType: configuration.SyncType == false ? '异步模式' : '同步模式',//是否同步异步
+          SyncType: configuration.SyncType == false ? '异步模式' : '同步模式',//是否同步异步 
           ConnectInit: configuration.ConnectInit || { VarSettings: [] },//连接初始化
           SendInit: configuration.SendInit || { VarSettings: [] },//发送初始化
           StopInit: configuration.StopInit || { VarSettings: [] }//停止初始化
@@ -749,7 +749,7 @@ export default {
       }
       console.log(para)
       //判断基础参数是否选择
-      if (this.Name && this.isJSON(this.Configuration) && this.EngineType && this.MasterHostID) {
+      if (this.Name && this.isJSON(this.Configuration) && this.EngineType && this.MasterHostID && JSON.parse(this.Configuration).LocustMasterBindPort) {
         return para
       } else {
         if (this.Name == '') {
@@ -771,6 +771,13 @@ export default {
             position: 'top',
             message: '提示',
             caption: '请选择主机',
+            color: 'red',
+          })
+        } else if (!JSON.parse(this.Configuration).LocustMasterBindPort) {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '请填写并生成主机端口',
             color: 'red',
           })
         }

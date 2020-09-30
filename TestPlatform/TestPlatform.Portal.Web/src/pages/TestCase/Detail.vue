@@ -21,7 +21,7 @@
              color="primary"
              label="运 行"
              :disable="isNoRun!=1?false:true"
-             @click="run" />
+             @click="isSlaveHost" />
       <q-btn class="btn"
              color="primary"
              label="停 止"
@@ -289,6 +289,42 @@ export default {
           caption: '停止成功',
           color: 'secondary',
         })
+      })
+    },
+    //判断当前测试用例是否有从主机
+    isSlaveHost () {
+      this.$q.loading.show()
+      Apis.getSlaveHostsList({ caseId: this.$route.query.id }).then((res) => {
+        if (res.data.length == 0) {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: `当前测试用例下没有从主机，请添加从主机再进行运行。`,
+            color: 'red',
+          })
+          this.$q.loading.hide();
+        } else {
+          this.isHostPortRun();
+        }
+      })
+    },
+    //当前选择的主机端口是否正在运行
+    isHostPortRun () {
+      let selectId = [this.$route.query.id];
+      let para = { singleArray: selectId };
+      Apis.postQueryHostPorts(para).then((res) => {
+        console.log(res)
+        if (!res.data[0].isAvailable) {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: `当前测试用例的主机端口号已被其他正在运行的测试用例使用。`,
+            color: 'red',
+          })
+          this.$q.loading.hide();
+        } else {
+          this.run();
+        }
       })
     },
     //-------------------------------------------- 查看当前测试用例状态和日志 --------------------------------------

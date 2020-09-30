@@ -475,6 +475,15 @@ export const getTreeEntityTreePath = payload =>
   })
 
 
+//判断当前主机端口号是否正在被使用
+export const postQueryHostPorts = payload =>
+  action({
+    apiName: 'postQueryHostPorts',
+    payload
+  })
+
+
+
 
 
 

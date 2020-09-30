@@ -54,6 +54,8 @@ const apiConstants = {
 
   postHistoryUpdateGatewayDataFormat: 'api/testcase/updatenetgatewaydataformat',//保存网关数据格式
 
+  postQueryHostPorts: 'api/testcase/queryhostports',//判断当前主机端口号是否正在被使用
+
   // ---------------------------------------- TestDataSource -------------------------------------------------------
   getTestDataSource: 'api/testdatasource/querybypage',//获得TestDataSource
 

@@ -66,6 +66,7 @@ Axios.interceptors.response.use(
         setTimeout(() => {
           Vue.prototype.$q.loading.hide()
         }, 2000)
+        errMsg = err.response.status
       }
     } else if (err.response && err.response.status) {
       errMsg = HTTP_STATUS[err.response.status] // 返回各种状态的状态码
@@ -88,7 +89,7 @@ export const fetch = (url, payload) => {
     })
 }
 export const post = (url, payload) => {
-  return Axios.post(url, payload)
+  return Axios.post(url, payload.singleArray ? payload.singleArray : payload)
     .then(res => {
       return Promise.resolve(res)
     })
