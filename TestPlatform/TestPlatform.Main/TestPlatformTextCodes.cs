@@ -278,7 +278,11 @@ namespace FW.TestPlatform.Main
         /// {1}：发生的位置
         /// </summary>
         public const string NotFoundEntityTreeCopyServiceByType = "NotFoundEntityTreeCopyServiceByType";
-
-
+        /// <summary>
+        /// 指定的测试主机端口已经被其它测试案例执行
+        /// 格式为“名称为{0}的测试案例主机端口已经被其它测试案例执行”
+        /// {0}:测试案例名称
+        /// </summary>
+        public const string TestHostPortIsUsed = "TestHostPortIsUsed";
     }
 }

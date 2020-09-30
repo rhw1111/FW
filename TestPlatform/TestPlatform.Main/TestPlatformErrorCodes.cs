@@ -166,5 +166,9 @@ namespace FW.TestPlatform.Main
         /// 找不到指定类型的实体树复制服务
         /// </summary>
         NotFoundEntityTreeCopyServiceByType= 325710224,
+        /// <summary>
+        /// 指定的测试主机已经被执行
+        /// </summary>
+        TestHostPortIsUsed = 325710225
     }
 }

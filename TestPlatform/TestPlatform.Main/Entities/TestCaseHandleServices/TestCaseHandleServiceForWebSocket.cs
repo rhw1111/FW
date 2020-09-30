@@ -17,6 +17,7 @@ using FW.TestPlatform.Main.Template.LabelParameterHandlers;
 using FW.TestPlatform.Main.Configuration;
 using System.Text.RegularExpressions;
 using MSLibrary.CommandLine;
+using FW.TestPlatform.Main.Entities.DAL;
 
 namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 {
@@ -33,6 +34,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         private readonly IScriptTemplateRepository _scriptTemplateRepository;
         private readonly ISSHEndpointRepository _sshEndpointRepository;
         private readonly ISystemConfigurationService _systemConfigurationService;
+        private readonly ITestCaseStore _testCaseStore;
 
 
         /// <summary>
@@ -41,12 +43,13 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         /// </summary>
         public static IList<string> AdditionFuncNames { get; set; } = new List<string>();
 
-        public TestCaseHandleServiceForWebSocket(ITestDataSourceRepository testDataSourceRepository, IScriptTemplateRepository scriptTemplateRepository, ISSHEndpointRepository sshEndpointRepository, ISystemConfigurationService systemConfigurationService)
+        public TestCaseHandleServiceForWebSocket(ITestDataSourceRepository testDataSourceRepository, IScriptTemplateRepository scriptTemplateRepository, ISSHEndpointRepository sshEndpointRepository, ISystemConfigurationService systemConfigurationService, ITestCaseStore testCaseStore)
         {
             _testDataSourceRepository = testDataSourceRepository;
             _scriptTemplateRepository = scriptTemplateRepository;
             _sshEndpointRepository = sshEndpointRepository;
             _systemConfigurationService = systemConfigurationService;
+            _testCaseStore = testCaseStore;
         }
 
         public async Task<string> GetMasterLog(TestCase tCase, TestHost host, CancellationToken cancellationToken = default)
@@ -127,7 +130,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             int port = this.GetPort(configuration);
 
             //执行主机查进程命令
-            var result =await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep {port.ToString()} | grep -v grep | awk '{{print $2}}'",10, cancellationToken);
+            var result =await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep master-bind-port | grep {port.ToString()} | grep -v grep | awk '{{print $2}}'",10, cancellationToken);
             if (string.IsNullOrEmpty(result))
             {
                 return false;
@@ -138,8 +141,18 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task Run(TestCase tCase, CancellationToken cancellationToken = default)
         {
+            bool isAvailabel = await StatusCheck(tCase, cancellationToken);
+            if (!isAvailabel)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.TestHostHasRunning,
+                    DefaultFormatting = "名称为{0}的测试主机端口已经被其它运行的测试用例使用",
+                    ReplaceParameters = new List<object>() { tCase.Name }
+                };
+                throw new UtilityException((int)TestPlatformErrorCodes.TestHostPortIsUsed, fragment, 1, 0);
+            }
             var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
-
 
             var scriptTemplate=await _scriptTemplateRepository.QueryByName(ScriptTemplateNames.LocustWebSocket, cancellationToken);
             
@@ -187,8 +200,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             //将Tcp停止前初始化脚本配置加入到模板上下文中
             contextDict.Add(TemplateContextParameterNames.StopInit, configuration.StopInit);
 
-
-
             //为DataSourceVars补充Data属性
 
             await ParallelHelper.ForEach(configuration.DataSourceVars, 10,
@@ -225,9 +236,13 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             strCode = strCode.Replace("{IsPrintLog}", configuration.IsPrintLog ? "True" : "False");
             strCode = strCode.Replace("{SyncType}", configuration.SyncType ? "True" : "False");
 
-            //代码模板必须有一个格式为{SlaveName}的替换符，该替换符标识每个Slave
-
             string path = this.GetTestFilePath(configuration);
+
+            #region 检查主机端口是否被占用，并强制终止
+            await this.Stop(tCase, cancellationToken);
+            #endregion
+
+            //代码模板必须有一个格式为{SlaveName}的替换符，该替换符标识每个Slave
 
             //获取测试用例的主测试机，上传测试代码
             using (var textStream=new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode.Replace("{SlaveName}", "Master"))))
@@ -371,12 +386,12 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             int port = this.GetPort(configuration);
 
             //执行主机杀进程命令
-            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10,cancellationToken);
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep master-bind-port | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10,cancellationToken);
             //执行slave杀进程命令
             var slaveHosts = tCase.GetAllSlaveHosts(cancellationToken);
             await foreach(var item in slaveHosts)
             {
-               await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10,cancellationToken);
+               await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep master-port | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10,cancellationToken);
             }
         }
 
@@ -409,6 +424,27 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             }
 
             return locustMasterBindPort;
+        }
+
+        public async Task<bool> StatusCheck(TestCase tCase, CancellationToken cancellationToken = default)
+        {
+            bool isAvailabel = true;
+            var existsCases = await _testCaseStore.QueryCountNolockByStatus(TestCaseStatus.Running, new List<Guid>() { tCase.MasterHostID }, cancellationToken);
+            if (existsCases.Count >= 1)
+            {
+                var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
+
+                foreach (TestCase exiestedCase in existsCases)
+                {
+                    var existedConfiguration = JsonSerializerHelper.Deserialize<ConfigurationData>(exiestedCase.Configuration);
+                    if (existedConfiguration.LocustMasterBindPort == configuration.LocustMasterBindPort)
+                    {
+                        isAvailabel = false;
+                        break;
+                    }
+                }
+            }
+            return isAvailabel;
         }
         #endregion
     }
