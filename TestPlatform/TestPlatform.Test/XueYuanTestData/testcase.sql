@@ -1,8 +1,13 @@
 SELECT * FROM tpmain.testcase;
-SELECT id, name FROM tpmain.testcase;
+SELECT id, masterhostid, ownerid, enginetype, name, status, createtime, modifytime, sequence, testcasehistoryid, treeid FROM tpmain.testcase
+WHERE name LIKE '%XueYuan%';
+
+SELECT sequence FROM tpmain.testcase;
+SELECT * FROM tpmain.testcase
+WHERE id = 'ce514456-8da9-432f-8999-1010fa94a83a';
 
 REPLACE INTO tpmain.testcase
-VALUES('ce514456-8da9-432f-8999-1010fa94a83a', '822114cf-5277-4667-961f-e231f9e67e4d', '46f8bcca-af6e-11ea-8e6a-0242ac110002', 'Tcp', 'XueYuanTest', '', '0', now(), now(), '1');
+VALUES('ce514456-8da9-432f-8999-1010fa94a83a', '822114cf-5277-4667-961f-e231f9e67e4d', '46f8bcca-af6e-11ea-8e6a-0242ac110002', 'Tcp', 'XueYuanTest', '', '0', now(), now(), '1', null, '685f201e-2182-438e-905f-9a7c10a2d95f');
 
 UPDATE tpmain.testcase
 SET status = '0'
