@@ -44,11 +44,13 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppUpdateNetGatewayDataFormat _appUpdateNetGatewayDataFormat;
         private readonly IAppCheckNetGatewayDataAnalysisStatus _appCheckNetGatewayDataAnalysisStatus;
         private readonly IAppGetNetGatewayDataFormatTypes _appGetNetGatewayDataFormatTypes;
+        private readonly IAppQueryTestCaseHostPorts _appQueryTestCaseHostPorts;
         public TestCaseController(IAppQueryTestCase appQueryTestCase, IAppAddTestCase appAddTestCase, IAppQuerySingleTestCase appQuerySingleTestCase, IAppUpdateTestCase appUpdateTestCase,
             IAppDeleteTestCase appDeleteTestCase, IAppRunTestCase appRunTestCase, IAppStopTestCase appStopTestCase, IAppCheckTestCaseStatus appCheckTestCaseStatus, IAppAddSlaveHost appAddSlaveHost,
             IAppQueryMasterLog appQueryMasterLog, IAppQuerySlaveLog appQuerySlaveLog, IAppQuerySlaveHost appQuerySlaveHost, IAppQueryTestCaseHistory appQueryTestCaseHistory, IAppQuerySingleTestCaseHistory appQuerySingleTestCaseHistory, IAppUpdateSlaveHost appUpdateSlaveHost,
             IAppDeleteTestCaseHistory appDeleteTestCaseHistory, IAppDeleteSlaveHost appDeleteSlaveHost, IAppDeleteHistories appDeleteHistories, IAppDeleteSlaveHosts appDeleteSlaveHosts, IAppQueryTestCaseStatus appQueryTestCaseStatus, IAppQueryHistoriesByIds appQueryHistoriesByIds,
-            IAppTransferNetGatewayDataFile appTransferNetGatewayDataFile, IAppUpdateNetGatewayDataFormat appUpdateNetGatewayDataFormat, IAppCheckNetGatewayDataAnalysisStatus appCheckNetGatewayDataAnalysisStatus, IAppGetNetGatewayDataFormatTypes appGetNetGatewayDataFormatTypes)
+            IAppTransferNetGatewayDataFile appTransferNetGatewayDataFile, IAppUpdateNetGatewayDataFormat appUpdateNetGatewayDataFormat, IAppCheckNetGatewayDataAnalysisStatus appCheckNetGatewayDataAnalysisStatus, IAppGetNetGatewayDataFormatTypes appGetNetGatewayDataFormatTypes,
+            IAppQueryTestCaseHostPorts appQueryTestCaseHostPorts)
         {
             _appQueryTestCase = appQueryTestCase;
             _appAddTestCase = appAddTestCase;
@@ -75,6 +77,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _appUpdateNetGatewayDataFormat = appUpdateNetGatewayDataFormat;
             _appCheckNetGatewayDataAnalysisStatus = appCheckNetGatewayDataAnalysisStatus;
             _appGetNetGatewayDataFormatTypes = appGetNetGatewayDataFormatTypes;
+            _appQueryTestCaseHostPorts = appQueryTestCaseHostPorts;
         }
         //查询增加修改执行TestCase
         [HttpGet("querybypage")]
@@ -244,6 +247,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         public List<string> GetNetGatewayDataFormatTypes()
         {
             return _appGetNetGatewayDataFormatTypes.Do();
+        }
+
+        [HttpPost("queryhostports")]
+        public Task<List<TestCaseHostPortCheckModel>> QueryTestCastHostPorts(List<Guid> ids)
+        {
+            return _appQueryTestCaseHostPorts.Do(ids);
         }
     }
 }

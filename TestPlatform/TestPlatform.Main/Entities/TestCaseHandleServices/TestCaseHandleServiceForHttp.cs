@@ -15,6 +15,7 @@ using MSLibrary.CommandLine.SSH;
 using FW.TestPlatform.Main.Configuration;
 using MSLibrary.Thread;
 using MSLibrary.CommandLine;
+using FW.TestPlatform.Main.Entities.DAL;
 
 namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 {
@@ -31,6 +32,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         private readonly IScriptTemplateRepository _scriptTemplateRepository;
         private readonly ISSHEndpointRepository _sshEndpointRepository;
         private readonly ISystemConfigurationService _systemConfigurationService;
+        private readonly ITestCaseStore _testCaseStore;
 
         /// <summary>
         /// 要使用的附加函数名称集合
@@ -38,12 +40,13 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         /// </summary>
         public static IList<string> AdditionFuncNames { get; set; } = new List<string>();
 
-        public TestCaseHandleServiceForHttp(ITestDataSourceRepository testDataSourceRepository, IScriptTemplateRepository scriptTemplateRepository, ISSHEndpointRepository sshEndpointRepository, ISystemConfigurationService systemConfigurationService)
+        public TestCaseHandleServiceForHttp(ITestDataSourceRepository testDataSourceRepository, IScriptTemplateRepository scriptTemplateRepository, ISSHEndpointRepository sshEndpointRepository, ISystemConfigurationService systemConfigurationService, ITestCaseStore testCaseStore)
         {
             _testDataSourceRepository = testDataSourceRepository;
             _scriptTemplateRepository = scriptTemplateRepository;
             _sshEndpointRepository = sshEndpointRepository;
             _systemConfigurationService = systemConfigurationService;
+            _testCaseStore = testCaseStore;
         }
 
         public async Task<string> GetMasterLog(TestCase tCase, TestHost host, CancellationToken cancellationToken = default)
@@ -135,6 +138,17 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task Run(TestCase tCase, CancellationToken cancellationToken = default)
         {
+            bool isAvailabel = await StatusCheck(tCase, cancellationToken);
+            if (!isAvailabel)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = TestPlatformTextCodes.TestHostHasRunning,
+                    DefaultFormatting = "名称为{0}的测试主机端口已经被其它运行的测试用例使用",
+                    ReplaceParameters = new List<object>() { tCase.Name }
+                };
+                throw new UtilityException((int)TestPlatformErrorCodes.TestHostPortIsUsed, fragment, 1, 0);
+            }
             var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
 
 
@@ -406,6 +420,27 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             }
 
             return locustMasterBindPort;
+        }
+
+        public async Task<bool> StatusCheck(TestCase tCase, CancellationToken cancellationToken = default)
+        {
+            bool isAvailabel = true;
+            var existsCases = await _testCaseStore.QueryCountNolockByStatus(TestCaseStatus.Running, new List<Guid>() { tCase.MasterHostID}, cancellationToken);
+            if (existsCases.Count >= 1)
+            {
+                var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
+                
+                foreach (TestCase exiestedCase in existsCases)
+                {
+                    var existedConfiguration = JsonSerializerHelper.Deserialize<ConfigurationData>(exiestedCase.Configuration);
+                    if (existedConfiguration.LocustMasterBindPort == configuration.LocustMasterBindPort)
+                    {
+                        isAvailabel = false;
+                        break;
+                    }
+                }
+            }
+            return isAvailabel;
         }
         #endregion
     }
