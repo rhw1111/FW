@@ -361,6 +361,11 @@ namespace FW.TestPlatform.Main.NetGateway
                                                          group item by item.Value.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") into g
                                                          select new { g.Key, Total = g.Count() };
 
+                                    if (calculateDatas != null)
+                                    {
+                                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} {fileName} QPS.Count = {calculateDatas.Count()}.");
+                                    }
+
                                     foreach (var row in calculateDatas)
                                     {
                                         var qps = row.Total;
@@ -435,15 +440,17 @@ namespace FW.TestPlatform.Main.NetGateway
                                                                  group item by item.Value.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") into g
                                                                  select new
                                                                  {
-                                                                     g.Key,
-                                                                     Total = g.Count()
-                                                                    ,
-                                                                     AvgDuration = g.Average(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
-                                                                    ,
-                                                                     MaxDuration = g.Max(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
-                                                                    ,
-                                                                     MinDuration = g.Min(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
+                                                                     g.Key
+                                                                     , Total = g.Count()
+                                                                     , AvgDuration = g.Average(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
+                                                                     , MaxDuration = g.Max(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
+                                                                     , MinDuration = g.Min(g => (g.Value.Response!.CreateTime - g.Value.Request!.CreateTime).TotalMilliseconds)
                                                                  };
+
+                                    if (calculateResponseDatas != null)
+                                    {
+                                        LoggerHelper.LogInformation($"{applicationConfiguration.ApplicationName}", $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")}] {nameof(NetGatewayDataHandleService)} {fileName} Duration.Count = {calculateResponseDatas.Count()}.");
+                                    }
 
                                     foreach (var row in calculateResponseDatas)
                                     {
@@ -462,24 +469,32 @@ namespace FW.TestPlatform.Main.NetGateway
                                     #endregion
 
                                     #region Total
-                                    //DateTime time = times.Max();
-                                    //int count = counts.Sum();
-                                    //double avgQPS = avgQPSs.Average();
-                                    //double avgDuration = avgDurations.Average();
-                                    //double maxDuration = maxDurations.Max();
-                                    //double minDuration = minDurations.Min();
+                                    DateTime time = DateTime.Now;
+                                    int count = 0;
+                                    double avgQPS = 0;
+                                    double avgDuration = 0;
+                                    double maxDuration = 0;
+                                    double minDuration = 0;
 
-                                    if (containerDatas.Count > 0 && calculateDatas.Count() > 0 && calculateResponseDatas.Count() > 0)
+                                    if (containerDatas != null && containerDatas.Count > 0)
                                     {
-                                        DateTime time = Convert.ToDateTime(calculateDatas.Max(g => g.Key));
-                                        int count = containerDatas.Count();
-                                        double avgQPS = calculateDatas.Average(g => g.Total);
-                                        double avgDuration = calculateResponseDatas.Average(g => g.AvgDuration);
-                                        double maxDuration = calculateResponseDatas.Max(g => g.MaxDuration);
-                                        double minDuration = calculateResponseDatas.Min(g => g.MinDuration);
-
-                                        await _totalCollectService.Collect(prefix, count, minDuration, maxDuration, avgDuration, avgQPS, time, cancellationToken);
+                                        count = containerDatas.Count();
                                     }
+
+                                    if (calculateDatas != null && calculateDatas.Count() > 0)
+                                    {
+                                        time = Convert.ToDateTime(calculateDatas.Max(g => g.Key));
+                                        avgQPS = calculateDatas.Average(g => g.Total);
+                                    }
+
+                                    if (calculateResponseDatas != null && calculateResponseDatas.Count() > 0)
+                                    {
+                                        avgDuration = calculateResponseDatas.Average(g => g.AvgDuration);
+                                        maxDuration = calculateResponseDatas.Max(g => g.MaxDuration);
+                                        minDuration = calculateResponseDatas.Min(g => g.MinDuration);
+                                    }
+
+                                    await _totalCollectService.Collect(prefix, count, minDuration, maxDuration, avgDuration, avgQPS, time, cancellationToken);
                                     #endregion
 
                                     #region 处理只有request的数据
