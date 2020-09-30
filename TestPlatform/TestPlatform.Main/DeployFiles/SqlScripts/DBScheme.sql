@@ -68,7 +68,8 @@ REPLACE INTO `systemconfiguration` (`id`, `name`, `content`, `createtime`, `modi
 	('2316b30b-bcdb-11ea-813c-025041000001', 'TestHistoryMonitorAddress', '"http://52.188.14.158:3000/d/VQG1ohSGz/test-case-history-monitor?orgId=1"', now(), now(), 9),
 	('a41d654c-ddf6-11ea-8205-025041000001', 'NetGatewayDataFolder', '"/home/TPUser/NetGateway"', now(), now(), 10),
 	('b191b7a1-ddf6-11ea-8205-025041000001', 'NetGatewayDataTempFolder', '"/home/TPUser/TempNetGateway"', now(), now(), 11),
-	('b9c6b7e8-ddf6-11ea-8205-025041000001', 'NetGatewayDataSSHEndpoint', '"NetGatewayDataSSHEndpoint"', now(), now(), 12);
+	('b9c6b7e8-ddf6-11ea-8205-025041000001', 'NetGatewayDataSSHEndpoint', '"NetGatewayDataSSHEndpoint"', now(), now(), 12),
+	('cf066891-02f1-11eb-8d3b-025041000001', 'WebSocket_TestMonitorAddress', '"http://52.188.14.158:3000/d/kr5bLGMMz/test-case-monitor?orgId=1"', now(), now(), 13),;
 /*!40000 ALTER TABLE `systemconfiguration` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `influxdbendpoint`;
