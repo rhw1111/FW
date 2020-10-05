@@ -64,6 +64,19 @@ namespace FW.TestPlatform.Main.Entities.EntityTreeCopyServices
                     await treeEntity.Add();
                     newCase.TreeID = treeEntity.ID;
                     await newCase.Add();
+                    var slaveHosts = testCase.GetAllSlaveHosts();
+                    await foreach (var item in slaveHosts)
+                    {
+                        TestCaseSlaveHost testCaseSlaveHost = new TestCaseSlaveHost()
+                        {
+                            SlaveName = item.SlaveName,
+                            ExtensionInfo = item.ExtensionInfo,
+                            HostID = item.HostID,
+                            TestCaseID = item.TestCaseID,
+                            Count = item.Count
+                        };
+                        await newCase.AddSlaveHost(testCaseSlaveHost);
+                    }
                     scope.Complete();
                 }
             }

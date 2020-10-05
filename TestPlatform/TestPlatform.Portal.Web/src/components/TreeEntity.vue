@@ -15,7 +15,7 @@
 import * as Apis from "@/api/index"
 export default {
   name: 'TreeEntity',
-  props: ['existingDirectories'],
+  props: ['existingDirectories', 'DirectoryLocation'],
   data () {
     return {
       //目录
@@ -38,7 +38,9 @@ export default {
     }
   },
   mounted () {
+    console.log(this.DirectoryLocation)
     this.DisablesSelectedDirectories = this.existingDirectories || [];
+    console.log(this.DisablesSelectedDirectories)
     this.getTreeEntityList();
   },
   methods: {
@@ -56,9 +58,8 @@ export default {
         console.log(res)
         let resultsArr = res.data.results;
         for (let i = 0; i < res.data.results.length; i++) {
-          console.log(res.data.results)
           for (let j = 0; j < this.DisablesSelectedDirectories.length; j++) {
-            if (this.DisablesSelectedDirectories[j].id == res.data.results[i].id) {
+            if (this.DisablesSelectedDirectories[j].parentID == res.data.results[i].id || this.DisablesSelectedDirectories[j].id == res.data.results[i].id) {
               resultsArr.splice(i, 1, '');
             }
           }
@@ -101,7 +102,7 @@ export default {
         for (let i = 0; i < res.data.results.length; i++) {
           console.log(res.data.results)
           for (let j = 0; j < this.DisablesSelectedDirectories.length; j++) {
-            if (this.DisablesSelectedDirectories[j].id == res.data.results[i].id) {
+            if (this.DisablesSelectedDirectories[j].parentID == res.data.results[i].id || this.DisablesSelectedDirectories[j].id == res.data.results[i].id) {
               resultsArr[i] = '';
               break;
             }
@@ -136,6 +137,10 @@ export default {
     //获得选择目录的位置
     getDirectoryLocation () {
       return this.SelectLocation;
+    },
+    //获得目录结构
+    getDirectoryStructure () {
+      return this.simple;
     }
   }
 }

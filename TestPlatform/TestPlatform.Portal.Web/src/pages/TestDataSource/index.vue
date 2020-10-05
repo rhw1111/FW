@@ -3,15 +3,15 @@
     <!-- TestDataSource列表 -->
     <div class="q-pa-md">
       <transition name="TreeEntity-slid">
-        <TreeEntity v-show="expanded"
-                    style="max-width:20%;height:600px;overflow:auto;float:left;"
+        <TreeEntity v-if="expanded"
+                    style="max-width:20%;height:100%;overflow:auto;float:left;"
                     @getDirectoryLocation="getDirectoryLocation" />
       </transition>
-      <div>
+      <div style="height:100%;">
         <q-btn color="grey"
                flat
                dense
-               style="width:2%;height:600px;float:left;"
+               style="width:2%;height:100%;float:left;"
                :icon="expanded ? 'keyboard_arrow_left' : 'keyboard_arrow_right'"
                @click="expanded = !expanded" />
         <q-table title="测试数据源列表"
@@ -21,7 +21,6 @@
                  :selected.sync="selected"
                  row-key="id"
                  :rows-per-page-options=[0]
-                 table-style="max-height: 500px"
                  no-data-label="暂无数据更新">
 
           <template v-slot:top-right>
@@ -69,7 +68,8 @@
         </q-card-section>
 
         <q-separator />
-        <CreatePut ref="createDataSource" />
+        <CreatePut ref="createDataSource"
+                   :currentDirectory="SelectLocation" />
 
         <q-separator />
 
@@ -154,16 +154,16 @@ export default {
         rowsNumber: 1     //总页数
       },
       //------------------------ 目录 -------------------------------
-      expanded: true,//目录展开收缩flag
+      expanded: false,//目录展开收缩flag
       SelectLocation: '',//选择目录的位置
     }
   },
   mounted () {
-    this.getTestDataSource();
+    this.getTestDataSource(1, null, true);
   },
   methods: {
     //获得TestDataSource列表
-    getTestDataSource (page, parentId) {
+    getTestDataSource (page, parentId, expandedBfalse) {
       this.$q.loading.show()
       let para = {
         parentId: parentId || null,
@@ -177,6 +177,11 @@ export default {
         this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
         this.TestDataSourceList = res.data.results;
         this.selected = [];
+        //后执行树状图组件
+        if (expandedBfalse) {
+          this.expanded = true;
+          return;
+        }
         this.$q.loading.hide();
       })
     },
@@ -195,7 +200,7 @@ export default {
           Type: data.type,
           Data: data.data,
           ChangeFileDirectoryName: data.parentName,
-          ChangeFileDirectoryId: data.treeID
+          ChangeFileDirectoryId: data.parentID
         }
         this.LookDataSourceFixed = true;
         this.$q.loading.hide()
@@ -221,7 +226,7 @@ export default {
       let para = this.$refs.createDataSource.newCreate()
       this.$q.loading.show()
       Apis.postCreateTestDataSource(para).then(() => {
-        this.getTestDataSource();
+        this.getTestDataSource(1, this.SelectLocation.id);
         this.createFixed = false;
         this.$q.notify({
           position: 'top',
@@ -250,7 +255,7 @@ export default {
       this.$q.loading.show()
       Apis.putTestDataSource(para).then((res) => {
         console.log(res)
-        this.getTestDataSource();
+        this.getTestDataSource(1, this.SelectLocation.id);
         this.$q.notify({
           position: 'top',
           message: '提示',
@@ -431,8 +436,9 @@ export default {
 
 <style lang="scss" scoped>
 .TestDataSource {
+  position: fixed;
   width: 100%;
-  overflow: hidden;
+  height: 100%;
   .TestDataSource_header {
     position: fixed;
     left: 0;
@@ -447,24 +453,14 @@ export default {
     }
   }
   .q-pa-md {
-    margin-top: 40px;
-  }
-  .q-table {
-    table-layout: fixed;
-    .cursor-pointer {
-      .text-left {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .q-table--col-auto-width {
-        width: 75px;
-      }
-    }
+    height: 100%;
   }
 }
 </style>
 <style lang="scss">
+.q-table__container {
+  height: 95%;
+}
 .q-table {
   .text-left {
     white-space: nowrap;

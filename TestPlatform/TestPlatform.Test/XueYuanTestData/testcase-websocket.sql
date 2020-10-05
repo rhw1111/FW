@@ -1,8 +1,13 @@
 SELECT * FROM tpmain.testcase;
-SELECT id, name, sequence FROM tpmain.testcase;
+SELECT id, masterhostid, ownerid, enginetype, name, status, createtime, modifytime, sequence, testcasehistoryid, treeid FROM tpmain.testcase;
 
 REPLACE INTO tpmain.testcase
-VALUES('82962da0-e83b-11ea-bf37-00ffb1d16cf9', '822114cf-5277-4667-961f-e231f9e67e4d', '46f8bcca-af6e-11ea-8e6a-0242ac110002', 'WebSocket', 'XueYuanTestWebSocket', '', '0', now(), now(), '3');
+VALUES('82962da0-e83b-11ea-bf37-00ffb1d16cf9', '822114cf-5277-4667-961f-e231f9e67e4d', '46f8bcca-af6e-11ea-8e6a-0242ac110002', 'WebSocket', 'XueYuanTestWebSocket', '', '0', now(), now(), '194', null, '11110f0a-02ee-11eb-94de-00ffb1d16cf9');
+
+#SELECT * FROM tpmain.treeentity;
+
+#REPLACE INTO tpmain.treeentity
+#VALUES('11110f0a-02ee-11eb-94de-00ffb1d16cf9', 'XueYuanTestWebSocket', '82962da0-e83b-11ea-bf37-00ffb1d16cf9', '2', '78b9de7c-2ce4-41ba-89ec-10dfd1bbdff0', now(), now(), '613');
 
 UPDATE tpmain.testcase
 SET status = '0'

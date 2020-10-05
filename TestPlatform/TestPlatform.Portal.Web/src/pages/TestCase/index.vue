@@ -4,17 +4,18 @@
     <div class="q-pa-md">
 
       <transition name="TreeEntity-slid">
-        <TreeEntity v-show="expanded"
-                    refs="TreeEntity"
-                    style="max-width:20%;height:600px;overflow:auto;float:left;"
-                    @getDirectoryLocation="getDirectoryLocation" />
+        <TreeEntity v-if="expanded"
+                    ref="TreeEntity"
+                    style="max-width:20%;height:100%;overflow:auto;float:left;"
+                    @getDirectoryLocation="getDirectoryLocation"
+                    :DirectoryLocation="DirectoryLocation" />
       </transition>
 
-      <div>
+      <div style="height:100%;">
         <q-btn color="grey"
                flat
                dense
-               style="width:2%;height:600px;float:left;"
+               style="width:2%;height:100%;float:left;"
                :icon="expanded ? 'keyboard_arrow_left' : 'keyboard_arrow_right'"
                @click="expanded = !expanded" />
 
@@ -25,14 +26,13 @@
                  selection="multiple"
                  :selected.sync="selected"
                  :rows-per-page-options=[0]
-                 table-style="max-height: 500px;"
                  no-data-label="暂无数据更新">
 
           <template v-slot:top-right>
             <q-btn class="btn"
                    color="primary"
                    label="运 行"
-                   @click="runTestCase" />
+                   @click="openRunModel" />
             <q-btn class="btn"
                    color="primary"
                    label="新 增"
@@ -81,6 +81,7 @@
         <q-separator />
 
         <CreateShowTestCase :masterHostList="masterHostList"
+                            :currentDirectory="SelectLocation"
                             ref="CSTestCase" />
 
         <q-separator />
@@ -98,6 +99,68 @@
       </q-card>
     </q-dialog>
 
+    <!-- 运行执行框 -->
+    <!-- <q-dialog v-model="runFixed"
+              position='left'
+              persistent>
+      <q-card style="width: 100%; max-width: 50vw;">
+        <q-card-section>
+          <div class="text-h6">请选择运行测试用例的模式</div>
+        </q-card-section>
+
+        <q-separator />
+        <div class="q-pa-md">
+          <q-radio v-model="runModel"
+                   val="parallel"
+                   label="并行模式" />
+          <q-radio v-model="runModel"
+                   val="sequential"
+                   label="顺序运行" />
+
+          <div v-show="runModel=='parallel'">
+
+            <div class="input_row row"
+                 style="margin-bottom:10px;width:100%;display:inlin-block;"
+                 v-for="(value,index) in runModelArray"
+                 :key="index">
+              <q-input v-model="value.executionTime"
+                       outlined
+                       class="col-8"
+                       :dense="true"
+                       placeholder="请输入测试用例开始运行的延迟秒数"
+                       @input="forceUpdate(value.executionTime,index)">
+                <template v-slot:before>
+                  <span style="font-size:14px;width:150px;word-wrap:break-word;">{{value.name}}:</span>
+                </template>
+                <template v-slot:append>
+                  <q-avatar>
+                    秒
+                  </q-avatar>
+                </template>
+              </q-input>
+
+            </div>
+
+          </div>
+        </div>
+        <q-separator />
+
+        <q-card-actions align="right">
+          <q-btn flat
+                 label="取消"
+                 color="primary"
+                 @click="runCancelTestCase" />
+          <q-btn flat
+                 label="运行"
+                 color="primary"
+                 @click="runTestCase" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog> -->
+
+    <MixedRunTest ref="MixedRunTest"
+                  :runFixedSH="runFixed"
+                  :selectedArr="selected" />
   </div>
 </template>
 
@@ -105,11 +168,13 @@
 import * as Apis from "@/api/index"
 import CreateShowTestCase from './component/CreateShowTestCase.vue' //新建测试用例参数
 import TreeEntity from "@/components/TreeEntity.vue"                //目录管理树状图
+import MixedRunTest from "./component/MixedRunTest.vue"             //混合场景测试
 export default {
   name: 'TestCase',
   components: {
     TreeEntity,
     CreateShowTestCase,
+    MixedRunTest
   },
   data () {
     return {
@@ -142,14 +207,39 @@ export default {
       dismiss: null,  //批量运行测试用例的提示
 
       //------------------------------- 目录 ---------------------------
-      expanded: true,//目录展开收缩flag
+      expanded: false,//目录展开收缩flag
       SelectLocation: '',//选择的位置
+      DirectoryLocation: '',//目录结构树
+      // --------------------------------- 运行 --------------------------
+      runFixed: false,//运行执行逻辑框
+      runModel: 'parallel',//运行模式
+      runModelArray: [],//运行模式数组
+
+
     }
   },
   mounted () {
-    this.getTestCaseList();
+    //this.DetailToTestCase();
+    this.getTestCaseList(1, null, true);
   },
   methods: {
+    //判断是否从详情页回来的
+    DetailToTestCase () {
+      let detailTestCase = JSON.parse(sessionStorage.getItem('TestCaseLocation'));
+      console.log(detailTestCase)
+      //判断当前是否在根目录
+      if (!detailTestCase) {
+        this.getTestCaseList(1, null, true);
+      } else {
+        if (detailTestCase.SelectLocation == '' || detailTestCase.SelectLocation.id == null) {
+          this.getTestCaseList(1, null, true);
+        } else {
+          this.getTestCaseList(1, detailTestCase.SelectLocation.id, true);
+          this.SelectLocation = detailTestCase.SelectLocation.id;
+          this.DirectoryLocation = detailTestCase;
+        }
+      }
+    },
     //打开新增测试用例界面
     openCrateTestCase () {
       this.createFixed = true;
@@ -166,7 +256,7 @@ export default {
       this.$q.loading.show()
       Apis.postCreateTestCase(para).then((res) => {
         console.log(res)
-        this.getTestCaseList();
+        this.getTestCaseList(1, this.SelectLocation.id);
         this.$q.notify({
           position: 'top',
           message: '提示',
@@ -177,7 +267,7 @@ export default {
       })
     },
     //获得TeseCase列表
-    getTestCaseList (page, ParentId) {
+    getTestCaseList (page, ParentId, expandedBfalse) {
       this.$q.loading.show()
       let para = {
         parentId: ParentId || null,
@@ -190,6 +280,11 @@ export default {
         this.TestCaseList = res.data.results;
         this.pagination.page = page || 1;
         this.pagination.rowsNumber = Math.ceil(res.data.totalCount / 50);
+        //后执行树状图组件
+        if (expandedBfalse) {
+          this.expanded = true;
+          return;
+        }
         this.$q.loading.hide();
       })
     },
@@ -234,16 +329,6 @@ export default {
         this.$q.loading.hide()
       })
     },
-    //获得从机列表
-    getSlaveHostsList (id, callback) {
-      Apis.getSlaveHostsList({ caseId: id }).then((res) => {
-        if (res.data.length == 0) {
-          callback(true)
-        } else {
-          callback(false)
-        }
-      })
-    },
     //获得数据源名称
     getDataSourceName () {
       let para = {}
@@ -265,48 +350,18 @@ export default {
           id: evt.row.id
         },
       })
+      sessionStorage.setItem('TestCaseLocation', JSON.stringify({
+        SelectLocation: this.SelectLocation,
+        DirectoryStructure: this.$refs.TreeEntity.getDirectoryStructure()
+      }))
     },
-    //运行TestCase
-    runTestCase () {
+    // --------------------- 运行 --------------------
+    //打开运行选择模式界面
+    openRunModel () {
+      console.log(this.$refs.MixedRunTest)
       //判断是否选择测试用例
       if (this.selected.length != 0) {
-        let runArray = [];
-        //去除正在运行的测试用例
-        for (let i = 0; i < this.selected.length; i++) {
-          if (this.selected[i].status == '正在运行') {
-            runArray.push(this.selected[i].name)
-          }
-        }
-        if (runArray.length != 0) {
-          this.$q.notify({
-            position: 'top',
-            message: '提示',
-            caption: `当前测试用例${runArray.join('，')}正在运行当中,请重新选择`,
-            color: 'red',
-          })
-          return;
-        }
-        this.$q.loading.show()
-        //判断当前运行的测试用例是否包含从主机，必须包含从主机才能进行运行
-        for (let i = 0; i < this.selected.length; i++) {
-          this.getSlaveHostsList(this.selected[i].id, (flag) => {
-            if (flag) { runArray.push(this.selected[i].name) }
-            if (i == this.selected.length - 1) {
-              if (runArray.length != 0) {
-                this.$q.notify({
-                  position: 'top',
-                  message: '提示',
-                  caption: `当前测试用例${runArray.join('，')}下没有从主机，请添加从主机再进行运行。`,
-                  color: 'red',
-                })
-                this.$q.loading.hide()
-              } else {
-                this.run(0);
-              }
-            }
-          })
-        }
-
+        this.$refs.MixedRunTest.openRunModel();
       } else {
         this.$q.notify({
           position: 'top',
@@ -316,48 +371,10 @@ export default {
         })
       }
     },
-    //递归运行TestCase
-    run (index) {
-      console.log(index)
-      if (this.dismiss) {
-        this.dismiss();
-      }
-      let runNum = index;
-      this.$q.loading.show()
-      let para = `?caseId=${this.selected[runNum].id}`
-      Apis.postTestCaseRun(para).then((res) => {
-        console.log(res)
-        this.dismiss = this.$q.notify({
-          position: 'top-right',
-          caption: `当前测试用例${this.selected[runNum].name}正在运行当中。${runNum + 1}/${this.selected.length}`,
-          color: 'teal',
-          timeout: '0'
-        })
-        this.timerOut = window.setInterval(() => {
-          setTimeout(this.getTestCaseStatus(runNum), 0);
-        }, 3000);
-      })
-
-    },
-    //查看TestCase是否运行
-    getTestCaseStatus (index) {
-      Apis.getTestCaseStatus({ caseId: this.selected[index].id }).then((res) => {
-        if (!res.data) {
-          if (index == this.selected.length - 1) {
-            clearInterval(this.timerOut);
-            this.timerOut = null;
-            this.dismiss();
-            this.getMasterHostList();
-            this.selected = [];
-            return;
-          }
-          clearInterval(this.timerOut);
-          this.timerOut = null;
-          setTimeout(() => {
-            this.run(index + 1)
-          }, 120000)
-        }
-      })
+    //关闭运行选择模式界面
+    closeRunModel () {
+      this.selected = [];
+      this.getTestCaseList(1, this.SelectLocation.id);
     },
     //查看主机日志
     lookMasterLog (value) {
@@ -384,17 +401,30 @@ export default {
 
 <style lang="scss" scoped>
 .TestCase {
+  position: fixed;
   width: 100%;
-  overflow: hidden;
+  height: 100%;
+  //overflow: hidden;
+
   .btn {
     margin-right: 10px;
   }
   .q-pa-md {
-    margin-top: 40px;
+    height: 100%;
   }
+}
+.pointer {
+  cursor: pointer;
+  margin-left: 20px;
+  font-size: 12px;
+  border-radius: 50%;
+  display: inline-block;
 }
 </style>
 <style lang="scss">
+.q-table__container {
+  height: 95%;
+}
 .q-table {
   .text-left {
     white-space: nowrap;

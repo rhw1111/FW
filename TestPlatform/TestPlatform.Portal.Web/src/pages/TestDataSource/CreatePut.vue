@@ -45,6 +45,8 @@
           <template v-slot:prepend>
           </template>
         </q-select>
+      </div>
+      <div class="row input_row">
         <q-input v-model="ChangeFileDirectoryName"
                  :dense="false"
                  class="col"
@@ -67,7 +69,7 @@
                  :dense="false"
                  class="col-xs-12"
                  type="textarea"
-                 :input-style="{height:'400px'}"
+                 :input-style="{height:'380px'}"
                  outlined>
           <template v-slot:before>
             <span style="font-size:14px">数据:</span>
@@ -79,9 +81,10 @@
 </template>
 
 <script>
+import * as Apis from "@/api/index"
 import TreeEntity from "@/components/TreeEntity.vue"  //目录管理结构树
 export default {
-  props: ['detailData'],
+  props: ['detailData', 'currentDirectory'],
   components: { TreeEntity },
   data () {
     return {
@@ -97,6 +100,7 @@ export default {
     }
   },
   mounted () {
+    //判断是不是详情数据
     if (this.detailData) {
       let value = this.detailData;
       console.log(value)
@@ -104,8 +108,19 @@ export default {
       this.Name = value.Name;
       this.Type = value.Type;
       this.Data = value.Data;
-      this.ChangeFileDirectoryName = value.ChangeFileDirectoryName != '' ? value.ChangeFileDirectoryName : '根目录';
+      if (value.ChangeFileDirectoryId) {
+        this.getTreeEntityTreePath(value.ChangeFileDirectoryId);
+      } else {
+        this.ChangeFileDirectoryName = value.ChangeFileDirectoryName != '' ? value.ChangeFileDirectoryName : '根目录 >';
+      }
       this.ChangeFileDirectoryId = value.ChangeFileDirectoryId;
+    }
+    //判断当前的目录是什么
+    if (this.currentDirectory) {
+      this.getTreeEntityTreePath(this.currentDirectory.id);
+      this.ChangeFileDirectoryId = this.currentDirectory.id;
+    } else {
+      this.ChangeFileDirectoryName = '根目录 >';
     }
   },
   methods: {
@@ -226,9 +241,25 @@ export default {
     },
     //选择目录位置   
     SelectDirectoryLocation () {
-      this.ChangeFileDirectoryName = this.$refs.TreeEntity.getDirectoryLocation().label;
+      if (this.$refs.TreeEntity.getDirectoryLocation().id) {
+        this.getTreeEntityTreePath(this.$refs.TreeEntity.getDirectoryLocation().id);
+      } else {
+        this.ChangeFileDirectoryName = this.$refs.TreeEntity.getDirectoryLocation().label || '根目录 >';
+      }
       this.ChangeFileDirectoryId = this.$refs.TreeEntity.getDirectoryLocation().id || null;
       this.ChangeFileDirectoryFlag = false;
+    },
+    //获得文件目录路径
+    getTreeEntityTreePath (ID) {
+      //ID 当前文件目录ID 
+      console.log(ID)
+      this.$q.loading.show();
+      let para = { id: ID };
+      Apis.getTreeEntityTreePath(para).then((res) => {
+        console.log(res)
+        this.ChangeFileDirectoryName = `根目录 > ` + res.data.join(' > ');
+        this.$q.loading.hide();
+      })
     },
   }
 }

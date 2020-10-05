@@ -89,10 +89,24 @@ export default {
         })
         return;
       }
-      this.ChangeFileDirectoryName = this.$refs.TreeEntity.getDirectoryLocation().label;
+      if (this.$refs.TreeEntity.getDirectoryLocation().id) {
+        this.getTreeEntityTreePath(this.$refs.TreeEntity.getDirectoryLocation().id);
+      } else {
+        this.ChangeFileDirectoryName = this.$refs.TreeEntity.getDirectoryLocation().label;
+      }
       this.ChangeFileDirectoryId = this.$refs.TreeEntity.getDirectoryLocation().id;
       this.ChangeFileDirectoryValue = this.$refs.TreeEntity.getDirectoryLocation();
       this.ChangeFileDirectoryFlag = false;
+    },
+    //获得文件目录路径
+    getTreeEntityTreePath (ID) {
+      this.$q.loading.show();
+      let para = { id: ID };
+      Apis.getTreeEntityTreePath(para).then((res) => {
+        console.log(res)
+        this.ChangeFileDirectoryName = `根目录 > ` + res.data.join(' > ');
+        this.$q.loading.hide();
+      })
     },
     //复制创建
     copyDirectorCreate () {

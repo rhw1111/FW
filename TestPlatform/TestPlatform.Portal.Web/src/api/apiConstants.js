@@ -54,6 +54,8 @@ const apiConstants = {
 
   postHistoryUpdateGatewayDataFormat: 'api/testcase/updatenetgatewaydataformat',//保存网关数据格式
 
+  postQueryHostPorts: 'api/testcase/queryhostports',//判断当前主机端口号是否正在被使用
+
   // ---------------------------------------- TestDataSource -------------------------------------------------------
   getTestDataSource: 'api/testdatasource/querybypage',//获得TestDataSource
 
@@ -115,5 +117,7 @@ const apiConstants = {
   postTreeEntityCopyFile: 'api/treeentity/copy',//复制创建测试用例和测试数据源
 
   postTreeEntityCopyFolder: 'api/treeentity/createfolder',//复制创建目录
+
+  getTreeEntityTreePath: 'api/treeentity/treepath',//获取节点的路径
 }
 export default apiConstants

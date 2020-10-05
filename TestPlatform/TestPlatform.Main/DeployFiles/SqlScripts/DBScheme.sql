@@ -68,7 +68,8 @@ REPLACE INTO `systemconfiguration` (`id`, `name`, `content`, `createtime`, `modi
 	('2316b30b-bcdb-11ea-813c-025041000001', 'TestHistoryMonitorAddress', '"http://52.188.14.158:3000/d/VQG1ohSGz/test-case-history-monitor?orgId=1"', now(), now(), 9),
 	('a41d654c-ddf6-11ea-8205-025041000001', 'NetGatewayDataFolder', '"/home/TPUser/NetGateway"', now(), now(), 10),
 	('b191b7a1-ddf6-11ea-8205-025041000001', 'NetGatewayDataTempFolder', '"/home/TPUser/TempNetGateway"', now(), now(), 11),
-	('b9c6b7e8-ddf6-11ea-8205-025041000001', 'NetGatewayDataSSHEndpoint', '"NetGatewayDataSSHEndpoint"', now(), now(), 12);
+	('b9c6b7e8-ddf6-11ea-8205-025041000001', 'NetGatewayDataSSHEndpoint', '"NetGatewayDataSSHEndpoint"', now(), now(), 12),
+	('cf066891-02f1-11eb-8d3b-025041000001', 'WebSocket_TestMonitorAddress', '"http://52.188.14.158:3000/d/kr5bLGMMz/test-case-monitor?orgId=1"', now(), now(), 13),;
 /*!40000 ALTER TABLE `systemconfiguration` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `influxdbendpoint`;
@@ -113,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `testdatasource` (
 CREATE TABLE IF NOT EXISTS `testhost` (
   `id` char(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `address` varchar(100) NOT NULL DEFAULT '',
-  `sshendpointid` char(36) NOT NULL DEFAULT '0',
+  `sshendpointid` char(36) NOT NULL,
   `createtime` datetime NOT NULL,
   `modifytime` datetime NOT NULL,
   `sequence` bigint NOT NULL AUTO_INCREMENT,
@@ -323,3 +324,26 @@ ALTER TABLE `testcase` ADD COLUMN `testcasehistoryid` char(36) DEFAULT NULL;
 /*!ALTER TABLE testcase testdatasource 2020-08-27*/
 ALTER TABLE `testcase` ADD COLUMN `treeid` char(36) DEFAULT NULL;
 ALTER TABLE `testdatasource` ADD COLUMN `treeid` char(36) DEFAULT NULL;
+/*!ALTER TABLE commonlocal_log 2020-09-12*/
+ALTER TABLE `commonlog_local` ADD COLUMN `traceid` varchar(300) DEFAULT NULL;
+ALTER TABLE `commonlog_local` ADD COLUMN `linkid` varchar(300) DEFAULT NULL;
+
+/*!Update testcase testdatasource history data.*/
+USE tpmain;
+START TRANSACTION;
+insert into tpmain.treeentity( `id`, `value`,`name`, type, createtime, modifytime) 
+SELECT UUID() id,id `value` ,`name` ,2 type, now() createtime, now() modifytime FROM tpmain.testcase where treeid is null; 
+
+UPDATE tpmain.testcase tc INNER JOIN tpmain.treeentity te 
+ON tc.id=te.`value`
+SET tc.treeid = te.id
+WHERE tc.treeid is null;
+
+insert into tpmain.treeentity( `id`, `value`,`name`, type, createtime, modifytime) 
+SELECT UUID() id,id `value` ,`name` ,3 type, now() createtime, now() modifytime FROM tpmain.testdatasource where treeid is null; 
+
+UPDATE tpmain.testdatasource tc INNER JOIN tpmain.treeentity te 
+ON tc.id=te.`value`
+SET tc.treeid = te.id
+WHERE tc.treeid is null and te.type=3;
+COMMIT;

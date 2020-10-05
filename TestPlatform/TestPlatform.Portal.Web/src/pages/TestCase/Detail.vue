@@ -21,7 +21,7 @@
              color="primary"
              label="运 行"
              :disable="isNoRun!=1?false:true"
-             @click="run" />
+             @click="isSlaveHost" />
       <q-btn class="btn"
              color="primary"
              label="停 止"
@@ -39,16 +39,27 @@
              color="primary"
              label="性 能 监 测"
              @click="lookMonitorUrl" />
-      <q-btn class="btn"
+      <!-- <q-btn class="btn"
              color="primary"
              label="复 制"
-             @click="CopyTestCase" />
+             @click="CopyTestCase" /> -->
     </div>
-    <!-- 新建测试用例 -->
+    <!-- 测试用例参数 -->
     <div class="q-pa-md">
       <CreateShowTestCase :masterHostList="masterHostList"
                           ref="CSTestCase"
                           :detailData="detailData" />
+    </div>
+    <!-- 从机和历史记录列表 -->
+    <div class="q-pa-md row HostList">
+      <!-- 从主机列表 -->
+      <SlaveHost :isNoRun="isNoRun"
+                 :detailData="detailData"
+                 ref="TestCaseSlaveHost" />
+      <!-- 历史记录列表 -->
+      <History :isNoRun="isNoRun"
+               :detailData="detailData"
+               ref="TestCaseHistory" />
     </div>
     <!-- 复制创建TestCase -->
     <q-dialog v-model="CopyTestCaseFixed"
@@ -94,17 +105,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <!-- 从机和历史记录列表 -->
-    <div class="q-pa-md row HostList">
-      <!-- 从主机列表 -->
-      <SlaveHost :isNoRun="isNoRun"
-                 :detailData="detailData"
-                 ref="TestCaseSlaveHost" />
-      <!-- 历史记录列表 -->
-      <History :isNoRun="isNoRun"
-               :detailData="detailData"
-               ref="TestCaseHistory" />
-    </div>
     <!-- 主机日志提示 -->
     <q-dialog v-model="lookMasterLogFlag">
       <q-card class="q-dialog-plugin full-height"
@@ -241,13 +241,21 @@ export default {
           let para = `?id=${this.detailData.id}`
           Apis.deleteTestCase(para).then((res) => {
             console.log(res)
-            this.$router.push({ name: 'TestCase' })
+            if (this.$route.name == 'DirectoryTestCaseDetail') {
+              this.returnDirectory();
+            } else {
+              this.$router.push({ name: 'TestCase' })
+            }
           })
         } else {
           let para = `?id=${this.detailData.treeID}`
           Apis.deleteTreeEntity(para).then((res) => {
             console.log(res)
-            this.$router.push({ name: 'TestCase' })
+            if (this.$route.name == 'DirectoryTestCaseDetail') {
+              this.returnDirectory();
+            } else {
+              this.$router.push({ name: 'TestCase' })
+            }
           })
         }
       })
@@ -283,17 +291,58 @@ export default {
         })
       })
     },
+    //判断当前测试用例是否有从主机
+    isSlaveHost () {
+      this.$q.loading.show()
+      Apis.getSlaveHostsList({ caseId: this.$route.query.id }).then((res) => {
+        if (res.data.length == 0) {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: `当前测试用例下没有从主机，请添加从主机再进行运行。`,
+            color: 'red',
+          })
+          this.$q.loading.hide();
+        } else {
+          this.isHostPortRun();
+        }
+      })
+    },
+    //当前选择的主机端口是否正在运行
+    isHostPortRun () {
+      let selectId = [this.$route.query.id];
+      let para = { singleArray: selectId };
+      Apis.postQueryHostPorts(para).then((res) => {
+        console.log(res)
+        if (!res.data[0].isAvailable) {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: `当前测试用例的主机端口号已被其他正在运行的测试用例使用。`,
+            color: 'red',
+          })
+          this.$q.loading.hide();
+        } else {
+          this.run();
+        }
+      })
+    },
     //-------------------------------------------- 查看当前测试用例状态和日志 --------------------------------------
     //查看状态
     lookStatus () {
-      this.$q.loading.show()
-      Apis.getCheckStatus({ caseId: this.$route.query.id }).then((res) => {
-        this.$q.dialog({
-          title: '提示',
-          message: res.data ? '当前测试用例正在运行' : '当前测试用例为停止状态'
-        })
-        this.$q.loading.hide()
+      console.log(this.detailData)
+      this.$q.dialog({
+        title: '提示',
+        message: this.detailData.status ? '当前测试用例正在运行' : '当前测试用例为停止状态'
       })
+      // this.$q.loading.show()
+      // Apis.getCheckStatus({ caseId: this.$route.query.id }).then((res) => {
+      //   this.$q.dialog({
+      //     title: '提示',
+      //     message: res.data ? '当前测试用例正在运行' : '当前测试用例为停止状态'
+      //   })
+      //   this.$q.loading.hide()
+      // })
     },
     //查看master日志
     lookMasterLog () {
