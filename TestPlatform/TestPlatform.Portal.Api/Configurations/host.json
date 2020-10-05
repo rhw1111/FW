@@ -2,7 +2,12 @@
   "Kestrel": {
     "Endpoints": {
       "Http": {
-        "Url": "http://*:80"
+        "Url": "https://*:8081",
+        "Certificate": {
+          "Path": "Configurations/cert.pfx",
+          "Password": "123456",
+          "AllowInvalid": true
+        }
       }
     }
   }

@@ -18,6 +18,8 @@ namespace FW.TestPlatform.Schedule
         private static string _baseUrl;
         public static async Task Main(string[] args)
         {
+            //允许客户端使用非安全的http2
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
             //设置编码，解决中文问题
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
