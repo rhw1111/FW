@@ -132,6 +132,22 @@ namespace TestPlatform.Test
         }
 
         [Test]
+        public async Task TestDI()
+        {
+            ContextContainer.SetValue<int>(ContextTypes.CurrentUserLcid, 22);
+            var lcid = ContextContainer.GetValue<int>(ContextTypes.CurrentUserLcid);
+
+            var t=Task.Run(() =>
+            {
+                lcid = ContextContainer.GetValue<int>(ContextTypes.CurrentUserLcid);
+            }).ConfigureAwait(false);
+
+            await t;
+            //DIContainerContainer.Inject<ITA,TA>(InjectionScope.Singleton);
+            //var obj=DIContainerContainer.Get<TA>(new object[] { "a" },new Type[] {typeof(string) });
+
+        }
+        [Test]
         public async Task TestForSurveyMonkey()
         {
 
@@ -312,6 +328,25 @@ namespace TestPlatform.Test
         private class Item
         {
             public int Value { get; set; }
+        }
+    }
+
+    public interface ITA
+    {
+        string GetValue();
+    }
+
+    public class TA : ITA
+    {
+        private string _v;
+        public TA(string v)
+        {
+            _v = v;
+        }
+
+        public string GetValue()
+        {
+            return _v;
         }
     }
 }

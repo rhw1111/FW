@@ -7,7 +7,7 @@ services:
         dockerfile: Dockerfile-PortalApi
     restart: always
     ports:
-      - "8081:80"
+      - "8081:443"
     ulimits:
         nproc: 65535
         nofile:
