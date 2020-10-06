@@ -456,7 +456,7 @@ export default {
       //并发请求ajax
       function concurrent () {
         console.log(critical, runModelNum)
-        if (critical < 4) {
+        if (critical < 100) {
           if (runModelNum <= _this.runModelArray.length - 1) {
             //如果开始的时间戳加上当前数组某一个的时间戳小于当前时间戳那么直接运行当前测试用例
             console.log(startTime + _this.runModelArray[runModelNum].executionTime * 1000, Date.parse(new Date()))
@@ -541,7 +541,7 @@ export default {
           if (_this.CompletedOpenButton()) { _this.runBtnDisable = false; }
         })
 
-        if (critical < 4) {
+        if (critical < 100) {
           runModelNum++;
           concurrent();
         }
