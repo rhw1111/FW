@@ -36,6 +36,10 @@ using MSLibrary.MySqlStore.Schedule.DAL;
 using Ctrade.Message;
 using MSLibrary.Thread;
 using MSLibrary.Serializer;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Newtonsoft.Json;
+using System.Net;
 
 namespace TestPlatform.Test
 {
