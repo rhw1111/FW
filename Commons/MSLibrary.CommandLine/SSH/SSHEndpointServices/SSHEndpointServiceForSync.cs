@@ -207,7 +207,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                 {
                     client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
                     client.Connect();
-                    var list =  client.ListDirectory(fromPath);
+                    var list = client.ListDirectory(fromPath);
                     foreach (var item in list)
                     {
                         if (!item.IsDirectory && !item.IsSymbolicLink)
@@ -273,7 +273,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
         }
         public async Task Upload(Stream fileStream, string path)
         {
-             _sftpClient.UploadFile(fileStream, path);
+            _sftpClient.UploadFile(fileStream, path);
             await Task.CompletedTask;
         }
     }
