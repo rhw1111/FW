@@ -39,6 +39,7 @@ using MSLibrary.Serializer;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
+using System.Net;
 
 namespace TestPlatform.Test
 {
@@ -373,36 +374,6 @@ namespace TestPlatform.Test
         private class Item
         {
             public int Value { get; set; }
-        }
-
-        [Test]
-        public async Task TestRunMultiple()
-        {
-            List<string> caseIds = new List<string>() {
-            "f0a6cd8e-44a0-47a4-ad53-2f3c83f9d728","b37c153d-413a-4d32-81a8-9179a302dc3a","98a44749-31c0-4389-97a9-0c82fb2936bd",
-                "2ba37547-a5f4-44a6-af8d-352728f81887","4a473d64-223b-4760-aed4-fdf0ae92cebc","f5fdb4a3-5c68-4752-8939-5f425250e77e",
-                "55e8853b-ce47-43d4-83db-d20b78987049","4cfd66bd-e397-4a26-835e-2b4f6992c413","ba9ff428-6c1c-42bb-95c7-5869982edeec",
-                "f0ee1d7e-a0fe-456d-9647-f1da17a89150","69281de2-037c-46eb-a441-fdd008383768","2e76178b-41fe-4431-8d98-0ea28676d3e9",
-                "a64c773b-3a45-42ce-99b4-d3f2e6bd4dd6"};
-            await ParallelHelper.ForEach(caseIds, 10,
-                async (caseId) =>
-                {
-                    using (HttpClient httpClient = new HttpClient())
-                    {
-                        httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                        StringContent strcontent = new StringContent(JsonConvert.SerializeObject("aa"), Encoding.UTF8, "application/json");
-                        var message = new HttpRequestMessage(HttpMethod.Post, "https://52.188.14.158:8081/api/testcase/run/?caseId=" + caseId);
-                        //设置contetn
-                        message.Content = strcontent;
-                        //发送请求
-                        var httpResponseHeaders = httpClient.SendAsync(message).Result;
-                        if (httpResponseHeaders.IsSuccessStatusCode)
-                        {
-                            var content = httpResponseHeaders.Content;
-                        }
-                    }
-                }
-               );
         }
     }
 
