@@ -22,5 +22,13 @@ namespace MSLibrary
                 source[item.Key] = item.Value;
             }
         }
+
+        public static void Merge<K, V>(this Dictionary<K, V> source, IDictionary<K, V> mergeSource)
+        {
+            foreach (var item in mergeSource)
+            {
+                source[item.Key] = item.Value;
+            }
+        }
     }
 }

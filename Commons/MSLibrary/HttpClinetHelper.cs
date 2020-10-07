@@ -15,6 +15,8 @@ namespace MSLibrary
     /// </summary>
     public static class HttpClinetHelper
     {
+        public static int MajorVersion { set; get; } = 2;
+        public static int MinorVersion { set; get; } = 0;
         private static Func<IHttpClientFactory> _httpClientFactoryGenerator;
 
         public static Func<IHttpClientFactory> HttpClientFactoryGenerator
@@ -858,6 +860,7 @@ namespace MSLibrary
 
             using (HttpClient client = _httpClientFactoryGenerator().CreateClient())
             {
+                
                 client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
                 if (httpHeaders != null)
@@ -880,9 +883,16 @@ namespace MSLibrary
                         }
                     }
                 }
+
+                var req = new HttpRequestMessage(HttpMethod.Post, url)
+                {
+                    Version = new Version(MajorVersion, MinorVersion),
+                     Content= httpContent
+                };
+
                 try
                 {
-                    response = client.PostAsync(url, httpContent).Result;
+                    response = client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -939,7 +949,13 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = await client.PostAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -1010,7 +1026,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.PostAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response = client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -1079,7 +1101,13 @@ namespace MSLibrary
 
                 try
                 {
-                    response = await client.PostAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -1158,7 +1186,13 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = client.PostAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response = client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -1214,7 +1248,13 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = await client.PostAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -1283,7 +1323,14 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.PostAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response = client.SendAsync(req).Result;
+
                 }
                 catch (Exception ex)
                 {
@@ -1352,7 +1399,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.PostAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -1406,7 +1459,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.GetAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response =  client.SendAsync(req).Result;
+
                 }
                 catch (Exception ex)
                 {
@@ -1444,7 +1503,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.GetAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response =await client.SendAsync(req);
+
                 }
                 catch (Exception ex)
                 {
@@ -1483,7 +1548,12 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.GetAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response =  client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -1530,7 +1600,12 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.GetAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -1583,7 +1658,12 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.GetAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response =  client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -1622,7 +1702,12 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.GetAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -1662,7 +1747,12 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.GetAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response = client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -1709,7 +1799,12 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.GetAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response =await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -1781,7 +1876,14 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = client.PutAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content= httpContent
+                    };
+
+                    response = client.SendAsync(req).Result;
+
                 }
                 catch (Exception ex)
                 {
@@ -1838,7 +1940,13 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = await client.PutAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response =await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -1907,7 +2015,14 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.PutAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response =  client.SendAsync(req).Result;
+
                 }
                 catch (Exception ex)
                 {
@@ -1976,7 +2091,14 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.PutAsync(url, httpContent);
+
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -2053,7 +2175,13 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = client.PutAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response =  client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -2110,7 +2238,14 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = await client.PutAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response =await client.SendAsync(req);
+
                 }
                 catch (Exception ex)
                 {
@@ -2179,7 +2314,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.PutAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response = client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -2250,7 +2391,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.PutAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -2326,10 +2473,12 @@ namespace MSLibrary
 
                 HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), url)
                 {
+                    Version=new Version(MajorVersion,MinorVersion),
                     Content = httpContent
                 };
                 try
                 {
+
                     response = client.SendAsync(request).Result;
                 }
                 catch (Exception ex)
@@ -2388,6 +2537,7 @@ namespace MSLibrary
                 }
 
                 HttpRequestMessage request = new HttpRequestMessage { Method = new HttpMethod("PATCH"), RequestUri = new Uri(url) };
+                request.Version = new Version(MajorVersion, MinorVersion);
                 request.Content = httpContent;
                 try
                 {
@@ -2461,6 +2611,7 @@ namespace MSLibrary
 
                 HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), url)
                 {
+                    Version = new Version(MajorVersion, MinorVersion),
                     Content = httpContent
                 };
                 HttpResponseMessage response = null;
@@ -2535,6 +2686,7 @@ namespace MSLibrary
 
                 HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), url)
                 {
+                    Version = new Version(MajorVersion, MinorVersion),
                     Content = httpContent
                 };
 
@@ -2619,6 +2771,7 @@ namespace MSLibrary
 
                 HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), url)
                 {
+                    Version = new Version(MajorVersion, MinorVersion),
                     Content = httpContent
                 };
                 try
@@ -2681,6 +2834,7 @@ namespace MSLibrary
                 }
 
                 HttpRequestMessage request = new HttpRequestMessage { Method = new HttpMethod("PATCH"), RequestUri = new Uri(url) };
+                request.Version = new Version(MajorVersion, MinorVersion);
                 request.Content = httpContent;
                 try
                 {
@@ -2754,6 +2908,7 @@ namespace MSLibrary
 
                 HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), url)
                 {
+                    Version = new Version(MajorVersion, MinorVersion),
                     Content = httpContent
                 };
                 HttpResponseMessage response = null;
@@ -2828,6 +2983,7 @@ namespace MSLibrary
 
                 HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), url)
                 {
+                    Version = new Version(MajorVersion, MinorVersion),
                     Content = httpContent
                 };
                 HttpResponseMessage response = null;
@@ -2883,7 +3039,12 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.DeleteAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response = client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -2922,7 +3083,12 @@ namespace MSLibrary
 
                 try
                 {
-                    response = await client.DeleteAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response =await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -2961,7 +3127,12 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.DeleteAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response = client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -3009,7 +3180,12 @@ namespace MSLibrary
 
                 try
                 {
-                    response = await client.DeleteAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -3058,7 +3234,12 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.DeleteAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response =  client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -3096,7 +3277,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.DeleteAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response = await client.SendAsync(req);
+
                 }
                 catch (Exception ex)
                 {
@@ -3135,7 +3322,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.DeleteAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response = client.SendAsync(req).Result;
+
                 }
                 catch (Exception ex)
                 {
@@ -3182,7 +3375,12 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.DeleteAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -4090,7 +4288,14 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = client.PostAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                         Content= httpContent
+                    };
+
+                    response =  client.SendAsync(req).Result;
+
                 }
                 catch (Exception ex)
                 {
@@ -4149,7 +4354,13 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = await client.PostAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response =await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -4222,7 +4433,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.PostAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response = client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -4291,7 +4508,13 @@ namespace MSLibrary
 
                 try
                 {
-                    response = await client.PostAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -4370,7 +4593,13 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = client.PostAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response =  client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -4428,7 +4657,13 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = await client.PostAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -4499,7 +4734,14 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.PostAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response = client.SendAsync(req).Result;
+
                 }
                 catch (Exception ex)
                 {
@@ -4570,7 +4812,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.PostAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+                    };
+
+                    response =await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -4624,7 +4872,14 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.GetAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+                   
+                    };
+
+                    response =  client.SendAsync(req).Result;
+
                 }
                 catch (Exception ex)
                 {
@@ -4663,7 +4918,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.GetAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response =await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -4703,7 +4964,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.GetAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response =  client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -4750,7 +5017,14 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.GetAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response =await client.SendAsync(req);
+
                 }
                 catch (Exception ex)
                 {
@@ -4803,7 +5077,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.GetAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response =  client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -4843,7 +5123,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.GetAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -4884,7 +5170,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.GetAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response =  client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -4931,7 +5223,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.GetAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Get, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -5003,7 +5301,15 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = client.PutAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                         Content= httpContent
+
+                    };
+
+                    response =  client.SendAsync(req).Result;
+
                 }
                 catch (Exception ex)
                 {
@@ -5062,7 +5368,15 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = await client.PutAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+
+                    };
+
+                    response =await client.SendAsync(req);
+
                 }
                 catch (Exception ex)
                 {
@@ -5133,7 +5447,14 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.PutAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+
+                    };
+
+                    response =  client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -5202,7 +5523,15 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.PutAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+
+                    };
+
+                    response = await client.SendAsync(req);
+
                 }
                 catch (Exception ex)
                 {
@@ -5279,7 +5608,14 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = client.PutAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+
+                    };
+
+                    response =  client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -5338,7 +5674,15 @@ namespace MSLibrary
                 }
                 try
                 {
-                    response = await client.PutAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+
+                    };
+
+                    response =await client.SendAsync(req);
+
                 }
                 catch (Exception ex)
                 {
@@ -5409,7 +5753,15 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.PutAsync(url, httpContent).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+
+                    };
+
+                    response =  client.SendAsync(req).Result;
+
                 }
                 catch (Exception ex)
                 {
@@ -5480,7 +5832,15 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.PutAsync(url, httpContent);
+                    var req = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion),
+                        Content = httpContent
+
+                    };
+
+                    response = await client.SendAsync(req);
+
                 }
                 catch (Exception ex)
                 {
@@ -5556,11 +5916,14 @@ namespace MSLibrary
 
                 HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), url)
                 {
+                    Version = new Version(MajorVersion, MinorVersion),
                     Content = httpContent
                 };
                 try
                 {
-                    response = client.SendAsync(request).Result;
+
+
+                    response =  client.SendAsync(request).Result;
                 }
                 catch (Exception ex)
                 {
@@ -5620,9 +5983,11 @@ namespace MSLibrary
                 }
 
                 HttpRequestMessage request = new HttpRequestMessage { Method = new HttpMethod("PATCH"), RequestUri = new Uri(url) };
+                request.Version = new Version(MajorVersion, MinorVersion);
                 request.Content = httpContent;
                 try
                 {
+
                     response = await client.SendAsync(request);
                 }
                 catch (Exception ex)
@@ -5695,6 +6060,7 @@ namespace MSLibrary
 
                 HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), url)
                 {
+                    Version = new Version(MajorVersion, MinorVersion),
                     Content = httpContent
                 };
                 HttpResponseMessage response = null;
@@ -5769,6 +6135,7 @@ namespace MSLibrary
 
                 HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), url)
                 {
+                    Version = new Version(MajorVersion, MinorVersion),
                     Content = httpContent
                 };
 
@@ -5853,6 +6220,7 @@ namespace MSLibrary
 
                 HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), url)
                 {
+                    Version = new Version(MajorVersion, MinorVersion),
                     Content = httpContent
                 };
                 try
@@ -5917,6 +6285,7 @@ namespace MSLibrary
                 }
 
                 HttpRequestMessage request = new HttpRequestMessage { Method = new HttpMethod("PATCH"), RequestUri = new Uri(url) };
+                request.Version = new Version(MajorVersion, MinorVersion);
                 request.Content = httpContent;
                 try
                 {
@@ -5991,6 +6360,7 @@ namespace MSLibrary
 
                 HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), url)
                 {
+                    Version = new Version(MajorVersion, MinorVersion),
                     Content = httpContent
                 };
                 HttpResponseMessage response = null;
@@ -6065,6 +6435,7 @@ namespace MSLibrary
 
                 HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), url)
                 {
+                    Version = new Version(MajorVersion, MinorVersion),
                     Content = httpContent
                 };
                 HttpResponseMessage response = null;
@@ -6120,7 +6491,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.DeleteAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response = client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -6160,7 +6537,13 @@ namespace MSLibrary
 
                 try
                 {
-                    response = await client.DeleteAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response =await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -6200,7 +6583,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.DeleteAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response = client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -6248,7 +6637,13 @@ namespace MSLibrary
 
                 try
                 {
-                    response = await client.DeleteAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -6297,7 +6692,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.DeleteAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response =  client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -6337,7 +6738,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.DeleteAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {
@@ -6377,7 +6784,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = client.DeleteAsync(url).Result;
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response =  client.SendAsync(req).Result;
                 }
                 catch (Exception ex)
                 {
@@ -6424,7 +6837,13 @@ namespace MSLibrary
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await client.DeleteAsync(url);
+                    var req = new HttpRequestMessage(HttpMethod.Delete, url)
+                    {
+                        Version = new Version(MajorVersion, MinorVersion)
+
+                    };
+
+                    response = await client.SendAsync(req);
                 }
                 catch (Exception ex)
                 {

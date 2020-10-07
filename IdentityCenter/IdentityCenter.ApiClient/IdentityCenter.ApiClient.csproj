@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Configurations\app.json" />
+    <None Remove="Configurations\Langs\language.json" />
+    <None Remove="Configurations\logger.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Configurations\app.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Configurations\Langs\language.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Configurations\logger.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Commons\MSLibrary.Grpc\MSLibrary.Grpc.csproj" />
+    <ProjectReference Include="..\..\Commons\MSLibrary\MSLibrary.csproj" />
+    <ProjectReference Include="..\IdentityCenter.GrpcProtos\IdentityCenter.GrpcProtos.csproj" />
+    <ProjectReference Include="..\IdentityCenter.Main\IdentityCenter.Main.csproj" />
+  </ItemGroup>
+
+</Project>

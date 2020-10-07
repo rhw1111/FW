@@ -72,12 +72,11 @@ namespace IdentityCenter.Main.IdentityServer
             IdentityRefreshToken identityRefreshToken = new IdentityRefreshToken()
             {
                 ID = Guid.NewGuid(),
-                ClientId = refreshToken.ClientId,
-                SubjectId = refreshToken.SubjectId,
                 CreationTime = refreshToken.CreationTime,
                 Handle = strHandle,
                 Lifetime = refreshToken.Lifetime,
-                Version = refreshToken.Version
+                Version = refreshToken.Version,
+                ConsumedTime = refreshToken.ConsumedTime,
             };
 
             if (refreshToken.AccessToken!=null)
@@ -89,7 +88,9 @@ namespace IdentityCenter.Main.IdentityServer
                     CreationTime = refreshToken.AccessToken.CreationTime,
                     Lifetime = refreshToken.AccessToken.Lifetime,
                     Type = refreshToken.AccessToken.Type,
-                    Version = refreshToken.AccessToken.Version
+                    Version = refreshToken.AccessToken.Version,
+                    AccessTokenType = refreshToken.AccessToken.AccessTokenType,
+                    Confirmation = refreshToken.AccessToken.Confirmation               
 
                 };
 
@@ -102,11 +103,31 @@ namespace IdentityCenter.Main.IdentityServer
                     }
                     identityRefreshToken.AccessToken.Claims = strClaims;
                 }
+                else
+                {
+                    identityRefreshToken.AccessToken.Claims = new List<string>();
+                }
 
                 if (refreshToken.AccessToken.Audiences!=null)
                 {
                     identityRefreshToken.AccessToken.Audiences = refreshToken.AccessToken.Audiences.ToList();
                 }
+                else
+                {
+                    identityRefreshToken.AccessToken.Audiences = new List<string>();
+                }
+
+                if (refreshToken.AccessToken.AllowedSigningAlgorithms != null)
+                {
+                    identityRefreshToken.AccessToken.AllowedSigningAlgorithms = refreshToken.AccessToken.AllowedSigningAlgorithms.ToList();
+                }
+                else
+                {
+                    identityRefreshToken.AccessToken.AllowedSigningAlgorithms = new List<string>();
+                }
+
+
+
             }
 
             await identityRefreshToken.Add();
@@ -126,32 +147,52 @@ namespace IdentityCenter.Main.IdentityServer
                         CreationTime = refreshToken.AccessToken.CreationTime,
                         Lifetime = refreshToken.AccessToken.Lifetime,
                         Type = refreshToken.AccessToken.Type,
-                        Version = refreshToken.AccessToken.Version
+                        Version = refreshToken.AccessToken.Version,
+                        AccessTokenType = refreshToken.AccessToken.AccessTokenType,
+                        Confirmation = refreshToken.AccessToken.Confirmation
 
                     };
 
-                    if (refreshToken.AccessToken.Claims != null)
+                if (refreshToken.AccessToken.Claims != null)
+                {
+                    List<string> strClaims = new List<string>();
+                    foreach (var item in refreshToken.AccessToken.Claims)
                     {
-                        List<string> strClaims = new List<string>();
-                        foreach (var item in refreshToken.AccessToken.Claims)
-                        {
-                            strClaims.Add(await item.GetBinaryData());
-                        }
-                        identityRefreshToken.AccessToken.Claims = strClaims;
+                        strClaims.Add(await item.GetBinaryData());
                     }
+                    identityRefreshToken.AccessToken.Claims = strClaims;
+                }
+                else
+                {
+                    identityRefreshToken.AccessToken.Claims = new List<string>();
+                }
 
-                    if (refreshToken.AccessToken.Audiences != null)
-                    {
-                        identityRefreshToken.AccessToken.Audiences = refreshToken.AccessToken.Audiences.ToList();
-                    }
-                
+                if (refreshToken.AccessToken.Audiences != null)
+                {
+                    identityRefreshToken.AccessToken.Audiences = refreshToken.AccessToken.Audiences.ToList();
+                }
+                else
+                {
+                    identityRefreshToken.AccessToken.Audiences = new List<string>();
+                }
+
+                if (refreshToken.AccessToken.AllowedSigningAlgorithms != null)
+                {
+                    identityRefreshToken.AccessToken.AllowedSigningAlgorithms = refreshToken.AccessToken.AllowedSigningAlgorithms.ToList();
+                }
+                else
+                {
+                    identityRefreshToken.AccessToken.AllowedSigningAlgorithms = new List<string>();
+                }
 
 
-                identityRefreshToken.ClientId = refreshToken.ClientId;
-                identityRefreshToken.SubjectId = refreshToken.SubjectId;
+
                 identityRefreshToken.CreationTime = refreshToken.CreationTime;
                 identityRefreshToken.Lifetime = refreshToken.Lifetime;
                 identityRefreshToken.Version = refreshToken.Version;
+                identityRefreshToken.ConsumedTime = refreshToken.ConsumedTime;
+
+
 
                 await identityRefreshToken.Update();
             }

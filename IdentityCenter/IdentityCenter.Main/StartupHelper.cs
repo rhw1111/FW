@@ -18,8 +18,15 @@ using MSLibrary.Context;
 using MSLibrary.Context.Filter;
 using MSLibrary.Cache;
 using MSLibrary.Cache.RealKVCacheVisitServices;
+using MSLibrary.RemoteService;
+using MSLibrary.RemoteService.ExtensionInfoGenerateServices;
 using MSLibrary.Logger;
 using MSLibrary.Logger.LoggingBuilderProviderHandlers;
+using MSLibrary.Grpc;
+using MSLibrary.Grpc.Interceptors;
+using MSLibrary.Grpc.Context;
+using MSLibrary.Grpc.Context.Application;
+using MSLibrary.Grpc.Context.GrpcExtensionContextHandleServices;
 using IdentityCenter.Main.Configuration;
 using IdentityCenter.Main.Context.InternationalizationHandleServices;
 using IdentityCenter.Main.Context.ClaimContextGeneratorServices;
@@ -100,6 +107,7 @@ namespace IdentityCenter.Main
             ContextContainer.Current.Register<int>(ContextTypes.CurrentUserLcid, new ContextCurrentUserLcid());
             ContextContainer.Current.Register<int>(ContextTypes.CurrentUserTimezoneOffset, new ContextCurrentUserTimezoneOffset());
             ContextContainer.Current.Register<ConcurrentDictionary<string, object>>(ContextTypes.Dictionary, new ContextDictionary());
+            ContextContainer.Current.Register<IRequestTraceInofContext>(ContextTypes.Trace, new ContextCurrentTrace());
         }
 
 
@@ -113,12 +121,10 @@ namespace IdentityCenter.Main
         public static void InitDI(IServiceCollection serviceCollection, DISetting dISetting)
         {
             serviceCollection.AddHttpClient();
-
+           
             DIContainerContainer.DIContainer = new DIContainerDefault(serviceCollection, serviceCollection.BuildServiceProvider());
             DIContainerInit.Init = new DIContainerInitDefault();
             DIContainerInit.Execute(dISetting.SearchAssemblyNames);
-
-
 
         }
 
@@ -155,6 +161,22 @@ namespace IdentityCenter.Main
 
 
             UserAuthorizeFilter.ErrorCatalogName = applicationConfiguration.ApplicationName;
+
+
+
+            ExtensionInfoGenerateService.NameServiceFactories[ExtensionInfoGenerateServiceNames.Trace] = new List<IFactory<IExtensionInfoGenerateService>>()
+            {
+                DIContainerContainer.Get<ExtensionInfoGenerateServiceForTraceFactory>()
+            };
+
+            GrpcExtensionContextHandleServiceFactorySelector.GrpcExtensionContextHandleServiceFactories[GrpcServerExtensionContextHandleServiceNames.Trace]= DIContainerContainer.Get<GrpcExtensionContextHandleServiceForTraceFactory>();
+
+
+
+            ChannelPoolIMP.InterceptorDescriptions[GrpcClinetInterceptorDescriptionNames.ClinetExceptionWrapper] =new InterceptorDescription(typeof(ClientExceptionWrapper),new string[] { },new Type[] { });
+            ChannelPoolIMP.InterceptorDescriptions[GrpcClinetInterceptorDescriptionNames.ClientRequestTrace] = new InterceptorDescription(typeof(ClientExtensionInfo), new string[] { ExtensionInfoGenerateServiceNames.Trace }, new Type[] {typeof(string) });
+
+            
 
         }
 

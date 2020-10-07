@@ -2,14 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <Protobuf Include="Protos\greet.proto" GrpcServices="Server" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.31.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Grpc.AspNetCore" Version="2.27.0" />
+    <ProjectReference Include="..\..\Commons\MSLibrary.Grpc\MSLibrary.Grpc.csproj" />
+    <ProjectReference Include="..\..\Commons\MSLibrary\MSLibrary.csproj" />
+    <ProjectReference Include="..\IdentityCenter.GrpcProtos\IdentityCenter.GrpcProtos.csproj" />
+    <ProjectReference Include="..\IdentityCenter.Main\IdentityCenter.Main.csproj" />
   </ItemGroup>
 
 </Project>

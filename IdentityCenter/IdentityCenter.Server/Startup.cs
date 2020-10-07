@@ -28,7 +28,6 @@ using MSLibrary.Logger;
 using MSLibrary.Context;
 using MSLibrary.Context.Middleware;
 using MSLibrary.Context.Filter;
-using MSLibrary.Logger.Middleware;
 using MSLibrary.AspNet.Filter;
 using MSLibrary.AspNet.Middleware;
 using MSLibrary.DI;

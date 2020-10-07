@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Commons\MSLibrary.Grpc\MSLibrary.Grpc.csproj" />
     <ProjectReference Include="..\..\Commons\MSLibrary\MSLibrary.csproj" />
   </ItemGroup>
 

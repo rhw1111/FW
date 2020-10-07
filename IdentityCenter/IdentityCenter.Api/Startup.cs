@@ -7,6 +7,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Grpc.AspNetCore.Server;
+using MSLibrary;
+using MSLibrary.Grpc.Interceptors;
+using MSLibrary.Configuration;
+using MSLibrary.Grpc;
+using IdentityCenter.Main;
+using IdentityCenter.Main.Configuration;
 
 namespace IdentityCenter.Api
 {
@@ -16,9 +23,14 @@ namespace IdentityCenter.Api
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            var coreConfiguration = ConfigurationContainer.Get<ApplicationConfiguration>(ConfigurationNames.Application);
+
             services.AddGrpc((opts)=>
             {
-                
+                opts.Interceptors.Add<DIWrapper>(coreConfiguration.ApplicationName);
+                opts.Interceptors.Add<ExceptionWrapper>(coreConfiguration.ApplicationName, true, false);
+                opts.Interceptors.Add<GrpcExtensionContext>(GrpcServerExtensionContextHandleServiceNames.Trace,coreConfiguration.ApplicationName);
+                opts.Interceptors.Add<UserAuthorize>(string.Empty, true, ClaimContextGeneratorTypes.Default, ClaimContextGeneratorTypes.Default, ClaimContextGeneratorTypes.Default);
             });
         }
 

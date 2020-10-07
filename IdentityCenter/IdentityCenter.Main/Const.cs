@@ -228,4 +228,25 @@ namespace IdentityCenter.Main
         public const string Role = "Role";
         public const string Privilege = "Privilege";
     }
+
+    /// <summary>
+    /// Grpc客户端拦截器描述名称集合
+    /// </summary>
+    public static class GrpcClinetInterceptorDescriptionNames
+    {
+        public const string ClinetExceptionWrapper = "ClinetExceptionWrapper";
+        public const string ClientRequestTrace = "ClientRequestTrace";
+    }
+
+    /// <summary>
+    /// Grpc服务端扩展上下文处理服务额外名称集合
+    /// </summary>
+
+    public static class GrpcServerExtensionContextHandleServiceExtraNames
+    {
+
+    }
+
+
+
 }

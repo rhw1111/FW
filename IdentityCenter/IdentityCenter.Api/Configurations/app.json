@@ -1,0 +1,24 @@
+{
+  "Connections": {
+    "mainconfigall": "Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=Configuration;Data Source=.",
+    "mainconfigread": "Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=Configuration;Data Source=.",
+    "mainentityall": "Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=IdentityCenter_Entity;Data Source=.",
+    "mainentityread": "Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=IdentityCenter_Entity;Data Source=.",
+    "maintempall": "Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=IdentityCenter_Temp;Data Source=.",
+    "maintempread": "Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=IdentityCenter_Temp;Data Source=."
+  },
+  "DISetting": {
+    "SearchAssemblyNames": [ "MSLibrary", "MSLibrary.Grpc", "IdentityCenter.Main", "IdentityCenter.Api" ]
+  },
+  "Debug": true,
+  "ThreadPoolSetting": {
+    "MaxWorkThread": 100,
+    "MinWorkThread": 50,
+    "MaxIOThread": 100,
+    "MinIOThread": 50
+  },
+  "ApplicationName": "IdentityCenter.Api",
+  "CorsSetting": {
+    "CorsOrigins": [ "http://localhost:5001" ]
+  }
+}

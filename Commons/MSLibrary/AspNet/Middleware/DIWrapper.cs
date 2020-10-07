@@ -116,10 +116,16 @@ namespace MSLibrary.AspNet.Middleware
         {
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            await _nextMiddleware.Invoke(context);
-
-            var excludePaths = await _appGetLogExcludePaths.Do();
-            watch.Stop();
+            List<string> excludePaths;
+            try
+            {
+                await _nextMiddleware.Invoke(context);
+                excludePaths = await _appGetLogExcludePaths.Do();
+            }
+            finally
+            {
+                watch.Stop();
+            }
             //context.Items["RunTime"] = watch.ElapsedMilliseconds;
             bool needDo = true;
             if (context.Request.Path.HasValue)
@@ -173,7 +179,7 @@ namespace MSLibrary.AspNet.Middleware
                     {
                     }
 
-                    Task.Run(async () =>
+                    _=Task.Run(async () =>
                     {
                         if (objResult != null)
                         {

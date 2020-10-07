@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using IdentityServer4.Models;
 using MSLibrary;
 using MSLibrary.DI;
+using MSLibrary.Serializer;
 
 namespace IdentityCenter.Main.IdentityServer
 {
@@ -95,6 +96,47 @@ namespace IdentityCenter.Main.IdentityServer
             }
         }
 
+        public AccessTokenType AccessTokenType
+        {
+            get
+            {
+
+                return GetAttribute<AccessTokenType>(nameof(AccessTokenType));
+            }
+            set
+            {
+                SetAttribute<AccessTokenType>(nameof(AccessTokenType), value);
+            }
+        }
+
+
+        public string Confirmation
+        {
+            get
+            {
+
+                return GetAttribute<string>(nameof(Confirmation));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(Confirmation), value);
+            }
+        }
+
+        public List<string> AllowedSigningAlgorithms
+        {
+            get
+            {
+
+                return GetAttribute<List<string>>(nameof(AllowedSigningAlgorithms));
+            }
+            set
+            {
+                SetAttribute<List<string>>(nameof(AllowedSigningAlgorithms), value);
+            }
+        }
+
+
         public string ClientId
         {
             get
@@ -138,12 +180,16 @@ namespace IdentityCenter.Main.IdentityServer
         {
             return await _imp.GenerateRefreshToken(this, cancellationToken);
         }
-
+        public async Task<string> GetSerializeData()
+        {
+            return await _imp.GetSerializeData(this);
+        }
     }
 
     public interface IIdentityTokenIMP
     {
         Task<Token> GenerateRefreshToken(IdentityToken identityToken, CancellationToken cancellationToken = default);
+        Task<string> GetSerializeData(IdentityToken identityToken);
     }
 
     [Injection(InterfaceType = typeof(IIdentityTokenIMP), Scope = InjectionScope.Transient)]
@@ -167,11 +213,33 @@ namespace IdentityCenter.Main.IdentityServer
                 Issuer = identityToken.Issuer,
                 Lifetime = identityToken.Lifetime,
                 Type = identityToken.Type,
-                Version = identityToken.Version
+                Version = identityToken.Version,
+                AllowedSigningAlgorithms = identityToken.AllowedSigningAlgorithms,
+                 Confirmation=identityToken.Confirmation
 
             };
 
             return token;
+        }
+
+        public async Task<string> GetSerializeData(IdentityToken identityToken)
+        {
+            TokenData data = new TokenData()
+            {
+                AccessTokenType = identityToken.AccessTokenType,
+                AllowedSigningAlgorithms = identityToken.AllowedSigningAlgorithms,
+                Audiences = identityToken.Audiences,
+                Claims = identityToken.Claims,
+                ClientId = identityToken.ClientId,
+                Confirmation = identityToken.Confirmation,
+                CreationTime = identityToken.CreationTime,
+                Issuer = identityToken.Issuer,
+                Lifetime = identityToken.Lifetime,
+                Type = identityToken.Type,
+                Version = identityToken.Version
+
+            };
+            return await Task.FromResult(JsonSerializerHelper.Serializer(data));
         }
     }
 }
