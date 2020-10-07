@@ -53,13 +53,14 @@
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://52.188.14.158:8081/',
+        target: 'https://52.188.14.158:8081/',
         changeOrigin: true,
         pathRewrite: {
           '/api': ''
         }
       }
-    }
+    },
+    https: true
   }
 
   //17.和wenpack相关的配置参考最上面代码
