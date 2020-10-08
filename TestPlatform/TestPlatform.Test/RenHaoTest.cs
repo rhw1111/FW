@@ -36,10 +36,13 @@ using MSLibrary.MySqlStore.Schedule.DAL;
 using Ctrade.Message;
 using MSLibrary.Thread;
 using MSLibrary.Serializer;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using System.Net;
+using Renci.SshNet;
+using Renci.SshNet.Common;
+using MSLibrary.Collections;
+
 
 namespace TestPlatform.Test
 {
@@ -50,7 +53,8 @@ namespace TestPlatform.Test
         public void Setup()
         {
 
-
+            //允许客户端使用非安全的http2
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
             //设置编码，解决中文问题
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -262,6 +266,120 @@ namespace TestPlatform.Test
         [Test]
         public async Task TestRunMultiple()
         {
+
+            var pool = new Pool<SftpClient>($"SftpClient",
+ null,
+ null,
+ null,
+ null,
+async () =>
+{
+    List<AuthenticationMethod> authMethods = new List<AuthenticationMethod>();
+    authMethods.Add(new PasswordAuthenticationMethod("TPUser", "Password01asd!"));
+
+    ConnectionInfo sshConnectionInfo = new ConnectionInfo("13.68.249.103", 22, "TPUser", authMethods.ToArray());
+    sshConnectionInfo.Timeout = new TimeSpan(0, 0, 5);
+    var sshClient = new SftpClient(sshConnectionInfo);
+
+    var replay = 0;
+    while (true)
+    {
+        try
+        {
+            sshClient.Connect();
+
+            break;
+        }
+        catch (SshOperationTimeoutException)
+        {
+            replay++;
+        }
+    }
+
+    return await Task.FromResult(sshClient);
+},
+async (item) =>
+{
+    if (!item.IsConnected)
+    {
+        
+        return await Task.FromResult(false);
+    }
+    return await Task.FromResult(true);
+},
+null,
+null
+, 10);
+
+
+
+            int index = 0;
+            List<int> replays = new List<int>();
+            try
+            {
+                List<int> list = new List<int>();
+
+                for (index = 0; index <= 100; index++)
+                {
+                    list.Add(index);
+                }
+
+                await ParallelHelper.ForEach(list, 20, async (index) =>
+                  {
+
+                      var client=await pool.GetAsync(true);
+                      try
+                      {
+                          await Task.Delay(10000);
+                      }
+                      finally
+                      {
+                          await pool.ReturnAsync(client);
+                      }
+                      
+                      await Task.CompletedTask;
+                  });
+
+                for (index = 0; index <= 100; index++)
+                {
+
+                    List<AuthenticationMethod> authMethods = new List<AuthenticationMethod>();
+                    authMethods.Add(new PasswordAuthenticationMethod("TPUser", "Password01asd!"));
+
+                    ConnectionInfo sshConnectionInfo = new ConnectionInfo("13.68.249.103", 22, "TPUser", authMethods.ToArray());
+                    sshConnectionInfo.Timeout = new TimeSpan(0, 0, 3);
+                    var sshClient = new SftpClient(sshConnectionInfo);
+                  
+                    var replay = 0;
+                    while (true)
+                    {
+                        try
+                        {
+                            sshClient.Connect();
+                           
+                            break;
+                        }
+                        catch (SshOperationTimeoutException)
+                        {
+                            replay++;
+                            if (replay>=2)
+                            {
+                                throw;
+                            }
+                        }
+                    }
+                    
+
+      
+                       //var sshClient = new SshClient("13.68.249.103", 22, "TPUser", "Password01asd!");
+                    //sshClient.Connect();
+                }
+            }
+            catch(Exception ex)
+            {
+                var e = ex;
+            }
+
             List<string> caseIds = new List<string>() {
             "b37c153d-413a-4d32-81a8-9179a302dc3a","98a44749-31c0-4389-97a9-0c82fb2936bd","2ba37547-a5f4-44a6-af8d-352728f81887",
                 "4a473d64-223b-4760-aed4-fdf0ae92cebc","f5fdb4a3-5c68-4752-8939-5f425250e77e","55e8853b-ce47-43d4-83db-d20b78987049",
@@ -269,10 +387,9 @@ namespace TestPlatform.Test
                 "f0a6cd8e-44a0-47a4-ad53-2f3c83f9d728","f0ee1d7e-a0fe-456d-9647-f1da17a89150","69281de2-037c-46eb-a441-fdd008383768",
                 "2e76178b-41fe-4431-8d98-0ea28676d3e9","009f9416-a37a-408a-a03d-e3ac1b458713","eea1fa63-1cd6-4b86-97aa-428072e6584a"};
             List<HttpResponseMessage> responses = new List<HttpResponseMessage>();
+       
 
-  
-
-            await ParallelHelper.ForEach(caseIds, 10,
+                      await ParallelHelper.ForEach(caseIds, 10,
                 async (caseId) =>
                 {
                     try
@@ -282,11 +399,13 @@ namespace TestPlatform.Test
 
                         using (HttpClient httpClient = new HttpClient(httpclientHandler))
                         {
+                            httpClient.Timeout = new TimeSpan(0, 2, 0);
                             //httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                             //StringContent strcontent = new StringContent(JsonConvert.SerializeObject("aa"), Encoding.UTF8, "application/json");
-                            var message = new HttpRequestMessage(HttpMethod.Post, "https://52.188.14.158:8081/api/testcase/run/?caseId=" + caseId);
+                            var message = new HttpRequestMessage(HttpMethod.Post, "http://52.188.14.158:8081/api/testcase/run/?caseId=" + caseId);
                             //设置contetn
                             //message.Content = strcontent;
+                            //message.Version = new Version(2, 0);
                             //发送请求
                             var httpResponseHeaders = await httpClient.SendAsync(message);
                             responses.Add(httpResponseHeaders);
