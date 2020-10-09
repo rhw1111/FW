@@ -212,10 +212,10 @@ export const putTestDataSource = payload =>
   })
 
 //TestCase运行
-export const postTestCaseRun = postfix =>
+export const postTestCaseRun = payload =>
   action({
     apiName: 'postTestCaseRun',
-    postfix
+    payload
   })
 
 //TestCase停止

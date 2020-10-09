@@ -55,6 +55,10 @@
       '/api': {
         target: 'https://52.188.14.158:8081/',
         changeOrigin: true,
+        secure: false,
+        headers: {
+          Referer: 'https://example.com'
+        },
         pathRewrite: {
           '/api': ''
         }
