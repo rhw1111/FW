@@ -125,9 +125,9 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         //}   
 
         [HttpPost("run")]
-        public async Task Run(Guid caseId)
+        public async Task Run(TestCaseRunModel runModel)
         {
-            await _appRunTestCase.Do(caseId);
+            await _appRunTestCase.Do(runModel);
         }
 
         [HttpPost("stop")]

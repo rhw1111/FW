@@ -717,23 +717,25 @@ namespace FW.TestPlatform.Main.Entities
 
         public async Task Stop(TestCase tCase, CancellationToken cancellationToken = default)
         {
-            if (tCase.Status != TestCaseStatus.Running)
+            //if (tCase.Status != TestCaseStatus.Running)
+            //{
+            //    var fragment = new TextFragment()
+            //    {
+            //        Code = TestPlatformTextCodes.StatusErrorOnTestCaseStop,
+            //        DefaultFormatting = "只能在状态{0}的时候允许停止测试案例，当前测试案例{1}的状态为{2}",
+            //        ReplaceParameters = new List<object>() { TestCaseStatus.Running.ToString(), tCase.ID.ToString(), tCase.Status.ToString() }
+            //    };
+
+            //    throw new UtilityException((int)TestPlatformErrorCodes.StatusErrorOnTestCaseStop, fragment, 1, 0);
+            //}
+            if (tCase.Status == TestCaseStatus.Running)
             {
-                var fragment = new TextFragment()
-                {
-                    Code = TestPlatformTextCodes.StatusErrorOnTestCaseStop,
-                    DefaultFormatting = "只能在状态{0}的时候允许停止测试案例，当前测试案例{1}的状态为{2}",
-                    ReplaceParameters = new List<object>() { TestCaseStatus.Running.ToString(), tCase.ID.ToString(), tCase.Status.ToString() }
-                };
+                var handleService = getHandleService(tCase.EngineType);
 
-                throw new UtilityException((int)TestPlatformErrorCodes.StatusErrorOnTestCaseStop, fragment, 1, 0);
+                await handleService.Stop(tCase, cancellationToken);
+
+                await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.NoRun, cancellationToken);
             }
-
-            var handleService = getHandleService(tCase.EngineType);
-
-            await handleService.Stop(tCase, cancellationToken);
-
-            await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.NoRun, cancellationToken);
         }
 
         public async Task Update(TestCase tCase, CancellationToken cancellationToken = default)

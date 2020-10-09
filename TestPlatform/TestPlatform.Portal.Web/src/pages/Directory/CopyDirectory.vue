@@ -27,8 +27,28 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <div class="row input_row"
+         v-show="selectionArr.length == 1">
+      <q-input v-model="CopyTestCaseName"
+               :dense="false"
+               class="col">
+        <template v-slot:before>
+          <span style="font-size:14px">名称:</span>
+        </template>
+      </q-input>
+      <q-select v-model="CopyTestCaseSlaveFlag"
+                v-show="selectionArr[0].type == 2"
+                :options="['是','否']"
+                class="col"
+                :dense="false">
+        <template v-slot:before>
+          <span style="font-size:14px">是否复制从主机:</span>
+        </template>
+        <template v-slot:prepend>
+        </template>
+      </q-select>
+    </div>
     <div class="row input_row">
-
       <q-input v-model="ChangeFileDirectoryName"
                :dense="false"
                class="col"
@@ -68,10 +88,17 @@ export default {
       selectionArr: [],               //初始选择目录或文件的数组
       dataStructure: [],              //目录数据结构数组
       FileList: [],                   //文件数组
+      // --------------------------- 单个复制 -----------------------
+      CopyTestCaseName: '',           //单个复制名称
+      CopyTestCaseSlaveFlag: '否',      //单个复制是否复制从主机
     }
   },
   mounted () {
+    console.log(this.$parent)
     this.selectionArr = this.selection;
+    if (this.selectionArr.length == 1) {
+      this.CopyTestCaseName = this.selectionArr[0].name + '_1';
+    }
   },
   methods: {
     //打开目录选择弹窗
@@ -120,10 +147,132 @@ export default {
         return;
       }
       console.log(this.selectionArr)
-      this.recheckingSelection(this.ChangeFileDirectoryValue);
+      //判断是不是只选择一个进行复制，如果是则可以修改名称
+      if (this.selectionArr.length == 1) {
+        this.singleCopySelection();
+      } else {
+        this.recheckingSelection(this.ChangeFileDirectoryValue);
+      }
     },
+    // ----------------------------- 单个复制 ------------------------------
+    //单个复制文件
+    singleCopySelection () {
+      let type = this.selectionArr[0].type;
+      if (type == 1) {
+        //执行创建目录的操作
+        this.selectionArr[0].name = this.CopyTestCaseName;
+        this.recheckingSelection(this.ChangeFileDirectoryValue);
+      } else if (type == 2) {
+        //执行创建测试用例的操作
+        this.CopyTestCaseCreate();
+      } else if (type == 3) {
+        //执行创建测试数据源的操作
+        this.CopyTestDataSourceCreate();
+      }
+    },
+    //复制创建TestCase创建
+    CopyTestCaseCreate () {
+      this.$q.loading.show();
+
+      //获得选择的测试用例的详情
+      Apis.getTestCaseDetail({ id: this.selectionArr[0].value }).then((results) => {
+        console.log(results)
+        let para = {
+          Name: this.CopyTestCaseName,
+          Configuration: results.data.configuration,
+          EngineType: results.data.engineType,
+          MasterHostID: results.data.masterHostID,
+          FolderID: this.ChangeFileDirectoryValue.id,
+        }
+        //复制创建测试数据源
+        Apis.postCreateTestCase(para).then((res) => {
+          console.log(res)
+          //是否复制从主机
+          if (this.CopyTestCaseSlaveFlag == '是') {
+            this.getSlaveHostList(res);
+          } else {
+            this.$q.notify({
+              position: 'top',
+              message: '提示',
+              caption: '复制结束',
+              color: 'secondary',
+            })
+            this.$emit('copyOver');
+          }
+        })
+      })
+    },
+    //获得从主机数据
+    getSlaveHostList (copyId) {
+      Apis.getSlaveHostsList({ caseId: this.selectionArr[0].value }).then((res) => {
+        if (res.data.length != 0) {
+          //复制从主机
+          this.CopyCreateSlaveHost(copyId, res.data, 0)
+        } else {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '复制结束',
+            color: 'secondary',
+          })
+          this.$emit('copyOver');
+        }
+      })
+    },
+    //复制创建从主机
+    CopyCreateSlaveHost (res, SlaveHostList, SalveHostNum) {
+      if (SalveHostNum == SlaveHostList.length) {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '复制结束',
+          color: 'secondary',
+        })
+        this.$emit('copyOver');
+      } else {
+        let para = {
+          "HostID": SlaveHostList[SalveHostNum].hostID,
+          "TestCaseID": res.data.id,
+          "SlaveName": SlaveHostList[SalveHostNum].slaveName,
+          "Count": SlaveHostList[SalveHostNum].count,
+          "ExtensionInfo": SlaveHostList[SalveHostNum].extensionInfo
+        }
+        Apis.postCreateSlaveHost(para).then(() => {
+          this.CopyCreateSlaveHost(res, SlaveHostList, SalveHostNum + 1)
+        })
+      }
+    },
+    //复制创建TestDatasource创建
+    CopyTestDataSourceCreate () {
+      this.$q.loading.show()
+      let para = {
+        id: this.selectionArr[0].value
+      }
+      //获得当前测试数据源详情数据
+      Apis.getTestDataSourceDetail(para).then((res) => {
+        console.log(res)
+        let para = {
+          Name: this.CopyTestCaseName,
+          Type: res.data.type,
+          Data: res.data.data,
+          FolderID: this.ChangeFileDirectoryValue.id
+        }
+        //创建测试数据源
+        Apis.postCreateTestDataSource(para).then(() => {
+          this.$q.notify({
+            position: 'top',
+            message: '提示',
+            caption: '复制结束',
+            color: 'secondary',
+          })
+          this.$emit('copyOver');
+        })
+      })
+    },
+    // ----------------------------- 批量复制 ------------------------------
     //创建数据结构和文件数组
     recheckingSelection (value) {
+      //value=新节点 
       this.$q.loading.show();
       for (let i = 0; i < this.selectionArr.length; i++) {
         if (this.selectionArr[i].type == 1) {
@@ -187,11 +336,11 @@ export default {
             _this.$q.notify({
               position: 'top',
               message: '提示',
-              caption: '复制完成',
+              caption: '复制结束',
               color: 'secondary',
             })
             console.log('------------复制操作结束---------------')
-            _this.$q.loading.hide();
+            _this.$emit('copyOver');
           }
         }
       }
@@ -255,11 +404,12 @@ export default {
               _this.$q.notify({
                 position: 'top',
                 message: '提示',
-                caption: '复制完成',
+                caption: '复制结束',
                 color: 'secondary',
               })
               console.log('------------复制操作结束---------------')
-              _this.$q.loading.hide();
+              _this.$emit('copyOver');
+              //_this.$q.loading.hide();
             }
           }
 

@@ -262,7 +262,8 @@
         <q-separator />
         <CopyDirector ref="copyDirector"
                       :selection="selection"
-                      :existingDirectories='existingDirectories' />
+                      :existingDirectories='existingDirectories'
+                      @copyOver='copyOver' />
         <q-separator />
 
         <q-card-actions align="right">
@@ -971,9 +972,13 @@ export default {
     //复制按钮
     copyDirectorCreate () {
       this.$refs.copyDirector.copyDirectorCreate();
-      this.copyDirectorFlag = false;
       this.selection = [];
-    }
+    },
+    //复制结束
+    copyOver () {
+      this.copyDirectorFlag = false;
+      this.getEchoLocation();
+    },
   }
 }
 </script>
