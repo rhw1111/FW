@@ -116,7 +116,7 @@
                     v-for="(item,index) in runResults"
                     :key="index">
               <q-item-section>
-                <q-item-label v-show="item.runStatus == '开始运行'"
+                <q-item-label v-show="item.runStatus == '开始运行' || item.runStatus == '预处理'"
                               style="color:green">{{item.name}}</q-item-label>
                 <q-item-label v-show="item.runStatus == '开始停止'"
                               style="color:green">{{item.name}}</q-item-label>
@@ -333,7 +333,12 @@ export default {
     runTestCase () {
       //判断是并行模式还是顺序模式
       if (this.runModel == 'parallel') {
-        //并行模式执行
+        //预处理
+        this.runResults.push({
+          name: '----- 当前测试用例正在进行预处理 -----',
+          runStatus: '预处理',
+          date: this.nowTime()
+        })
         this.BeforeRunningStop();
       } else {
         //顺序模式执行
@@ -448,6 +453,11 @@ export default {
     BeforeRunningStop (index) {
       if (index == this.selected.length) {
         this.runResults.push({
+          name: '----- 当前测试用例预处理已结束-----',
+          runStatus: '预处理',
+          date: this.nowTime()
+        })
+        this.runResults.push({
           name: '----- 测试用例并行模式开始运行 -----',
           runStatus: '开始运行',
           date: this.nowTime()
@@ -465,45 +475,12 @@ export default {
     //并行模式运行
     ParallelExecution () {
       let _this = this;
-      let runModelNum = 0;//当前执行到哪一个
-      let critical = 0; //临界值
-      let startTime = Date.parse(new Date());//开始运行的时间戳
-      //按当前延迟时间重新排序数组
-      this.runModelArray = this.runModelArray.sort(sort);
-      console.log(this.runModelArray)
-      function sort (a, b) {
-        return a.executionTime - b.executionTime
-      }
-
-      concurrent();
-
-      //并发请求ajax
-      function concurrent () {
-        console.log(critical, runModelNum)
-        if (critical < 100) {
-          if (runModelNum <= _this.runModelArray.length - 1) {
-            //如果开始的时间戳加上当前数组某一个的时间戳小于当前时间戳那么直接运行当前测试用例
-            console.log(startTime + _this.runModelArray[runModelNum].executionTime * 1000, Date.parse(new Date()))
-            if ((startTime + _this.runModelArray[runModelNum].executionTime * 1000) <= Date.parse(new Date())) {
-              critical++;
-              ajax(runModelNum);
-            } else {
-              console.log(`下一个执行时间${Date.parse(new Date()) - (startTime + _this.runModelArray[runModelNum].executionTime * 1000)}`)
-              delay(runModelNum);
-            }
-          }
-        }
-      }
-
-      //延迟执行ajax
-      function delay (index) {
+      for (let i = 0; i < this.runModelArray.length; i++) {
         setTimeout(() => {
-          critical++;
-          ajax(index);
-        }, Math.abs(Date.parse(new Date()) - (startTime + _this.runModelArray[runModelNum].executionTime * 1000)))
+          ajax(i);
+        }, this.runModelArray[i].executionTime * 1000)
       }
-
-      //执行运行ajax
+      //   //执行运行ajax
       function ajax (index) {
         let para = {
           CaseId: _this.runModelArray[index].id,
@@ -517,63 +494,99 @@ export default {
             date: _this.nowTime()
           })
           _this.getParallelRunStatus(index);
-          critical--;
-          console.log(critical)
-          runModelNum++;
-          concurrent();
         }).catch(err => {
           console.log(err)
-          //判断当前是否没运行起来
-          if (String(err).indexOf('500') == -1) {
-            console.log('`当前测试用例${this.runModelArray[i].name}没有启动成功，正在重新启动`');
-            Apis.postTestCaseRun(para).then((res) => {
-              console.log(res)
-              _this.$set(_this.runModelArray[index], 'runStatus', '正在运行')
-              console.log(_this.runModelArray[index])
-              _this.runResults.push({
-                name: _this.runModelArray[index].name,
-                runStatus: '正在运行',
-                date: _this.nowTime()
-              })
-              critical--;
-              console.log(critical)
-              runModelNum++;
-              concurrent();
-              _this.getParallelRunStatus(index);
-            }).catch(() => {
-              critical--;
-              console.log(critical)
-              runModelNum++;
-              _this.$set(_this.runModelArray[index], 'runStatus', '运行失败')
-              _this.runResults.push({
-                name: _this.runModelArray[index].name,
-                runStatus: '运行失败',
-                date: _this.nowTime()
-              })
-              //如果全部执行完成则打开按钮的点击
-              if (_this.CompletedOpenButton()) { _this.runBtnDisable = false; }
-            })
-          } else {
-            critical--;
-            console.log(critical)
-            runModelNum++;
-            _this.$set(_this.runModelArray[index], 'runStatus', '运行失败')
-            _this.runResults.push({
-              name: _this.runModelArray[index].name,
-              runStatus: '运行失败',
-              date: _this.nowTime()
-            })
-          }
+          _this.$set(_this.runModelArray[index], 'runStatus', '运行失败')
+          _this.runResults.push({
+            name: _this.runModelArray[index].name,
+            runStatus: '运行失败',
+            date: _this.nowTime()
+          })
           //如果全部执行完成则打开按钮的点击
           if (_this.CompletedOpenButton()) { _this.runBtnDisable = false; }
         })
-
-        if (critical < 100) {
-          runModelNum++;
-          concurrent();
-        }
       }
     },
+    // ParallelExecution () {
+    //   let _this = this;
+    //   let runModelNum = 0;//当前执行到哪一个
+    //   let critical = 0; //临界值
+    //   let startTime = Date.parse(new Date());//开始运行的时间戳
+    //   //按当前延迟时间重新排序数组
+    //   this.runModelArray = this.runModelArray.sort(sort);
+    //   console.log(this.runModelArray)
+    //   function sort (a, b) {
+    //     return a.executionTime - b.executionTime
+    //   }
+
+    //   concurrent();
+
+    //   //并发请求ajax
+    //   function concurrent () {
+    //     console.log(critical, runModelNum)
+    //     if (critical < 100) {
+    //       if (runModelNum <= _this.runModelArray.length - 1) {
+    //         //如果开始的时间戳加上当前数组某一个的时间戳小于当前时间戳那么直接运行当前测试用例
+    //         console.log(startTime + _this.runModelArray[runModelNum].executionTime * 1000, Date.parse(new Date()))
+    //         if ((startTime + _this.runModelArray[runModelNum].executionTime * 1000) <= Date.parse(new Date())) {
+    //           critical++;
+    //           ajax(runModelNum);
+    //         } else {
+    //           console.log(`下一个执行时间${Date.parse(new Date()) - (startTime + _this.runModelArray[runModelNum].executionTime * 1000)}`)
+    //           delay(runModelNum);
+    //         }
+    //       }
+    //     }
+    //   }
+
+    //   //延迟执行ajax
+    //   function delay (index) {
+    //     setTimeout(() => {
+    //       critical++;
+    //       ajax(index);
+    //     }, Math.abs(Date.parse(new Date()) - (startTime + _this.runModelArray[runModelNum].executionTime * 1000)))
+    //   }
+
+    //   //执行运行ajax
+    //   function ajax (index) {
+    //     let para = {
+    //       CaseId: _this.runModelArray[index].id,
+    //       IsStop: false
+    //     }
+    //     Apis.postTestCaseRun(para).then(() => {
+    //       _this.$set(_this.runModelArray[index], 'runStatus', '正在运行')
+    //       _this.runResults.push({
+    //         name: _this.runModelArray[index].name,
+    //         runStatus: '正在运行',
+    //         date: _this.nowTime()
+    //       })
+    //       _this.getParallelRunStatus(index);
+    //       critical--;
+    //       console.log(critical)
+    //       runModelNum++;
+    //       concurrent();
+    //     }).catch(err => {
+    //       console.log(err)
+    //       critical--;
+    //       console.log(critical)
+    //       runModelNum++;
+    //       _this.$set(_this.runModelArray[index], 'runStatus', '运行失败')
+    //       _this.runResults.push({
+    //         name: _this.runModelArray[index].name,
+    //         runStatus: '运行失败',
+    //         date: _this.nowTime()
+    //       })
+    //       //如果全部执行完成则打开按钮的点击
+    //       if (_this.CompletedOpenButton()) { _this.runBtnDisable = false; }
+    //     })
+
+    //     if (critical < 100) {
+    //       runModelNum++;
+    //       concurrent();
+    //     }
+    //   }
+    // },
+
     //正则验证并行运行测试用例是否正确
     forceUpdate (val, index) {
       this.$set(this.runModelArray[index], 'executionTime', Number(val.replace(/[^\d]/g, "").replace(/^0/g, "")));

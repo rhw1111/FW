@@ -264,7 +264,10 @@ export default {
     //运行测试用例
     run () {
       this.$q.loading.show()
-      let para = `?caseId=${this.$route.query.id}`
+      let para = {
+        CaseId: this.$route.query.id,
+        IsStop: true
+      }
       Apis.postTestCaseRun(para).then((res) => {
         console.log(res)
         this.getTestCaseDetail()
