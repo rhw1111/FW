@@ -19,19 +19,23 @@ namespace FW.TestPlatform.Main.Application
         {
             _testCaseRepository = testCaseRepository;
         }
-        public async Task Do(Guid id, CancellationToken cancellationToken = default)
+        public async Task Do(TestCaseRunModel model, CancellationToken cancellationToken = default)
         {
-            var testCase = await _testCaseRepository.QueryByID(id, cancellationToken);
+            var testCase = await _testCaseRepository.QueryByID(model.CaseId, cancellationToken);
             if (testCase == null)
             {
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.NotFoundTestCaseByID,
                     DefaultFormatting = "找不到ID为{0}的测试案例",
-                    ReplaceParameters = new List<object>() { id.ToString() }
+                    ReplaceParameters = new List<object>() { model.CaseId.ToString() }
                 };
 
                 throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
+            }
+            if (model.IsStop)
+            {
+                await testCase.Stop();
             }
             await testCase.Run();
         }

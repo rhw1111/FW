@@ -4,7 +4,7 @@
       "Http": {
         "Url": "https://*:443",
         "Certificate": {
-          "Path": "Configurations/cert.pfx",
+          "Path": "Configurations/ca.pfx",
           "Password": "123456",
           "AllowInvalid": true
         }
