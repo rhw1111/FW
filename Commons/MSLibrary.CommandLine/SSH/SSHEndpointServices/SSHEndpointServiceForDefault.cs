@@ -246,8 +246,11 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                {
                    try
                    {
-                       sshClient.Connect();
-
+                       if (!sshClient.IsConnected)
+                       {
+                           sshClient.Connect();
+                       }
+                      
                        break;
                    }
                    catch (SshOperationTimeoutException)
@@ -319,7 +322,10 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                {
                    try
                    {
-                       sshClient.Connect();
+                       if (!sshClient.IsConnected)
+                       {
+                           sshClient.Connect();
+                       }
 
                        break;
                    }
