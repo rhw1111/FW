@@ -278,16 +278,16 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                         _sftpClientPools[configuration] = pool;
                     }
                 }
+            }
 
-                var client =await pool.GetAsync(true);
-                try
-                {
-                    await action(client);
-                }
-                finally
-                {
-                    await pool.ReturnAsync(client);
-                }
+            var client = await pool.GetAsync(true);
+            try
+            {
+                await action(client);
+            }
+            finally
+            {
+                await pool.ReturnAsync(client);
             }
         }
 
@@ -352,15 +352,17 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                     }
                 }
 
-                var client = await pool.GetAsync(true);
-                try
-                {
-                    await action(client);
-                }
-                finally
-                {
-                    await pool.ReturnAsync(client);
-                }
+
+            }
+
+            var client = await pool.GetAsync(true);
+            try
+            {
+                await action(client);
+            }
+            finally
+            {
+                await pool.ReturnAsync(client);
             }
         }
 
