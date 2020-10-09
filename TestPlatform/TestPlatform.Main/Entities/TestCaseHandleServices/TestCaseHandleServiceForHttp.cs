@@ -236,7 +236,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             string path = this.GetTestFilePath(configuration);
 
             #region 检查主机端口是否被占用，并强制终止
-            await this.Stop(tCase, cancellationToken);
+            //await this.Stop(tCase, cancellationToken);
             #endregion
 
             //代码模板必须有一个格式为{SlaveName}的替换符，该替换符标识每个Slave
@@ -379,16 +379,20 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task Stop(TestCase tCase, CancellationToken cancellationToken = default)
         {
-            var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
-            int port = this.GetPort(configuration);
-
-            //执行主机杀进程命令
-            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep master-bind-port | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9",10, cancellationToken);
-            //执行slave杀进程命令
-            var slaveHosts = tCase.GetAllSlaveHosts(cancellationToken);
-            await foreach (var item in slaveHosts)
+            bool isAvailabel = await StatusCheck(tCase, cancellationToken);
+            if (isAvailabel)
             {
-                await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep master-port | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9",10, cancellationToken);
+                var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
+                int port = this.GetPort(configuration);
+
+                //执行主机杀进程命令
+                await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep master-bind-port | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10, cancellationToken);
+                //执行slave杀进程命令
+                var slaveHosts = tCase.GetAllSlaveHosts(cancellationToken);
+                await foreach (var item in slaveHosts)
+                {
+                    await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep master-port | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10, cancellationToken);
+                }
             }
         }
 

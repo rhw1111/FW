@@ -11,6 +11,6 @@ namespace FW.TestPlatform.Main.Application
 {
     public interface IAppRunTestCase
     {
-        Task Do(Guid id, CancellationToken cancellationToken = default);
+        Task Do(TestCaseRunModel model, CancellationToken cancellationToken = default);
     }
 }
