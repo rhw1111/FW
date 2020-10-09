@@ -206,52 +206,11 @@ export default {
     // 判断当前运行的测试用例是否运行或者包含从主机，必须包含从主机才能进行运行
     async isSlaveHost () {
       this.$q.loading.show();
-      let runArray = [];
       //------------------------------- 判断是否有正在运行的测试用例 ------------------------------- 
-      for (let i = 0; i < this.selected.length; i++) {
-        if (this.selected[i].status == '正在运行') {
-          runArray.push(this.selected[i].name)
-        }
-      }
-      if (runArray.length != 0) {
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: `当前测试用例${runArray.join('，')}正在运行当中,请重新选择`,
-          color: 'red',
-        })
-        this.$q.loading.hide();
-        return;
-      }
+      if (!this.isRunTestCase()) { return; }
 
       //-------------------------------  判断当前选择的测试用例端口号是否重复 ------------------------------- 
-      let rechecking = [];
-      for (var i = 0; i < this.selected.length; i++) {
-        for (var j = i + 1; j < this.selected.length; j++) {
-          if (this.selected[i].masterHostID === this.selected[j].masterHostID && JSON.parse(this.selected[i]['configuration']).LocustMasterBindPort === JSON.parse(this.selected[j]['configuration']).LocustMasterBindPort) {
-            rechecking.push(this.selected[i].name);
-            rechecking.push(this.selected[j].name);
-          }
-        }
-      }
-      rechecking = unique(rechecking);
-      if (rechecking.length != 0) {
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: `当前测试用例${rechecking.join('，')}主机端口号重复，请修改或者重新选择。`,
-          color: 'red',
-        })
-        this.$q.loading.hide();
-        return;
-      }
-      //数组去重
-      function unique (arr) {
-        const res = new Map();
-        return arr.filter((a) => !res.has(a) && res.set(a, 1))
-      }
-
-
+      if (!this.isPortRepeat()) { return; }
 
       //-------------------------------  判断当前选择的测试用例端口号是否被其他正在运行的测试用例使用 ------------------------------- 
       let runName = [];
@@ -272,6 +231,7 @@ export default {
 
 
       //------------------------------- 判断当前选择的测试用例下是否有从主机 ------------------------------- 
+      let runArray = [];
       for (let i = 0; i < this.selected.length; i++) {
         this.getSlaveHostsList(this.selected[i].id, (flag) => {
           if (flag) { runArray.push(this.selected[i].name) }
@@ -318,17 +278,63 @@ export default {
       })
       return runName
     },
+    //判断当前选择的测试用例是否正在运行
+    isRunTestCase () {
+      let runArray = [];
+      for (let i = 0; i < this.selected.length; i++) {
+        if (this.selected[i].status == '正在运行') {
+          runArray.push(this.selected[i].name)
+        }
+      }
+      if (runArray.length != 0) {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: `当前测试用例${runArray.join('，')}正在运行当中,请重新选择`,
+          color: 'red',
+        })
+        this.$q.loading.hide();
+        return false;
+      } else {
+        return true;
+      }
+    },
+    //判断当前选择的测试用例端口号是否相同
+    isPortRepeat () {
+      let rechecking = [];
+      for (var i = 0; i < this.selected.length; i++) {
+        for (var j = i + 1; j < this.selected.length; j++) {
+          if (this.selected[i].masterHostID === this.selected[j].masterHostID && JSON.parse(this.selected[i]['configuration']).LocustMasterBindPort === JSON.parse(this.selected[j]['configuration']).LocustMasterBindPort) {
+            rechecking.push(this.selected[i].name);
+            rechecking.push(this.selected[j].name);
+          }
+        }
+      }
+      rechecking = unique(rechecking);
+      if (rechecking.length != 0) {
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: `当前测试用例${rechecking.join('，')}主机端口号重复，请修改或者重新选择。`,
+          color: 'red',
+        })
+        this.$q.loading.hide();
+        return false;
+      } else {
+        return true;
+      }
+      //数组去重
+      function unique (arr) {
+        const res = new Map();
+        return arr.filter((a) => !res.has(a) && res.set(a, 1))
+      }
+    },
     //运行TestCase
     runTestCase () {
       //判断是并行模式还是顺序模式
       if (this.runModel == 'parallel') {
         //并行模式执行
-        this.runResults.push({
-          name: '----- 测试用例并行模式开始运行 -----',
-          runStatus: '开始运行',
-          date: this.nowTime()
-        })
-        this.ParallelExecution();
+        this.BeforeRunningStop();
       } else {
         //顺序模式执行
         this.runResults.push({
@@ -438,6 +444,24 @@ export default {
 
     },
     //--------------------------------------------------------- 并行运行 ---------------------------------------------------------
+    //并行运行前停止一下当前选择的测试用例
+    BeforeRunningStop (index) {
+      if (index == this.selected.length) {
+        this.runResults.push({
+          name: '----- 测试用例并行模式开始运行 -----',
+          runStatus: '开始运行',
+          date: this.nowTime()
+        })
+        this.ParallelExecution();
+        return;
+      }
+      let stopArrnum = index || 0;
+      let para = `?caseId=${this.selected[stopArrnum].id}`
+      Apis.postTestCaseStop(para).then((res) => {
+        console.log(res)
+        this.BeforeRunningStop(stopArrnum + 1);
+      })
+    },
     //并行模式运行
     ParallelExecution () {
       let _this = this;
@@ -481,7 +505,10 @@ export default {
 
       //执行运行ajax
       function ajax (index) {
-        let para = `?caseId=${_this.runModelArray[index].id}`
+        let para = {
+          CaseId: _this.runModelArray[index].id,
+          IsStop: false
+        }
         Apis.postTestCaseRun(para).then(() => {
           _this.$set(_this.runModelArray[index], 'runStatus', '正在运行')
           _this.runResults.push({
@@ -608,7 +635,10 @@ export default {
         this.runBtnDisable = false;
         return;
       }
-      let para = `?caseId=${this.runOrderArray[index].id}`
+      let para = {
+        CaseId: this.runOrderArray[index].id,
+        IsStop: true
+      }
       Apis.postTestCaseRun(para).then((res) => {
         //顺序运行成功回调
         console.log(res)
