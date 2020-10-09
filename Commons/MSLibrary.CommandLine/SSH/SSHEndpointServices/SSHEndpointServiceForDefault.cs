@@ -238,6 +238,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                authMethods.Add(new PasswordAuthenticationMethod(configurationObj.UserName, configurationObj.Password));
 
                ConnectionInfo sshConnectionInfo = new ConnectionInfo(configurationObj.Address, configurationObj.Port, configurationObj.UserName, authMethods.ToArray());
+               sshConnectionInfo.MaxSessions = 200;
                sshConnectionInfo.Timeout = new TimeSpan(0, 0, 5);
                var sshClient = new SftpClient(sshConnectionInfo);
                sshClient.KeepAliveInterval = new TimeSpan(0,0,1);
@@ -315,6 +316,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
 
                ConnectionInfo sshConnectionInfo = new ConnectionInfo(configurationObj.Address, configurationObj.Port, configurationObj.UserName, authMethods.ToArray());
                sshConnectionInfo.Timeout = new TimeSpan(0, 0, 5);
+               sshConnectionInfo.MaxSessions = 200;
                var sshClient = new SshClient(sshConnectionInfo);
                sshClient.KeepAliveInterval = new TimeSpan(0, 0, 1);
                var replay = 0;
@@ -331,6 +333,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                    }
                    catch (SshOperationTimeoutException)
                    {
+                       
                        replay++;
                        if (replay == 3)
                        {
