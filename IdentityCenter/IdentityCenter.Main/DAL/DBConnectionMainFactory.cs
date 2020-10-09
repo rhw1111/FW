@@ -55,20 +55,12 @@ namespace IdentityCenter.Main.DAL
 
         public string CreateReadForContext()
         {
-            if (DBAllScope.IsAll())
-            {
-                return CreateAllForContext();
-            }
-            return _systemConfigurationService.GetConnectionString("mainconfigallread");
+            return CreateReadForIdentityConfiguration();
         }
 
         public string CreateReadForHash()
         {
-            if (DBAllScope.IsAll())
-            {
-                return CreateAllForHash();
-            }
-            return _systemConfigurationService.GetConnectionString("mainconfigallread");
+            return CreateReadForIdentityConfiguration();
         }
 
         public string CreateReadForIdentityConfiguration()
@@ -77,7 +69,7 @@ namespace IdentityCenter.Main.DAL
             {
                 return CreateAllForIdentityConfiguration();
             }
-            return _systemConfigurationService.GetConnectionString("mainconfigallread");
+            return _systemConfigurationService.GetConnectionString("mainconfigread");
         }
 
         public string CreateReadForIdentityEntity()
@@ -100,11 +92,7 @@ namespace IdentityCenter.Main.DAL
 
         public string CreateReadForSystemConfiguration()
         {
-            if (DBAllScope.IsAll())
-            {
-                return CreateAllForSystemConfiguration();
-            }
-            return _systemConfigurationService.GetConnectionString("mainconfigallread");
+            return CreateReadForIdentityConfiguration();
         }
     }
 }

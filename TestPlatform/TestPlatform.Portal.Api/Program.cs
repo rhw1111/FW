@@ -94,8 +94,11 @@ namespace FW.TestPlatform.Portal.Api
 
                     })
                     .ConfigureKestrel((options) =>
-                    {
-
+                    { 
+                        options.Limits.MinRequestBodyDataRate = null;
+                        options.Limits.MinResponseDataRate = null;
+                        options.Limits.MaxResponseBufferSize = 6553600;
+                   
                     })
                     .UseConfiguration(ConfigurationContainer.GetConfiguration(ConfigurationNames.Host))
                     .UseStartup<Startup>();

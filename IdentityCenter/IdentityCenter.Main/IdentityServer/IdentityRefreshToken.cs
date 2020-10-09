@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.Serialization;
 using IdentityServer4.Models;
 using MSLibrary;
 using MSLibrary.DI;
+using MSLibrary.Serializer;
 using IdentityCenter.Main.IdentityServer.DAL;
+
 
 namespace IdentityCenter.Main.IdentityServer
 {
@@ -59,32 +62,6 @@ namespace IdentityCenter.Main.IdentityServer
             }
         }
 
-        public string SubjectId
-        {
-            get
-            {
-
-                return GetAttribute<string>(nameof(SubjectId));
-            }
-            set
-            {
-                SetAttribute<string>(nameof(SubjectId), value);
-            }
-        }
-
-        public string ClientId
-        {
-            get
-            {
-
-                return GetAttribute<string>(nameof(ClientId));
-            }
-            set
-            {
-                SetAttribute<string>(nameof(ClientId), value);
-            }
-        }
-
         public int Lifetime
         {
             get
@@ -97,6 +74,20 @@ namespace IdentityCenter.Main.IdentityServer
                 SetAttribute<int>(nameof(Lifetime), value);
             }
         }
+
+        public DateTime? ConsumedTime
+        {
+            get
+            {
+
+                return GetAttribute<DateTime?>(nameof(ConsumedTime));
+            }
+            set
+            {
+                SetAttribute<DateTime?>(nameof(ConsumedTime), value);
+            }
+        }
+
 
         public IdentityToken AccessToken
         {
@@ -150,10 +141,16 @@ namespace IdentityCenter.Main.IdentityServer
             await _imp.Delete(this, cancellationToken);
         }
 
-        public async Task<RefreshToken> GenerateRefreshToken( CancellationToken cancellationToken = default)
+        public async Task<RefreshToken> GenerateRefreshToken(CancellationToken cancellationToken = default)
         {
             return await _imp.GenerateRefreshToken(this, cancellationToken);
         }
+
+        public async Task<string> GetSerializeData()
+        {
+            return await _imp.GetSerializeData(this);
+        }
+
     }
 
     public interface IIdentityRefreshTokenIMP
@@ -162,6 +159,8 @@ namespace IdentityCenter.Main.IdentityServer
         Task Update(IdentityRefreshToken identityRefreshToken, CancellationToken cancellationToken = default);
         Task Delete(IdentityRefreshToken identityRefreshToken, CancellationToken cancellationToken = default);
         Task<RefreshToken> GenerateRefreshToken(IdentityRefreshToken identityRefreshToken, CancellationToken cancellationToken = default);
+
+        Task<string> GetSerializeData(IdentityRefreshToken identityRefreshToken);
     }
 
     [Injection(InterfaceType = typeof(IIdentityRefreshTokenIMP), Scope = InjectionScope.Transient)]
@@ -188,7 +187,7 @@ namespace IdentityCenter.Main.IdentityServer
             RefreshToken refreshToken = new RefreshToken()
             {
                 AccessToken = await identityRefreshToken.AccessToken.GenerateRefreshToken(cancellationToken),
-               
+                ConsumedTime = identityRefreshToken.ConsumedTime,
                 CreationTime = identityRefreshToken.CreationTime,
                 Lifetime = identityRefreshToken.Lifetime,
                 Version = identityRefreshToken.Version
@@ -196,9 +195,88 @@ namespace IdentityCenter.Main.IdentityServer
             return refreshToken;
         }
 
+        public async Task<string> GetSerializeData(IdentityRefreshToken identityRefreshToken)
+        {
+            RefreshTokenData data = new RefreshTokenData()
+            {
+                ID = identityRefreshToken.ID,
+                Handle = identityRefreshToken.Handle,
+                ConsumedTime = identityRefreshToken.ConsumedTime,
+                Lifetime = identityRefreshToken.Lifetime,
+                CreationTime = identityRefreshToken.CreationTime,
+                Version = identityRefreshToken.Version,
+                AccessToken = new TokenData()
+                {
+                    AccessTokenType = identityRefreshToken.AccessToken.AccessTokenType,
+                    AllowedSigningAlgorithms = identityRefreshToken.AccessToken.AllowedSigningAlgorithms,
+                    Audiences = identityRefreshToken.AccessToken.Audiences,
+                    Claims = identityRefreshToken.AccessToken.Claims,
+                    ClientId = identityRefreshToken.AccessToken.ClientId,
+                    Confirmation = identityRefreshToken.AccessToken.Confirmation,
+                    CreationTime = identityRefreshToken.AccessToken.CreationTime,
+                    Issuer = identityRefreshToken.AccessToken.Issuer,
+                    Lifetime = identityRefreshToken.AccessToken.Lifetime,
+                    Type = identityRefreshToken.AccessToken.Type,
+                    Version = identityRefreshToken.AccessToken.Version
+                }
+
+            };
+
+            return await Task.FromResult(JsonSerializerHelper.Serializer(data));
+        }
+
         public async Task Update(IdentityRefreshToken identityRefreshToken, CancellationToken cancellationToken = default)
         {
             await _identityRefreshTokenStore.Update(identityRefreshToken, cancellationToken);
         }
     }
+
+    [DataContract]
+    public class TokenData
+    {
+        [DataMember]
+        public int Version { get; set; }
+        [DataMember]
+        public List<string> Claims { get; set; } = null!;
+        [DataMember]
+        public AccessTokenType AccessTokenType { get; set; }
+        [DataMember]
+        public string ClientId { get; set; } = null!;
+
+        [DataMember]
+        public string Type { get; set; } = null!;
+
+        [DataMember]
+        public int Lifetime { get; set; }
+        [DataMember]
+        public DateTime CreationTime { get; set; }
+        [DataMember]
+        public string Issuer { get; set; } = null!;
+        [DataMember]
+        public List<string> Audiences { get; set; } = null!;
+        [DataMember]
+        public string Confirmation { get; set; } = null!;
+        [DataMember]
+        public List<string> AllowedSigningAlgorithms { get; set; } = null!;
+
+    }
+    [DataContract]
+    public class RefreshTokenData
+    {
+        [DataMember]
+        public Guid ID { get; set; }
+        [DataMember]
+        public string Handle { get; set; } = null!;
+        [DataMember]
+        public DateTime CreationTime { get; set; }
+        [DataMember]
+        public int Lifetime { get; set; }
+        [DataMember]
+        public DateTime? ConsumedTime { get; set; }
+        [DataMember]
+        public TokenData AccessToken { get; set; } = null!;
+        [DataMember]
+        public int Version { get; set; }
+    }
+
 }

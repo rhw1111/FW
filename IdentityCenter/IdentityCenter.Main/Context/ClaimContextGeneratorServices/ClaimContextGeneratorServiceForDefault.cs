@@ -21,6 +21,7 @@ namespace IdentityCenter.Main.Context.ClaimContextGeneratorServices
         {
             var dict = new ConcurrentDictionary<string, object>();
             ContextContainer.SetValue(ContextTypes.Dictionary, dict);
+            ContextContainer.SetValue(ContextTypes.CurrentUserLcid, 1024);
         }
     }
 }

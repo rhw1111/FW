@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -8,6 +9,7 @@ using System.Runtime.Serialization;
 using MSLibrary.DI;
 using MSLibrary.Serializer;
 using MSLibrary.LanguageTranslate;
+using MSLibrary.Collections;
 using Renci.SshNet;
 using Renci.SshNet.Async;
 using Renci.SshNet.Common;
@@ -28,23 +30,26 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
     [Injection(InterfaceType = typeof(SSHEndpointServiceForDefault), Scope = InjectionScope.Singleton)]
     public class SSHEndpointServiceForDefault : ISSHEndpointService
     {
+        private static ConcurrentDictionary<string, Pool<SftpClient>> _sftpClientPools = new ConcurrentDictionary<string, Pool<SftpClient>>();
+        private static ConcurrentDictionary<string, Pool<SshClient>> _sshClientPools = new ConcurrentDictionary<string, Pool<SshClient>>();
+
+        public static int SftpClientPoolLength { get; set; } = 20;
+        public static int SshClientPoolLength { get; set; } = 20;
+
         public async Task DownloadFile(string configuration, Func<Stream, Task> action, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
             await exceptionHandle(async () =>
             {
-                var configurationObj = getConfiguration(configuration);
-                using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
-                {
-                    client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                    client.Connect();
-                    await using (var stream = new MemoryStream())
-                    {
-                        await client.DownloadAsync(path, stream);
-                        await action(stream);
-                        stream.Close();
-                    }
-                    client.Disconnect();
-                }
+                await sftpClientExecute(configuration, async (client) =>
+                 {
+                     client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                     await using (var stream = new MemoryStream())
+                     {
+                         await client.DownloadAsync(path, stream);
+                         await action(stream);
+                         stream.Close();
+                     }
+                 });
             });
 
 
@@ -55,18 +60,12 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             string result=string.Empty;
             await exceptionHandle(async () =>
             {
-                var configurationObj = getConfiguration(configuration);
-
-                using (var sshClient = new SshClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
-                {
-
-                    sshClient.Connect();
-                    var sshCommand = sshClient.CreateCommand(command);
-                    sshCommand.CommandTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                    result = await sshCommand.ExecuteAsync();
-
-                    sshClient.Disconnect();
-                }
+                await sshClientExecute(configuration, async (client) =>
+                 {
+                     var sshCommand = client.CreateCommand(command);
+                     sshCommand.CommandTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                     result = await sshCommand.ExecuteAsync();
+                 });
             }
             );
             return result;
@@ -76,17 +75,11 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
         {
             await exceptionHandle(async () =>
             {
-                var configurationObj = getConfiguration(configuration);
-
-                using (var sshClient = new SshClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
-                {
-                    sshClient.Connect();
-
-                    SSHEndpointCommandService service = new SSHEndpointCommandService(sshClient, timeoutSeconds);
-                    await action(service);
-
-                    sshClient.Disconnect();
-                }
+                await sshClientExecute(configuration, async (client) =>
+                 {
+                     SSHEndpointCommandService service = new SSHEndpointCommandService(client, timeoutSeconds);
+                     await action(service);
+                 });
             }
             );
 
@@ -99,23 +92,16 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
 
             await exceptionHandle(async () =>
             {
-                var configurationObj = getConfiguration(configuration);
-
-                using (var sshClient = new SshClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
-                {
-
-                    sshClient.Connect();
-
-                    foreach (var item in commondGenerators)
-                    {
-                        var command = await item(result);
-                        var sshCommond = sshClient.CreateCommand(command);
-                        sshCommond.CommandTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                        result = await sshCommond.ExecuteAsync();
-                    }
-
-                    sshClient.Disconnect();
-                }
+                await sshClientExecute(configuration, async (client) =>
+                 {
+                     foreach (var item in commondGenerators)
+                     {
+                         var command = await item(result);
+                         var sshCommond = client.CreateCommand(command);
+                         sshCommond.CommandTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                         result = await sshCommond.ExecuteAsync();
+                     }
+                 });
             });
 
             return result??string.Empty;
@@ -126,15 +112,13 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             bool result = true;
             await exceptionHandle(async () =>
             {
-                var configurationObj = getConfiguration(configuration);
-                using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
-                {
-                    client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                    client.Connect();
-                    result=client.Exists(path);
-                    client.Disconnect();
-                }
-                await Task.FromResult(0);
+                await sftpClientExecute(configuration, async (client) =>
+                 {
+                     client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);            
+                     result = client.Exists(path);
+                     await Task.FromResult(0);
+                 });
+               
             });
 
             return result;
@@ -144,15 +128,12 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
         {
             await exceptionHandle(async () =>
             {
-                var configurationObj = getConfiguration(configuration);
-                using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
-                {
-                    client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                    client.Connect();
-                    await client.UploadAsync(stream, path);
-
-                    client.Disconnect();
-                }
+                await sftpClientExecute(configuration, async (client)=>
+                 {
+                     client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                     await client.UploadAsync(stream, path);
+                 }
+                );
             });
 
         }
@@ -161,17 +142,13 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
         {
             await exceptionHandle(async () =>
             {
-                var configurationObj = getConfiguration(configuration);
-                using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
-                {
-                    client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                    client.Connect();
+                await sftpClientExecute(configuration, async (client) =>
+                 {
+                     client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
 
-                    SSHEndpointUploadFileServiceForDefault service = new SSHEndpointUploadFileServiceForDefault(client);
-                    await action(service);
-
-                    client.Disconnect();
-                }
+                     SSHEndpointUploadFileServiceForDefault service = new SSHEndpointUploadFileServiceForDefault(client);
+                     await action(service);
+                 });
             }
             );
 
@@ -181,17 +158,14 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
         {
             await exceptionHandle(async () =>
             {
-                var configurationObj = getConfiguration(configuration);
-                using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
-                {
-                    client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                    client.Connect();
-                    foreach (var item in uploadFileInfos)
-                    {
-                        await client.UploadAsync(item.Item1, item.Item2);
-                    }
-                    client.Disconnect();
-                }
+                await sftpClientExecute(configuration, async (client) =>
+                 {
+                     client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                     foreach (var item in uploadFileInfos)
+                     {
+                         await client.UploadAsync(item.Item1, item.Item2);
+                     }
+                 });
             });
         }
 
@@ -200,24 +174,22 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             int fileCount = 0;
             await exceptionHandle(async () =>
             {
-                var configurationObj = getConfiguration(configuration);
-                using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
-                {
-                    client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                    client.Connect();
-                    var list = await client.ListDirectoryAsync(fromPath);
-                    foreach (var item in list)
-                    {
-                        if (!item.IsDirectory && !item.IsSymbolicLink)
-                        {
-                            var newFileName = await fileNameGenerateAction(item.FullName);
-                            string fileFullName = $"{toPath}{Path.DirectorySeparatorChar}{newFileName}";
-                            item.MoveTo(fileFullName);
-                            fileCount++;
-                        }
-                    }
-                    client.Disconnect();
-                }
+                await sftpClientExecute(configuration, async (client) =>
+                 {
+                     client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                     var list = await client.ListDirectoryAsync(fromPath);
+                     foreach (var item in list)
+                     {
+                         if (!item.IsDirectory && !item.IsSymbolicLink)
+                         {
+                             var newFileName = await fileNameGenerateAction(item.FullName);
+                             string fileFullName = $"{toPath}{Path.DirectorySeparatorChar}{newFileName}";
+                             item.MoveTo(fileFullName);
+                             fileCount++;
+                         }
+                     }
+                 });
+
             });
             return fileCount;
         }
@@ -244,6 +216,152 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
         {
             var configurationObj=JsonSerializerHelper.Deserialize<Configuration>(configuration);
             return configurationObj;
+        }
+
+        private async Task sftpClientExecute(string configuration,Func<SftpClient,Task> action)
+        {
+            if (!_sftpClientPools.TryGetValue(configuration,out Pool<SftpClient>? pool))
+            {
+                var configurationObj = getConfiguration(configuration);
+                lock (_sftpClientPools)
+                {
+                    if (!_sftpClientPools.TryGetValue(configuration, out pool))
+                    {
+                        pool = new Pool<SftpClient>($"SftpClient-{configuration}",
+            null,
+            null,
+            null,
+            null,
+           async () =>
+           {
+               List<AuthenticationMethod> authMethods = new List<AuthenticationMethod>();
+               authMethods.Add(new PasswordAuthenticationMethod(configurationObj.UserName, configurationObj.Password));
+
+               ConnectionInfo sshConnectionInfo = new ConnectionInfo(configurationObj.Address, configurationObj.Port, configurationObj.UserName, authMethods.ToArray());
+               sshConnectionInfo.Timeout = new TimeSpan(0, 0, 5);
+               var sshClient = new SftpClient(sshConnectionInfo);
+               sshClient.KeepAliveInterval = new TimeSpan(0,0,1);
+               var replay = 0;
+               while (true)
+               {
+                   try
+                   {
+                       sshClient.Connect();
+
+                       break;
+                   }
+                   catch (SshOperationTimeoutException)
+                   {
+                       replay++;
+                       if (replay == 3)
+                       {
+                           throw;
+                       }
+                   }
+               }
+
+               return await Task.FromResult(sshClient);
+           },
+           async (item) =>
+           {
+              
+               if (!item.IsConnected)
+               {
+
+                   return await Task.FromResult(false);
+               }
+               return await Task.FromResult(true);
+           },
+           null,
+           null
+           , SftpClientPoolLength);
+                        _sftpClientPools[configuration] = pool;
+                    }
+                }
+
+                var client =await pool.GetAsync(true);
+                try
+                {
+                    await action(client);
+                }
+                finally
+                {
+                    await pool.ReturnAsync(client);
+                }
+            }
+        }
+
+        private async Task sshClientExecute(string configuration, Func<SshClient, Task> action)
+        {
+            if (!_sshClientPools.TryGetValue(configuration, out Pool<SshClient>? pool))
+            {
+                var configurationObj = getConfiguration(configuration);
+                lock (_sshClientPools)
+                {
+                    if (!_sshClientPools.TryGetValue(configuration, out pool))
+                    {
+                        pool = new Pool<SshClient>($"SshClient-{configuration}",
+            null,
+            null,
+            null,
+            null,
+           async () =>
+           {
+               List<AuthenticationMethod> authMethods = new List<AuthenticationMethod>();
+               authMethods.Add(new PasswordAuthenticationMethod(configurationObj.UserName, configurationObj.Password));
+
+               ConnectionInfo sshConnectionInfo = new ConnectionInfo(configurationObj.Address, configurationObj.Port, configurationObj.UserName, authMethods.ToArray());
+               sshConnectionInfo.Timeout = new TimeSpan(0, 0, 5);
+               var sshClient = new SshClient(sshConnectionInfo);
+               sshClient.KeepAliveInterval = new TimeSpan(0, 0, 1);
+               var replay = 0;
+               while (true)
+               {
+                   try
+                   {
+                       sshClient.Connect();
+
+                       break;
+                   }
+                   catch (SshOperationTimeoutException)
+                   {
+                       replay++;
+                       if (replay == 3)
+                       {
+                           throw;
+                       }
+                   }
+               }
+
+               return await Task.FromResult(sshClient);
+           },
+           async (item) =>
+           {
+               
+               if (!item.IsConnected)
+               {
+
+                   return await Task.FromResult(false);
+               }
+               return await Task.FromResult(true);
+           },
+           null,
+           null
+           , SshClientPoolLength);
+                        _sshClientPools[configuration] = pool;
+                    }
+                }
+
+                var client = await pool.GetAsync(true);
+                try
+                {
+                    await action(client);
+                }
+                finally
+                {
+                    await pool.ReturnAsync(client);
+                }
+            }
         }
 
         [DataContract]

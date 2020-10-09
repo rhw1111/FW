@@ -58,6 +58,7 @@ namespace MSLibrary.Context.Middleware
             await HttpErrorHelper.ExecuteByHttpContextAsync(context, logger, async () =>
             {
                 var contextInit = await _appHttpExtensionContextExecute.Do(context.Request, _name);
+                contextInit.Execute();
 
                 Dictionary<string, IHttpExtensionContextInit> contextInits;
                 if (!context.Items.TryGetValue(_httpContextItemName, out object contextInitsObj))
@@ -69,7 +70,7 @@ namespace MSLibrary.Context.Middleware
                 {
                     contextInits = (Dictionary<string, IHttpExtensionContextInit>)contextInitsObj;
                 }
-
+               
                 contextInits[_name] = contextInit;
 
                 await _nextMiddleware(context);

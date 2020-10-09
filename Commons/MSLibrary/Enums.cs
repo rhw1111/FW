@@ -1061,9 +1061,13 @@ namespace MSLibrary
         /// </summary>
         NotFoundRemoteServiceDescriptionByName= 314726501,
         /// <summary>
+        /// 找不到指定名称的命名远程调用附加信息生成服务
+        /// </summary>
+        NotFoundNameExtensionInfoGenerateServiceByName= 314726502,
+        /// <summary>
         /// 找不到指定源信息和Id的分片存储信息
         /// </summary>
-        NotFoundMultipartStorgeInfoBySourceInfoAndID= 314726600,
+        NotFoundMultipartStorgeInfoBySourceInfoAndID = 314726600,
         /// <summary>
         /// 存在相同名称的未完成分片存储信息
         /// </summary>

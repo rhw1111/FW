@@ -69,7 +69,28 @@ namespace MSLibrary.Grpc
             }
         }
 
+        /// <summary>
+        /// Grpc客户端操作的包装处理
+        /// 实现异常处理
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
 
-
+        public static async Task ExecuteByClientAsync(Func<Task> action)
+        {
+            try
+            {
+               await action();
+            }
+            catch (RpcException ex)
+            {
+                var errorMessage = JsonSerializerHelper.Deserialize<ErrorMessage>(ex.Status.Detail);
+                if (errorMessage != null && errorMessage.Message != null)
+                {
+                    throw new UtilityException(errorMessage.Code, errorMessage.Message, errorMessage.Level, errorMessage.Type);
+                }
+                throw ex;
+            }
+        }
     }
 }

@@ -101,7 +101,7 @@ namespace MSLibrary.Configuration.DAL
                     };
                     commond.Parameters.Add(parameter);
 
-                    parameter = new SqlParameter("@content", SqlDbType.NVarChar, 1000)
+                    parameter = new SqlParameter("@content", SqlDbType.NVarChar, configuration.Content.Length)
                     {
                         Value = configuration.Content
                     };

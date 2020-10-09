@@ -56,7 +56,7 @@ namespace IdentityCenter.Main.IdentityServer
                 Code = strCode,
                 CodeChallenge = code.CodeChallenge,
                 CodeChallengeMethod = code.CodeChallengeMethod,
-                CreationTime = DateTime.UtcNow,
+                CreationTime = DateTime.UtcNow,            
                 IsOpenId = code.IsOpenId,
                 Lifetime = code.Lifetime,
                 Nonce = code.Nonce,

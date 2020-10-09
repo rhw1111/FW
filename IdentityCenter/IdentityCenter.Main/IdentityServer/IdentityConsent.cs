@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using IdentityServer4.Models;
 using MSLibrary;
 using MSLibrary.DI;
+using MSLibrary.Serializer;
 using IdentityCenter.Main.IdentityServer.DAL;
+using System.Runtime.Serialization;
 
 namespace IdentityCenter.Main.IdentityServer
 {
@@ -121,6 +123,11 @@ namespace IdentityCenter.Main.IdentityServer
         {
             return await _imp.GenerateConsent(this, cancellationToken);
         }
+
+        public async Task<string> GetSerializeData()
+        {
+            return await _imp.GetSerializeData(this);
+        }
     }
 
     public interface IIdentityConsentIMP
@@ -128,6 +135,7 @@ namespace IdentityCenter.Main.IdentityServer
         Task Add(IdentityConsent identityConsent, CancellationToken cancellationToken = default);
         Task Delete(IdentityConsent identityConsent, CancellationToken cancellationToken = default);
         Task<Consent> GenerateConsent(IdentityConsent identityConsent, CancellationToken cancellationToken = default);
+        Task<string> GetSerializeData(IdentityConsent identityConsent);
     }
 
 
@@ -162,5 +170,37 @@ namespace IdentityCenter.Main.IdentityServer
             };
             return await Task.FromResult(consent);
         }
+
+        public async Task<string> GetSerializeData(IdentityConsent identityConsent)
+        {
+            IdentityConsentData data = new IdentityConsentData()
+            {
+                ID = identityConsent.ID,
+                ClientId = identityConsent.ClientId,
+                SubjectId = identityConsent.SubjectId,
+                CreationTime = identityConsent.CreationTime,
+                Expiration = identityConsent.Expiration,
+                Scopes = identityConsent.Scopes
+
+            };
+            return await Task.FromResult(JsonSerializerHelper.Serializer(data));
+        }
+    }
+
+    [DataContract]
+    public class IdentityConsentData
+    {
+        [DataMember]
+        public Guid ID { get; set; }
+        [DataMember]
+        public string[] Scopes { get; set; } = null!;
+        [DataMember]
+        public DateTime CreationTime { get; set; }
+        [DataMember]
+        public DateTime? Expiration { get; set; }
+        [DataMember]
+        public string SubjectId { get; set; } = null!;
+        [DataMember]
+        public string ClientId { get; set; } = null!;
     }
 }

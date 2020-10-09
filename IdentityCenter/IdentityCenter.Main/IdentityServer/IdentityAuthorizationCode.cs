@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.Serialization;
 using IdentityServer4.Models;
 using MSLibrary;
 using MSLibrary.DI;
+using MSLibrary.Serializer;
 using IdentityCenter.Main.IdentityServer.DAL;
 
 namespace IdentityCenter.Main.IdentityServer
@@ -263,6 +265,11 @@ namespace IdentityCenter.Main.IdentityServer
         {
             return await _imp.GenerateAuthorizationCode(this, cancellationToken);
         }
+
+        public async Task<string> GetSerializeData()
+        {
+            return await _imp.GetSerializeData(this);
+        }
     }
 
     public interface IIdentityAuthorizationCodeIMP
@@ -270,6 +277,7 @@ namespace IdentityCenter.Main.IdentityServer
         Task Add(IdentityAuthorizationCode authorizationCode, CancellationToken cancellationToken = default);
         Task Delete(IdentityAuthorizationCode authorizationCode, CancellationToken cancellationToken = default);
         Task<AuthorizationCode> GenerateAuthorizationCode(IdentityAuthorizationCode authorizationCode, CancellationToken cancellationToken = default);
+        Task<string> GetSerializeData(IdentityAuthorizationCode authorizationCode);
     }
 
     [Injection(InterfaceType = typeof(IIdentityAuthorizationCodeIMP), Scope = InjectionScope.Transient)]
@@ -311,5 +319,65 @@ namespace IdentityCenter.Main.IdentityServer
 
             return await Task.FromResult(code);
         }
+
+        public async Task<string> GetSerializeData(IdentityAuthorizationCode authorizationCode)
+        {
+            var data = new IdentityAuthorizationCodeData()
+            {
+                ID = authorizationCode.ID,
+                ClientId = authorizationCode.ClientId,
+                CodeChallenge = authorizationCode.CodeChallenge,
+                CodeChallengeMethod = authorizationCode.CodeChallengeMethod,
+                CreationTime = authorizationCode.CreationTime,
+                IsOpenId = authorizationCode.IsOpenId,
+                Lifetime = authorizationCode.Lifetime,
+                Nonce = authorizationCode.Nonce,
+                Properties = authorizationCode.Properties,
+                RedirectUri = authorizationCode.RedirectUri,
+                RequestedScopes = authorizationCode.RequestedScopes,
+                SessionId = authorizationCode.SessionId,
+                StateHash = authorizationCode.StateHash,
+                SubjectData = authorizationCode.SubjectData,
+                WasConsentShown = authorizationCode.WasConsentShown
+            };
+            return await Task.FromResult(JsonSerializerHelper.Serializer(data));
+                 
+        }
+    }
+
+
+    [DataContract]
+    public class IdentityAuthorizationCodeData
+    {
+        [DataMember]
+        public Guid ID { get; set; }
+        [DataMember]
+        public string ClientId { get; set; } = null!;
+        [DataMember]
+        public string CodeChallenge { get; set; } = null!;
+        [DataMember]
+        public string CodeChallengeMethod { get; set; } = null!;
+        [DataMember]
+        public DateTime CreationTime { get; set; }
+        [DataMember]
+        public bool IsOpenId { get; set; }
+        [DataMember]
+        public int Lifetime { get; set; }
+        [DataMember]
+        public string Nonce { get; set; } = null!;
+        [DataMember]
+        public Dictionary<string, string> Properties { get; set; } = null!;
+        [DataMember]
+        public string RedirectUri { get; set; } = null!;
+        [DataMember]
+        public string[] RequestedScopes { get; set; } = null!;
+        [DataMember]
+        public string SessionId { get; set; } = null!;
+        [DataMember]
+        public string StateHash { get; set; } = null!;
+        [DataMember]
+        public string SubjectData { get; set; } = null!;
+        [DataMember]
+        public bool WasConsentShown { get; set; }
     }
 }

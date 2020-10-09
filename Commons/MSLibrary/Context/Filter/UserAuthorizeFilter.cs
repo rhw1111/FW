@@ -80,6 +80,7 @@ namespace MSLibrary.Context.Filter
                       var authorizeResult = await _appUserAuthorize.Do(null, _directGeneratorName);
                       //存储到http上下文中
                       context.HttpContext.Items["AuthorizeResult"] = authorizeResult;
+                      return;
                   }
 
                   //判断是否已经通过验证

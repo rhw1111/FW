@@ -11,6 +11,8 @@ namespace MSLibrary.Oauth.AAD
 {
     public static class AADHelper
     {
+        public static int MajorVersion { set; get; } = 2;
+        public static int MinorVersion { set; get; } = 0;
         public static async Task<AADAuth> GetPasswordAuth(string baseUri, string tenant, string resource, string clientId, string userName, string password)
         {
             var tokenUrl = BuildUrl(baseUri,tenant);
@@ -18,7 +20,13 @@ namespace MSLibrary.Oauth.AAD
 
             using (var httpClient = new HttpClient())
             {
-                using (var response = await httpClient.PostAsync(tokenUrl, new FormUrlEncodedContent(list)))
+                var req = new HttpRequestMessage(HttpMethod.Post, tokenUrl)
+                {
+                    Version = new Version(MajorVersion, MinorVersion),
+                    Content = new FormUrlEncodedContent(list)
+                };
+
+                using (var response = await httpClient.SendAsync(req))
                 {
                     if (!response.IsSuccessStatusCode)
                     {
@@ -50,7 +58,13 @@ namespace MSLibrary.Oauth.AAD
 
             using (var httpClient = new HttpClient())
             {
-                using (var response = await httpClient.PostAsync(tokenUrl, new FormUrlEncodedContent(list)))
+                var req = new HttpRequestMessage(HttpMethod.Post, tokenUrl)
+                {
+                    Version = new Version(MajorVersion, MinorVersion),
+                    Content = new FormUrlEncodedContent(list)
+                };
+
+                using (var response = await httpClient.SendAsync(req))
                 {
                     if (!response.IsSuccessStatusCode)
                     {

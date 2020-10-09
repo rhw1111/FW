@@ -11,13 +11,6 @@ namespace IdentityCenter.Main.Configuration
     [Injection(InterfaceType = typeof(ISystemConfigurationService), Scope = InjectionScope.Singleton)]
     public class SystemConfigurationService : ISystemConfigurationService
     {
-        private ISystemConfigurationRepositoryCacheProxy _systemConfigurationRepositoryCacheProxy;
-
-        public SystemConfigurationService(ISystemConfigurationRepositoryCacheProxy systemConfigurationRepositoryCacheProxy)
-        {
-            _systemConfigurationRepositoryCacheProxy = systemConfigurationRepositoryCacheProxy;
-        }
-
         public string GetConnectionString(string name, CancellationToken cancellationToken = default)
         {
             var appConfiguration = ConfigurationContainer.Get<ApplicationConfiguration>(ConfigurationNames.Application);

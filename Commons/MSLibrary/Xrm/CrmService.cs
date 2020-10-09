@@ -44,6 +44,9 @@ namespace MSLibrary.Xrm
     [Injection(InterfaceType = typeof(CrmService), Scope = InjectionScope.Transient)]
     public class CrmService : ICrmService
     {
+        public static int MajorVersion { set; get; } = 2;
+        public static int MinorVersion { set; get; } = 0;
+
         private IHttpClientFactoryWrapper _httpClientFactory;
         private ICrmServiceTokenGenerateServiceSelector _crmServiceTokenGenerateServiceSelector;
         private ICrmMessageHandleSelector _crmMessageHandleSelector;
@@ -272,7 +275,12 @@ namespace MSLibrary.Xrm
                         switch (requestResult.Method.Method.ToLower())
                         {
                             case "get":
-                                responseMessage = await httpClient.GetAsync(requestResult.Url);
+                                var req = new HttpRequestMessage(HttpMethod.Get, requestResult.Url)
+                                {
+                                    Version = new Version(MajorVersion, MinorVersion),
+                                };
+
+                                responseMessage = await httpClient.SendAsync(req);
                                 break;
                             case "post":
 
@@ -296,7 +304,14 @@ namespace MSLibrary.Xrm
                                 {
                                     httpContent = requestResult.ReplaceHttpContent;
                                 }
-                                responseMessage = await httpClient.PostAsync(requestResult.Url, httpContent);
+
+                                 req = new HttpRequestMessage(HttpMethod.Post, requestResult.Url)
+                                {
+                                    Version = new Version(MajorVersion, MinorVersion),
+                                    Content = httpContent
+                                };
+
+                                responseMessage = await httpClient.SendAsync(req);
 
                                 break;
                             case "put":
@@ -321,7 +336,14 @@ namespace MSLibrary.Xrm
                                 {
                                     httpContent = requestResult.ReplaceHttpContent;
                                 }
-                                responseMessage = await httpClient.PutAsync(requestResult.Url, httpContent);
+
+                                req = new HttpRequestMessage(HttpMethod.Put, requestResult.Url)
+                                {
+                                    Version = new Version(MajorVersion, MinorVersion),
+                                    Content = httpContent
+                                };
+
+                                responseMessage = await httpClient.SendAsync(req);
 
                                 break;
                             case "patch":
@@ -347,11 +369,22 @@ namespace MSLibrary.Xrm
                                     httpContent = requestResult.ReplaceHttpContent;
                                 }
 
-                                responseMessage = await httpClient.PatchAsync(requestResult.Url, httpContent);
+                                req = new HttpRequestMessage(HttpMethod.Patch, requestResult.Url)
+                                {
+                                    Version = new Version(MajorVersion, MinorVersion),
+                                    Content = httpContent
+                                };
+
+                                responseMessage = await httpClient.SendAsync(req);
 
                                 break;
                             case "delete":
-                                responseMessage = await httpClient.DeleteAsync(requestResult.Url);
+                                req = new HttpRequestMessage(HttpMethod.Delete, requestResult.Url)
+                                {
+                                    Version = new Version(MajorVersion, MinorVersion),
+                                };
+
+                                responseMessage = await httpClient.SendAsync(req);
                                 break;
                             default:
                                 TextFragment fragment = new TextFragment()

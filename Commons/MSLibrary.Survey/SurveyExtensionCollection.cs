@@ -76,7 +76,7 @@ namespace MSLibrary.Survey
 
         public static ISurveyCollectorBindService GetSurveyCollectorBindService(string type)
         {
-            if (!SurveyCollectorBindServiceFactories.TryGetValue(type, out IFactory<ISurveyCollectorBindService> surveyResponseCollectorBindServiceFactory))
+            if (!SurveyCollectorBindServiceFactories.TryGetValue(type, out IFactory<ISurveyCollectorBindService>? surveyResponseCollectorBindServiceFactory))
             {
                 var fragment = new TextFragment()
                 {
@@ -93,7 +93,7 @@ namespace MSLibrary.Survey
 
         public static ISurveyCollectorFactory GetSurveyCollectorFactory(string type)
         {
-            if (!SurveyCollectorFactories.TryGetValue(type, out IFactory<ISurveyCollectorFactory> surveyCollectorFactory))
+            if (!SurveyCollectorFactories.TryGetValue(type, out IFactory<ISurveyCollectorFactory>? surveyCollectorFactory))
             {
                 var fragment = new TextFragment()
                 {
@@ -109,7 +109,7 @@ namespace MSLibrary.Survey
 
         public static ISurveyEndpointFinanlyService GetSurveyEndpointFinanlyService(string type)
         {
-            if (!SurveyEndpointFinanlyServiceFactories.TryGetValue(type, out IFactory<ISurveyEndpointFinanlyService> surveyEndpointFinanlyServiceFactory))
+            if (!SurveyEndpointFinanlyServiceFactories.TryGetValue(type, out IFactory<ISurveyEndpointFinanlyService>? surveyEndpointFinanlyServiceFactory))
             {
                 var fragment = new TextFragment()
                 {
@@ -124,7 +124,7 @@ namespace MSLibrary.Survey
 
         public static ISurveyEndpointInitService GetSurveyEndpointInitService(string type)
         {
-            if (!SurveyEndpointInitServiceFactories.TryGetValue(type, out IFactory<ISurveyEndpointInitService> surveyEndpointInitServiceFactory))
+            if (!SurveyEndpointInitServiceFactories.TryGetValue(type, out IFactory<ISurveyEndpointInitService>? surveyEndpointInitServiceFactory))
             {
                 var fragment = new TextFragment()
                 {
@@ -140,7 +140,7 @@ namespace MSLibrary.Survey
 
         public static ISurveyCollectorDataQueryService GetSurveyCollectorDataQueryService(string type)
         {
-            if (!SurveyCollectorDataQueryServiceFactories.TryGetValue(type, out IFactory<ISurveyCollectorDataQueryService> surveyCollectorDataQueryServiceFactory))
+            if (!SurveyCollectorDataQueryServiceFactories.TryGetValue(type, out IFactory<ISurveyCollectorDataQueryService>? surveyCollectorDataQueryServiceFactory))
             {
                 var fragment = new TextFragment()
                 {
@@ -156,7 +156,7 @@ namespace MSLibrary.Survey
 
         public static ISurveyResponseDataQueryService GetSurveyResponseDataQueryService(string type)
         {
-            if (!SurveyResponseDataQueryServiceFactories.TryGetValue(type, out IFactory<ISurveyResponseDataQueryService> surveyResponseDataQueryServiceFactory))
+            if (!SurveyResponseDataQueryServiceFactories.TryGetValue(type, out IFactory<ISurveyResponseDataQueryService>? surveyResponseDataQueryServiceFactory))
             {
                 var fragment = new TextFragment()
                 {
@@ -172,7 +172,7 @@ namespace MSLibrary.Survey
 
         public static ISurveyResponseIDResolveService GetSurveyResponseIDResolveService(string type)
         {
-            if (!SurveyResponseIDResolveServiceFactories.TryGetValue(type, out IFactory<ISurveyResponseIDResolveService> surveyResponseIDResolveServiceFactory))
+            if (!SurveyResponseIDResolveServiceFactories.TryGetValue(type, out IFactory<ISurveyResponseIDResolveService>? surveyResponseIDResolveServiceFactory))
             {
                 var fragment = new TextFragment()
                 {
@@ -188,7 +188,7 @@ namespace MSLibrary.Survey
 
         public static ISurveyCollectorEnableCheckService GetSurveyCollectorEnableCheckService(string type)
         {
-            if (!SurveyCollectorEnableCheckServiceFactories.TryGetValue(type, out IFactory<ISurveyCollectorEnableCheckService> surveyCollectorEnableCheckServiceeFactory))
+            if (!SurveyCollectorEnableCheckServiceFactories.TryGetValue(type, out IFactory<ISurveyCollectorEnableCheckService>? surveyCollectorEnableCheckServiceeFactory))
             {
                 var fragment = new TextFragment()
                 {
@@ -204,7 +204,7 @@ namespace MSLibrary.Survey
 
         public static ISurveyRecipientGenerateService GetSurveyRecordRecipientGenerateService(string type)
         {
-            if (!SurveyRecipientGenerateServiceFactories.TryGetValue(type, out IFactory<ISurveyRecipientGenerateService> surveyRecipientGenerateServiceFactory))
+            if (!SurveyRecipientGenerateServiceFactories.TryGetValue(type, out IFactory<ISurveyRecipientGenerateService>? surveyRecipientGenerateServiceFactory))
             {
                 var fragment = new TextFragment()
                 {
@@ -222,7 +222,7 @@ namespace MSLibrary.Survey
         public static ISurveyResponseConvertService GetSurveyResponseConvertService(string type)
         {
             
-            if (!SurveyResponseConvertServiceFactories.TryGetValue(type, out IFactory<ISurveyResponseConvertService> surveyResponseConvertServiceFactory))
+            if (!SurveyResponseConvertServiceFactories.TryGetValue(type, out IFactory<ISurveyResponseConvertService>? surveyResponseConvertServiceFactory))
             {
                 var fragment = new TextFragment()
                 {

@@ -429,6 +429,13 @@ namespace MSLibrary
         /// </summary>
         public const string NotFoundRemoteServiceDescriptionByName = "NotFoundRemoteServiceDescriptionByName";
         /// <summary>
+        /// 找不到指定名称的命名远程调用附加信息生成服务
+        /// 格式为“找不到名称为{0}的命名远程调用附加信息生成服务，发生位置为{1}”
+        /// {0}:名称
+        /// {1}:发生的位置
+        /// </summary>
+        public const string NotFoundNameExtensionInfoGenerateServiceByName = "NotFoundNameExtensionInfoGenerateServiceByName";
+        /// <summary>
         /// 找不到指定前缀的序列号记录
         /// 格式为“前缀为{0}的序列号记录不存在”
         /// {0}为序列号前缀
@@ -3124,6 +3131,14 @@ namespace MSLibrary
         /// </summary>
         public const string Combination = "Combination";
 
+    }
+
+    /// <summary>
+    /// 扩展信息生成服务名称集合
+    /// </summary>
+    public static class ExtensionInfoGenerateServiceNames
+    {
+        public const string Trace = "Trace";
     }
 
 }
