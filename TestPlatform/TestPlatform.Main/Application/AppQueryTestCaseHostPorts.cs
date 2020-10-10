@@ -38,10 +38,11 @@ namespace FW.TestPlatform.Main.Application
 
                     throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestCaseByID, fragment, 1, 0);
                 }
-                bool isAvailabel = await tCase.StatusCheck(cancellationToken);
+                List<TestCase> conflictedCases = await tCase.StatusCheck(cancellationToken);
                 list.Add(new TestCaseHostPortCheckModel()
                 {
-                    IsAvailable = isAvailabel,
+                    IsAvailable = conflictedCases.Count > 0 ? false : true,
+                    ConflictedNames = string.Join(",", conflictedCases.Select(tc => tc.Name).ToArray()),
                     ID = tCase.ID,
                     Name = tCase.Name
                 });

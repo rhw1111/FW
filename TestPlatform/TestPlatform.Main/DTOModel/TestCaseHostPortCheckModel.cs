@@ -62,5 +62,22 @@ namespace FW.TestPlatform.Main.DTOModel
                 SetAttribute<bool>(nameof(IsAvailable), value);
             }
         }
+
+        /// <summary>
+        /// 冲突的名称
+        /// </summary>
+        [DataMember]
+        public string ConflictedNames
+        {
+            get
+            {
+
+                return GetAttribute<string>(nameof(ConflictedNames));
+            }
+            set
+            {
+                SetAttribute<string>(nameof(ConflictedNames), value);
+            }
+        }
     }
 }

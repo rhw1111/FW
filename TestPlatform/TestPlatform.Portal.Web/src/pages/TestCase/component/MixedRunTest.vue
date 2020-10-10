@@ -219,12 +219,6 @@ export default {
         runName = res;
       })
       if (runName.length != 0) {
-        this.$q.notify({
-          position: 'top',
-          message: '提示',
-          caption: `这些测试用例${runName.join('，')}主机端口号已被其他正在运行的测试用例使用。`,
-          color: 'red',
-        })
         this.$q.loading.hide();
         return;
       }
@@ -272,7 +266,13 @@ export default {
         console.log(res)
         for (let i = 0; i < res.data.length; i++) {
           if (!res.data[i].isAvailable) {
-            runName.push(res.data[i].name)
+            runName.push(res.data[i].name + res.data[i].conflictedNames)
+            this.$q.notify({
+              position: 'top',
+              message: '提示',
+              caption: `当前测试用例${res.data[i].name}的主机端口号已被测试用例${res.data[i].conflictedNames}正在使用中`,
+              color: 'red',
+            })
           }
         }
       })
