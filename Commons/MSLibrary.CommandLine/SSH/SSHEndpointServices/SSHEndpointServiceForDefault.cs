@@ -33,8 +33,8 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
         private static ConcurrentDictionary<string, Pool<SftpClient>> _sftpClientPools = new ConcurrentDictionary<string, Pool<SftpClient>>();
         private static ConcurrentDictionary<string, Pool<SshClient>> _sshClientPools = new ConcurrentDictionary<string, Pool<SshClient>>();
 
-        public static int SftpClientPoolLength { get; set; } = 20;
-        public static int SshClientPoolLength { get; set; } = 20;
+        public static int SftpClientPoolLength { get; set; } = 1;
+        public static int SshClientPoolLength { get; set; } = 1;
 
         public async Task DownloadFile(string configuration, Func<Stream, Task> action, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
