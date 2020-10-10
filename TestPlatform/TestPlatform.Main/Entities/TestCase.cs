@@ -353,7 +353,7 @@ namespace FW.TestPlatform.Main.Entities
         {
             return await _imp.GetHistoriesByCaseIdAndIds(this, ids, cancellationToken);
         }
-        public async Task<bool> StatusCheck(CancellationToken cancellationToken = default)
+        public async Task<List<TestCase>> StatusCheck(CancellationToken cancellationToken = default)
         {
             return await _imp.StatusCheck(this, cancellationToken);
         }
@@ -386,7 +386,7 @@ namespace FW.TestPlatform.Main.Entities
         Task DeleteSlaveHosts(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default);
         Task DeleteHistories(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default);
         Task<List<TestCaseHistory>> GetHistoriesByCaseIdAndIds(TestCase tCase, List<Guid> ids, CancellationToken cancellationToken = default);
-        Task<bool> StatusCheck(TestCase tCase, CancellationToken cancellationToken = default);
+        Task<List<TestCase>> StatusCheck(TestCase tCase, CancellationToken cancellationToken = default);
     }
 
 
@@ -985,7 +985,7 @@ namespace FW.TestPlatform.Main.Entities
             string rel = await sshEndpoint.ExecuteCommand(command, 30, cancellationToken);
             return rel;
         }
-        public async Task<bool> StatusCheck(TestCase tCase, CancellationToken cancellationToken = default)
+        public async Task<List<TestCase>> StatusCheck(TestCase tCase, CancellationToken cancellationToken = default)
         {
             var handleService = getHandleService(tCase.EngineType);
 
@@ -1018,6 +1018,6 @@ namespace FW.TestPlatform.Main.Entities
         Task<bool> IsEngineRun(TestCase tCase, CancellationToken cancellationToken = default);
         Task<string> GetMasterLog(TestCase tCase, TestHost host, CancellationToken cancellationToken = default);
         Task<string> GetSlaveLog(TestCase tCase, TestHost host, int idx, CancellationToken cancellationToken = default);
-        Task<bool> StatusCheck(TestCase tCase, CancellationToken cancellationToken = default);
+        Task<List<TestCase>> StatusCheck(TestCase tCase, CancellationToken cancellationToken = default);
     }
 }
