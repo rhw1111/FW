@@ -18,6 +18,7 @@ using FW.TestPlatform.Main.Configuration;
 using System.Text.RegularExpressions;
 using MSLibrary.CommandLine;
 using FW.TestPlatform.Main.Entities.DAL;
+using System.Linq;
 
 namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 {
@@ -142,14 +143,14 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task Run(TestCase tCase, CancellationToken cancellationToken = default)
         {
-            bool isAvailabel = await StatusCheck(tCase, cancellationToken);
-            if (!isAvailabel)
+            List<TestCase> conflictedCases = await StatusCheck(tCase, cancellationToken);
+            if (conflictedCases.Count > 0)
             {
                 var fragment = new TextFragment()
                 {
                     Code = TestPlatformTextCodes.TestHostHasRunning,
-                    DefaultFormatting = "名称为{0}的测试主机端口已经被其它运行的测试用例使用",
-                    ReplaceParameters = new List<object>() { tCase.Name }
+                    DefaultFormatting = "名称为{0}的测试主机端口已经被{1}运行的测试用例使用",
+                    ReplaceParameters = new List<object>() { tCase.Name, string.Join(",", conflictedCases.Select(tc => tc.Name).ToArray()) }
                 };
                 throw new UtilityException((int)TestPlatformErrorCodes.TestHostPortIsUsed, fragment, 1, 0);
             }
@@ -282,7 +283,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     await item.Host.SSHEndpoint.ExecuteCommand($"mkdir {path}", 10, cancellationToken);
 
                     //先删除文件夹内现有的所有文件
-                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {path}{string.Format(_testFileName, "_*")}", 10, cancellationToken);
+                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {path}{string.Format(_testFileName, "_*")}", 20, cancellationToken);
 
                     //为该Slave测试机下的每个Slave上传文件
 
@@ -345,7 +346,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                    return await Task.FromResult($"locust -f {path}{string.Format(_testFileName,string.Empty)} --master --headless --expect-workers {slaveCount.ToString()} --master-bind-port {this.GetPort(configuration).ToString()} -t {configuration.Duration.ToString()} -u {configuration.UserCount.ToString()} -r {configuration.PerSecondUserCount.ToString()} > {path}{string.Format(_testLogFileName,string.Empty)} 2>&1 &");
                }
             };
-            await tCase.MasterHost.SSHEndpoint.ExecuteCommandBatch(commands,10, cancellationToken);
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommandBatch(commands, 20, cancellationToken);
 
             //执行从属机测试命令
             foreach(var item in slaveHostList)
@@ -376,15 +377,15 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                    );                  
                 }
 
-                await item.Host.SSHEndpoint.ExecuteCommandBatch(slaveCommands,10, cancellationToken);
+                await item.Host.SSHEndpoint.ExecuteCommandBatch(slaveCommands, 20, cancellationToken);
             }
 
         }
 
         public async Task Stop(TestCase tCase, CancellationToken cancellationToken = default)
         {
-            bool isAvailabel = await StatusCheck(tCase, cancellationToken);
-            if (isAvailabel)
+            List<TestCase> conflictedCases = await StatusCheck(tCase, cancellationToken);
+            if (conflictedCases.Count == 0)
             {
                 var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
                 int port = this.GetPort(configuration);
@@ -431,9 +432,9 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             return locustMasterBindPort;
         }
 
-        public async Task<bool> StatusCheck(TestCase tCase, CancellationToken cancellationToken = default)
+        public async Task<List<TestCase>> StatusCheck(TestCase tCase, CancellationToken cancellationToken = default)
         {
-            bool isAvailabel = true;
+            List<TestCase> conflictedCases = new List<TestCase>();
             var existsCases = await _testCaseStore.QueryCountNolockByStatus(TestCaseStatus.Running, new List<Guid>() { tCase.MasterHostID }, cancellationToken);
             if (existsCases.Count >= 1)
             {
@@ -444,12 +445,11 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                     var existedConfiguration = JsonSerializerHelper.Deserialize<ConfigurationData>(exiestedCase.Configuration);
                     if (existedConfiguration.LocustMasterBindPort == configuration.LocustMasterBindPort)
                     {
-                        isAvailabel = false;
-                        break;
+                        conflictedCases.Add(exiestedCase);
                     }
                 }
             }
-            return isAvailabel;
+            return conflictedCases;
         }
 
         #endregion
