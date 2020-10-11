@@ -213,18 +213,18 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
 
                      int repeatTimes = 0;
 
-                     while (repeatTimes <= 2)
+                     while (true)
                      {
                          try
                          {
                              await client.UploadAsync(stream, path);
                              break;
                          }
-                         catch (InvalidOperationException)
+                         catch
                          {
                              repeatTimes++;
 
-                             if (repeatTimes > 2)
+                             if (repeatTimes > 10)
                              {
                                  throw;
                              }
@@ -251,7 +251,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
 
                      int repeatTimes = 0;
 
-                     while (repeatTimes <= 2)
+                     while (true)
                      {
                          try
                          {
@@ -259,11 +259,11 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
 
                              break;
                          }
-                         catch (InvalidOperationException)
+                         catch
                          {
                              repeatTimes++;
 
-                             if (repeatTimes > 2)
+                             if (repeatTimes > 10)
                              {
                                  throw;
                              }
@@ -290,7 +290,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                      {
                          int repeatTimes = 0;
 
-                         while (repeatTimes <= 2)
+                         while (true)
                          {
                              try
                              {
@@ -298,11 +298,11 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
 
                                  break;
                              }
-                             catch (InvalidOperationException)
+                             catch
                              {
                                  repeatTimes++;
 
-                                 if (repeatTimes > 2)
+                                 if (repeatTimes > 10)
                                  {
                                      throw;
                                  }
