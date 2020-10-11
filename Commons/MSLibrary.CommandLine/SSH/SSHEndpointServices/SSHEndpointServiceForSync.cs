@@ -34,14 +34,20 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                 var configurationObj = getConfiguration(configuration);
                 using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
                 {
-                    client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    if (timeoutSeconds != -1)
+                    {
+                        client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    }
+
                     client.Connect();
+
                     await using (var stream = new MemoryStream())
                     {
                         client.DownloadFile(path, stream);
                         await action(stream);
                         stream.Close();
                     }
+
                     client.Disconnect();
                 }
             });
@@ -61,7 +67,12 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
 
                     sshClient.Connect();
                     var sshCommand = sshClient.CreateCommand(command);
-                    sshCommand.CommandTimeout = new TimeSpan(0, 0, timeoutSeconds);
+
+                    if (timeoutSeconds != -1)
+                    {
+                        sshCommand.CommandTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    }
+
                     result = sshCommand.Execute();
 
                     sshClient.Disconnect();
@@ -110,7 +121,12 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                     {
                         var command = await item(result);
                         var sshCommond = sshClient.CreateCommand(command);
-                        sshCommond.CommandTimeout = new TimeSpan(0, 0, timeoutSeconds);
+
+                        if (timeoutSeconds != -1)
+                        {
+                            sshCommond.CommandTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                        }
+
                         result = sshCommond.Execute();
                     }
 
@@ -129,7 +145,11 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                 var configurationObj = getConfiguration(configuration);
                 using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
                 {
-                    client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    if (timeoutSeconds != -1)
+                    {
+                        client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    }
+
                     client.Connect();
                     result = client.Exists(path);
                     client.Disconnect();
@@ -147,7 +167,11 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                 var configurationObj = getConfiguration(configuration);
                 using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
                 {
-                    client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    if (timeoutSeconds != -1)
+                    {
+                        client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    }
+
                     client.Connect();
                     client.UploadFile(stream, path);
 
@@ -165,7 +189,11 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                 var configurationObj = getConfiguration(configuration);
                 using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
                 {
-                    client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    if (timeoutSeconds != -1)
+                    {
+                        client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    }
+
                     client.Connect();
 
                     SSHEndpointUploadFileServiceForSync service = new SSHEndpointUploadFileServiceForSync(client);
@@ -185,12 +213,18 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                 var configurationObj = getConfiguration(configuration);
                 using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
                 {
-                    client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    if (timeoutSeconds != -1)
+                    {
+                        client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    }
+
                     client.Connect();
+
                     foreach (var item in uploadFileInfos)
                     {
                         client.UploadFile(item.Item1, item.Item2);
                     }
+
                     client.Disconnect();
                     await Task.CompletedTask;
                 }
@@ -205,9 +239,14 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                 var configurationObj = getConfiguration(configuration);
                 using (var client = new SftpClient(configurationObj.Address, configurationObj.Port, configurationObj.UserName, configurationObj.Password))
                 {
-                    client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    if (timeoutSeconds != -1)
+                    {
+                        client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    }
+
                     client.Connect();
                     var list = client.ListDirectory(fromPath);
+
                     foreach (var item in list)
                     {
                         if (!item.IsDirectory && !item.IsSymbolicLink)
@@ -218,6 +257,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                             fileCount++;
                         }
                     }
+
                     client.Disconnect();
                 }
             });

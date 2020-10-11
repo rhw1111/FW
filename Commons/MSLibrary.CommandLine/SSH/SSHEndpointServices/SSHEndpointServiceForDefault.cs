@@ -33,17 +33,21 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
         private static ConcurrentDictionary<string, Pool<SftpClient>> _sftpClientPools = new ConcurrentDictionary<string, Pool<SftpClient>>();
         private static ConcurrentDictionary<string, Pool<SshClient>> _sshClientPools = new ConcurrentDictionary<string, Pool<SshClient>>();
 
-        public static int SftpClientPoolLength { get; set; } = 20;
-        public static int SshClientPoolLength { get; set; } = 20;
+        public static int SftpClientPoolLength { get; set; } = 1;
+        public static int SshClientPoolLength { get; set; } = 1;
 
         public async Task DownloadFile(string configuration, Func<Stream, Task> action, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
             await exceptionHandle(async () =>
             {
                 await sftpClientExecute(configuration, async (client) =>
-                 {
-                     client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                     await using (var stream = new MemoryStream())
+                {
+                    if (timeoutSeconds != -1)
+                    {
+                        client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                    }
+
+                    await using (var stream = new MemoryStream())
                      {
                          await client.DownloadAsync(path, stream);
                          await action(stream);
@@ -63,8 +67,32 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                 await sshClientExecute(configuration, async (client) =>
                  {
                      var sshCommand = client.CreateCommand(command);
-                     sshCommand.CommandTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                     result = await sshCommand.ExecuteAsync();
+
+                     if (timeoutSeconds != -1)
+                     {
+                         sshCommand.CommandTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                     }
+
+                     int repeatTimes = 0;
+
+                     while (repeatTimes <= 2)
+                     {
+                         try
+                         {
+                             result = await sshCommand.ExecuteAsync();
+
+                             break;
+                         }
+                         catch (InvalidOperationException)
+                         {
+                             repeatTimes++;
+
+                             if (repeatTimes > 2)
+                             {
+                                 throw;
+                             }
+                         }
+                     }
                  });
             }
             );
@@ -78,7 +106,27 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                 await sshClientExecute(configuration, async (client) =>
                  {
                      SSHEndpointCommandService service = new SSHEndpointCommandService(client, timeoutSeconds);
-                     await action(service);
+
+                     int repeatTimes = 0;
+
+                     while (repeatTimes <= 2)
+                     {
+                         try
+                         {
+                             await action(service);
+
+                             break;
+                         }
+                         catch (InvalidOperationException)
+                         {
+                             repeatTimes++;
+
+                             if (repeatTimes > 2)
+                             {
+                                 throw;
+                             }
+                         }
+                     }
                  });
             }
             );
@@ -98,8 +146,32 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                      {
                          var command = await item(result);
                          var sshCommond = client.CreateCommand(command);
-                         sshCommond.CommandTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                         result = await sshCommond.ExecuteAsync();
+
+                         if (timeoutSeconds != -1)
+                         {
+                             sshCommond.CommandTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                         }
+
+                         int repeatTimes = 0;
+
+                         while (repeatTimes <= 2)
+                         {
+                             try
+                             {
+                                 result = await sshCommond.ExecuteAsync();
+
+                                 break;
+                             }
+                             catch (InvalidOperationException)
+                             {
+                                 repeatTimes++;
+
+                                 if (repeatTimes > 2)
+                                 {
+                                     throw;
+                                 }
+                             }
+                         }
                      }
                  });
             });
@@ -114,7 +186,11 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             {
                 await sftpClientExecute(configuration, async (client) =>
                  {
-                     client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);            
+                     if (timeoutSeconds != -1)
+                     {
+                         client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                     }
+
                      result = client.Exists(path);
                      await Task.FromResult(0);
                  });
@@ -130,8 +206,30 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             {
                 await sftpClientExecute(configuration, async (client)=>
                  {
-                     client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                     await client.UploadAsync(stream, path);
+                     if (timeoutSeconds != -1)
+                     {
+                         client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                     }
+
+                     int repeatTimes = 0;
+
+                     while (repeatTimes <= 2)
+                     {
+                         try
+                         {
+                             await client.UploadAsync(stream, path);
+                             break;
+                         }
+                         catch (InvalidOperationException)
+                         {
+                             repeatTimes++;
+
+                             if (repeatTimes > 2)
+                             {
+                                 throw;
+                             }
+                         }
+                     }
                  }
                 );
             });
@@ -144,10 +242,33 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             {
                 await sftpClientExecute(configuration, async (client) =>
                  {
-                     client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                     if (timeoutSeconds != -1)
+                     {
+                         client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                     }
 
                      SSHEndpointUploadFileServiceForDefault service = new SSHEndpointUploadFileServiceForDefault(client);
-                     await action(service);
+
+                     int repeatTimes = 0;
+
+                     while (repeatTimes <= 2)
+                     {
+                         try
+                         {
+                             await action(service);
+
+                             break;
+                         }
+                         catch (InvalidOperationException)
+                         {
+                             repeatTimes++;
+
+                             if (repeatTimes > 2)
+                             {
+                                 throw;
+                             }
+                         }
+                     }
                  });
             }
             );
@@ -160,10 +281,33 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             {
                 await sftpClientExecute(configuration, async (client) =>
                  {
-                     client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                     if (timeoutSeconds != -1)
+                     {
+                         client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                     }
+
                      foreach (var item in uploadFileInfos)
                      {
-                         await client.UploadAsync(item.Item1, item.Item2);
+                         int repeatTimes = 0;
+
+                         while (repeatTimes <= 2)
+                         {
+                             try
+                             {
+                                 await client.UploadAsync(item.Item1, item.Item2);
+
+                                 break;
+                             }
+                             catch (InvalidOperationException)
+                             {
+                                 repeatTimes++;
+
+                                 if (repeatTimes > 2)
+                                 {
+                                     throw;
+                                 }
+                             }
+                         }
                      }
                  });
             });
@@ -176,8 +320,13 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             {
                 await sftpClientExecute(configuration, async (client) =>
                  {
-                     client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                     if (timeoutSeconds != -1)
+                     {
+                         client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
+                     }
+
                      var list = await client.ListDirectoryAsync(fromPath);
+
                      foreach (var item in list)
                      {
                          if (!item.IsDirectory && !item.IsSymbolicLink)
