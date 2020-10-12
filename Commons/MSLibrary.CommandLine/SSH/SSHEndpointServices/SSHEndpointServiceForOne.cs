@@ -441,7 +441,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                     {
                         try
                         {
-                            sshClient.Disconnect();
+                            //sshClient.Disconnect();
                         }
                         catch
                         {
@@ -535,7 +535,7 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
                     {
                         try
                         {
-                            sshClient.Disconnect();
+                            //sshClient.Disconnect();
                         }
                         catch
                         {
