@@ -30,6 +30,9 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
     [Injection(InterfaceType = typeof(SSHEndpointServiceForOnce), Scope = InjectionScope.Singleton)]
     public class SSHEndpointServiceForOnce : ISSHEndpointService
     {
+        public static string UploadServicePath { get; set; } = "";
+        public static string CommandServicePath { get; set; } = "";
+        public static int ServicePort { get; set; } = 5002;
 
         public async Task DownloadFile(string configuration, Func<Stream, Task> action, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
@@ -57,119 +60,33 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
         public async Task<string> ExecuteCommand(string configuration, string command, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
             string result = string.Empty;
-            await exceptionHandle(async () =>
-            {
-                await sshClientExecute(configuration, async (client) =>
-                {
-                    var sshCommand = client.CreateCommand(command);
+            var configurationObj = getConfiguration(configuration);
 
-                    if (timeoutSeconds != -1)
-                    {
-                        sshCommand.CommandTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                    }
-
-                    int repeatTimes = 0;
-
-                    while (repeatTimes <= 2)
-                    {
-                        try
-                        {
-                            result = await sshCommand.ExecuteAsync();
-
-                            break;
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            repeatTimes++;
-
-                            if (repeatTimes > 2)
-                            {
-                                throw;
-                            }
-                        }
-                    }
-                });
-            }
-            );
-            return result;
+            SSHEndpointCommandServiceForOnce service = new SSHEndpointCommandServiceForOnce(getCommandServiceUrl(configurationObj.Address));
+            return await service.Do(command);
         }
 
         public async Task ExecuteCommand(string configuration, Func<ISSHEndpointCommandService, Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
-            await exceptionHandle(async () =>
-            {
-                await sshClientExecute(configuration, async (client) =>
-                {
-                    SSHEndpointCommandServiceForOnce service = new SSHEndpointCommandServiceForOnce(client, timeoutSeconds);
+            string result = string.Empty;
+            var configurationObj = getConfiguration(configuration);
 
-                    int repeatTimes = 0;
-
-                    while (repeatTimes <= 2)
-                    {
-                        try
-                        {
-                            await action(service);
-
-                            break;
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            repeatTimes++;
-
-                            if (repeatTimes > 2)
-                            {
-                                throw;
-                            }
-                        }
-                    }
-                });
-            }
-            );
-
+            SSHEndpointCommandServiceForOnce service = new SSHEndpointCommandServiceForOnce(getCommandServiceUrl(configurationObj.Address));
+            await action(service);
 
         }
 
         public async Task<string> ExecuteCommandBatch(string configuration, IList<Func<string?, Task<string>>> commondGenerators, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
             string? result = null;
-
-            await exceptionHandle(async () =>
+            var configurationObj = getConfiguration(configuration);
+            foreach (var item in commondGenerators)
             {
-                await sshClientExecute(configuration, async (client) =>
-                {
-                    foreach (var item in commondGenerators)
-                    {
-                        var command = await item(result);
-                        var sshCommond = client.CreateCommand(command);
+                var command = await item(result);
 
-                        if (timeoutSeconds != -1)
-                        {
-                            sshCommond.CommandTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                        }
-
-                        int repeatTimes = 0;
-
-                        while (repeatTimes <= 2)
-                        {
-                            try
-                            {
-                                result = await sshCommond.ExecuteAsync();
-
-                                break;
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                repeatTimes++;
-
-                                if (repeatTimes > 2)
-                                {
-                                    throw;
-                                }
-                            }
-                        }
-                    }
-                });
-            });
+                SSHEndpointCommandServiceForOnce service = new SSHEndpointCommandServiceForOnce(getCommandServiceUrl(configurationObj.Address));
+                result=await service.Do(command);
+            }
 
             return result ?? string.Empty;
         }
@@ -197,115 +114,30 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
 
         public async Task UploadFile(string configuration, Stream stream, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
-            await exceptionHandle(async () =>
-            {
-                await sftpClientExecute(configuration, async (client) =>
-                {
-                    if (timeoutSeconds != -1)
-                    {
-                        client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                    }
 
-                    int repeatTimes = 0;
-
-                    while (true)
-                    {
-                        try
-                        {
-                            await client.UploadAsync(stream, path);
-                            break;
-                        }
-                        catch
-                        {
-                            repeatTimes++;
-
-                            if (repeatTimes > 10)
-                            {
-                                throw;
-                            }
-                        }
-                    }
-                }
-                );
-            });
-
+            var configurationObj = getConfiguration(configuration);
+            SSHEndpointUploadFileServiceForOnce service = new SSHEndpointUploadFileServiceForOnce(getUploadServiceUrl(configurationObj.Address));
+            await service.Upload(stream, path);
         }
 
         public async Task UploadFile(string configuration, Func<ISSHEndpointUploadFileService, Task> action, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
-            await exceptionHandle(async () =>
-            {
-                await sftpClientExecute(configuration, async (client) =>
-                {
-                    if (timeoutSeconds != -1)
-                    {
-                        client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                    }
-
-                    SSHEndpointUploadFileServiceForOnce service = new SSHEndpointUploadFileServiceForOnce(client);
-
-                    int repeatTimes = 0;
-
-                    while (true)
-                    {
-                        try
-                        {
-                            await action(service);
-
-                            break;
-                        }
-                        catch
-                        {
-                            repeatTimes++;
-
-                            if (repeatTimes > 10)
-                            {
-                                throw;
-                            }
-                        }
-                    }
-                });
-            }
-            );
+            var configurationObj = getConfiguration(configuration);
+            SSHEndpointUploadFileServiceForOnce service = new SSHEndpointUploadFileServiceForOnce(getUploadServiceUrl(configurationObj.Address));
+            await action(service);
 
         }
 
         public async Task UploadFileBatch(string configuration, IList<(Stream, string)> uploadFileInfos, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
-            await exceptionHandle(async () =>
+            var configurationObj = getConfiguration(configuration);
+            SSHEndpointUploadFileServiceForOnce service = new SSHEndpointUploadFileServiceForOnce(getUploadServiceUrl(configurationObj.Address));
+
+            foreach (var item in uploadFileInfos)
             {
-                await sftpClientExecute(configuration, async (client) =>
-                {
-                    if (timeoutSeconds != -1)
-                    {
-                        client.OperationTimeout = new TimeSpan(0, 0, timeoutSeconds);
-                    }
+                await service.Upload(item.Item1, item.Item2);
+            }
 
-                    foreach (var item in uploadFileInfos)
-                    {
-                        int repeatTimes = 0;
-
-                        while (true)
-                        {
-                            try
-                            {
-                                await client.UploadAsync(item.Item1, item.Item2);
-
-                                break;
-                            }
-                            catch
-                            {
-                                repeatTimes++;
-
-                                if (repeatTimes > 10)
-                                {
-                                    throw;
-                                }
-                            }
-                        }
-                    }
-                });
-            });
         }
 
         public async Task<int> TransferFile(string configuration, Func<string, Task<string>> fileNameGenerateAction, string fromPath, string toPath, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
@@ -470,6 +302,16 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
 
         }
 
+        private string getUploadServiceUrl(string host)
+        {
+            return $"http://{host}:{ServicePort.ToString()}{UploadServicePath}";
+        }
+
+        private string getCommandServiceUrl(string host)
+        {
+            return $"http://{host}:{ServicePort.ToString()}{CommandServicePath}";
+        }
+
         [DataContract]
         private class Configuration
         {
@@ -483,37 +325,50 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
             public string Password { get; set; } = null!;
 
         }
+
+
     }
 
     public class SSHEndpointUploadFileServiceForOnce : ISSHEndpointUploadFileService
     {
-        private readonly SftpClient _sftpClient;
 
-        public SSHEndpointUploadFileServiceForOnce(SftpClient sftpClient)
+        private string _serviceUrl;
+
+        public SSHEndpointUploadFileServiceForOnce(string serviceUrl)
         {
-            _sftpClient = sftpClient;
+            _serviceUrl = serviceUrl;
         }
         public async Task Upload(Stream fileStream, string path)
         {
+            var bytes=await fileStream.ReadAll(10240);
+            var text=UTF8Encoding.UTF8.GetString(bytes);
+            UploadFileData data = new UploadFileData()
+            {
+                Data = text,
+                Path = path
+            };
+            await HttpClinetHelper.PostAsync(data, _serviceUrl);
+        }
 
-            await _sftpClient.UploadAsync(fileStream, path);
+        [DataContract]
+        private class UploadFileData
+        {
+            public string Data { get; set; } = null!;
+            public string Path { get; set; } = null!;
         }
     }
 
     public class SSHEndpointCommandServiceForOnce : ISSHEndpointCommandService
     {
-        private readonly SshClient _sshClient;
-        private int _timeoutSeconds;
-        public SSHEndpointCommandServiceForOnce(SshClient sshClient, int timeoutSecond = -1)
+        private string _serviceUrl;
+
+        public SSHEndpointCommandServiceForOnce(string serviceUrl)
         {
-            _timeoutSeconds = timeoutSecond;
-            _sshClient = sshClient;
+            _serviceUrl = serviceUrl;
         }
         public async Task<string> Do(string command)
         {
-            var sshCommand = _sshClient.CreateCommand(command);
-            sshCommand.CommandTimeout = new TimeSpan(0, 0, _timeoutSeconds);
-            return await sshCommand.ExecuteAsync();
+            return await HttpClinetHelper.PostAsync<string,string>(command, _serviceUrl);
         }
     }
 }
