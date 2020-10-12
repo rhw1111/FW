@@ -127,7 +127,7 @@
                 <q-item-label v-show="item.runStatus == '正在运行' || item.runStatus == '运行结束' || item.runStatus == '已停止运行'"
                               style="color:green">{{item.name}}{{item.runStatus}}</q-item-label>
                 <q-item-label v-show="item.runStatus == '运行失败'"
-                              style="color:red">{{item.name}}{{item.runStatus}}</q-item-label>
+                              style="color:red">{{item.name}}</q-item-label>
               </q-item-section>
 
               <q-item-section avatar>{{item.date}}</q-item-section>
@@ -498,7 +498,7 @@ export default {
           console.log(err)
           _this.$set(_this.runModelArray[index], 'runStatus', '运行失败')
           _this.runResults.push({
-            name: _this.runModelArray[index].name,
+            name: `${_this.runModelArray[index].name}运行失败。错误：${err}`,
             runStatus: '运行失败',
             date: _this.nowTime()
           })
