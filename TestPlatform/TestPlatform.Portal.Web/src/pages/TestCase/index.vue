@@ -305,6 +305,13 @@ export default {
         },
       }).onOk(() => {
         this.$q.loading.show()
+        this.$q.notify({
+          position: 'top',
+          message: '提示',
+          caption: '删除成功',
+          color: 'secondary',
+        })
+        this.selected = [];
         //判断当前的测试用例是否存在目录管理里面，执行不同的删除方法
         if (value.row.treeID == null) {
           let para = `?id=${value.row.id}`

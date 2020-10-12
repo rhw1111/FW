@@ -582,6 +582,7 @@ export default {
       if (val) {
         console.log(val)
         let configuration = JSON.parse(val.configuration)
+        console.log(configuration)
         this.paraConfig = {
           UserCount: configuration.UserCount || '',//压测用户总数
           PerSecondUserCount: configuration.PerSecondUserCount || '',//每秒加载用户数
@@ -594,8 +595,8 @@ export default {
           IsPrintLog: configuration.IsPrintLog == true ? '是' : '否',//是否打印日志
           SyncType: configuration.SyncType == false ? '异步模式' : '同步模式',//是否同步异步 
           ConnectInit: configuration.ConnectInit || { VarSettings: [] },//连接初始化
-          SendInit: configuration.SendInit || { VarSettings: [] },//发送初始化
-          StopInit: configuration.StopInit || { VarSettings: [] }//停止初始化
+          SendInit: configuration.SendInit.VarSettings ? configuration.SendInit : { VarSettings: [] },//发送初始化
+          StopInit: configuration.StopInit.VarSettings ? configuration.StopInit : { VarSettings: [] }//停止初始化
         }
 
         this.Name = val.name;

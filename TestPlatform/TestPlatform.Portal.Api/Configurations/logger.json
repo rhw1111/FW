@@ -23,13 +23,13 @@
     {
       "Type": "Console",
       "LogLevels": {
-        "TestPlatform.Portal.Api": "0",
-        "DIWrapper": "0",
-        "HttpRequest": "0",
-        "SystemAuthentication": "0",
-        "ContextExtension": "0"
+        "TestPlatform.Portal.Api": "4",
+        "DIWrapper": "4",
+        "HttpRequest": "4",
+        "SystemAuthentication": "4",
+        "ContextExtension": "4"
       },
-      "DefaultMinLevel": "0"
+      "DefaultMinLevel": "4"
     }
 
   ]
