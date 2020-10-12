@@ -266,8 +266,8 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 #endif
                 #endregion
 
-                await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"mkdir {path}", 10, cancellationToken);
-                await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{path}{string.Format(_testFileName,string.Empty)}",10, cancellationToken);
+                await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"mkdir {path}");
+                await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{path}{string.Format(_testFileName,string.Empty)}");
                 textStream.Close();
             }
 
@@ -280,15 +280,16 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             await ParallelHelper.ForEach(slaveHosts, 10,
                 async (item) =>
                 {
-                    await item.Host.SSHEndpoint.ExecuteCommand($"mkdir {path}", 10, cancellationToken);
+                    await item.Host.SSHEndpoint.ExecuteCommand($"mkdir {path}");
 
                     //先删除文件夹内现有的所有文件
-                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {path}{string.Format(_testFileName, "_*")}", 20, cancellationToken);
+                    await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {path}{string.Format(_testFileName, "_*")}");
 
                     //为该Slave测试机下的每个Slave上传文件
 
                     try
-                    {                        
+                    {
+
                         await item.Host.SSHEndpoint.UploadFile(
                             async (service) =>
                             {
@@ -302,8 +303,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                                     }
                                 }
                             }
-                            , 30,
-                            cancellationToken
                           );
                         
                     }
@@ -346,7 +345,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                    return await Task.FromResult($"locust -f {path}{string.Format(_testFileName,string.Empty)} --master --headless --expect-workers {slaveCount.ToString()} --master-bind-port {this.GetPort(configuration).ToString()} -t {configuration.Duration.ToString()} -u {configuration.UserCount.ToString()} -r {configuration.PerSecondUserCount.ToString()} > {path}{string.Format(_testLogFileName,string.Empty)} 2>&1 &");
                }
             };
-            await tCase.MasterHost.SSHEndpoint.ExecuteCommandBatch(commands, 20, cancellationToken);
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommandBatch(commands);
 
             //执行从属机测试命令
             foreach(var item in slaveHostList)
@@ -377,7 +376,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                    );                  
                 }
 
-                await item.Host.SSHEndpoint.ExecuteCommandBatch(slaveCommands, 20, cancellationToken);
+                await item.Host.SSHEndpoint.ExecuteCommandBatch(slaveCommands);
             }
 
         }
