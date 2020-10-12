@@ -283,7 +283,7 @@ namespace FW.TestPlatform.Main
 
             DBTransactionHelper.DBConnGenerates[DBTypes.MySql] = new DBConnGenerateForMySql();
 
-            SSHEndpointIMP.SSHEndpointServiceFactories[SSHEndpointTypes.Default] = DIContainerContainer.Get<SSHEndpointServiceForDefaultFactory>();
+            SSHEndpointIMP.SSHEndpointServiceFactories[SSHEndpointTypes.Default] = DIContainerContainer.Get<SSHEndpointServiceForOnceFactory>();
 
             TestCaseIMP.HandleServiceFactories[EngineTypes.Http] = DIContainerContainer.Get<TestCaseHandleServiceForHttpFactory>();
             TestCaseIMP.HandleServiceFactories[EngineTypes.Tcp] = DIContainerContainer.Get<TestCaseHandleServiceForTcpFactory>();
