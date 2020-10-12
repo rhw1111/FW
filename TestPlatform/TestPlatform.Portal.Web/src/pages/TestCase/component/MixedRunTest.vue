@@ -498,7 +498,7 @@ export default {
           console.log(err)
           _this.$set(_this.runModelArray[index], 'runStatus', '运行失败')
           _this.runResults.push({
-            name: `${_this.runModelArray[index].name}运行失败。错误：${err}`,
+            name: `${_this.runModelArray[index].name}运行失败。错误信息：${err}`,
             runStatus: '运行失败',
             date: _this.nowTime()
           })
@@ -667,7 +667,7 @@ export default {
         console.log(err)
         this.$set(this.runOrderArray[index], 'runStatus', '运行失败')
         this.runResults.push({
-          name: this.runOrderArray[index].name,
+          name: `${this.runOrderArray[index].name}运行失败。错误信息：${err}`,
           runStatus: '运行失败',
           date: this.nowTime()
         })
