@@ -383,21 +383,21 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
         public async Task Stop(TestCase tCase, CancellationToken cancellationToken = default)
         {
-            List<TestCase> conflictedCases = await StatusCheck(tCase, cancellationToken);
-            if (conflictedCases.Count == 0)
-            {
-                var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
-                int port = this.GetPort(configuration);
+            //List<TestCase> conflictedCases = await StatusCheck(tCase, cancellationToken);
+            //if (conflictedCases.Count == 0)
+            //{
+            var configuration = JsonSerializerHelper.Deserialize<ConfigurationData>(tCase.Configuration);
+            int port = this.GetPort(configuration);
 
-                //执行主机杀进程命令
-                await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep master-bind-port | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10, cancellationToken);
-                //执行slave杀进程命令
-                var slaveHosts = tCase.GetAllSlaveHosts(cancellationToken);
-                await foreach (var item in slaveHosts)
-                {
-                    await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep master-port | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10, cancellationToken);
-                }
+            //执行主机杀进程命令
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep master-bind-port | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10, cancellationToken);
+            //执行slave杀进程命令
+            var slaveHosts = tCase.GetAllSlaveHosts(cancellationToken);
+            await foreach (var item in slaveHosts)
+            {
+                await item.Host.SSHEndpoint.ExecuteCommand($"ps -ef | grep locust | grep master-port | grep {port.ToString()} | grep -v grep | awk '{{print $2}}' | xargs kill -9", 10, cancellationToken);
             }
+            //}
         }
 
         #region Private
