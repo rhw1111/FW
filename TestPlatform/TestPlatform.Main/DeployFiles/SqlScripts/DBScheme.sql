@@ -69,7 +69,7 @@ REPLACE INTO `systemconfiguration` (`id`, `name`, `content`, `createtime`, `modi
 	('a41d654c-ddf6-11ea-8205-025041000001', 'NetGatewayDataFolder', '"/home/TPUser/NetGateway"', now(), now(), 10),
 	('b191b7a1-ddf6-11ea-8205-025041000001', 'NetGatewayDataTempFolder', '"/home/TPUser/TempNetGateway"', now(), now(), 11),
 	('b9c6b7e8-ddf6-11ea-8205-025041000001', 'NetGatewayDataSSHEndpoint', '"NetGatewayDataSSHEndpoint"', now(), now(), 12),
-	('cf066891-02f1-11eb-8d3b-025041000001', 'WebSocket_TestMonitorAddress', '"http://52.188.14.158:3000/d/kr5bLGMMz/test-case-monitor?orgId=1"', now(), now(), 13),;
+	('cf066891-02f1-11eb-8d3b-025041000001', 'WebSocket_TestMonitorAddress', '"http://52.188.14.158:3000/d/kr5bLGMMz/test-case-monitor?orgId=1"', now(), now(), 13);
 /*!40000 ALTER TABLE `systemconfiguration` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `influxdbendpoint`;
@@ -166,7 +166,7 @@ REPLACE INTO `sshendpoint` (`id`, `type`, `name`, `configuration`, `createtime`,
     "Port": "22",
     "UserName": "TPUser",
     "Password": "Password01asd!"
-}', now(), now())
+}', now(), now());
 
 DROP TABLE IF EXISTS `testcase`;
 CREATE TABLE `testcase` (
@@ -318,17 +318,14 @@ CREATE TABLE IF NOT EXISTS `treeentity` (
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-/*!ALTER TABLE testcasehistory*/
 ALTER TABLE `testcasehistory` ADD COLUMN `netgatewaydataformat` varchar(150) DEFAULT '';
 ALTER TABLE `testcase` ADD COLUMN `testcasehistoryid` char(36) DEFAULT NULL;
-/*!ALTER TABLE testcase testdatasource 2020-08-27*/
 ALTER TABLE `testcase` ADD COLUMN `treeid` char(36) DEFAULT NULL;
 ALTER TABLE `testdatasource` ADD COLUMN `treeid` char(36) DEFAULT NULL;
-/*!ALTER TABLE commonlocal_log 2020-09-12*/
-ALTER TABLE `commonlog_local` ADD COLUMN `traceid` varchar(300) DEFAULT NULL;
-ALTER TABLE `commonlog_local` ADD COLUMN `linkid` varchar(300) DEFAULT NULL;
 
-/*!Update testcase testdatasource history data.*/
+ALTER TABLE tpconfig.commonlog_local ADD COLUMN `traceid` varchar(300) DEFAULT NULL;
+ALTER TABLE tpconfig.commonlog_local ADD COLUMN `linkid` varchar(300) DEFAULT NULL;
+
 USE tpmain;
 START TRANSACTION;
 insert into tpmain.treeentity( `id`, `value`,`name`, type, createtime, modifytime) 
