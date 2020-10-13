@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSLibrary.Survey", "..\Comm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSLibrary.SerialNo", "..\Commons\MSLibrary.SerialNo\MSLibrary.SerialNo.csproj", "{9F3336D6-E266-4E4C-AE62-C9CD3A84DAD9}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "TestPlatform.TestHostService", "TestPlatform.TestHostService\TestPlatform.TestHostService.pyproj", "{2C0DA0AD-B58A-4524-B5E7-ADB59AD865B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -321,6 +323,16 @@ Global
 		{9F3336D6-E266-4E4C-AE62-C9CD3A84DAD9}.Release|x64.Build.0 = Release|Any CPU
 		{9F3336D6-E266-4E4C-AE62-C9CD3A84DAD9}.Release|x86.ActiveCfg = Release|Any CPU
 		{9F3336D6-E266-4E4C-AE62-C9CD3A84DAD9}.Release|x86.Build.0 = Release|Any CPU
+		{2C0DA0AD-B58A-4524-B5E7-ADB59AD865B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C0DA0AD-B58A-4524-B5E7-ADB59AD865B6}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{2C0DA0AD-B58A-4524-B5E7-ADB59AD865B6}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{2C0DA0AD-B58A-4524-B5E7-ADB59AD865B6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2C0DA0AD-B58A-4524-B5E7-ADB59AD865B6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2C0DA0AD-B58A-4524-B5E7-ADB59AD865B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C0DA0AD-B58A-4524-B5E7-ADB59AD865B6}.Release|ARM.ActiveCfg = Release|Any CPU
+		{2C0DA0AD-B58A-4524-B5E7-ADB59AD865B6}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{2C0DA0AD-B58A-4524-B5E7-ADB59AD865B6}.Release|x64.ActiveCfg = Release|Any CPU
+		{2C0DA0AD-B58A-4524-B5E7-ADB59AD865B6}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
