@@ -30,9 +30,9 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
     [Injection(InterfaceType = typeof(SSHEndpointServiceForOnce), Scope = InjectionScope.Singleton)]
     public class SSHEndpointServiceForOnce : ISSHEndpointService
     {
-        public static string UploadServicePath { get; set; } = "";
-        public static string CommandServicePath { get; set; } = "";
-        public static int ServicePort { get; set; } = 5002;
+        public static string UploadServicePath { get; set; } = "/upload/";
+        public static string CommandServicePath { get; set; } = "/command/";
+        public static int ServicePort { get; set; } = 8085;
 
         public async Task DownloadFile(string configuration, Func<Stream, Task> action, string path, int timeoutSeconds = -1, CancellationToken cancellationToken = default)
         {
@@ -342,19 +342,40 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
         {
             var bytes=await fileStream.ReadAll(10240);
             var text=UTF8Encoding.UTF8.GetString(bytes);
-            UploadFileData data = new UploadFileData()
+            UploadFileRequest data = new UploadFileRequest()
             {
                 Data = text,
-                Path = path
+                Path = path,
             };
-            await HttpClinetHelper.PostAsync(data, _serviceUrl);
+            var response=await HttpClinetHelper.PostAsync< UploadFileRequest,UploadFileResponse>(data, _serviceUrl);
+            if (!response.Result)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = CommandLineTextCodes.UploadFileError,
+                    DefaultFormatting = "上传文件错误，服务地址为：{0}，文件路径：{1}，错误内容：{2}",
+                    ReplaceParameters = new List<object>() { _serviceUrl, data.Path, response.Message }
+                };
+
+                throw new UtilityException((int)CommandLineErrorCodes.UploadFileError, fragment, 1, 0);
+            }
         }
 
         [DataContract]
-        private class UploadFileData
+        private class UploadFileRequest
         {
+            [DataMember(Name ="content")]
             public string Data { get; set; } = null!;
+            [DataMember(Name = "path")]
             public string Path { get; set; } = null!;
+        }
+        [DataContract]
+        private class UploadFileResponse
+        {
+            [DataMember(Name = "is_success")]
+            public bool Result { get; set; }
+            [DataMember(Name = "message")]
+            public string Message { get; set; } = null!;
         }
     }
 
@@ -368,7 +389,32 @@ namespace MSLibrary.CommandLine.SSH.SSHEndpointServices
         }
         public async Task<string> Do(string command)
         {
-            return await HttpClinetHelper.PostAsync<string,string>(command, _serviceUrl);
+            var response=await HttpClinetHelper.PostAsync<string, CommandResponse>(command, _serviceUrl);
+            if (!response.Result)
+            {
+                var fragment = new TextFragment()
+                {
+                    Code = CommandLineTextCodes.CommandExecuteError,
+                    DefaultFormatting = "命令执行错误，服务地址为：{0}，命令：{1}，错误内容：{2}",
+                    ReplaceParameters = new List<object>() { _serviceUrl , command ,response.Message}
+                };
+
+                throw new UtilityException((int)CommandLineErrorCodes.CommandExecuteError, fragment, 1, 0);
+            }
+
+            return response.Out ?? string.Empty;
         }
+
+        [DataContract]
+        private class CommandResponse
+        {
+            [DataMember(Name = "is_success")]
+            public bool Result { get; set; }
+            [DataMember(Name = "message")]
+            public string Message { get; set; } = null!;
+            [DataMember(Name = "out")]
+            public string? Out { get; set; }
+        }
+
     }
 }
