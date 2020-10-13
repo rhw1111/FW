@@ -243,6 +243,8 @@ namespace FW.TestPlatform.Main
 
             //为HttpClinetHelper的HttpClientFactory赋值
             HttpClinetHelper.HttpClientFactoryGenerator = () => DIContainerContainer.Get<IHttpClientFactory>();
+            HttpClinetHelper.MajorVersion = 1;
+            HttpClinetHelper.MinorVersion = 1;
 
             //为AdfsHelper.HttpClientFactory赋值
             AdfsHelper.HttpClientFactoryGenerator = () => DIContainerContainer.Get<IHttpClientFactory>();
