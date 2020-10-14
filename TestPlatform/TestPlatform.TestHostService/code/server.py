@@ -138,6 +138,8 @@ class command:
                 "code": "Fail",
                 "message": "失败：" + str(e)
             }
+
+            print("[%s] [command] [POST] Error: %s" % (datetime.datetime.now().strftime(datetime_format), str(e)))
         else:
             result = {
                 "is_success": True,
@@ -208,6 +210,8 @@ class commands:
                 "code": "Fail",
                 "message": "失败：" + str(e)
             }
+
+            print("[%s] [command] [POST] Error: %s" % (datetime.datetime.now().strftime(datetime_format), str(e)))
         else:
             result = {
                 "is_success": True,
@@ -275,6 +279,8 @@ class upload:
                 "code": "Fail",
                 "message": "失败：" + str(e)
             }
+
+            print("[%s] [command] [POST] Error: %s" % (datetime.datetime.now().strftime(datetime_format), str(e)))
         else:
             result = {
                 "is_success": True,

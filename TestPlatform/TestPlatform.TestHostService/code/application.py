@@ -4,6 +4,9 @@
 """application.py"""
 
 import re
+import datetime
+
+datetime_format = "%Y-%m-%d %H:%M:%S.%f"
 
 
 class my_app:
@@ -16,17 +19,22 @@ class my_app:
         self._fvars = fvars
 
     def __call__(self, environ, start_response):
-        self._status = "200 OK"  # 默认状态OK
-        del self.headers[:]  # 清空上一次的headers
+        try:
+            self._status = "200 OK"  # 默认状态OK
+            del self.headers[:]  # 清空上一次的headers
 
-        result = self._delegate(environ)
-        start_response(self._status, self.headers)
+            result = self._delegate(environ)
+            start_response(self._status, self.headers)
 
-        # 将返回值result（字符串 或者 字符串列表）转换为迭代对象
-        if isinstance(result, str):
-            return iter([result.encode("utf-8")])
-        else:
-            return iter(result.encode("utf-8"))
+            # 将返回值result（字符串 或者 字符串列表）转换为迭代对象
+            if isinstance(result, str):
+                return iter([result.encode("utf-8")])
+            else:
+                return iter(result.encode("utf-8"))
+        except Exception as e:
+            print("[%s] [__call__] Error: %s" % (datetime.datetime.now().strftime(datetime_format), str(e)))
+
+            return iter(str(e).encode("utf-8"))
 
     def _delegate(self, environ):
         path = environ["PATH_INFO"]
