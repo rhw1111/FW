@@ -1,6 +1,7 @@
 <template>
   <div class="TreeEntity">
-    <div class="q-pa-md">
+    <div class="q-pa-md"
+         style="padding:26px 16px;">
       <el-tree :data="simple"
                :props="defaultProps"
                :highlight-current="true"
