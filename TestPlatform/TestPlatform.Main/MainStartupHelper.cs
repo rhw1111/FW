@@ -243,6 +243,8 @@ namespace FW.TestPlatform.Main
 
             //为HttpClinetHelper的HttpClientFactory赋值
             HttpClinetHelper.HttpClientFactoryGenerator = () => DIContainerContainer.Get<IHttpClientFactory>();
+            HttpClinetHelper.MajorVersion = 1;
+            HttpClinetHelper.MinorVersion = 1;
 
             //为AdfsHelper.HttpClientFactory赋值
             AdfsHelper.HttpClientFactoryGenerator = () => DIContainerContainer.Get<IHttpClientFactory>();
@@ -283,7 +285,7 @@ namespace FW.TestPlatform.Main
 
             DBTransactionHelper.DBConnGenerates[DBTypes.MySql] = new DBConnGenerateForMySql();
 
-            SSHEndpointIMP.SSHEndpointServiceFactories[SSHEndpointTypes.Default] = DIContainerContainer.Get<SSHEndpointServiceForOneFactory>();
+            SSHEndpointIMP.SSHEndpointServiceFactories[SSHEndpointTypes.Default] = DIContainerContainer.Get<SSHEndpointServiceForOnceFactory>();
 
             TestCaseIMP.HandleServiceFactories[EngineTypes.Http] = DIContainerContainer.Get<TestCaseHandleServiceForHttpFactory>();
             TestCaseIMP.HandleServiceFactories[EngineTypes.Tcp] = DIContainerContainer.Get<TestCaseHandleServiceForTcpFactory>();
