@@ -29,10 +29,11 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         private readonly IAppExecuteCopy _appExecuteCopy;
         private readonly IAppGetFolderTreeEntity _appGetFolderTreeEntity;
         private readonly IAppQueryTreeEntityPath _appQueryTreeEntity;
+        private readonly IAppQueryTreeEntityPathIds _appQueryTreeEntityPathIds;
 
         public TreeEntityController(IAppQueryTreeEntityChildren appQueryTreeEntityChildren, IAppQueryTreeEntities appQueryTreeEntities, IAppGoBackPrevious appGoBackPrevious, IAppAddTreeEntity appAddTreeEntity,
             IAppUpdateTreeEntityParent appUpdateTreeEntityParent, IAppUpdateTreeEntityName appUpdateTreeEntityName, IAppQueryChild appQueryChild, IAppDeleteTreeEntity appDeleteTreeEntity, IAppExecuteCopy appExecuteCopy, IAppGetFolderTreeEntity appGetFolderTreeEntity,
-            IAppQueryTreeEntityPath appQueryTreeEntity)
+            IAppQueryTreeEntityPath appQueryTreeEntity, IAppQueryTreeEntityPathIds appQueryTreeEntityPathIds)
         {
             _appQueryTreeEntityChildren = appQueryTreeEntityChildren;
             _appQueryTreeEntities = appQueryTreeEntities;
@@ -45,6 +46,7 @@ namespace FW.TestPlatform.Portal.Api.Controllers
             _appExecuteCopy = appExecuteCopy;
             _appGetFolderTreeEntity = appGetFolderTreeEntity;
             _appQueryTreeEntity = appQueryTreeEntity;
+            _appQueryTreeEntityPathIds = appQueryTreeEntityPathIds;
         }
 
         [HttpGet("querybypage")]
@@ -127,6 +129,12 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         public async Task<List<string>> TreePath(Guid id)
         {
             return await _appQueryTreeEntity.Do(id);
+        }
+
+        [HttpGet("treepathids")]
+        public async Task<List<Guid>> TreePathIds(Guid id)
+        {
+            return await _appQueryTreeEntityPathIds.Do(id);
         }
     }
 }
