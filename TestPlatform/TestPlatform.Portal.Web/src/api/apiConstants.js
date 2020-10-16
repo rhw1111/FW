@@ -118,6 +118,8 @@ const apiConstants = {
 
   postTreeEntityCopyFolder: 'api/treeentity/createfolder',//复制创建目录
 
-  getTreeEntityTreePath: 'api/treeentity/treepath',//获取节点的路径
+  getTreeEntityTreePath: 'api/treeentity/treepath',//获取节点的路径名称
+
+  getTreeEntityTreePathId: 'api/treeentity/treepathids',//获取节点的路径id
 }
 export default apiConstants
