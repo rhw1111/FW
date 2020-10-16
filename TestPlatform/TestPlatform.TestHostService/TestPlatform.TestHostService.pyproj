@@ -21,7 +21,21 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="code\application.py" />
+    <Compile Include="code\server.py" />
+    <Compile Include="release\TestPlatform.TestHostService\application.py" />
+    <Compile Include="release\TestPlatform.TestHostService\server.py" />
     <Compile Include="TestPlatform.TestHostService.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="code\" />
+    <Folder Include="images\" />
+    <Folder Include="release\" />
+    <Folder Include="release\TestPlatform.TestHostService\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="images\favicon.ico" />
+    <Content Include="release\TestPlatform.TestHostService\start.sh" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

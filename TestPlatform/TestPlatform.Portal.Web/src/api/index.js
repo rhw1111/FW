@@ -467,13 +467,20 @@ export const postTreeEntityCopyFolder = payload =>
     payload
   })
 
-//获取节点的路径
+//获取节点的路径名称
 export const getTreeEntityTreePath = payload =>
   action({
     apiName: 'getTreeEntityTreePath',
     payload
   })
 
+
+//获取节点的路径id
+export const getTreeEntityTreePathId = payload =>
+  action({
+    apiName: 'getTreeEntityTreePathId',
+    payload
+  })
 
 //判断当前主机端口号是否正在被使用
 export const postQueryHostPorts = payload =>

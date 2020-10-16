@@ -2,10 +2,9 @@ import Axios from 'axios'
 import Vue from 'vue'
 import HTTP_STATUS from './HttpStatus'
 import router from '../router/index.js'
-import HTTP_LOCATION from "./HttpLocation"
 
 let loadingInstance = null;
-Axios.defaults.baseURL = HTTP_LOCATION;
+Axios.defaults.baseURL = window.Axios_baseURL || '/api';
 Axios.interceptors.request.use(
   config => {
     config.headers = {
