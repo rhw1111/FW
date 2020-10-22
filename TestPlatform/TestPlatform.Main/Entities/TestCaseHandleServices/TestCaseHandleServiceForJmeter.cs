@@ -230,6 +230,44 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
             string path = this.GetTestFilePath(tCase.ID.ToString());
 
+            // 替换CSV
+            object lockObj = new object();
+
+            await ParallelHelper.ForEach(configuration.DataSourceVars, 10,
+                async (item) =>
+                {
+                    string fileName = Path.GetFileName(item.Path);
+
+                    using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(item.Data)))
+                    {
+                        #region Test Code
+#if DEBUG
+                        //string testFilePath = $"E:\\Downloads\\{fileName}";
+
+                        //if (File.Exists(testFilePath))
+                        //{
+                        //    File.Delete(testFilePath);
+                        //}
+
+                        //using (FileStream fileStream = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.Write))
+                        //{
+                        //    BinaryWriter w = new BinaryWriter(fileStream);
+                        //    w.Write(textStream.ToArray());
+                        //}
+#endif
+                        #endregion
+
+                        await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{path}{fileName}");
+                        textStream.Close();
+                    }
+
+                    lock (lockObj)
+                    {
+                        strCode = strCode.Replace(item.Path, $"{path}{fileName}");
+                    }
+                }
+            );
+
             #region 检查主机端口是否被占用，并强制终止
             //await this.Stop(tCase, cancellationToken);
             #endregion
@@ -260,36 +298,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{path}{string.Format(_testFileName, string.Empty)}");
                 textStream.Close();
             }
-
-            await ParallelHelper.ForEach(configuration.DataSourceVars, 10,
-                async (item) =>
-                {
-                    using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(item.Data)))
-                    {
-                        string fileName = Path.GetFileName(item.Path);
-
-                        #region Test Code
-#if DEBUG
-                        //string testFilePath = $"E:\\Downloads\\{fileName}";
-
-                        //if (File.Exists(testFilePath))
-                        //{
-                        //    File.Delete(testFilePath);
-                        //}
-
-                        //using (FileStream fileStream = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.Write))
-                        //{
-                        //    BinaryWriter w = new BinaryWriter(fileStream);
-                        //    w.Write(textStream.ToArray());
-                        //}
-#endif
-                        #endregion
-
-                        await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{path}{fileName}");
-                        textStream.Close();
-                    }
-                }
-            );
 
             ////获取测试用例的所有从属测试机，上传测试代码
             //var slaveHosts = tCase.GetAllSlaveHosts(cancellationToken);
