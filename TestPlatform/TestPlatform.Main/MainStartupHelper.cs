@@ -290,6 +290,7 @@ namespace FW.TestPlatform.Main
             TestCaseIMP.HandleServiceFactories[EngineTypes.Http] = DIContainerContainer.Get<TestCaseHandleServiceForHttpFactory>();
             TestCaseIMP.HandleServiceFactories[EngineTypes.Tcp] = DIContainerContainer.Get<TestCaseHandleServiceForTcpFactory>();
             TestCaseIMP.HandleServiceFactories[EngineTypes.WebSocket] = DIContainerContainer.Get<TestCaseHandleServiceForWebSocketFactory>();
+            TestCaseIMP.HandleServiceFactories[EngineTypes.Jmeter] = DIContainerContainer.Get<TestCaseHandleServiceForJmeterFactory>();
 
             TestCaseHandleServiceForTcp.AdditionFuncNames = new List<string> { 
                 AdditionFuncNames.NameOnceJsonData, 

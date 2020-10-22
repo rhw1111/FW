@@ -32,6 +32,7 @@ namespace FW.TestPlatform.Main
         public const string LocustTcp = "LocustTcp";
         public const string LocustHttp = "LocustHttp";
         public const string LocustWebSocket = "LocustWebSocket";
+        public const string Jmeter = "Jmeter";
     }
 
     /// <summary>
@@ -189,6 +190,7 @@ namespace FW.TestPlatform.Main
         public const string Http = "Http";
         public const string Tcp = "Tcp";
         public const string WebSocket = "WebSocket";
+        public const string Jmeter = "Jmeter";
     }
 
     /// <summary>
@@ -197,6 +199,7 @@ namespace FW.TestPlatform.Main
     public static class RuntimeEngineTypes
     {
         public const string Locust = "Locust";
+        public const string Jmeter = "Jmeter";
     }
 
     /// <summary>
