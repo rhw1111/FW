@@ -94,6 +94,29 @@ namespace FW.TestPlatform.Main.Entities.DAL
             return result;
         }
 
+        public async Task<TestDataSource?> QueryByTreeEntityNameAndParentID(Guid? parentId, string name, CancellationToken cancellationToken = default)
+        {
+            TestDataSource? result = null;
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    result = await (from item in dbContext.TreeEntities
+                                                    join dsItem in dbContext.TestDataSources
+                                                    on item.Value equals dsItem.ID.ToString()
+                           where item.ParentID == parentId && item.Type == 3 && item.Name == name
+                           select dsItem).FirstOrDefaultAsync();
+                }
+            });
+
+            return result;
+        }
+
         public async Task<TestDataSource?> QueryByName(string name, CancellationToken cancellationToken = default)
         {
             TestDataSource? result = null;

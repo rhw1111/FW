@@ -183,12 +183,12 @@ namespace FW.TestPlatform.Main.Collections.DAL
                         {
                             await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                         }
-                        var testCase = await (from item in dbContext.TreeEntities
+                        var treeEntity = await (from item in dbContext.TreeEntities
                                               where item.Name == name && item.ParentID == parentId
                                               orderby EF.Property<long>(item, "Sequence") descending
                                               select item).FirstOrDefaultAsync();
-                        if (testCase != null)
-                            result = testCase.ID;
+                        if (treeEntity != null)
+                            result = treeEntity.ID;
                     }
                 });
 
@@ -258,12 +258,12 @@ namespace FW.TestPlatform.Main.Collections.DAL
                             await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                         }
 
-                        var testCase = await (from item in dbContext.TreeEntities
+                        var treeEntity = await (from item in dbContext.TreeEntities
                                               where item.ParentID == parentID
                                               orderby EF.Property<long>(item, "Sequence") descending
                                               select item).FirstOrDefaultAsync();
-                        if (testCase != null)
-                            result = testCase.ID;
+                        if (treeEntity != null)
+                            result = treeEntity.ID;
                     }
                 });
 
