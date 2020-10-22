@@ -169,6 +169,10 @@ namespace FW.TestPlatform.Main
         /// <summary>
         /// 指定的测试主机已经被执行
         /// </summary>
-        TestHostPortIsUsed = 325710225
+        TestHostPortIsUsed = 325710225,
+        /// <summary>
+        /// 找不到指定名称的目录节点
+        /// </summary>
+        NotFoundTreeEntity = 325710226
     }
 }

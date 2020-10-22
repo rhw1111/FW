@@ -53,5 +53,10 @@ namespace FW.TestPlatform.Main.Entities
         {
             return _testDataSourceStore.GetDataSources(cancellationToken);
         }
+
+        public async Task<TestDataSource?> QueryByTreeEntityNameAndParentID(Guid? parentId, string name, CancellationToken cancellationToken = default)
+        {
+            return await _testDataSourceStore.QueryByTreeEntityNameAndParentID(parentId, name, cancellationToken);
+        }
     }
 }
