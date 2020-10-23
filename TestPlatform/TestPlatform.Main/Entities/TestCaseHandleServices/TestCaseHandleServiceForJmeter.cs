@@ -364,8 +364,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 sbSlaveHosts.Append($",{item.Host.Address}:1099");
             }
 
-            string s = $"jmeter -D remote_hosts={sbSlaveHosts.ToString().Substring(1)} -n -t {path}{string.Format(_testFileName, string.Empty)} -l {path}{string.Format(_testLogFileName, string.Empty)} -e -o {path} 2>&1 &";
-
             //执行主机测试命令
             List<Func<string?, Task<string>>> commands = new List<Func<string?, Task<string>>>()
             {
