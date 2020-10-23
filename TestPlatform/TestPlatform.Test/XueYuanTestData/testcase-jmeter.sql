@@ -1,5 +1,6 @@
 SELECT * FROM tpmain.testcase;
-SELECT * FROM tpmain.treeentity;
+SELECT * FROM tpmain.treeentity
+WHERE name LIKE '%XueYuan%';
 SELECT id, masterhostid, ownerid, enginetype, name, status, createtime, modifytime, sequence, testcasehistoryid, treeid FROM tpmain.testcase
 WHERE name LIKE '%XueYuan%';
 
@@ -8,9 +9,9 @@ SELECT * FROM tpmain.testcase
 WHERE id = 'c9198a53-137b-11eb-bbfc-00ffb1d16cf9';
 
 REPLACE INTO tpmain.testcase
-VALUES('c9198a53-137b-11eb-bbfc-00ffb1d16cf9', '822114cf-5277-4667-961f-e231f9e67e4d', '46f8bcca-af6e-11ea-8e6a-0242ac110002', 'Jmeter', 'XueYuanTestJmeter', '', '0', now(), now(), '4', null, '1e6d9aed-1436-11eb-8e14-00ffb1d16cf9');
+VALUES('c9198a53-137b-11eb-bbfc-00ffb1d16cf9', '822114cf-5277-4667-961f-e231f9e67e4d', '46f8bcca-af6e-11ea-8e6a-0242ac110002', 'Jmeter', 'XueYuanTestJmeter', '', '0', now(), now(), '258', null, '1e6d9aed-1436-11eb-8e14-00ffb1d16cf9');
 REPLACE INTO tpmain.treeentity
-VALUES('1e6d9aed-1436-11eb-8e14-00ffb1d16cf9', 'XueYuanTestJmeter', 'c9198a53-137b-11eb-bbfc-00ffb1d16cf9', '2', '78b9de7c-2ce4-41ba-89ec-10dfd1bbdff0', now(), now(), '614');
+VALUES('1e6d9aed-1436-11eb-8e14-00ffb1d16cf9', 'XueYuanTestJmeter', 'c9198a53-137b-11eb-bbfc-00ffb1d16cf9', '2', '78b9de7c-2ce4-41ba-89ec-10dfd1bbdff0', now(), now(), '801');
 
 
 UPDATE tpmain.testcase
