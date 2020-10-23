@@ -231,42 +231,35 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             string path = this.GetTestFilePath(tCase.ID.ToString());
 
             // 替换CSV
-            object lockObj = new object();
+            foreach (var item in configuration.DataSourceVars)
+            {
+                string fileName = Path.GetFileName(item.Path);
 
-            await ParallelHelper.ForEach(configuration.DataSourceVars, 10,
-                async (item) =>
+                using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(item.Data)))
                 {
-                    string fileName = Path.GetFileName(item.Path);
-
-                    using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(item.Data)))
-                    {
-                        #region Test Code
+                    #region Test Code
 #if DEBUG
-                        //string testFilePath = $"E:\\Downloads\\{fileName}";
+                    //string testFilePath = $"E:\\Downloads\\{fileName}";
 
-                        //if (File.Exists(testFilePath))
-                        //{
-                        //    File.Delete(testFilePath);
-                        //}
+                    //if (File.Exists(testFilePath))
+                    //{
+                    //    File.Delete(testFilePath);
+                    //}
 
-                        //using (FileStream fileStream = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.Write))
-                        //{
-                        //    BinaryWriter w = new BinaryWriter(fileStream);
-                        //    w.Write(textStream.ToArray());
-                        //}
+                    //using (FileStream fileStream = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.Write))
+                    //{
+                    //    BinaryWriter w = new BinaryWriter(fileStream);
+                    //    w.Write(textStream.ToArray());
+                    //}
 #endif
-                        #endregion
+                    #endregion
 
-                        await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{path}{fileName}");
-                        textStream.Close();
-                    }
-
-                    lock (lockObj)
-                    {
-                        strCode = strCode.Replace(item.Path, $"{path}{fileName}");
-                    }
+                    await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{path}{fileName}");
+                    textStream.Close();
                 }
-            );
+
+                strCode = strCode.Replace(item.Path, $"{path}{fileName}");
+            }
 
             #region 检查主机端口是否被占用，并强制终止
             //await this.Stop(tCase, cancellationToken);
