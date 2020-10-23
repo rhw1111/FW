@@ -8,7 +8,8 @@
                     ref="TreeEntity"
                     style="max-width:20%;height:100%;overflow:auto;float:left;"
                     @getDirectoryLocation="getDirectoryLocation"
-                    :DirectoryLocation="DirectoryLocation" />
+                    :DirectoryLocation="DirectoryLocation"
+                    :TestCaseTreeExpanded="treeExpanded" />
       </transition>
 
       <div style="height:100%;">
@@ -99,65 +100,6 @@
       </q-card>
     </q-dialog>
 
-    <!-- 运行执行框 -->
-    <!-- <q-dialog v-model="runFixed"
-              position='left'
-              persistent>
-      <q-card style="width: 100%; max-width: 50vw;">
-        <q-card-section>
-          <div class="text-h6">请选择运行测试用例的模式</div>
-        </q-card-section>
-
-        <q-separator />
-        <div class="q-pa-md">
-          <q-radio v-model="runModel"
-                   val="parallel"
-                   label="并行模式" />
-          <q-radio v-model="runModel"
-                   val="sequential"
-                   label="顺序运行" />
-
-          <div v-show="runModel=='parallel'">
-
-            <div class="input_row row"
-                 style="margin-bottom:10px;width:100%;display:inlin-block;"
-                 v-for="(value,index) in runModelArray"
-                 :key="index">
-              <q-input v-model="value.executionTime"
-                       outlined
-                       class="col-8"
-                       :dense="true"
-                       placeholder="请输入测试用例开始运行的延迟秒数"
-                       @input="forceUpdate(value.executionTime,index)">
-                <template v-slot:before>
-                  <span style="font-size:14px;width:150px;word-wrap:break-word;">{{value.name}}:</span>
-                </template>
-                <template v-slot:append>
-                  <q-avatar>
-                    秒
-                  </q-avatar>
-                </template>
-              </q-input>
-
-            </div>
-
-          </div>
-        </div>
-        <q-separator />
-
-        <q-card-actions align="right">
-          <q-btn flat
-                 label="取消"
-                 color="primary"
-                 @click="runCancelTestCase" />
-          <q-btn flat
-                 label="运行"
-                 color="primary"
-                 @click="runTestCase" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog> -->
-
     <MixedRunTest ref="MixedRunTest"
                   :runFixedSH="runFixed"
                   :selectedArr="selected" />
@@ -209,7 +151,8 @@ export default {
       //------------------------------- 目录 ---------------------------
       expanded: false,//目录展开收缩flag
       SelectLocation: '',//选择的位置
-      DirectoryLocation: '',//目录结构树
+      DirectoryLocation: [],//目录结构树
+      treeExpanded: [],//已选的目录结构树
       // --------------------------------- 运行 --------------------------
       runFixed: false,//运行执行逻辑框
       runModel: 'parallel',//运行模式
@@ -225,6 +168,7 @@ export default {
   methods: {
     //判断是否从详情页回来的
     DetailToTestCase () {
+      this.$q.loading.show()
       let detailTestCase = JSON.parse(sessionStorage.getItem('TestCaseLocation'));
       console.log(detailTestCase)
       //判断当前是否在根目录
@@ -234,9 +178,19 @@ export default {
         if (detailTestCase.SelectLocation == '' || detailTestCase.SelectLocation.id == null) {
           this.getTestCaseList(1, null, true);
         } else {
-          this.getTestCaseList(1, detailTestCase.SelectLocation.id, true);
-          this.SelectLocation = detailTestCase.SelectLocation.id;
-          this.DirectoryLocation = detailTestCase;
+          let para = { id: detailTestCase.SelectLocation.id };
+          Apis.getTreeEntityTreePathId(para).then((res) => {
+            console.log(res)
+
+            this.SelectLocation = detailTestCase.SelectLocation.id;
+            this.DirectoryLocation = detailTestCase;
+            this.treeExpanded.push(null)
+            for (let i = 0; i < res.data.length; i++) {
+              this.treeExpanded.push(res.data[i])
+            }
+            this.treeExpanded.pop();
+            this.getTestCaseList(1, detailTestCase.SelectLocation.id, true);
+          })
         }
       }
     },

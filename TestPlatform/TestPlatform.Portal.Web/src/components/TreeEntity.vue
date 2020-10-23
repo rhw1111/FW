@@ -6,6 +6,8 @@
                :props="defaultProps"
                :highlight-current="true"
                :expand-on-click-node="false"
+               node-key="id"
+               :default-expanded-keys="treeExpanded"
                @node-expand="unfoldTree"
                @node-click="handleNodeClick"></el-tree>
     </div>
@@ -16,7 +18,7 @@
 import * as Apis from "@/api/index"
 export default {
   name: 'TreeEntity',
-  props: ['existingDirectories', 'DirectoryLocation'],
+  props: ['existingDirectories', 'DirectoryLocation', 'TestCaseTreeExpanded'],
   data () {
     return {
       //目录
@@ -28,6 +30,7 @@ export default {
           ]
         }
       ],
+      treeExpanded: [],//已选的目录位置
       //目录配置
       defaultProps: {
         children: 'children',
@@ -39,10 +42,25 @@ export default {
     }
   },
   mounted () {
-    console.log(this.DirectoryLocation)
     this.DisablesSelectedDirectories = this.existingDirectories || [];
     console.log(this.DisablesSelectedDirectories)
     this.getTreeEntityList();
+
+    // console.log(this.$route)
+    // if(this.$route.name == "TestCase"){
+
+    // }
+    // if (this.DirectoryLocation.length != 0) {
+    //   console.log(this.DirectoryLocation, this.TestCaseTreeExpanded)
+    //   this.simple = this.DirectoryLocation.DirectoryStructure;
+    //   this.SelectLocation = this.DirectoryLocation.SelectLocation;
+    //   this.treeExpanded = this.TestCaseTreeExpanded;
+    //   this.$q.loading.hide();
+    // } else {
+    //   this.DisablesSelectedDirectories = this.existingDirectories || [];
+    //   console.log(this.DisablesSelectedDirectories)
+    //   this.getTreeEntityList();
+    // }
   },
   methods: {
     //获得目录
