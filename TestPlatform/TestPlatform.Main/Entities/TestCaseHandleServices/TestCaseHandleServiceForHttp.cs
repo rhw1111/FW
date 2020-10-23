@@ -248,21 +248,21 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                             throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestDataSourceByName, fragment, 1, 0);
                         }
 
-                    //var dataSource = await _testDataSourceRepository.QueryByName(item.DataSourceName, cancellationToken);
+                        //var dataSource = await _testDataSourceRepository.QueryByName(item.DataSourceName, cancellationToken);
 
-                    //if (dataSource == null)
-                    //{
-                    //    var fragment = new TextFragment()
-                    //    {
-                    //        Code = TestPlatformTextCodes.NotFoundTestDataSourceByName,
-                    //        DefaultFormatting = "找不到名称为{0}的测试数据源",
-                    //        ReplaceParameters = new List<object>() { item.DataSourceName }
-                    //    };
+                        //if (dataSource == null)
+                        //{
+                        //    var fragment = new TextFragment()
+                        //    {
+                        //        Code = TestPlatformTextCodes.NotFoundTestDataSourceByName,
+                        //        DefaultFormatting = "找不到名称为{0}的测试数据源",
+                        //        ReplaceParameters = new List<object>() { item.DataSourceName }
+                        //    };
 
-                    //    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestDataSourceByName, fragment, 1, 0);
-                    //}
+                        //    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestDataSourceByName, fragment, 1, 0);
+                        //}
 
-                    item.Type = dataSource.Type;
+                        item.Type = dataSource.Type;
                         item.Data = dataSource.Data;
                     }
                 );
