@@ -79,9 +79,9 @@ namespace FW.TestPlatform.Portal.Api.Controllers
         }
 
         [HttpGet("datasources")]
-        public async Task<List<TestDataSourceNameAndIDList>> GetTestDataSources()
+        public async Task<List<TestDataSourceNameAndIDList>> GetTestDataSources(bool isJmeter)
         {
-            return await _appQueryTestDataSources.Do();
+            return await _appQueryTestDataSources.Do(isJmeter);
         }
     }
 }

@@ -284,5 +284,10 @@ namespace FW.TestPlatform.Main
         /// {0}:测试案例名称
         /// </summary>
         public const string TestHostPortIsUsed = "TestHostPortIsUsed";
+        /// <summary>
+        /// TreeEntity为null
+        /// 格式为“TreeEntity为null”
+        /// </summary>
+        public const string NotFoundTreeEntity = "NotFoundTreeEntity";
     }
 }

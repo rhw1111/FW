@@ -344,3 +344,21 @@ ON tc.id=te.`value`
 SET tc.treeid = te.id
 WHERE tc.treeid is null and te.type=3;
 COMMIT;
+
+--tpconfig添加索引
+ALTER TABLE tpconfig.`systemconfiguration` ADD INDEX(`name`);
+ALTER TABLE tpconfig.`systemconfiguration` ADD INDEX(`createtime`);
+ALTER TABLE tpconfig.`influxdbendpoint` ADD INDEX(`name`);
+ALTER TABLE tpconfig.`influxdbendpoint` ADD INDEX(`createtime`);
+ALTER TABLE tpconfig.`scheduleaction` ADD INDEX(`name`);
+ALTER TABLE tpconfig.`scheduleactiongroup` ADD INDEX(`name`);
+ALTER TABLE tpconfig.`schedulehostconfiguration` ADD INDEX(`name`);
+--tpmain添加索引
+ALTER TABLE tpmain.`testhost` ADD INDEX(`address`);
+ALTER TABLE tpmain.`testhost` ADD INDEX(`createtime`);
+ALTER TABLE tpmain.`sshendpoint` ADD INDEX(`name`);
+ALTER TABLE tpmain.`sshendpoint` ADD INDEX(`createtime`);
+ALTER TABLE tpmain.`testcasehistory` ADD INDEX(`createtime`);
+ALTER TABLE tpmain.`testcaseslavehost` ADD INDEX(`slavename`);
+ALTER TABLE tpmain.`testcaseslavehost` ADD INDEX(`createtime`);
+ALTER TABLE tpmain.`treeentity` ADD INDEX(`parentid`,`name`);

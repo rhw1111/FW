@@ -225,7 +225,7 @@ namespace TestPlatform.Test
             Assert.Pass();
         }
 
-        [Test]
+        //[Test]
         public async Task TestTestCaseRun()
         {
             TestCase testCase = new TestCase()
@@ -269,6 +269,25 @@ namespace TestPlatform.Test
             TestCase testCase = new TestCase()
             {
                 ID = new Guid("82962da0-e83b-11ea-bf37-00ffb1d16cf9"),
+            };
+
+            var testCaseStore = DIContainerContainer.Get<ITestCaseStore>();
+            var testCaseRunner = await testCaseStore.QueryByID(testCase.ID);
+
+            if (testCaseRunner != null)
+            {
+                await testCaseRunner.Run();
+            }
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public async Task TestTestCaseJmeterRun()
+        {
+            TestCase testCase = new TestCase()
+            {
+                ID = new Guid("c9198a53-137b-11eb-bbfc-00ffb1d16cf9"),
             };
 
             var testCaseStore = DIContainerContainer.Get<ITestCaseStore>();

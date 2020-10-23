@@ -49,9 +49,14 @@ namespace FW.TestPlatform.Main.Entities
             await _testDataSourceStore.DeleteMutiple(ids, cancellationToken);
         }
 
-        public IAsyncEnumerable<TestDataSource> GetDataSources(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<TestDataSource> GetDataSources(bool isJmeter, CancellationToken cancellationToken = default)
         {
-            return _testDataSourceStore.GetDataSources(cancellationToken);
+            return _testDataSourceStore.GetDataSources(isJmeter, cancellationToken);
+        }
+
+        public async Task<TestDataSource?> QueryByTreeEntityNameAndParentID(Guid? parentId, string name, CancellationToken cancellationToken = default)
+        {
+            return await _testDataSourceStore.QueryByTreeEntityNameAndParentID(parentId, name, cancellationToken);
         }
     }
 }

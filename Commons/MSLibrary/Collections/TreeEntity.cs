@@ -260,6 +260,16 @@ namespace MSLibrary.Collections
         {
             return await _imp.GetPath(this, cancellationToken);
         }
+
+        /// <summary>
+        /// 获取节点的路径ID
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<IList<Guid>> GetPathIds(CancellationToken cancellationToken = default)
+        {
+            return await _imp.GetPathIds(this, cancellationToken);
+        }
     }
 
     public interface ITreeEntityIMP
@@ -274,6 +284,7 @@ namespace MSLibrary.Collections
         Task<bool> HasChildren(TreeEntity entity,CancellationToken cancellationToken = default);
         Task<JObject> GetFormatValue(TreeEntity entity, CancellationToken cancellationToken = default);
         Task<IList<string>> GetPath(TreeEntity entity, CancellationToken cancellationToken = default);
+        Task<IList<Guid>> GetPathIds(TreeEntity entity, CancellationToken cancellationToken = default);
     }
 
     public interface ITreeEntityValueService
@@ -545,6 +556,37 @@ namespace MSLibrary.Collections
             }
             path.Reverse();
             return path;
+        }
+
+        public async Task<IList<Guid>> GetPathIds(TreeEntity entity, CancellationToken cancellationToken = default)
+        {
+            List<Guid> pathIds = new List<Guid>();
+            while (true)
+            {
+                if (entity.ParentID != null)
+                {
+                    var parent = await _treeEntityStore.QueryByID(entity.ParentID.Value, cancellationToken);
+                    if (parent == null)
+                    {
+                        var fragment = new TextFragment()
+                        {
+                            Code = TextCodes.NotFoundTreeEntityByID,
+                            DefaultFormatting = "找不到Id为{0}的树状实体记录",
+                            ReplaceParameters = new List<object>() { entity.ParentID.Value.ToString() }
+                        };
+                        throw new UtilityException((int)Errors.NotFoundTreeEntityByID, fragment, 1, 0);
+                    }
+                    pathIds.Add(entity.ID);
+                    entity = parent;
+                }
+                else
+                {
+                    pathIds.Add(entity.ID);
+                    break;
+                }
+            }
+            pathIds.Reverse();
+            return pathIds;
         }
     }
 }
