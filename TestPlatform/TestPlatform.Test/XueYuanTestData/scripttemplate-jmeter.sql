@@ -194,7 +194,7 @@ SET content = '      <PostThreadGroup guiclass="PostThreadGroupGui" testclass="P
             </elementProp>
             <elementProp name="application" elementType="Argument">
               <stringProp name="Argument.name">application</stringProp>
-              <stringProp name="Argument.value">TestPlatform</stringProp>
+              <stringProp name="Argument.value">{CaseID}</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="measurement" elementType="Argument">
@@ -303,7 +303,7 @@ SET content = '      <PostThreadGroup guiclass="PostThreadGroupGui" testclass="P
             <connectTime>true</connectTime>
           </value>
         </objProp>
-        <stringProp name="filename">{ResultStatVisualizer}</stringProp>
+        <stringProp name="filename">{Result}</stringProp>
       </ResultCollector>
       <hashTree/>'
 WHERE id = '2b5931aa-1375-11eb-bbfc-00ffb1d16cf9';
