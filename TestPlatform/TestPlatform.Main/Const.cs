@@ -314,6 +314,7 @@ namespace FW.TestPlatform.Main
         public const string String = "String";
         public const string Int = "Int";
         public const string Json = "Json";
+        public const string CSV = "CSV";
     }
 
     /// <summary>

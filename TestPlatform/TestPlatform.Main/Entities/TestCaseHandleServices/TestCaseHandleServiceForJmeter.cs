@@ -31,6 +31,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         private const string _testFilePath = "/usr/testfile/";
         private const string _testFileName = "script{0}.jmx";
         private const string _testLogFileName = "log{0}.jtl";
+        private const string _testResultFileName = "resultstatvisualizer{0}.csv";
         private const string _testOutFileName = "out{0}";
         private const int _maxLogSize = 1024 * 1024;
 
@@ -274,6 +275,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             strCode = strCode.Replace("{InfluxDBAddress}", influxDBEndpoint == null ? "" : influxDBEndpoint.Address);
 
             string path = this.GetTestFilePath(tCase.ID.ToString());
+            strCode = strCode.Replace("{ResultStatVisualizer}", $"{path}{string.Format(_testResultFileName, string.Empty)}");
 
             // 替换CSV
             foreach (var item in configuration.DataSourceVars)
