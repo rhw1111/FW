@@ -20,6 +20,8 @@ using MSLibrary.CommandLine;
 using FW.TestPlatform.Main.Entities.DAL;
 using System.Linq;
 using MSLibrary.StreamingDB.InfluxDB;
+using MSLibrary.Collections;
+using MSLibrary.Collections.DAL;
 
 namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 {
@@ -38,6 +40,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         private readonly ISystemConfigurationService _systemConfigurationService;
         private readonly IInfluxDBEndpointRepository _influxDBEndpointRepository;
         private readonly ITestCaseStore _testCaseStore;
+        private readonly ITreeEntityStore _treeEntityStore;
 
         /// <summary>
         /// 要使用的附加函数名称集合
@@ -45,7 +48,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         /// </summary>
         public static IList<string> AdditionFuncNames { get; set; } = new List<string>();
 
-        public TestCaseHandleServiceForJmeter(ITestDataSourceRepository testDataSourceRepository, IScriptTemplateRepository scriptTemplateRepository, ISSHEndpointRepository sshEndpointRepository, ISystemConfigurationService systemConfigurationService, IInfluxDBEndpointRepository influxDBEndpointRepository, ITestCaseStore testCaseStore)
+        public TestCaseHandleServiceForJmeter(ITestDataSourceRepository testDataSourceRepository, IScriptTemplateRepository scriptTemplateRepository, ISSHEndpointRepository sshEndpointRepository, ISystemConfigurationService systemConfigurationService, IInfluxDBEndpointRepository influxDBEndpointRepository, ITestCaseStore testCaseStore, ITreeEntityStore treeEntityStore)
         {
             _testDataSourceRepository = testDataSourceRepository;
             _scriptTemplateRepository = scriptTemplateRepository;
@@ -53,6 +56,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             _systemConfigurationService = systemConfigurationService;
             _influxDBEndpointRepository = influxDBEndpointRepository;
             _testCaseStore = testCaseStore;
+            _treeEntityStore = treeEntityStore;
         }
 
         public async Task<string> GetMasterLog(TestCase tCase, TestHost host, CancellationToken cancellationToken = default)
@@ -187,28 +191,69 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             contextDict.Add(TemplateContextParameterNames.DataSourceVars, configuration.DataSourceVars);
 
             //为DataSourceVars补充Data属性
-
-            await ParallelHelper.ForEach(configuration.DataSourceVars, 10,
-                async (item) =>
+            if (configuration.DataSourceVars.Count > 0)
+            {
+                if (tCase.TreeID == null)
                 {
-                    var dataSource = await _testDataSourceRepository.QueryByName(item.DataSourceName, cancellationToken);
-
-                    if (dataSource == null)
+                    var fragment = new TextFragment()
                     {
-                        var fragment = new TextFragment()
-                        {
-                            Code = TestPlatformTextCodes.NotFoundTestDataSourceByName,
-                            DefaultFormatting = "找不到名称为{0}的测试数据源",
-                            ReplaceParameters = new List<object>() { item.DataSourceName }
-                        };
+                        Code = TestPlatformTextCodes.NotFoundTreeEntity,
+                        DefaultFormatting = "运行测试案例,名称为{0}的测试案例所对应的目录节点实体为null",
+                        ReplaceParameters = new List<object>() { tCase.Name }
+                    };
 
-                        throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestDataSourceByName, fragment, 1, 0);
-                    }
-
-                    item.Type = dataSource.Type;
-                    item.Data = dataSource.Data;
+                    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTreeEntity, fragment, 1, 0);
                 }
-            );
+                TreeEntity? tCaseTreeEntity = await _treeEntityStore.QueryByID((Guid)tCase.TreeID);
+                if (tCaseTreeEntity == null)
+                {
+                    var fragment = new TextFragment()
+                    {
+                        Code = TestPlatformTextCodes.NotFoundTreeEntityByID,
+                        DefaultFormatting = "运行名称为{0}的测试用例，找不到此测试案例对应的ID为{1}的目录节点实体",
+                        ReplaceParameters = new List<object>() { tCase.Name, tCase.TreeID }
+                    };
+
+                    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTreeEntityByID, fragment, 1, 0);
+                }
+                await ParallelHelper.ForEach(configuration.DataSourceVars, 10,
+                    async (item) =>
+                    {
+                        var dataSource = await _testDataSourceRepository.QueryByTreeEntityNameAndParentID(tCaseTreeEntity.ParentID, item.DataSourceName, cancellationToken);
+                        if (dataSource == null && tCaseTreeEntity.ParentID != null)
+                        {
+                            dataSource = await _testDataSourceRepository.QueryByTreeEntityNameAndParentID(null, item.DataSourceName, cancellationToken);
+                        }
+                        if (dataSource == null)
+                        {
+                            var fragment = new TextFragment()
+                            {
+                                Code = TestPlatformTextCodes.NotFoundTestDataSourceByName,
+                                DefaultFormatting = "运行名称为{0}的测试用例,在当前测试用例的同级目录或者根目录下找不到名称为{1}的测试数据源",
+                                ReplaceParameters = new List<object>() { tCase.Name, item.DataSourceName }
+                            };
+
+                            throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestDataSourceByName, fragment, 1, 0);
+                        }
+                        //var dataSource = await _testDataSourceRepository.QueryByName(item.DataSourceName, cancellationToken);
+
+                        //if (dataSource == null)
+                        //{
+                        //    var fragment = new TextFragment()
+                        //    {
+                        //        Code = TestPlatformTextCodes.NotFoundTestDataSourceByName,
+                        //        DefaultFormatting = "找不到名称为{0}的测试数据源",
+                        //        ReplaceParameters = new List<object>() { item.DataSourceName }
+                        //    };
+
+                        //    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestDataSourceByName, fragment, 1, 0);
+                        //}
+
+                        item.Type = dataSource.Type;
+                        item.Data = dataSource.Data;
+                    }
+                );
+            }
 
             //生成代码
             var strCode = await scriptTemplate.GenerateScript(contextDict, cancellationToken);
