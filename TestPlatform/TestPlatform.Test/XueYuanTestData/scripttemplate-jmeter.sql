@@ -303,7 +303,7 @@ SET content = '      <PostThreadGroup guiclass="PostThreadGroupGui" testclass="P
             <connectTime>true</connectTime>
           </value>
         </objProp>
-        <stringProp name="filename">{Result}</stringProp>
+        <stringProp name="filename">{ResultStatVisualizer}</stringProp>
       </ResultCollector>
       <hashTree/>'
 WHERE id = '2b5931aa-1375-11eb-bbfc-00ffb1d16cf9';
