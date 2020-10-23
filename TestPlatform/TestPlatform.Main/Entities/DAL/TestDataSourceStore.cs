@@ -386,7 +386,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                             if (isJmeter)
                             {
                                 var ids = (from item in dbContext.TestDataSources
-                                           where item.Type == "Csv"
+                                           where item.Type == DataSourceTypes.CSV
                                            orderby EF.Property<long>(item, "Sequence")
                                            select item.ID
                                                     ).Skip((index) * 500).Take(500);
@@ -400,7 +400,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
                             else
                             {
                                 var ids = (from item in dbContext.TestDataSources
-                                           where item.Type != "Csv"
+                                           where item.Type != DataSourceTypes.CSV
                                            orderby EF.Property<long>(item, "Sequence")
                                            select item.ID
                                                     ).Skip((index) * 500).Take(500);

@@ -36,7 +36,7 @@
           </template>
         </q-input>
         <q-select v-model="Type"
-                  :options="['String','Int','Json','Label']"
+                  :options="['String','Int','Json','Label','CSV']"
                   class="col"
                   :dense="false">
           <template v-slot:before>
