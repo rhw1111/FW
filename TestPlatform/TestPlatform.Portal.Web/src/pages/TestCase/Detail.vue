@@ -311,8 +311,13 @@ export default {
         }
       })
     },
-    //当前选择的主机端口是否正在运行
+    //判断当前选择的测试用例端口号是否被其他正在运行的测试用例使用
     isHostPortRun () {
+      //Jmeter类型不验证端口冲突
+      if (this.detailData.engineType == 'Jmeter') {
+        this.run();
+        return;
+      }
       let selectId = [this.$route.query.id];
       let para = { singleArray: selectId };
       Apis.postQueryHostPorts(para).then((res) => {

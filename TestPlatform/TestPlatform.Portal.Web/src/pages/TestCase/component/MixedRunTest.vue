@@ -256,11 +256,13 @@ export default {
         })
       }
     },
-    //当前选择的主机端口是否正在运行
+
+    //判断当前选择的测试用例端口号是否被其他正在运行的测试用例使用
     async isHostPortRun () {
       let selectId = [];
       for (let i = 0; i < this.selected.length; i++) {
-        selectId.push(this.selected[i].id);
+        //不判断Jmeter类型
+        if (this.selected[i].engineType != 'Jmeter') selectId.push(this.selected[i].id);
       }
       let para = { singleArray: selectId };
       let runName = [];
