@@ -194,7 +194,7 @@ SET content = '      <PostThreadGroup guiclass="PostThreadGroupGui" testclass="P
             </elementProp>
             <elementProp name="application" elementType="Argument">
               <stringProp name="Argument.name">application</stringProp>
-              <stringProp name="Argument.value">TestPlatform</stringProp>
+              <stringProp name="Argument.value">{CaseID}</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="measurement" elementType="Argument">
