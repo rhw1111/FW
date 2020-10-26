@@ -182,8 +182,12 @@ export default {
     }
     //判断当前的目录是什么
     if (this.currentDirectory) {
-      this.getTreeEntityTreePath(this.currentDirectory.id);
-      this.ChangeFileDirectoryId = this.currentDirectory.id;
+      if (this.currentDirectory.id != null) {
+        this.getTreeEntityTreePath(this.currentDirectory.id);
+        this.ChangeFileDirectoryId = this.currentDirectory.id;
+      } else {
+        this.ChangeFileDirectoryName = '根目录 >';
+      }
     } else {
       this.ChangeFileDirectoryName = '根目录 >';
     }
@@ -276,7 +280,7 @@ export default {
           }
           console.log(para)
           //判断基础参数是否选择
-          if (this.isJSON(this.Configuration) && JSON.parse(this.Configuration).LocustMasterBindPort) {
+          if (this.isJSON(this.Configuration) && JSON.parse(this.Configuration).LocustMasterBindPort && JSON.parse(this.Configuration).Address && JSON.parse(this.Configuration).Port) {
             return para
           } else {
             if (!JSON.parse(this.Configuration).LocustMasterBindPort) {
@@ -284,6 +288,20 @@ export default {
                 position: 'top',
                 message: '提示',
                 caption: '请填写并生成主机端口',
+                color: 'red',
+              })
+            } else if (!JSON.parse(this.Configuration).Address) {
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: '请填写并生成被测服务器',
+                color: 'red',
+              })
+            } else if (!JSON.parse(this.Configuration).Port) {
+              this.$q.notify({
+                position: 'top',
+                message: '提示',
+                caption: '请填写并生成被测服务器端口',
                 color: 'red',
               })
             }
