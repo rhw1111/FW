@@ -513,7 +513,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
 
 
                     result = await (from item in dbContext.TestCases
-                                    where item.Status == status && hostIds.Contains(item.MasterHostID)
+                                    where item.Status == status && hostIds.Contains(item.MasterHostID) && item.EngineType != EngineTypes.Jmeter
                                     select item).ToListAsync();
                 }
             });
