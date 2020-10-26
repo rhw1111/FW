@@ -418,7 +418,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                },
                async (preResult)=>
                {
-                   return await Task.FromResult($"jmeter -D remote_hosts={sbSlaveHosts.ToString().Substring(1)} -n -t {path}{string.Format(_testFileName,string.Empty)} -l {path}{string.Format(_testLogFileName,string.Empty)} -e -o {path} 2>&1 &");
+                   return await Task.FromResult($"jmeter -D remote_hosts={sbSlaveHosts.ToString().Substring(1)} -n -t {path}{string.Format(_testFileName,string.Empty)} -l {path}{string.Format(_testLogFileName,string.Empty)} -e -o {path}out/ 2>&1 &");
                }
             };
             await tCase.MasterHost.SSHEndpoint.ExecuteCommandBatch(commands);
