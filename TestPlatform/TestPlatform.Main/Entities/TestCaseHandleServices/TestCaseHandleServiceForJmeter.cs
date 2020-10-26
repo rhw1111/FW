@@ -334,6 +334,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 #endif
                 #endregion
 
+                await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"rm -r {path}");
                 await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"mkdir {path}");
                 await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{path}{string.Format(_testFileName, string.Empty)}");
                 textStream.Close();
