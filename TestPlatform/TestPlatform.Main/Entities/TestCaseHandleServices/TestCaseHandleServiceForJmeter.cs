@@ -277,6 +277,9 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             string path = this.GetTestFilePath(tCase.ID.ToString());
             strCode = strCode.Replace("{ResultStatVisualizer}", $"{path}{string.Format(_testResultFileName, string.Empty)}");
 
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"rm -r {path}");
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"mkdir {path}");
+
             // 替换CSV
             foreach (var item in configuration.DataSourceVars)
             {
@@ -334,8 +337,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 #endif
                 #endregion
 
-                await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"rm -r {path}");
-                await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"mkdir {path}");
                 await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{path}{string.Format(_testFileName, string.Empty)}");
                 textStream.Close();
             }
