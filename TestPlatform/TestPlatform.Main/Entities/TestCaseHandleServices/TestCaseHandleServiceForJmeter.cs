@@ -32,7 +32,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
         private const string _testFileName = "script{0}.jmx";
         private const string _testLogFileName = "log{0}.jtl";
         private const string _testResultFileName = "resultstatvisualizer{0}.csv";
-        private const string _testOutFileName = "out{0}";
+        private const string _testOutFileName = "out{0}.log";
         private const int _maxLogSize = 1024 * 1024;
 
         private readonly ITestDataSourceRepository _testDataSourceRepository;
@@ -277,6 +277,9 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
             string path = this.GetTestFilePath(tCase.ID.ToString());
             strCode = strCode.Replace("{ResultStatVisualizer}", $"{path}{string.Format(_testResultFileName, string.Empty)}");
 
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"rm -r {path}");
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"mkdir {path}");
+
             // 替换CSV
             foreach (var item in configuration.DataSourceVars)
             {
@@ -334,7 +337,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 #endif
                 #endregion
 
-                await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"mkdir {path}");
                 await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{path}{string.Format(_testFileName, string.Empty)}");
                 textStream.Close();
             }
@@ -418,7 +420,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                },
                async (preResult)=>
                {
-                   return await Task.FromResult($"jmeter -D remote_hosts={sbSlaveHosts.ToString().Substring(1)} -n -t {path}{string.Format(_testFileName,string.Empty)} -l {path}{string.Format(_testLogFileName,string.Empty)} -e -o {path}out/ 2>&1 &");
+                   return await Task.FromResult($"jmeter -D remote_hosts={sbSlaveHosts.ToString().Substring(1)} -n -t {path}{string.Format(_testFileName,string.Empty)} -l {path}{string.Format(_testLogFileName,string.Empty)} -e -o {path}out/ > {path}{string.Format(_testOutFileName,string.Empty)} 2>&1 &");
                }
             };
             await tCase.MasterHost.SSHEndpoint.ExecuteCommandBatch(commands);
