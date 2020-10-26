@@ -189,7 +189,7 @@ SET content = '      <PostThreadGroup guiclass="PostThreadGroupGui" testclass="P
             </elementProp>
             <elementProp name="influxdbUrl" elementType="Argument">
               <stringProp name="Argument.name">influxdbUrl</stringProp>
-              <stringProp name="Argument.value">{InfluxDBAddress}/write?db=jmeter</stringProp>
+              <stringProp name="Argument.value">{InfluxDBAddress}/write?db=Monitor</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="application" elementType="Argument">
