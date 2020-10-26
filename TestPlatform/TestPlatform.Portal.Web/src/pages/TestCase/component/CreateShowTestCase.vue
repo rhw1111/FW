@@ -301,7 +301,7 @@ export default {
             MasterHostID: this.MasterHostID,
             FolderID: this.ChangeFileDirectoryId,
           }
-          if (!this.JmeterDataSource()) {
+          if (!this.$refs.Jmeter.JmeterDataSource()) {
             console.log(para)
             return para;
           }
@@ -432,23 +432,6 @@ export default {
             caption: '配置不是正确的JSON格式',
             color: 'red',
           })
-        }
-      }
-    },
-
-    //---------------------------------------------- Jmeter -------------------------------------------
-    //判断Jmeter数据文件的数据源名称是否选择
-    JmeterDataSource () {
-      let DataSourceVars = this.$refs.Jmeter.DataSourceVars;
-      for (let i = 0; i < DataSourceVars.length; i++) {
-        if (!DataSourceVars[i].DataSourceName) {
-          this.$q.notify({
-            position: 'top',
-            message: '提示',
-            caption: `${DataSourceVars[i].Name}的测试数据源没有选择`,
-            color: 'red',
-          })
-          return true;
         }
       }
     },
