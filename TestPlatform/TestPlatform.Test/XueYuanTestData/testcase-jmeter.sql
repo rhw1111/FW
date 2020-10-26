@@ -20,11 +20,11 @@ where id = 'c9198a53-137b-11eb-bbfc-00ffb1d16cf9';
 
 UPDATE tpmain.testcase
 SET configuration = '{
-    "FileContent": "<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>\n<jmeterTestPlan version=\\\"1.2\\\" properties=\\\"5.0\\\" jmeter=\\\"5.3\\\">\n  <hashTree>\n    <TestPlan guiclass=\\\"TestPlanGui\\\" testclass=\\\"TestPlan\\\" testname=\\\"Test Plan\\\" enabled=\\\"true\\\">\n      <stringProp name=\\\"TestPlan.comments\\\"></stringProp>\n      <boolProp name=\\\"TestPlan.functional_mode\\\">false</boolProp>\n      <boolProp name=\\\"TestPlan.tearDown_on_shutdown\\\">true</boolProp>\n      <boolProp name=\\\"TestPlan.serialize_threadgroups\\\">false</boolProp>\n      <elementProp name=\\\"TestPlan.user_defined_variables\\\" elementType=\\\"Arguments\\\" guiclass=\\\"ArgumentsPanel\\\" testclass=\\\"Arguments\\\" testname=\\\"User Defined Variables\\\" enabled=\\\"true\\\">\n        <collectionProp name=\\\"Arguments.arguments\\\"/>\n      </elementProp>\n      <stringProp name=\\\"TestPlan.user_define_classpath\\\"></stringProp>\n    </TestPlan>\n    <hashTree>\n    </hashTree>\n  </hashTree>\n</jmeterTestPlan>",
+    "FileContent": "<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>\\n<jmeterTestPlan version=\\\"1.2\\\" properties=\\\"5.0\\\" jmeter=\\\"5.3\\\">\\n  <hashTree>\\n    <TestPlan guiclass=\\\"TestPlanGui\\\" testclass=\\\"TestPlan\\\" testname=\\\"Test Plan\\\" enabled=\\\"true\\\">\\n      <stringProp name=\\\"TestPlan.comments\\\"></stringProp>\\n      <boolProp name=\\\"TestPlan.functional_mode\\\">false</boolProp>\\n      <boolProp name=\\\"TestPlan.tearDown_on_shutdown\\\">true</boolProp>\\n      <boolProp name=\\\"TestPlan.serialize_threadgroups\\\">false</boolProp>\\n      <elementProp name=\\\"TestPlan.user_defined_variables\\\" elementType=\\\"Arguments\\\" guiclass=\\\"ArgumentsPanel\\\" testclass=\\\"Arguments\\\" testname=\\\"User Defined Variables\\\" enabled=\\\"true\\\">\\n        <collectionProp name=\\\"Arguments.arguments\\\"/>\\n      </elementProp>\\n      <stringProp name=\\\"TestPlan.user_define_classpath\\\"></stringProp>\\n    </TestPlan>\\n    <hashTree>\\n    </hashTree>\\n  </hashTree>\\n</jmeterTestPlan>",
     "DataSourceVars": [
         {
             "Name": "数据文件1",
-            "Path": "E:\\\\Document\\\\Jmeter\\\\Users.csv",
+            "Path": "E:/Document/Jmeter/Users.csv",
             "Type": "",
             "DataSourceName": "datasource_users.csv",
             "Data": ""
@@ -33,4 +33,5 @@ SET configuration = '{
 }'
 where id = 'c9198a53-137b-11eb-bbfc-00ffb1d16cf9';
 
-
+SELECT * FROM tpmain.testcase
+WHERE id = '8e1accf9-1a3e-466e-b71f-7eb81c9f7065';

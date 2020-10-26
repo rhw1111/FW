@@ -495,5 +495,7 @@ VALUES('1039e6cd-d096-11ea-b225-00ffb1d16cf9', 'Label', 'datasource_host', '{$ge
 REPLACE INTO tpmain.testdatasource(id, type, name, data, createtime, modifytime)
 VALUES('771ae2cf-142c-11eb-8e14-00ffb1d16cf9', 'CSV', 'datasource_users.csv', 'zhangsan,123456
 lisi,123456', now(), now());
+REPLACE INTO tpmain.treeentity
+VALUES('34faeb8e-1742-11eb-9d88-00ffb1d16cf9', 'datasource_users.csv', '771ae2cf-142c-11eb-8e14-00ffb1d16cf9', '3', '78b9de7c-2ce4-41ba-89ec-10dfd1bbdff0', now(), now(), '812');
 
 
