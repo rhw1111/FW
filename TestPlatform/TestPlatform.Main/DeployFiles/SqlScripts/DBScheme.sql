@@ -362,3 +362,6 @@ ALTER TABLE tpmain.`testcasehistory` ADD INDEX(`createtime`);
 ALTER TABLE tpmain.`testcaseslavehost` ADD INDEX(`slavename`);
 ALTER TABLE tpmain.`testcaseslavehost` ADD INDEX(`createtime`);
 ALTER TABLE tpmain.`treeentity` ADD INDEX(`parentid`,`name`);
+
+--插入Jmeter monitor address
+INSERT INTO tpconfig.systemconfiguration(id, name,content,createtime,modifytime) values(UUID(),'Jmeter_TestMonitorAddress','"http://52.188.14.158:3000/d/Wpro5YtGz/test-case-monitor-for-jmeter?orgId=1"',now(),now());

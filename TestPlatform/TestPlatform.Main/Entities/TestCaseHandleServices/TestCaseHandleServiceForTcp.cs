@@ -285,6 +285,9 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
             string path = this.GetTestFilePath(configuration);
 
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"rm -r {path}");
+            await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"mkdir {path}");
+
             #region 检查主机端口是否被占用，并强制终止
             //await this.Stop(tCase, cancellationToken);
             #endregion
@@ -311,7 +314,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 #endif
                 #endregion
 
-                await tCase.MasterHost.SSHEndpoint.ExecuteCommand($"mkdir {path}");
                 await tCase.MasterHost.SSHEndpoint.UploadFile(textStream, $"{path}{string.Format(_testFileName,string.Empty)}");
                 textStream.Close();
             }
