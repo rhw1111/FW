@@ -22,7 +22,8 @@
     "quasar": "^1.12.12",
     "vue": "2.6.11",
     "vue-router": "^3.3.4",
-    "vuedraggable": "^2.24.1"
+    "vuedraggable": "^2.24.1",
+    "x2js": "^3.4.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "4.3.1",

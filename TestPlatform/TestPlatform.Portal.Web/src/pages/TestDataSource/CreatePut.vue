@@ -36,7 +36,7 @@
           </template>
         </q-input>
         <q-select v-model="Type"
-                  :options="['String','Int','Json','Label']"
+                  :options="['String','Int','Json','Label','CSV']"
                   class="col"
                   :dense="false">
           <template v-slot:before>
@@ -117,8 +117,12 @@ export default {
     }
     //判断当前的目录是什么
     if (this.currentDirectory) {
-      this.getTreeEntityTreePath(this.currentDirectory.id);
-      this.ChangeFileDirectoryId = this.currentDirectory.id;
+      if (this.currentDirectory.id != null) {
+        this.getTreeEntityTreePath(this.currentDirectory.id);
+        this.ChangeFileDirectoryId = this.currentDirectory.id;
+      } else {
+        this.ChangeFileDirectoryName = '根目录 >';
+      }
     } else {
       this.ChangeFileDirectoryName = '根目录 >';
     }
@@ -252,7 +256,6 @@ export default {
     //获得文件目录路径
     getTreeEntityTreePath (ID) {
       //ID 当前文件目录ID 
-      console.log(ID)
       this.$q.loading.show();
       let para = { id: ID };
       Apis.getTreeEntityTreePath(para).then((res) => {

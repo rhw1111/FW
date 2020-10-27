@@ -10,6 +10,6 @@ namespace FW.TestPlatform.Main.Application
 {
     public interface IAppQueryTestDataSources
     {
-        Task<List<TestDataSourceNameAndIDList>> Do(CancellationToken cancellationToken = default);
+        Task<List<TestDataSourceNameAndIDList>> Do(bool isJmeter, CancellationToken cancellationToken = default);
     }
 }

@@ -94,6 +94,29 @@ namespace FW.TestPlatform.Main.Entities.DAL
             return result;
         }
 
+        public async Task<TestDataSource?> QueryByTreeEntityNameAndParentID(Guid? parentId, string name, CancellationToken cancellationToken = default)
+        {
+            TestDataSource? result = null;
+            await DBTransactionHelper.SqlTransactionWorkAsync(DBTypes.MySql, true, false, _mainDBConnectionFactory.CreateReadForMain(), async (conn, transaction) =>
+            {
+                await using (var dbContext = _mainDBContextFactory.CreateMainDBContext(conn))
+                {
+                    if (transaction != null)
+                    {
+                        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+                    }
+
+                    result = await (from item in dbContext.TreeEntities
+                                                    join dsItem in dbContext.TestDataSources
+                                                    on item.Value equals dsItem.ID.ToString()
+                           where item.ParentID == parentId && item.Type == 3 && item.Name == name
+                           select dsItem).FirstOrDefaultAsync();
+                }
+            });
+
+            return result;
+        }
+
         public async Task<TestDataSource?> QueryByName(string name, CancellationToken cancellationToken = default)
         {
             TestDataSource? result = null;
@@ -346,7 +369,7 @@ namespace FW.TestPlatform.Main.Entities.DAL
             });
         }
 
-        public IAsyncEnumerable<TestDataSource> GetDataSources(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<TestDataSource> GetDataSources(bool isJmeter, CancellationToken cancellationToken = default)
         {
             AsyncInteration<TestDataSource> interation = new AsyncInteration<TestDataSource>(
                 async (index) =>
@@ -360,17 +383,34 @@ namespace FW.TestPlatform.Main.Entities.DAL
                             {
                                 await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                             }
-
-                            var ids = (from item in dbContext.TestDataSources
-                                       orderby EF.Property<long>(item, "Sequence")
-                                       select item.ID
-                                                ).Skip((index) * 500).Take(500);
-
-                            datas = await (from item in dbContext.TestDataSources
-                                           join idItem in ids
-                                           on item.ID equals idItem
+                            if (isJmeter)
+                            {
+                                var ids = (from item in dbContext.TestDataSources
+                                           where item.Type == DataSourceTypes.CSV
                                            orderby EF.Property<long>(item, "Sequence")
-                                           select item).ToListAsync();
+                                           select item.ID
+                                                    ).Skip((index) * 500).Take(500);
+
+                                datas = await (from item in dbContext.TestDataSources
+                                               join idItem in ids
+                                               on item.ID equals idItem
+                                               orderby EF.Property<long>(item, "Sequence")
+                                               select item).ToListAsync();
+                            }
+                            else
+                            {
+                                var ids = (from item in dbContext.TestDataSources
+                                           where item.Type != DataSourceTypes.CSV
+                                           orderby EF.Property<long>(item, "Sequence")
+                                           select item.ID
+                                                    ).Skip((index) * 500).Take(500);
+
+                                datas = await (from item in dbContext.TestDataSources
+                                               join idItem in ids
+                                               on item.ID equals idItem
+                                               orderby EF.Property<long>(item, "Sequence")
+                                               select item).ToListAsync();
+                            }
                         }
                     });
 

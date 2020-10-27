@@ -19,10 +19,10 @@ namespace FW.TestPlatform.Main.Application
         {
             _testDataSourceRepository = testDataSourceRepository;
         }
-        public async Task<List<TestDataSourceNameAndIDList>> Do(CancellationToken cancellationToken = default)
+        public async Task<List<TestDataSourceNameAndIDList>> Do(bool isJmeter, CancellationToken cancellationToken = default)
         {
             List<TestDataSourceNameAndIDList> result = new List<TestDataSourceNameAndIDList>();
-            var queryResult= _testDataSourceRepository.GetDataSources(cancellationToken);
+            var queryResult= _testDataSourceRepository.GetDataSources(isJmeter, cancellationToken);
 
             await foreach (var item in queryResult)
             {

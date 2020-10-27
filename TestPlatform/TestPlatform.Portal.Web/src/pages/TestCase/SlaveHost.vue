@@ -161,6 +161,7 @@
         <template v-slot:body-cell-id="props">
           <q-td :props="props">
             <q-btn class="btn"
+                   v-if="detailData.engineType!='Jmeter'"
                    color="primary"
                    label="查 看 日 志"
                    style="margin-right:20px;"
