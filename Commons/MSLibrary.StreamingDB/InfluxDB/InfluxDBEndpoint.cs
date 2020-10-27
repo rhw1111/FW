@@ -9,6 +9,7 @@ using MSLibrary;
 using MSLibrary.DI;
 using MSLibrary.Template;
 using MSLibrary.LanguageTranslate;
+using MSLibrary.Serializer;
 
 namespace MSLibrary.StreamingDB.InfluxDB
 {
@@ -189,6 +190,18 @@ namespace MSLibrary.StreamingDB.InfluxDB
             await _imp.AddDatas(this, dbName, records);
         }
 
+        /// <summary>
+        /// 查询数据
+        /// </summary>
+        /// <param name="dbName"></param>
+        /// <param name="queryStatement">查询语句</param>
+        /// <param name="additionalQuery">附加查询选项</param>
+        /// <returns></returns>
+        public async Task<InfluxDBQueryData> GetData(string dbName, string queryStatement, string? additionalQuery)
+        {
+            return await _imp.GetData(this, dbName, queryStatement, additionalQuery);
+        }
+
     }
 
     public interface IInfluxDBEndpointIMP
@@ -196,6 +209,8 @@ namespace MSLibrary.StreamingDB.InfluxDB
         Task AddData(InfluxDBEndpoint endpoint, string dbName, InfluxDBRecord record);
         Task AddDatas(InfluxDBEndpoint endpoint, string dbName, IList<InfluxDBRecord> records);
         Task CreateDataBase(InfluxDBEndpoint endpoint, string dbName);
+
+        Task<InfluxDBQueryData> GetData(InfluxDBEndpoint endpoint, string dbName,string queryStatement,string? additionalQuery);
     }
 
     [Injection(InterfaceType = typeof(IInfluxDBEndpointIMP), Scope = InjectionScope.Transient)]
@@ -265,7 +280,7 @@ namespace MSLibrary.StreamingDB.InfluxDB
                     var fragment = new TextFragment()
                     {
                         Code = StreamingDBTextCodes.InfluxDBEndpointOperateError,
-                        DefaultFormatting = "找不到类型为{0}的SSH终结点服务，发生位置为{1}",
+                        DefaultFormatting = "名称为{0}的InfluxDB执行操作时出错,错误信息为{1}，发生位置为{2}",
                         ReplaceParameters = new List<object>() { endpoint.Name, errorMessage, $"{this.GetType().FullName}.AddDatas" }
                     };
 
@@ -294,7 +309,7 @@ namespace MSLibrary.StreamingDB.InfluxDB
                     var fragment = new TextFragment()
                     {
                         Code = StreamingDBTextCodes.InfluxDBEndpointOperateError,
-                        DefaultFormatting = "找不到类型为{0}的SSH终结点服务，发生位置为{1}",
+                        DefaultFormatting = "名称为{0}的InfluxDB执行操作时出错,错误信息为{1}，发生位置为{2}",
                         ReplaceParameters = new List<object>() { endpoint.Name, errorMessage, $"{this.GetType().FullName}.CreateDataBase" }
                     };
 
@@ -321,6 +336,45 @@ namespace MSLibrary.StreamingDB.InfluxDB
             else
             {
                 return content;
+            }
+        }
+
+        public async Task<InfluxDBQueryData> GetData(InfluxDBEndpoint endpoint, string dbName, string queryStatement, string? additionalQuery)
+        {
+            var url = $"{await getContent(endpoint.Address)}/query?db={dbName.ToUrlEncode()}&q={queryStatement.ToUrlEncode()}";
+            if (!string.IsNullOrEmpty(additionalQuery))
+            {
+                url = $"{url}&{additionalQuery}";
+            }
+
+            using (var httpClient = _httpClientFactory.CreateClient())
+            {
+                initHttpClient(endpoint, httpClient);
+          
+                var response = await httpClient.GetAsync(url);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorMessage = await response.Content.ReadAsStringAsync();
+                    if (string.IsNullOrEmpty(errorMessage))
+                    {
+                        errorMessage = response.ReasonPhrase;
+                    }
+
+                    var fragment = new TextFragment()
+                    {
+                        Code = StreamingDBTextCodes.InfluxDBEndpointOperateError,
+                        DefaultFormatting = "名称为{0}的InfluxDB执行操作时出错,错误信息为{1}，发生位置为{2}",
+                        ReplaceParameters = new List<object>() { endpoint.Name, errorMessage, $"{this.GetType().FullName}.GetData" }
+                    };
+
+                    throw new UtilityException((int)StreamingDBErrorCodes.InfluxDBEndpointOperateError, fragment, 1, 0);
+                }
+                else
+                {
+                    var strData=await response.Content.ReadAsStringAsync();
+                    return JsonSerializerHelper.Deserialize<InfluxDBQueryData>(strData);
+                }
+
             }
         }
     }

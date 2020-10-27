@@ -24,6 +24,7 @@ using FW.TestPlatform.Main;
 using FW.TestPlatform.Main.Configuration;
 using FW.TestPlatform.Main.Entities;
 using FW.TestPlatform.Main.Entities.DAL;
+using FW.TestPlatform.Main.DTOModel;
 using MSLibrary.Survey.SurveyMonkey;
 using MSLibrary.Survey;
 using MSLibrary.Survey.SurveyMonkey.Message;
@@ -42,7 +43,7 @@ using System.Net;
 using Renci.SshNet;
 using Renci.SshNet.Common;
 using MSLibrary.Collections;
-
+using MSLibrary.StreamingDB.InfluxDB;
 
 namespace TestPlatform.Test
 {
@@ -224,6 +225,16 @@ namespace TestPlatform.Test
         }
 
         [Test]
+        public async Task TestFileStraem()
+        {
+            using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes("ssssddd")))
+            {
+                var bytes=await textStream.ReadAll(3);
+                var str=UTF8Encoding.UTF8.GetString(bytes);
+            }
+        }
+
+        [Test]
         public async Task TestDict()
         {
             string ss = "sddd-12332";
@@ -250,14 +261,7 @@ namespace TestPlatform.Test
               });
 
             await t;
-                 
-           var a=JsonSerializerHelper.Serializer<JObject>(null);
-            Dictionary<string, Item> dict = new Dictionary<string, Item>();
 
-            for(var index=0;index<=10000000; index++)
-            {
-                dict.Add(index.ToString(), new Item { Value = index });
-            }
             
             //var sum = dict.((item)=>(long)item.Value.Value);
         }
@@ -267,6 +271,51 @@ namespace TestPlatform.Test
         public async Task TestRunMultiple()
         {
 
+            var strData = @"{
+                                ""results"": [
+                                {
+                                    ""statement_id"": 0,
+                                    ""series"": [
+                                    {
+                                        ""name"": ""cpu_load_short"",
+                                        ""columns"": [
+                                                ""time"",
+                                                ""value""
+                                                    ],
+                                        ""values"": [
+                                                [
+                                                    1422568543702,
+                                                    2
+                                                ],
+                                                [
+                                                    1422568543702,
+                                                    0.55
+                                                ],
+                                                [
+                                                    1434055562000,
+                                                    0.64
+                                                ]
+                                        ]
+                }
+            ]
+        }
+    ]
+}";
+
+            var d = JsonSerializerHelper.Deserialize<InfluxDBQueryData>(strData);
+            var dd=d.Results[0].Series[0].Values[0][0].ToObject<long>();
+
+           var httpClientFactory= DIContainerContainer.Get<IHttpClientFactory>();
+            using (var client = httpClientFactory.CreateClient())
+            {
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "https://cdn.contentstack.io/v3/content_types/campaign_reward/entries?query=%7B%22campaign_reward_id%22%3A%22campaign_reward_946301%22%7D");
+                request.Headers.Add("Authorization", "cs28fcdeb2c46a9d4e99571ba7");
+                request.Headers.Add("api_key", "blta2fc6661805307be");
+                var response=await client.SendAsync(request);
+                var strResponse=await response.Content.ReadAsStringAsync();
+            }
+                var h = WebUtility.UrlEncode(@"{""campaign_reward_id"":""campaign_reward_946301""}");
+/*
             var pool = new Pool<SftpClient>($"SftpClient",
  null,
  null,
@@ -311,9 +360,9 @@ null,
 null
 , 10);
 
+*/
 
-
-            int index = 0;
+/*            int index = 0;
             List<int> replays = new List<int>();
             try
             {
@@ -326,66 +375,69 @@ null
 
                 await ParallelHelper.ForEach(list, 20, async (index) =>
                   {
+                      List<AuthenticationMethod> authMethods = new List<AuthenticationMethod>();
+                      authMethods.Add(new PasswordAuthenticationMethod("TPUser", "Password01asd!"));
 
-                      var client=await pool.GetAsync(true);
-                      try
+                      ConnectionInfo sshConnectionInfo = new ConnectionInfo("13.68.249.103", 22, "TPUser", authMethods.ToArray());
+                      sshConnectionInfo.Timeout = new TimeSpan(0, 0, 5);
+                      using (var sshClient = new SftpClient(sshConnectionInfo))
                       {
+                          var replay = 0;
+                          while (true)
+                          {
+                              try
+                              {
+                                  if (!sshClient.IsConnected)
+                                  {
+                                      sshClient.Connect();
+                                  }
+
+
+                                  break;
+                              }
+                              catch (SshOperationTimeoutException)
+                              {
+                                  replay++;
+                                  if (replay >= 10)
+                                  {
+                                      throw;
+                                  }
+                              }
+                          }
                           await Task.Delay(10000);
+                          replays.Add(replay);
+                          try
+                          {
+                              sshClient.Disconnect();
+                          }
+                          catch(Exception ex)
+                          {
+                              var cc = ex;
+                          }
                       }
-                      finally
-                      {
-                          await pool.ReturnAsync(client);
-                      }
-                      
+
                       await Task.CompletedTask;
                   });
 
-                for (index = 0; index <= 100; index++)
-                {
-
-                    List<AuthenticationMethod> authMethods = new List<AuthenticationMethod>();
-                    authMethods.Add(new PasswordAuthenticationMethod("TPUser", "Password01asd!"));
-
-                    ConnectionInfo sshConnectionInfo = new ConnectionInfo("13.68.249.103", 22, "TPUser", authMethods.ToArray());
-                    sshConnectionInfo.Timeout = new TimeSpan(0, 0, 3);
-                    var sshClient = new SftpClient(sshConnectionInfo);
-                  
-                    var replay = 0;
-                    while (true)
-                    {
-                        try
-                        {
-                            sshClient.Connect();
-                           
-                            break;
-                        }
-                        catch (SshOperationTimeoutException)
-                        {
-                            replay++;
-                            if (replay>=2)
-                            {
-                                throw;
-                            }
-                        }
-                    }
-                    
-
-      
-                       //var sshClient = new SshClient("13.68.249.103", 22, "TPUser", "Password01asd!");
-                    //sshClient.Connect();
-                }
             }
             catch(Exception ex)
             {
                 var e = ex;
             }
+            
+*/
 
             List<string> caseIds = new List<string>() {
-            "b37c153d-413a-4d32-81a8-9179a302dc3a","98a44749-31c0-4389-97a9-0c82fb2936bd","2ba37547-a5f4-44a6-af8d-352728f81887",
-                "4a473d64-223b-4760-aed4-fdf0ae92cebc","f5fdb4a3-5c68-4752-8939-5f425250e77e","55e8853b-ce47-43d4-83db-d20b78987049",
-                "4cfd66bd-e397-4a26-835e-2b4f6992c413","ba9ff428-6c1c-42bb-95c7-5869982edeec","81aa7b91-526a-4ea5-9ee9-8bc2f7e0d595",
-                "f0a6cd8e-44a0-47a4-ad53-2f3c83f9d728","f0ee1d7e-a0fe-456d-9647-f1da17a89150","69281de2-037c-46eb-a441-fdd008383768",
-                "2e76178b-41fe-4431-8d98-0ea28676d3e9","009f9416-a37a-408a-a03d-e3ac1b458713","eea1fa63-1cd6-4b86-97aa-428072e6584a"};
+                "800d51ad-f8a1-4a29-be66-115fab4f474f","090dee42-fc33-4fe8-aae7-c762892c9560","b37c153d-413a-4d32-81a8-9179a302dc3a",
+                "98a44749-31c0-4389-97a9-0c82fb2936bd","2ba37547-a5f4-44a6-af8d-352728f81887","4a473d64-223b-4760-aed4-fdf0ae92cebc",
+    "f5fdb4a3-5c68-4752-8939-5f425250e77e","55e8853b-ce47-43d4-83db-d20b78987049","4cfd66bd-e397-4a26-835e-2b4f6992c413",
+    "ba9ff428-6c1c-42bb-95c7-5869982edeec","81aa7b91-526a-4ea5-9ee9-8bc2f7e0d595","f0a6cd8e-44a0-47a4-ad53-2f3c83f9d728",
+    "f0ee1d7e-a0fe-456d-9647-f1da17a89150","69281de2-037c-46eb-a441-fdd008383768","2e76178b-41fe-4431-8d98-0ea28676d3e9",
+    "009f9416-a37a-408a-a03d-e3ac1b458713","eea1fa63-1cd6-4b86-97aa-428072e6584a","28c58f0b-6896-4043-84ba-a1180400258c",
+    "17888d74-d113-4ce9-89e3-5c923052a88c","f64823a1-3327-4a24-b49f-58a2e96ca400","3a949390-4c40-4735-9ec8-a3e414a37406",
+    "a64c773b-3a45-42ce-99b4-d3f2e6bd4dd6","b4edc426-8046-45b1-bd13-904b330fb8a1","0621d51d-e4a2-4cf1-94d8-ba70ebb27925",
+    "fcf87db0-fe18-4dc5-a856-0e682d924036","8887efd3-d58c-458b-822b-3f8d56f783ba","9718a5ee-f7c4-4ead-92ea-d3d48d7a38a6",
+    "fc9eb96c-4b9d-460c-87db-7868181bafb3","f1f6687a-c861-4863-bbda-303a3fca5447","f7e21717-0709-43ef-ba05-32d6fe263c45"};
             List<HttpResponseMessage> responses = new List<HttpResponseMessage>();
        
 
@@ -399,20 +451,28 @@ null
 
                         using (HttpClient httpClient = new HttpClient(httpclientHandler))
                         {
-                            httpClient.Timeout = new TimeSpan(0, 2, 0);
-                            //httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                            //StringContent strcontent = new StringContent(JsonConvert.SerializeObject("aa"), Encoding.UTF8, "application/json");
-                            var message = new HttpRequestMessage(HttpMethod.Post, "http://52.188.14.158:8081/api/testcase/run/?caseId=" + caseId);
-                            //设置contetn
-                            //message.Content = strcontent;
-                            //message.Version = new Version(2, 0);
-                            //发送请求
-                            var httpResponseHeaders = await httpClient.SendAsync(message);
-                            responses.Add(httpResponseHeaders);
-                            if (httpResponseHeaders.IsSuccessStatusCode)
+                            httpClient.Timeout = new TimeSpan(0, 10, 0);
+                            TestCaseRunModel model = new TestCaseRunModel()
                             {
-                                var content = httpResponseHeaders.Content;
+                                CaseId = Guid.Parse(caseId),
+                                IsStop = false
+                            };
+                            //httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                            StringContent strcontent = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+                            //var message = new HttpRequestMessage(HttpMethod.Post, "https://52.188.14.158:8081/api/testcase/run/?caseId=" + caseId+ "&IsStop=false");
+                            var message = new HttpRequestMessage(HttpMethod.Post, "https://52.188.14.158:8081/api/testcase/run");
+                            //设置contetn
+                            message.Content = strcontent;
+                            message.Version = new Version(2, 0);
+                            //发送请求
+                            var httpResponse= await httpClient.SendAsync(message);
+                            responses.Add(httpResponse);
+                            if (httpResponse.IsSuccessStatusCode)
+                            {
+                                var content = httpResponse.Content;
                             }
+                            var responseContent=await httpResponse.Content.ReadAsStringAsync();
+
                         }
                     }
                     catch(Exception ex)
