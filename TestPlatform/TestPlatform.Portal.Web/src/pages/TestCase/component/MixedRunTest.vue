@@ -259,13 +259,16 @@ export default {
 
     //判断当前选择的测试用例端口号是否被其他正在运行的测试用例使用
     async isHostPortRun () {
+      let runName = [];
       let selectId = [];
       for (let i = 0; i < this.selected.length; i++) {
         //不判断Jmeter类型
         if (this.selected[i].engineType != 'Jmeter') selectId.push(this.selected[i].id);
       }
+      if (!selectId.length) {
+        return runName
+      }
       let para = { singleArray: selectId };
-      let runName = [];
       await Apis.postQueryHostPorts(para).then((res) => {
         console.log(res)
         for (let i = 0; i < res.data.length; i++) {
