@@ -309,11 +309,18 @@ export default {
     //判断当前选择的测试用例端口号是否相同
     isPortRepeat () {
       let rechecking = [];
-      for (var i = 0; i < this.selected.length; i++) {
-        for (var j = i + 1; j < this.selected.length; j++) {
-          if (this.selected[i].masterHostID === this.selected[j].masterHostID && JSON.parse(this.selected[i]['configuration']).LocustMasterBindPort === JSON.parse(this.selected[j]['configuration']).LocustMasterBindPort) {
-            rechecking.push(this.selected[i].name);
-            rechecking.push(this.selected[j].name);
+      let wipeOffJmeterArr = [];
+      //去除Jmeter类型的验证
+      for (let i = 0; i < this.selected.length; i++) {
+        if (this.selected[i].engineType != 'Jmeter') {
+          wipeOffJmeterArr.push(this.selected[i])
+        }
+      }
+      for (var i = 0; i < wipeOffJmeterArr.length; i++) {
+        for (var j = i + 1; j < wipeOffJmeterArr.length; j++) {
+          if (wipeOffJmeterArr[i].masterHostID === wipeOffJmeterArr[j].masterHostID && JSON.parse(wipeOffJmeterArr[i]['configuration']).LocustMasterBindPort === JSON.parse(wipeOffJmeterArr[j]['configuration']).LocustMasterBindPort) {
+            rechecking.push(wipeOffJmeterArr[i].name);
+            rechecking.push(wipeOffJmeterArr[j].name);
           }
         }
       }
