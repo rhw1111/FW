@@ -134,6 +134,7 @@ import History from "./History.vue"
 import SlaveHost from "./SlaveHost"
 export default {
   name: 'TestCaseDetail',
+  inject: ['reload'],
   components: {
     CreateShowTestCase,
     History,
@@ -208,7 +209,7 @@ export default {
       if (!this.$refs.CSTestCase.newCreate()) { return; }
       let para = this.$refs.CSTestCase.newCreate();
       para.ID = this.detailData.id;
-      this.$q.loading.show()
+      this.$q.loading.show();
       Apis.putTestCase(para).then((res) => {
         console.log(res)
         this.$q.notify({
@@ -217,7 +218,7 @@ export default {
           caption: '保存成功',
           color: 'secondary',
         })
-        this.getTestCaseDetail();
+        this.reload();
       })
     },
     //删除当条测试用例
