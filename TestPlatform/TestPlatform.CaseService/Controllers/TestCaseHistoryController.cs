@@ -30,5 +30,11 @@ namespace FW.TestPlatform.CaseService.Controllers
             await _appAddTestCaseHistory.Do(model);
         }
 
+        [HttpPost("addhistoryforjmeter")]
+        public async Task AddHistoryForJmeter(TestCaseHistorySummyAddModel model)
+        {
+            await _appAddTestCaseHistory.DoForJmeter(model);
+        }
+
     }
 }
