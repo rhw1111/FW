@@ -11,5 +11,7 @@ namespace FW.TestPlatform.Main.Application
     public interface IAppAddTestCaseHistory
     {
         Task Do(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default);
+
+        Task DoForJmeter(TestCaseHistorySummyAddModel model, CancellationToken cancellationToken = default);
     }
 }

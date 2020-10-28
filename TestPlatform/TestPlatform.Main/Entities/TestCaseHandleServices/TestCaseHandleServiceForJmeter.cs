@@ -263,6 +263,7 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
             // 替换生成代码中的固定标签
             strCode = strCode.Replace("{CaseID}", tCase.ID.ToString());
+            strCode = strCode.Replace("{CaseHistoryID}", tCase.TestCaseHistoryID.ToString());
             List<Match> matchs = this.GetIPPort(caseServiceBaseAddress);
 
             if (matchs != null && matchs.Count >= 2)
