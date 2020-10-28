@@ -405,15 +405,18 @@ namespace MSLibrary.Thread
                 var sourceEnumerator = source.GetEnumerator();
 
                 List<Task> tasks = new List<Task>();
-
+                //按指定并行度并行执行
                 for (var index = 0; index <= maxDegree - 1; index++)
                 {
                     tasks.Add(
                         Task.Run(async () =>
                         {
+                            ///每个任务完成当前数据源项后，再从数据源获取下一个项
+                            ///充分利用资源，不会因为任务项执行时间的长短不同发生等待
                             while (true)
                             {
                                 T data = default(T);
+                                //使用信号量控制数据源移动
                                 await _lock.WaitAsync();
                                 try
                                 {
@@ -438,42 +441,10 @@ namespace MSLibrary.Thread
 
                 }
 
-
                 //等待最终所有任务完成
                 foreach (var item in tasks)
                 {
                     await item;
-                }
-
-
-                while (true)
-                {
-                    bool isBreak = false;
-                    List<Task> sourcePart = new List<Task>();
-                    for (var index = 0; index <= maxDegree - 1; index++)
-                    {
-                        if (sourceEnumerator.MoveNext())
-                        {
-                            sourcePart.Add(body(sourceEnumerator.Current));
-                        }
-                        else
-                        {
-
-                            isBreak = true;
-                            break;
-                        }
-                    }
-
-                    foreach (var item in sourcePart)
-                    {
-                        await item;
-                    }
-
-                    if (isBreak)
-                    {
-                        break;
-                    }
-
                 }
             }
         }

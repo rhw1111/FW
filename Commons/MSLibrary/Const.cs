@@ -2872,7 +2872,6 @@ namespace MSLibrary
         /// 值不为Null
         /// </summary>
         public const string NotNull = "NotNull";
-
     }
 
     /// <summary>

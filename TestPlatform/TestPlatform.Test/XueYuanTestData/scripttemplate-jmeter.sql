@@ -35,13 +35,13 @@ SET content = '      <PostThreadGroup guiclass="PostThreadGroupGui" testclass="P
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
                 <stringProp name="Argument.value">{&#xd;
     &quot;CaseID&quot;: &quot;{CaseID}&quot;,&#xd;
-    &quot;AvgDuration&quot;: 0.0,&#xd;
-    &quot;AvgQPS&quot;: 0.0,&#xd;
+    &quot;AvgDuration&quot;: 0,&#xd;
+    &quot;AvgQPS&quot;: 0,&#xd;
     &quot;ConnectCount&quot;: 0,&#xd;
     &quot;ConnectFailCount&quot;: 0,&#xd;
-    &quot;MaxDuration&quot;: 0.0,&#xd;
-    &quot;MinDurartion&quot;: 0.0,&#xd;
-    &quot;MinQPS&quot;: 0.0,&#xd;
+    &quot;MaxDuration&quot;: 0,&#xd;
+    &quot;MinDurartion&quot;: 0,&#xd;
+    &quot;MinQPS&quot;: 0,&#xd;
     &quot;ReqCount&quot;: 0,&#xd;
     &quot;ReqFailCount&quot;: 0&#xd;
 }</stringProp>
@@ -53,7 +53,7 @@ SET content = '      <PostThreadGroup guiclass="PostThreadGroupGui" testclass="P
           <stringProp name="HTTPSampler.port">{CaseServiceBasePort}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
-          <stringProp name="HTTPSampler.path">/api/report/addhistory</stringProp>
+          <stringProp name="HTTPSampler.path">/api/report/addhistoryforjmeter</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -194,7 +194,7 @@ SET content = '      <PostThreadGroup guiclass="PostThreadGroupGui" testclass="P
             </elementProp>
             <elementProp name="application" elementType="Argument">
               <stringProp name="Argument.name">application</stringProp>
-              <stringProp name="Argument.value">{CaseID}</stringProp>
+              <stringProp name="Argument.value">{CaseID}:{CaseHistoryID}</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="measurement" elementType="Argument">
