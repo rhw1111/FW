@@ -117,14 +117,14 @@ namespace FW.TestPlatform.Main.Application
 
             if (queryData != null && queryData.Results != null && queryData.Results.Count == 1 && queryData.Results[0].Series != null && queryData.Results[0].Series.Count == 1 && queryData.Results[0].Series[0].Columns.Count >= 9)
             {
-                model.ReqCount = int.Parse(queryData.Results[0].Series[0].Values[0][1].Value.ToString()); // 请求数
-                model.ReqFailCount = int.Parse(queryData.Results[0].Series[0].Values[0][2].Value.ToString());
-                model.AvgDuration = float.Parse(queryData.Results[0].Series[0].Values[0][3].Value.ToString());
-                model.MinDurartion = float.Parse(queryData.Results[0].Series[0].Values[0][4].Value.ToString());
-                model.MaxDuration = float.Parse(queryData.Results[0].Series[0].Values[0][5].Value.ToString());
-                model.AvgQPS = float.Parse(queryData.Results[0].Series[0].Values[0][6].Value.ToString());
-                model.MaxQPS = float.Parse(queryData.Results[0].Series[0].Values[0][7].Value.ToString());
-                model.MinQPS = float.Parse(queryData.Results[0].Series[0].Values[0][8].Value.ToString());
+                model.ReqCount = int.Parse(queryData.Results[0].Series[0].Values[0][1].Value == null ? "0" : queryData.Results[0].Series[0].Values[0][1].Value.ToString()); // 请求数
+                model.ReqFailCount = int.Parse(queryData.Results[0].Series[0].Values[0][2].Value == null ? "0" : queryData.Results[0].Series[0].Values[0][2].Value.ToString());
+                model.AvgDuration = float.Parse(queryData.Results[0].Series[0].Values[0][3].Value == null ? "0" : queryData.Results[0].Series[0].Values[0][3].Value.ToString());
+                model.MinDurartion = float.Parse(queryData.Results[0].Series[0].Values[0][4].Value == null ? "0" : queryData.Results[0].Series[0].Values[0][4].Value.ToString());
+                model.MaxDuration = float.Parse(queryData.Results[0].Series[0].Values[0][5].Value == null ? "0" : queryData.Results[0].Series[0].Values[0][5].Value.ToString());
+                model.AvgQPS = float.Parse(queryData.Results[0].Series[0].Values[0][6].Value == null ? "0" : queryData.Results[0].Series[0].Values[0][6].Value.ToString());
+                model.MaxQPS = float.Parse(queryData.Results[0].Series[0].Values[0][7].Value == null ? "0" : queryData.Results[0].Series[0].Values[0][7].Value.ToString());
+                model.MinQPS = float.Parse(queryData.Results[0].Series[0].Values[0][8].Value == null ? "0" : queryData.Results[0].Series[0].Values[0][8].Value.ToString());
             }
 
             return model;

@@ -236,19 +236,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
 
                             throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestDataSourceByName, fragment, 1, 0);
                         }
-                        //var dataSource = await _testDataSourceRepository.QueryByName(item.DataSourceName, cancellationToken);
-
-                        //if (dataSource == null)
-                        //{
-                        //    var fragment = new TextFragment()
-                        //    {
-                        //        Code = TestPlatformTextCodes.NotFoundTestDataSourceByName,
-                        //        DefaultFormatting = "找不到名称为{0}的测试数据源",
-                        //        ReplaceParameters = new List<object>() { item.DataSourceName }
-                        //    };
-
-                        //    throw new UtilityException((int)TestPlatformErrorCodes.NotFoundTestDataSourceByName, fragment, 1, 0);
-                        //}
 
                         item.Type = dataSource.Type;
                         item.Data = dataSource.Data;
@@ -342,67 +329,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                 textStream.Close();
             }
 
-            ////获取测试用例的所有从属测试机，上传测试代码
-            //var slaveHosts = tCase.GetAllSlaveHosts(cancellationToken);
-            //int slaveCount = 0;
-            //object lockObj = new object();
-            //List<TestCaseSlaveHost> slaveHostList = new List<TestCaseSlaveHost>();
-            //StringBuilder sbSlaveHosts = new StringBuilder();
-
-            //await ParallelHelper.ForEach(slaveHosts, 10,
-            //    async (item) =>
-            //    {
-            //        await item.Host.SSHEndpoint.ExecuteCommand($"mkdir {path}");
-
-            //        //先删除文件夹内现有的所有文件
-            //        await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {path}{string.Format(_testFileName, "_*")}");
-
-            //        //为该Slave测试机下的每个Slave上传文件
-
-            //        try
-            //        {
-
-            //            await item.Host.SSHEndpoint.UploadFile(
-            //                async (service) =>
-            //                {
-            //                    var index = 0;
-            //                    for (index = 0; index <= item.Count - 1; index++)
-            //                    {
-            //                        using (var textStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(strCode)))
-            //                        {
-            //                            await service.Upload(textStream, $"{path}{string.Format(_testFileName, $"_{index.ToString()}")}");
-            //                            textStream.Close();
-            //                        }
-            //                    }
-            //                }
-            //              );
-
-            //        }
-            //        catch(UtilityException ex)
-            //        {
-            //            if (ex.Code==(int)CommandLineErrorCodes.SSHOperationTimeout)
-            //            {
-            //                var fragment = new TextFragment()
-            //                {
-            //                    Code = TestPlatformTextCodes.SlaveHostUploadTestFileTimeout,
-            //                    DefaultFormatting = "从测试机{0}上传测试文件超时",
-            //                    ReplaceParameters = new List<object>() { item.SlaveName }
-            //                };
-            //                throw new UtilityException((int)TestPlatformErrorCodes.SlaveHostUploadTestFileTimeout, fragment, 1, 0);
-            //            }
-            //            else
-            //            {
-            //                throw;
-            //            }
-            //        }
-
-            //        lock (lockObj)
-            //        {
-            //            slaveCount += item.Count;
-            //            slaveHostList.Add(item);
-            //        }
-            //    });
-
             var slaveHosts = tCase.GetAllSlaveHosts(cancellationToken);
             StringBuilder sbSlaveHosts = new StringBuilder();
 
@@ -425,39 +351,6 @@ namespace FW.TestPlatform.Main.Entities.TestCaseHandleServices
                }
             };
             await tCase.MasterHost.SSHEndpoint.ExecuteCommandBatch(commands);
-
-            ////执行从属机测试命令
-            //foreach(var item in slaveHostList)
-            //{
-            //    List<Func<string?, Task<string>>> slaveCommands = new List<Func<string?, Task<string>>>()
-            //        {
-            //            async (preResult)=>
-            //            {
-            //                return await Task.FromResult($"rm -rf {path}{string.Format(_testLogFileName, "_slave*")}");
-            //            }
-            //        };
-
-
-            //    //await item.Host.SSHEndpoint.ExecuteCommand($"rm -rf {path}{string.Format(_testLogFileName, "_slave")}", cancellationToken);
-            //    for (var index = 0;index <= item.Count - 1;index++)
-            //    {
-            //        var innerIndex = index;
-            //        slaveCommands.Add(
-            //            async (preResult) =>
-            //            {
-            //                //return await Task.FromResult($"locust -f {path}{string.Format(_testFileName, $"_{index.ToString()}")} --slave --master-host={tCase.MasterHost.Address} --no-web --run-time={  configuration.Duration.ToString()} --logfile={path}{string.Format(_testLogFileName, "_slave")} --clients={configuration.UserCount.ToString()} --hatch-rate={configuration.PerSecondUserCount.ToString()} &");
-            //                //return await Task.FromResult($"locust -f {path}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --logfile {path}{string.Format(_testLogFileName, $"_slave")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {path}{string.Format(_testOutFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
-            //                //return await Task.FromResult($"locust -f {path}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port 5557 > {path}{string.Format(_testLogFileName, $"_slave")} 2>&1 &");
-            //                return await Task.FromResult($"locust -f {path}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host {tCase.MasterHost.Address} --master-port {this.GetPort(configuration).ToString()} > {path}{string.Format(_testLogFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
-            //                //return await Task.FromResult($"locust -f {path}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --logfile {path}{string.Format(_testLogFileName, $"_slave")} --worker --headless --master-host 127.0.0.1 --master-port {configuration.LocustMasterBindPort.ToString()} > {path}{string.Format(_testOutFileName, $"_slave_")}{innerIndex.ToString()} 2>&1 &");
-            //                //return await Task.FromResult($"locust -f {path}{string.Format(_testFileName, $"_{innerIndex.ToString()}")} --worker --headless --master-host 127.0.0.1 --master-port {configuration.LocustMasterBindPort.ToString()} > {path}{string.Format(_testLogFileName, $"_slave")} 2>&1 &");
-            //            }
-            //       );                  
-            //    }
-
-            //    await item.Host.SSHEndpoint.ExecuteCommandBatch(slaveCommands);
-            //}
-
         }
 
         public async Task Stop(TestCase tCase, CancellationToken cancellationToken = default)
