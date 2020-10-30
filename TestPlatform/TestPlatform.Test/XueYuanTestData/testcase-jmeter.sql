@@ -13,7 +13,6 @@ VALUES('c9198a53-137b-11eb-bbfc-00ffb1d16cf9', '822114cf-5277-4667-961f-e231f9e6
 REPLACE INTO tpmain.treeentity
 VALUES('1e6d9aed-1436-11eb-8e14-00ffb1d16cf9', 'XueYuanTestJmeter', 'c9198a53-137b-11eb-bbfc-00ffb1d16cf9', '2', '78b9de7c-2ce4-41ba-89ec-10dfd1bbdff0', now(), now(), '801');
 
-
 UPDATE tpmain.testcase
 SET status = '0'
 where id = 'c9198a53-137b-11eb-bbfc-00ffb1d16cf9';
@@ -35,3 +34,8 @@ where id = 'c9198a53-137b-11eb-bbfc-00ffb1d16cf9';
 
 SELECT * FROM tpmain.testcase
 WHERE id = '8e1accf9-1a3e-466e-b71f-7eb81c9f7065';
+
+update tpmain.testcase
+set testcasehistoryid = '2a6786a2-198e-11eb-a6cd-00ffb1d16cf9'
+where id = 'c9198a53-137b-11eb-bbfc-00ffb1d16cf9';
+

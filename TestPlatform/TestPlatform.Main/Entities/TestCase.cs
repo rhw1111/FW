@@ -708,10 +708,10 @@ namespace FW.TestPlatform.Main.Entities
                 //    };
                 //    throw new UtilityException((int)TestPlatformErrorCodes.TestHostHasRunning, fragment, 1, 0);
                 //}
-                tCase.TestCaseHistoryID = Guid.NewGuid();
-                await _testCaseStore.UpdateHistoryId(tCase.ID, (Guid)tCase.TestCaseHistoryID, cancellationToken);        
+                tCase.TestCaseHistoryID = Guid.NewGuid();     
                 await handleService.Run(tCase, cancellationToken);
-                await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.Running, cancellationToken);
+                await _testCaseStore.UpdateHistoryIdAndStatus(tCase.ID, (Guid)tCase.TestCaseHistoryID, TestCaseStatus.Running, cancellationToken);
+                //await _testCaseStore.UpdateStatus(tCase.ID, TestCaseStatus.Running, cancellationToken);
                 scope.Complete();
             }   
         }
