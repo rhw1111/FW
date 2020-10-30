@@ -150,8 +150,8 @@ export default {
             ResponseSeparator: configuration.ResponseSeparator || '',//结束分隔符
             DataSourceVars: configuration.DataSourceVars || [],//数据源
             LocustMasterBindPort: configuration.LocustMasterBindPort || '',//数据源
-            IsPrintLog: configuration.IsPrintLog == true ? '是' : '否',//是否打印日志
-            SyncType: configuration.SyncType == false ? '异步模式' : '同步模式',//是否同步异步 
+            IsPrintLog: configuration.IsPrintLog,//是否打印日志
+            SyncType: configuration.SyncType,//是否同步异步 
             ConnectInit: configuration.ConnectInit || { VarSettings: [] },//连接初始化
             SendInit: configuration.SendInit.VarSettings ? configuration.SendInit : { VarSettings: [] },//发送初始化
             StopInit: configuration.StopInit.VarSettings ? configuration.StopInit : { VarSettings: [] }//停止初始化
