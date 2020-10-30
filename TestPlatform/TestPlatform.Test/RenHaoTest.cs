@@ -44,6 +44,7 @@ using Renci.SshNet;
 using Renci.SshNet.Common;
 using MSLibrary.Collections;
 using MSLibrary.StreamingDB.InfluxDB;
+using FW.TestPlatform.Main.Entities.DAL;
 
 namespace TestPlatform.Test
 {
@@ -231,6 +232,32 @@ namespace TestPlatform.Test
             {
                 var bytes=await textStream.ReadAll(3);
                 var str=UTF8Encoding.UTF8.GetString(bytes);
+            }
+        }
+        [Test]
+        public async Task TestTransaction()
+        {
+            var id = Guid.Parse("B3F4C86B-B143-4363-B5D5-8240BA5E897C");
+            var historyid = Guid.Parse("B3048EC6-01F2-4B8C-9C54-4823004D62FD");
+            var testCaseStore=DIContainerContainer.Get<ITestCaseStore>();
+            var testDataSourceStore= DIContainerContainer.Get<ITestDataSourceStore>();
+            List<int> source = new List<int>() { 1, 1, 1, 1, 1, 1, 1, 1 ,1,1,1,1,1,1,1,1};
+            for (var index = 1; index <= 10; index++)
+            {
+                await using (DBTransactionScope scope = new DBTransactionScope(System.Transactions.TransactionScopeOption.Required, new System.Transactions.TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
+                {
+
+
+                    await testCaseStore.UpdateHistoryId(id, historyid);
+
+                    await ParallelHelper.ForEach(source, 5, async (i) =>
+                      {
+                          var s=await testDataSourceStore.QueryByName("");
+                      });
+                    //await handleService.Run(tCase, cancellationToken);
+                    //await testCaseStore.UpdateStatus(id, TestCaseStatus.Running);
+                    scope.Complete();
+                }
             }
         }
 

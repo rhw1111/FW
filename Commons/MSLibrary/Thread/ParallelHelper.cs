@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;
+using MSLibrary.Thread.ParallelTaskWrappers;
 
 namespace MSLibrary.Thread
 {
@@ -14,7 +15,7 @@ namespace MSLibrary.Thread
     /// </summary>
     public class ParallelHelper
     {
-
+        public static IList<IParallelTaskWrapper> ParallelTaskWrappers { get; } = new List<IParallelTaskWrapper>() { new ParallelTaskWrapperForDBTransactionScope()};
         private Semaphore _semaphore;
         private int _maxParalle;
 
@@ -24,6 +25,35 @@ namespace MSLibrary.Thread
             _semaphore = new Semaphore(maxParalle, maxParalle);
             _maxParalle = maxParalle;
         }
+
+        private static async Task wrappperRun(Func<Task> action,int index=0)
+        {
+            if (ParallelTaskWrappers.Count==0)
+            {
+                await action();
+                return;
+            }
+
+            var current = ParallelTaskWrappers[index];
+
+            if (index+1<=ParallelTaskWrappers.Count-1)
+            {
+                var next = ParallelTaskWrappers[index+1];
+                await current.Execute(async () =>
+                {
+                    await wrappperRun(action, index + 1);
+                });
+            }
+            else
+            {
+                await current.Execute(async () =>
+                {
+                    await action();
+                });
+            }
+            
+        }
+
         /// <summary>
         /// 执行
         /// </summary>
@@ -52,20 +82,26 @@ namespace MSLibrary.Thread
                 taskList.Remove(taskItem);
             }
 
-            var t = Task.Run(() =>
+            var t = Task.Run(async () =>
             {
-                try
+                await wrappperRun(async () =>
                 {
-                    callBack();
-                }
-                catch (Exception ex)
-                {
-                    errorHandler(ex);
-                }
-                finally
-                {
-                    _semaphore.Release();
-                }
+                    try
+                    {
+                        callBack();
+                    }
+                    catch (Exception ex)
+                    {
+                        errorHandler(ex);
+                    }
+                    finally
+                    {
+                        _semaphore.Release();
+                    }
+
+                    await Task.CompletedTask;
+                });
+
             });
 
             taskList.Add(t);
@@ -103,18 +139,21 @@ namespace MSLibrary.Thread
 
             var t = Task.Run(async () =>
             {
-                try
+                await wrappperRun(async () =>
                 {
-                    await callBack().ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    await errorHandler(ex).ConfigureAwait(false);
-                }
-                finally
-                {
-                    _semaphore.Release();
-                }
+                    try
+                    {
+                        await callBack().ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        await errorHandler(ex).ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        _semaphore.Release();
+                    }
+                });
             });
 
             taskList.Add(t);
@@ -157,7 +196,11 @@ namespace MSLibrary.Thread
                 currentContainer.Use = true;
                 var t = Task.Run(async () =>
                 {
-                    await RunAsyncInnerAction(containerList, currentContainer);
+                    await wrappperRun(async () =>
+                    {
+                        await RunAsyncInnerAction(containerList, currentContainer);
+                    });
+                    
                 });
 
                 result.Add(t);
@@ -313,31 +356,36 @@ namespace MSLibrary.Thread
                 taskList.Remove(taskItem);
             }
 
-            var t = Task.Run(() =>
+            var t = Task.Run(async() =>
             {
-                while (true)
+                await wrappperRun(async () =>
                 {
-                    try
+                    while (true)
                     {
-                        _semaphore.WaitOne();
-
-                        var result = callBack();
-
-                        if (!result)
+                        try
                         {
+                            _semaphore.WaitOne();
+
+                            var result = callBack();
+
+                            if (!result)
+                            {
+                                break;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            errorHandler(ex);
                             break;
                         }
+                        finally
+                        {
+                            _semaphore.Release();
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        errorHandler(ex);
-                        break;
-                    }
-                    finally
-                    {
-                        _semaphore.Release();
-                    }
-                }
+                    await Task.CompletedTask;
+                });
+
             });
 
             taskList.Add(t);
@@ -369,29 +417,34 @@ namespace MSLibrary.Thread
 
             var t = Task.Run(async () =>
             {
-                while (true)
+                await wrappperRun(async () =>
                 {
-                    try
+                    while (true)
                     {
-                        _semaphore.WaitOne();
-
-                        var result = await callBack().ConfigureAwait(false);
-
-                        if (!result)
+                        try
                         {
+                            _semaphore.WaitOne();
+
+                            var result = await callBack().ConfigureAwait(false);
+
+                            if (!result)
+                            {
+                                break;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            await errorHandler(ex).ConfigureAwait(false);
                             break;
                         }
+                        finally
+                        {
+                            _semaphore.Release();
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        await errorHandler(ex).ConfigureAwait(false);
-                        break;
-                    }
-                    finally
-                    {
-                        _semaphore.Release();
-                    }
-                }
+                });
+             
+
             });
 
             taskList.Add(t);
@@ -411,31 +464,35 @@ namespace MSLibrary.Thread
                     tasks.Add(
                         Task.Run(async () =>
                         {
-                            ///每个任务完成当前数据源项后，再从数据源获取下一个项
-                            ///充分利用资源，不会因为任务项执行时间的长短不同发生等待
-                            while (true)
+                            await wrappperRun(async () =>
                             {
-                                T data = default(T);
-                                //使用信号量控制数据源移动
-                                await _lock.WaitAsync();
-                                try
+                                ///每个任务完成当前数据源项后，再从数据源获取下一个项
+                                ///充分利用资源，不会因为任务项执行时间的长短不同发生等待
+                                while (true)
                                 {
-                                    if (sourceEnumerator.MoveNext())
+                                    T data = default(T);
+                                    //使用信号量控制数据源移动
+                                    await _lock.WaitAsync();
+                                    try
                                     {
-                                        data = sourceEnumerator.Current;
+                                        if (sourceEnumerator.MoveNext())
+                                        {
+                                            data = sourceEnumerator.Current;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
                                     }
-                                    else
+                                    finally
                                     {
-                                        break;
+                                        _lock.Release();
                                     }
-                                }
-                                finally
-                                {
-                                    _lock.Release();
-                                }
 
-                                await body(data);
-                            }
+                                    await body(data);
+                                }
+                            });
+
                         })
                         );
 
@@ -470,28 +527,32 @@ namespace MSLibrary.Thread
                     tasks.Add(
                         Task.Run(async () =>
                         {
-                            while (true)
+                            await wrappperRun(async () =>
                             {
-                                T data = default(T);
-                                await _lock.WaitAsync();
-                                try
+                                while (true)
                                 {
-                                    if (await sourceEnumerator.MoveNextAsync())
+                                    T data = default(T);
+                                    await _lock.WaitAsync();
+                                    try
                                     {
-                                        data = sourceEnumerator.Current;
+                                        if (await sourceEnumerator.MoveNextAsync())
+                                        {
+                                            data = sourceEnumerator.Current;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
                                     }
-                                    else
+                                    finally
                                     {
-                                        break;
+                                        _lock.Release();
                                     }
-                                }
-                                finally
-                                {
-                                    _lock.Release();
-                                }
 
-                                await body(data);
-                            }
+                                    await body(data);
+                                }
+                            });
+
                         })
                         );
 
@@ -527,19 +588,23 @@ namespace MSLibrary.Thread
             {
                 Task newTask = Task.Run(async () =>
                   {
-                      int actionIndex;
-                      while (true)
+                      await wrappperRun(async () =>
                       {
-                          lock (lockObj)
+                          int actionIndex;
+                          while (true)
                           {
-                              actionIndex = num;
-                              num++;
+                              lock (lockObj)
+                              {
+                                  actionIndex = num;
+                                  num++;
+                              }
+                              if (!await action(actionIndex))
+                              {
+                                  break;
+                              }
                           }
-                          if (!await action(actionIndex))
-                          {
-                              break;
-                          }
-                      }
+                      });
+
                   });
                 taskList.Add(newTask);
             }
@@ -619,87 +684,91 @@ namespace MSLibrary.Thread
                    Task task = null;
                    task = new Task(async()=>
                    {
-                       IEnumerator<T> tempSourceEnumerator = null;
-                       try
+                       await wrappperRun(async () =>
                        {
-
-                           T item;
-                           bool itemResult;
-                           while (true)
+                           IEnumerator<T> tempSourceEnumerator = null;
+                           try
                            {
-                               tempSourceEnumerator = sourceEnumerator;
 
-                               (item, itemResult) = getNextSourceItem();
-                               if (itemResult)
+                               T item;
+                               bool itemResult;
+                               while (true)
                                {
-                                   await action(item);
-                               }
-                               else
-                               {
-                                   if (!getSourceResult)
-                                   {
-                                       break;
-                                   }
+                                   tempSourceEnumerator = sourceEnumerator;
 
-                                   bool canDo = false;
-                                   if (!getSourceBit)
+                                   (item, itemResult) = getNextSourceItem();
+                                   if (itemResult)
                                    {
-                                       lock (lockGetSource)
-                                       {
-                                           if (!getSourceBit)
-                                           {
-                                               sourceIndex++;
-                                               getSourceBit = true;
-                                               canDo = true;
-                                           }
-                                       }
-                                   }
-
-                                   if (canDo)
-                                   {
-                                       if (tempSourceEnumerator == sourceEnumerator)
-                                       {
-                                           try
-                                           {
-                                               await getNextSourceEnumerator(sourceIndex);
-                                           }
-                                           finally
-                                           {
-                                               getSourceBit = false;
-                                           }
-
-                                           refreashAction();
-                                       }
+                                       await action(item);
                                    }
                                    else
                                    {
-                                       break;
-                                   }
+                                       if (!getSourceResult)
+                                       {
+                                           break;
+                                       }
 
+                                       bool canDo = false;
+                                       if (!getSourceBit)
+                                       {
+                                           lock (lockGetSource)
+                                           {
+                                               if (!getSourceBit)
+                                               {
+                                                   sourceIndex++;
+                                                   getSourceBit = true;
+                                                   canDo = true;
+                                               }
+                                           }
+                                       }
+
+                                       if (canDo)
+                                       {
+                                           if (tempSourceEnumerator == sourceEnumerator)
+                                           {
+                                               try
+                                               {
+                                                   await getNextSourceEnumerator(sourceIndex);
+                                               }
+                                               finally
+                                               {
+                                                   getSourceBit = false;
+                                               }
+
+                                               refreashAction();
+                                           }
+                                       }
+                                       else
+                                       {
+                                           break;
+                                       }
+
+                                   }
                                }
                            }
-                       }
-                       catch(Exception ex)
-                       {
-                           exception = ex;
-                       }
-                       finally
-                       {
-                           lock(currentTasks)
+                           catch (Exception ex)
                            {
-                               currentTasks.Remove(task);
+                               exception = ex;
                            }
+                           finally
+                           {
+                               lock (currentTasks)
+                               {
+                                   currentTasks.Remove(task);
+                               }
 
-                           lock (lockParallel)
-                           {
-                               currentParallel--;
-                           }
+                               lock (lockParallel)
+                               {
+                                   currentParallel--;
+                               }
 
-                           if (tempSourceEnumerator != sourceEnumerator)
-                           {
-                               refreashAction();
+                               if (tempSourceEnumerator != sourceEnumerator)
+                               {
+                                   refreashAction();
+                               }
                            }
-                       }
+                       });
+
 
                    });
 
@@ -785,5 +854,10 @@ namespace MSLibrary.Thread
         public Func<Task<bool>> Action { get; set; }
 
         public Func<Exception, Task<bool>> ErrorHandler { get; set; }
+    }
+
+    public interface IParallelTaskWrapper
+    {
+        Task Execute(Func<Task> action);
     }
 }
