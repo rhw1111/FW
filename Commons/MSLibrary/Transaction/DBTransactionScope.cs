@@ -142,6 +142,7 @@ namespace MSLibrary.Transaction
         private Dictionary<string, DBConnectionContainer> _preConnections;
 
         private TransactionInfo _preTransactionInfo;
+        private bool _preInTransaction = false;
 
 
 
@@ -158,7 +159,55 @@ namespace MSLibrary.Transaction
         private Action _rollbackAction;
 
         public DBTransactionScope(TransactionScopeOption scopeOption, TransactionOptions transactionOptions, Action rollbackAction = null)
+            : this(scopeOption, transactionOptions, false, rollbackAction)
         {
+            /*if (_transactionScope.Value != null)
+            {
+                _preTransactionScope = _transactionScope.Value.Value;
+                _transactionScope.Value.Value = this;
+            }
+            else
+            {
+                _transactionScope.Value = new WrapperObject<DBTransactionScope>(this);
+            }
+
+            _rollbackAction = rollbackAction;
+
+            if (_connections.Value != null)
+            {
+                _preConnections = _connections.Value.Value;
+            }
+
+
+            if (_transactionInfo.Value != null)
+            {
+                _preTransactionInfo = _transactionInfo.Value.Value;
+                _transactionInfo.Value.Value = new TransactionInfo() { ID = Guid.NewGuid(), ScopeOption = scopeOption, TransactionOptions = transactionOptions };
+            }
+            else
+            {
+                _transactionInfo.Value = new WrapperObject<TransactionInfo>(new TransactionInfo() { ID = Guid.NewGuid(), ScopeOption = scopeOption, TransactionOptions = transactionOptions });
+            }
+
+            _id = _transactionInfo.Value.Value.ID;
+            _scopeOption = _transactionInfo.Value.Value.ScopeOption;
+            _transactionOptions = _transactionInfo.Value.Value.TransactionOptions;
+
+
+            initInTransactionInfo(transactionOptions);
+
+            initScope(scopeOption);*/
+        }
+
+        public DBTransactionScope(TransactionScopeOption scopeOption, TransactionOptions transactionOptions,bool isNewScope, Action rollbackAction = null)
+        {
+            if (isNewScope)
+            {
+                _inTransaction.Value = null;
+                _connections.Value = null;
+                _transactionInfo.Value = null;
+                _transactionScope.Value = null;
+            }
 
             if (_transactionScope.Value != null)
             {
@@ -197,6 +246,8 @@ namespace MSLibrary.Transaction
 
             initScope(scopeOption);
         }
+
+
 
         /// <summary>
         /// 获取当前连接集合
@@ -379,10 +430,11 @@ namespace MSLibrary.Transaction
                     }
                 }
 
-                if (_needClearTransactionScope)
+                /*if (_needClearTransactionScope)
                 {
                     _inTransaction.Value.Value= false;
-                }
+                }*/
+                _inTransaction.Value.Value = _preInTransaction;
 
 
                 if (_connections.Value != null && _connections.Value.Value != null)
@@ -476,10 +528,11 @@ namespace MSLibrary.Transaction
                     }
                 }
 
-                if (_needClearTransactionScope)
+                /*if (_needClearTransactionScope)
                 {
                     _inTransaction.Value.Value = false;
-                }
+                }*/
+                _inTransaction.Value.Value = _preInTransaction;
 
 
                 if (_connections.Value != null && _connections.Value.Value != null)
@@ -627,6 +680,20 @@ namespace MSLibrary.Transaction
 
         private void initScope(TransactionScopeOption scopeOption)
         {
+            if (_inTransaction.Value != null)
+            {
+                _preInTransaction = _inTransaction.Value.Value;
+            }
+
+            if (_inTransaction.Value != null)
+            {
+                _inTransaction.Value.Value = true;
+            }
+            else
+            {
+                _inTransaction.Value = new WrapperObject<bool>(true);
+            }
+
             //如果是范围是新事务或者忽略，则_needClose=true
             if (scopeOption == TransactionScopeOption.RequiresNew || scopeOption == TransactionScopeOption.Suppress)
             {
@@ -673,7 +740,7 @@ namespace MSLibrary.Transaction
                 }
             }
 
-            if (_inTransaction.Value == null || !_inTransaction.Value.Value)
+            /*if (_inTransaction.Value == null || !_inTransaction.Value.Value)
             {
                 _needClearTransactionScope = true;
             }
@@ -685,7 +752,7 @@ namespace MSLibrary.Transaction
             else
             {
                 _inTransaction.Value = new WrapperObject<bool>(true);
-            }
+            }*/
         }
     }
 

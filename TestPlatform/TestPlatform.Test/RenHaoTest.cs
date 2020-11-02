@@ -254,6 +254,8 @@ namespace TestPlatform.Test
                       {
                           var s=await testDataSourceStore.QueryByName("");
                       });
+
+                    await testCaseStore.UpdateHistoryId(id, historyid);
                     //await handleService.Run(tCase, cancellationToken);
                     //await testCaseStore.UpdateStatus(id, TestCaseStatus.Running);
                     scope.Complete();
