@@ -40,7 +40,7 @@ namespace MSLibrary.AspNet.AuthorizationPolicyProviders
                 }
 
 
-                if (!value.IsAssignableFrom(typeof(IHttpContextPolicyResolveService)))
+                if (!typeof(IHttpContextPolicyResolveService).IsAssignableFrom(value))
                 {
                     var fragment = new TextFragment()
                     {
@@ -58,6 +58,6 @@ namespace MSLibrary.AspNet.AuthorizationPolicyProviders
 
     public interface IHttpContextPolicyResolveService
     {
-        Task<AuthorizationPolicy> Execute(HttpContext context);
+        Task<AuthorizationPolicy> Execute(HttpContext context, IAuthorizationPolicyProvider provider);
     }
 }

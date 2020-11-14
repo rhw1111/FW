@@ -117,7 +117,7 @@ namespace IdentityCenter.Main.IdentityServer.DAL
                         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
                     }
                     tokens = await (from item in dbContext.IdentityRefreshTokens
-                                   where item.SubjectId == subjecId && item.ClientId== clientId
+                                   //where item.AccessToken.SubjectId == subjecId && item.ClientId== clientId
                                     select item).Take(top).ToListAsync(cancellationToken);
 
                 }

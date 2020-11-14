@@ -178,6 +178,7 @@ namespace IdentityCenter.Server
 
             app.UseRouting();
 
+           
 
             app.UseEndpoints(endpoints =>
             {

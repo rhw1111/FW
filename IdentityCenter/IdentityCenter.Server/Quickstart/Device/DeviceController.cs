@@ -78,7 +78,7 @@ namespace IdentityServer4.Quickstart.UI.Device
         {
             var result = new ProcessConsentResult();
 
-            var request = await _interaction.GetAuthorizationContextAsync(model.UserCode);
+           /* var request = await _interaction.GetAuthorizationContextAsync(model.UserCode);
             if (request == null) return result;
 
             ConsentResponse grantedConsent = null;
@@ -135,14 +135,14 @@ namespace IdentityServer4.Quickstart.UI.Device
             {
                 // we need to redisplay the consent UI
                 result.ViewModel = await BuildViewModelAsync(model.UserCode, model);
-            }
+            }*/
 
             return result;
         }
 
         private async Task<DeviceAuthorizationViewModel> BuildViewModelAsync(string userCode, DeviceAuthorizationInputModel model = null)
         {
-            var request = await _interaction.GetAuthorizationContextAsync(userCode);
+           /* var request = await _interaction.GetAuthorizationContextAsync(userCode);
             if (request != null)
             {
                 var client = await _clientStore.FindEnabledClientByIdAsync(request.ClientId);
@@ -162,7 +162,7 @@ namespace IdentityServer4.Quickstart.UI.Device
                 {
                     _logger.LogError("Invalid client id: {0}", request.ClientId);
                 }
-            }
+            }*/
 
             return null;
         }
@@ -182,7 +182,7 @@ namespace IdentityServer4.Quickstart.UI.Device
                 AllowRememberConsent = client.AllowRememberConsent
             };
 
-            vm.IdentityScopes = resources.IdentityResources.Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
+            /*vm.IdentityScopes = resources.IdentityResources.Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
             vm.ResourceScopes = resources.ApiResources.SelectMany(x => x.Scopes).Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
             if (ConsentOptions.EnableOfflineAccess && resources.OfflineAccess)
             {
@@ -191,7 +191,7 @@ namespace IdentityServer4.Quickstart.UI.Device
                     GetOfflineAccessScope(vm.ScopesConsented.Contains(IdentityServer4.IdentityServerConstants.StandardScopes.OfflineAccess) || model == null)
                 });
             }
-
+            */
             return vm;
         }
 
@@ -208,7 +208,7 @@ namespace IdentityServer4.Quickstart.UI.Device
             };
         }
 
-        public ScopeViewModel CreateScopeViewModel(Scope scope, bool check)
+        /*public ScopeViewModel CreateScopeViewModel(Scope scope, bool check)
         {
             return new ScopeViewModel
             {
@@ -219,7 +219,7 @@ namespace IdentityServer4.Quickstart.UI.Device
                 Required = scope.Required,
                 Checked = check || scope.Required
             };
-        }
+        }*/
         private ScopeViewModel GetOfflineAccessScope(bool check)
         {
             return new ScopeViewModel

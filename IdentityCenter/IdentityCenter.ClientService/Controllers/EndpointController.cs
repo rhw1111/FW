@@ -46,6 +46,7 @@ namespace IdentityCenter.ClientService.Controllers
         /// <returns></returns>
         [HttpPost("openidrefreshtoken")]
         [AllowAnonymous]
+
         public async Task<NewTokenModel> OpenIDRefreshToken(string binding)
         {
        
@@ -77,6 +78,7 @@ namespace IdentityCenter.ClientService.Controllers
         /// <returns></returns>
         [HttpPost("openidlogout")]
         [AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> OpenIDLogout(LogoutViewModel vm)
         {
             AuthenticationProperties properties = new AuthenticationProperties();

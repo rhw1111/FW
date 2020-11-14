@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -18,12 +19,13 @@ namespace IdentityCenter.Main.AspNet.AuthorizationPolicyProviders.HttpContextPol
     /// 依次从querystring检查binding、formdata检查state、querysting检查state
     /// 这些对应IdentityClientOpenIDBinding的名称，将该名称作为策略中的验证Scheme
     /// </summary>
+    [Injection(InterfaceType = typeof(HttpContextPolicyResolveServiceForOpenID), Scope = InjectionScope.Singleton)]
     public class HttpContextPolicyResolveServiceForOpenID : IHttpContextPolicyResolveService
     {
         private const string  _binding= "binding";
         private const string _state = "state";
 
-        public async Task<AuthorizationPolicy> Execute(HttpContext context)
+        public async Task<AuthorizationPolicy> Execute(HttpContext context, IAuthorizationPolicyProvider provider)
         {
             bool exist = false;
             string binding=string.Empty;
@@ -62,9 +64,18 @@ namespace IdentityCenter.Main.AspNet.AuthorizationPolicyProviders.HttpContextPol
 
                 throw new UtilityException((int)IdentityCenterErrorCodes.NotFoundOpenIDBindingNameInHttpContext, fragment, 1, 0);
             }
+          
 
-            var policy = new AuthorizationPolicyBuilder(binding);
-            return await Task.FromResult(policy.Build());
+            //var endpoint = context.GetEndpoint();
+            //var authorizeDatas = endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>();
+            //var policyData = from item in authorizeDatas
+            //                 where item.Policy == binding
+            //                 select item;
+
+            
+            var policy= await AuthorizationPolicy.CombineAsync(provider, new[] { new AuthorizeAttribute(binding) });
+           
+            return await Task.FromResult(policy);
         }
     }
 }

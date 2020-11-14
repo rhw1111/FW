@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 using IdentityServer4;
 using IdentityServer4.Configuration;
 using IdentityServer4.Services;
@@ -32,6 +33,7 @@ using MSLibrary.AspNet.Filter;
 using MSLibrary.AspNet.Middleware;
 using MSLibrary.DI;
 using MSLibrary.AspNet.AuthenticationHandlers;
+using MSLibrary.AspNet.AuthorizationPolicyProviders;
 using MSLibrary.Configuration;
 
 using IdentityCenter.Main;
@@ -60,6 +62,7 @@ namespace IdentityCenter.ClientService
                 var (hostInfo, bindingInfos) = await appGetAllIdentityClientBindings.Do();
 
                 services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+                services.AddSingleton<IAuthorizationPolicyProvider, HttpContextAuthorizePolicyProvider>();
                 services.AddCors(options =>
                 {
                     options.AddPolicy("default", policy =>
@@ -109,9 +112,9 @@ namespace IdentityCenter.ClientService
 
             task.Wait();
 
+            
 
-
-            /*services.AddAuthentication("default")
+            services.AddAuthentication("default")
                 .AddIdentityServerAuthentication("default", options =>
                  {
                      options.RequireHttpsMetadata = false;
@@ -123,12 +126,24 @@ namespace IdentityCenter.ClientService
                            var aa = context;
                        };
                  })
+                .AddJwtBearer("Dynamic365OfApp",(options)=>
+                {
+                    //options.RequireHttpsMetadata = false;
+                    options.MetadataAddress = "";
+                    options.TokenValidationParameters=
+                     new TokenValidationParameters
+                    {
+                        ValidIssuer = "https://sts.windows.net/9d68206b-fb7e-4ad8-9d8a-afb72691d876/",
+                        ValidAudience = "https://osgreatwall-dev.crm5.dynamics.com",
+                    };
+
+                })
                 .AddOpenIdConnect("openid", (options) =>
                  {
 
                      options.Authority = "http://localhost:5000";
                      options.RequireHttpsMetadata = false;
-                 
+                     
                      options.ClientId = "openid";
                      options.Events.OnRedirectToIdentityProvider = async (context) =>
                        {
@@ -145,7 +160,7 @@ namespace IdentityCenter.ClientService
 
                    
                  })
-                ;*/
+                ;
             
         }
 

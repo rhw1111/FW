@@ -39,7 +39,7 @@ namespace MSLibrary.AspNet.AuthorizationPolicyProviders
             {
                 var httpContext = _httpContextAccessor.HttpContext;
                 var service=(IHttpContextPolicyResolveService)DIContainerContainer.Get(Type.GetType(policyName.Substring(_prefix.Length)));
-                return await service.Execute(httpContext);
+                return await service.Execute(httpContext,_defaultProvider);
             }
             else
             {
